@@ -4,6 +4,7 @@ import monthsIndex from '@/data/months-index.json';
 import november2025 from '@/data/november-2025.json';
 import december2025 from '@/data/december-2025.json';
 import january2026 from '@/data/january-2026.json';
+import february2026 from '@/data/february-2026.json';
 
 export interface ScheduleItem {
   time: string;
@@ -105,8 +106,7 @@ const monthDataMap: Record<string, MonthData> = {
   'november-2025': november2025 as MonthData,
   'december-2025': december2025 as MonthData,
   'january-2026': january2026 as MonthData,
-  // Add more months here as they are created:
-  // 'february-2026': february2026 as MonthData,
+  'february-2026': february2026 as MonthData,
 };
 
 export function getAvailableMonths(): MonthInfo[] {
