@@ -1,0 +1,390 @@
+{
+    "month": "February",
+    "year": 2026,
+    "class": "PP3",
+    "school": "BGS National Public School",
+    "weeks": [
+        {
+            "weekStart": "2026-02-02",
+            "weekEnd": "2026-02-08",
+            "dictationWords": [],
+            "days": [
+                {
+                    "date": "2026-02-02",
+                    "dayOfWeek": "Monday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-03",
+                    "dayOfWeek": "Tuesday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-04",
+                    "dayOfWeek": "Wednesday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-05",
+                    "dayOfWeek": "Thursday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-06",
+                    "dayOfWeek": "Friday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-07",
+                    "dayOfWeek": "Saturday",
+                    "isHoliday": true,
+                    "holidayName": "Weekend",
+                    "schedule": []
+                },
+                {
+                    "date": "2026-02-08",
+                    "dayOfWeek": "Sunday",
+                    "isHoliday": true,
+                    "holidayName": "Weekend",
+                    "schedule": []
+                }
+            ]
+        },
+        {
+            "weekStart": "2026-02-09",
+            "weekEnd": "2026-02-15",
+            "dictationWords": [],
+            "days": [
+                {
+                    "date": "2026-02-09",
+                    "dayOfWeek": "Monday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-10",
+                    "dayOfWeek": "Tuesday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-11",
+                    "dayOfWeek": "Wednesday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-12",
+                    "dayOfWeek": "Thursday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-13",
+                    "dayOfWeek": "Friday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-14",
+                    "dayOfWeek": "Saturday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Grandparent's Day",
+                            "activity": "Special day to celebrate grandparents"
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-15",
+                    "dayOfWeek": "Sunday",
+                    "isHoliday": true,
+                    "holidayName": "Weekend",
+                    "schedule": []
+                }
+            ]
+        },
+        {
+            "weekStart": "2026-02-16",
+            "weekEnd": "2026-02-22",
+            "dictationWords": [],
+            "days": [
+                {
+                    "date": "2026-02-16",
+                    "dayOfWeek": "Monday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-17",
+                    "dayOfWeek": "Tuesday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-18",
+                    "dayOfWeek": "Wednesday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-19",
+                    "dayOfWeek": "Thursday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-20",
+                    "dayOfWeek": "Friday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-21",
+                    "dayOfWeek": "Saturday",
+                    "isHoliday": true,
+                    "holidayName": "Weekend",
+                    "schedule": []
+                },
+                {
+                    "date": "2026-02-22",
+                    "dayOfWeek": "Sunday",
+                    "isHoliday": true,
+                    "holidayName": "Weekend",
+                    "schedule": []
+                }
+            ]
+        },
+        {
+            "weekStart": "2026-02-23",
+            "weekEnd": "2026-02-28",
+            "dictationWords": [],
+            "days": [
+                {
+                    "date": "2026-02-23",
+                    "dayOfWeek": "Monday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-24",
+                    "dayOfWeek": "Tuesday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-25",
+                    "dayOfWeek": "Wednesday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-26",
+                    "dayOfWeek": "Thursday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-27",
+                    "dayOfWeek": "Friday",
+                    "isHoliday": false,
+                    "schedule": [
+                        {
+                            "time": "All Day",
+                            "subject": "Waiting for Newsletter",
+                            "activity": "The newsletter details for this day are pending update."
+                        }
+                    ]
+                },
+                {
+                    "date": "2026-02-28",
+                    "dayOfWeek": "Saturday",
+                    "isHoliday": true,
+                    "holidayName": "Weekend",
+                    "schedule": []
+                }
+            ]
+        }
+    ],
+    "rhymes": [
+        {
+            "title": "Waiting for Update",
+            "content": "Rhymes for this month will be updated soon."
+        }
+    ],
+    "shloka": {
+        "sanskrit": "Waiting for Update",
+        "transliteration": "Waiting for Update",
+        "meaning": "Shloka for this month will be updated soon."
+    },
+    "story": {
+        "title": "Waiting for Update",
+        "content": "Story for this month will be updated soon.",
+        "moral": ""
+    },
+    "importantDates": [
+        {
+            "date": "2026-02-14",
+            "event": "Grandparent's Day",
+            "type": "event",
+            "description": "Special day to celebrate grandparents"
+        },
+        {
+            "date": "2026-03-13",
+            "event": "Graduation Day for PP3",
+            "type": "event",
+            "description": "Graduation ceremony for Pre-Primary 3 students"
+        },
+        {
+            "date": "2026-03-18",
+            "event": "Last Parent Teacher Interaction",
+            "type": "event",
+            "description": "Final PTI for Academic year 2025-26"
+        },
+        {
+            "date": "2026-03-23",
+            "event": "Bridge Course Begins",
+            "type": "activity",
+            "description": "Bridge Course for PP3 to Grade 1 (23-25 March)"
+        },
+        {
+            "date": "2026-04-09",
+            "event": "Summer Camp Begins",
+            "type": "activity",
+            "description": "Summer Camp for PP3 to Grade 1 (9-11 April)"
+        },
+        {
+            "date": "2026-05-21",
+            "event": "School Reopens (PP3 to Grade 1)",
+            "type": "event",
+            "description": "New academic year begins for students moving to Grade 1"
+        },
+        {
+            "date": "2026-05-25",
+            "event": "School Reopens (PP1 & PP2)",
+            "type": "event",
+            "description": "New academic year begins for PP1 to PP2 and PP2 to PP3"
+        }
+    ]
+}
