@@ -16,7 +16,7 @@ function RhymesContent() {
     transliteration: string;
     meaning: string;
   } | null>(null);
-  const [story, setStory] = useState<{ title: string; content?: string; moral: string } | null>(null);
+  const [story, setStory] = useState<{ title: string; content?: string; moral: string; image?: string } | null>(null);
   const [monthInfo, setMonthInfo] = useState<{ month: string; year: number } | null>(null);
   const [availableMonths, setAvailableMonths] = useState<MonthInfo[]>([]);
 
@@ -150,13 +150,26 @@ function RhymesContent() {
         </div>
       </div>
 
+
+
       {/* Story */}
       {story && (
         <div id="story-section" className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 p-6 scroll-mt-20">
           <h2 className="text-lg font-semibold text-indigo-800 mb-3 flex items-center gap-2">
             <span>📖</span> Story of the Month
           </h2>
-          <p className="text-xl font-medium text-indigo-900 mb-2">{story.title}</p>
+          <p className="text-xl font-medium text-indigo-900 mb-4">{story.title}</p>
+
+          {story.image && (
+            <div className="mb-6 rounded-lg overflow-hidden shadow-md">
+              <img
+                src={story.image}
+                alt={story.title}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          )}
+
           {story.content && (
             <div className="text-indigo-900/80 whitespace-pre-line font-sans text-sm leading-7 mb-4 pl-1">
               {story.content}
