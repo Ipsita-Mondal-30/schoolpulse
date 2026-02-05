@@ -1176,6 +1176,11 @@
                             "time": "12:30-12:50",
                             "subject": "Art & Craft",
                             "activity": "Pg no. 38"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ],
                     "aiSuggestedRecap": {
@@ -1267,6 +1272,11 @@
                             "activity": "Activity kit: Blends"
                         },
                         {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Number Names Revision"
@@ -1280,6 +1290,16 @@
                             "time": "12:00-12:30",
                             "subject": "Hindi",
                             "activity": "Revision"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Literacy",
+                            "activity": "Dictation: s-blends"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ],
                     "aiSuggestedRecap": {
@@ -1316,6 +1336,16 @@
                             "activity": "Activity kit: Simple sentence formation / Blends"
                         },
                         {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "Activity kit: Blends"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Addition Revision"
@@ -1329,6 +1359,16 @@
                             "time": "12:00-12:30",
                             "subject": "Kannada",
                             "activity": "Fruits (Oral)"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Art & Craft",
+                            "activity": "Pg no. 43"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ],
                     "aiSuggestedRecap": {
@@ -1365,6 +1405,16 @@
                             "activity": "Activity kit: Simple sentence formation / Blends"
                         },
                         {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "Activity kit: Blends"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Subtraction Revision"
@@ -1378,6 +1428,16 @@
                             "time": "12:00-12:30",
                             "subject": "Hindi",
                             "activity": "Revision"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Numeracy",
+                            "activity": "Dictation: Numbers 1-100"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ],
                     "aiSuggestedRecap": {
@@ -1414,6 +1474,16 @@
                             "activity": "Activity kit: Simple sentence formation / Blends"
                         },
                         {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "Activity kit: Blends"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Ascending Order Revision"
@@ -1427,6 +1497,16 @@
                             "time": "12:00-12:30",
                             "subject": "Kannada",
                             "activity": "Flowers (Oral)"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Art & Craft",
+                            "activity": "Pg no. 43"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ],
                     "aiSuggestedRecap": {
@@ -1453,14 +1533,19 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "9:10-9:30",
-                            "subject": "Prayer/Rhymes & Circle Time",
-                            "activity": ""
+                            "time": "9:10-10:00",
+                            "subject": "General Assembly",
+                            "activity": "National Science Day"
                         },
                         {
-                            "time": "9:30-10:00",
+                            "time": "10:00-10:30",
                             "subject": "Literacy",
                             "activity": "Activity kit: Blends / Dictation on 's' blends"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
                         },
                         {
                             "time": "11:00-11:30",
@@ -1481,6 +1566,11 @@
                             "time": "12:30-12:50",
                             "subject": "Numeracy",
                             "activity": "Dictation: Number names 1-100"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ],
                     "aiSuggestedRecap": {
@@ -1589,9 +1679,9 @@
         },
         {
             "date": "2026-02-26",
-            "event": "Working Day",
-            "type": "event",
-            "description": "Working day in lieu of Shivaratri (Sun, 15th Feb)"
+            "event": "Mahashivratri Holiday",
+            "type": "holiday",
+            "description": "School Holiday in lieu of Shivaratri (Sun, 15th Feb)"
         },
         {
             "date": "2026-02-27",
