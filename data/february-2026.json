@@ -59,7 +59,30 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Story Detectives",
+                        "activities": [
+                            {
+                                "subject": "Literacy Quest",
+                                "action": "Read a short story together.",
+                                "question": "Ask: 'Who was the main character?' and 'What happened at the end?'?",
+                                "goal": "Improve reading comprehension skills."
+                            },
+                            {
+                                "subject": "Math Magic",
+                                "action": "Use buttons or toys to practice taking away.",
+                                "question": "If you have 5 toys and take away 2, how many are left?",
+                                "goal": "Visualizing subtraction."
+                            },
+                            {
+                                "subject": "Thoughtful Time",
+                                "action": "Discuss how everyone is special and connected.",
+                                "question": "What is one kind thing you did today?",
+                                "goal": "Moral and spiritual awareness."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-03",
@@ -111,7 +134,30 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Time Travelers",
+                        "activities": [
+                            {
+                                "subject": "Literacy Quest",
+                                "action": "Read a short story together.",
+                                "question": "Ask: 'Who was the main character?' and 'What happened at the end?'?",
+                                "goal": "Improve reading comprehension skills."
+                            },
+                            {
+                                "subject": "Time Keepers",
+                                "action": "Look at an analog clock together.",
+                                "question": "Show me where the hour hand is. What number is it pointing to?",
+                                "goal": "Understanding clock faces."
+                            },
+                            {
+                                "subject": "Kannada Practice",
+                                "action": "Trace the Kannada letters learned today.",
+                                "question": "What is the sound of this letter?",
+                                "goal": "Kannada alphabet recognition."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-04",
@@ -163,7 +209,30 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Daily Adventure",
+                        "activities": [
+                            {
+                                "subject": "Writing Wizardry",
+                                "action": "Practice writing simple sentences about your day.",
+                                "question": "Can you write a sentence with a naming word and an action word?",
+                                "goal": "Sentence construction practice."
+                            },
+                            {
+                                "subject": "Number Ninja",
+                                "action": "Write down random numbers and say their names.",
+                                "question": "What number comes after 59? How do you spell it?",
+                                "goal": "Number recognition and spelling."
+                            },
+                            {
+                                "subject": "Values & Virtues",
+                                "action": "Role-play a situation where you help a friend.",
+                                "question": "Why is it important to be honest/kind?",
+                                "goal": "Building strong character."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-05",
@@ -215,7 +284,30 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Time Travelers",
+                        "activities": [
+                            {
+                                "subject": "Literacy Quest",
+                                "action": "Read a short story together.",
+                                "question": "Ask: 'Who was the main character?' and 'What happened at the end?'?",
+                                "goal": "Improve reading comprehension skills."
+                            },
+                            {
+                                "subject": "Time Keepers",
+                                "action": "Look at an analog clock together.",
+                                "question": "Show me where the hour hand is. What number is it pointing to?",
+                                "goal": "Understanding clock faces."
+                            },
+                            {
+                                "subject": "Values & Virtues",
+                                "action": "Role-play a situation where you help a friend.",
+                                "question": "Why is it important to be honest/kind?",
+                                "goal": "Building strong character."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-06",
@@ -262,14 +354,63 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Time Travelers",
+                        "activities": [
+                            {
+                                "subject": "Phonics Fun",
+                                "action": "Hunt for words in a book that align with today's blend/sound.",
+                                "question": "Can you say three words that have today's special sound?",
+                                "goal": "Reinforce phonic sounds."
+                            },
+                            {
+                                "subject": "Time Keepers",
+                                "action": "Look at an analog clock together.",
+                                "question": "Show me where the hour hand is. What number is it pointing to?",
+                                "goal": "Understanding clock faces."
+                            },
+                            {
+                                "subject": "Values & Virtues",
+                                "action": "Role-play a situation where you help a friend.",
+                                "question": "Why is it important to be honest/kind?",
+                                "goal": "Building strong character."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-07",
                     "dayOfWeek": "Saturday",
                     "isHoliday": true,
                     "holidayName": "Weekend",
-                    "schedule": []
+                    "schedule": [],
+                    "isWeekendRevision": true,
+                    "weekendRevisionContent": {
+                        "weekCovered": "2026-02-02 to 2026-02-08",
+                        "subjects": {
+                            "Literacy": [
+                                "Comprehension Passage",
+                                "Reading Comprehension (A), (B)",
+                                "Phonic Book",
+                                "Dictation",
+                                "Comprehension (A)",
+                                "Comprehension Passage (B)",
+                                "4-line notebook Q&A"
+                            ],
+                            "Numeracy": [
+                                "Subtraction",
+                                "Time Recap",
+                                "Time",
+                                "Dictation"
+                            ],
+                            "General Awareness": [
+                                "Recap",
+                                "God is one",
+                                "Values for Me"
+                            ]
+                        }
+                    }
                 },
                 {
                     "date": "2026-02-08",
@@ -348,7 +489,30 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Daily Adventure",
+                        "activities": [
+                            {
+                                "subject": "Writing Wizardry",
+                                "action": "Practice writing simple sentences about your day.",
+                                "question": "Can you write a sentence with a naming word and an action word?",
+                                "goal": "Sentence construction practice."
+                            },
+                            {
+                                "subject": "Little Shopper",
+                                "action": "Play 'shop' with pretend money or coins.",
+                                "question": "How many coins do you need to buy this toy?",
+                                "goal": "Understanding value of money."
+                            },
+                            {
+                                "subject": "Hindi Handwriting",
+                                "action": "Practice one page of Hindi writing.",
+                                "question": "Can you read the letters you wrote?",
+                                "goal": "Improve Hindi script."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-10",
@@ -400,7 +564,24 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Daily Adventure",
+                        "activities": [
+                            {
+                                "subject": "Writing Wizardry",
+                                "action": "Practice writing simple sentences about your day.",
+                                "question": "Can you write a sentence with a naming word and an action word?",
+                                "goal": "Sentence construction practice."
+                            },
+                            {
+                                "subject": "Little Shopper",
+                                "action": "Play 'shop' with pretend money or coins.",
+                                "question": "How many coins do you need to buy this toy?",
+                                "goal": "Understanding value of money."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-11",
@@ -452,7 +633,30 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Daily Adventure",
+                        "activities": [
+                            {
+                                "subject": "Writing Wizardry",
+                                "action": "Practice writing simple sentences about your day.",
+                                "question": "Can you write a sentence with a naming word and an action word?",
+                                "goal": "Sentence construction practice."
+                            },
+                            {
+                                "subject": "Data Detective",
+                                "action": "Count fruits in the basket and make a simple chart.",
+                                "question": "Which fruit do we have the most of?",
+                                "goal": "Reading simple data."
+                            },
+                            {
+                                "subject": "Hindi Handwriting",
+                                "action": "Practice one page of Hindi writing.",
+                                "question": "Can you read the letters you wrote?",
+                                "goal": "Improve Hindi script."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-12",
@@ -504,7 +708,18 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Daily Adventure",
+                        "activities": [
+                            {
+                                "subject": "Review Time",
+                                "action": "Check the school diary/almanac together.",
+                                "question": "What was the most fun part of school today?",
+                                "goal": "Daily recall and bonding."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-13",
@@ -551,7 +766,30 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Sound Hunters",
+                        "activities": [
+                            {
+                                "subject": "Phonics Fun",
+                                "action": "Hunt for words in a book that align with today's blend/sound.",
+                                "question": "Can you say three words that have today's special sound?",
+                                "goal": "Reinforce phonic sounds."
+                            },
+                            {
+                                "subject": "Shape Shifter",
+                                "action": "Find objects in the house that are solid shapes (sphere like a ball, cube like a box).",
+                                "question": "Is this ball a circle or a sphere?",
+                                "goal": "Identifying 3D shapes."
+                            },
+                            {
+                                "subject": "Season Explorer",
+                                "action": "Look outside and talk about the weather today.",
+                                "question": "What clothes do we wear in summer vs winter?",
+                                "goal": "Understanding seasons."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-14",
@@ -645,7 +883,30 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Story Detectives",
+                        "activities": [
+                            {
+                                "subject": "Literacy Quest",
+                                "action": "Read a short story together.",
+                                "question": "Ask: 'Who was the main character?' and 'What happened at the end?'?",
+                                "goal": "Improve reading comprehension skills."
+                            },
+                            {
+                                "subject": "Animal Planet",
+                                "action": "Act like your favorite animal.",
+                                "question": "Does a lion engage in farm life or wild life?",
+                                "goal": "Animal classification."
+                            },
+                            {
+                                "subject": "Hindi Handwriting",
+                                "action": "Practice one page of Hindi writing.",
+                                "question": "Can you read the letters you wrote?",
+                                "goal": "Improve Hindi script."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-17",
@@ -697,7 +958,24 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Story Detectives",
+                        "activities": [
+                            {
+                                "subject": "Literacy Quest",
+                                "action": "Read a short story together.",
+                                "question": "Ask: 'Who was the main character?' and 'What happened at the end?'?",
+                                "goal": "Improve reading comprehension skills."
+                            },
+                            {
+                                "subject": "Animal Planet",
+                                "action": "Act like your favorite animal.",
+                                "question": "Does a lion engage in farm life or wild life?",
+                                "goal": "Animal classification."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-18",
@@ -749,7 +1027,24 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Story Detectives",
+                        "activities": [
+                            {
+                                "subject": "Literacy Quest",
+                                "action": "Read a short story together.",
+                                "question": "Ask: 'Who was the main character?' and 'What happened at the end?'?",
+                                "goal": "Improve reading comprehension skills."
+                            },
+                            {
+                                "subject": "Green Thumb",
+                                "action": "Look at a plant and name its parts (leaf, stem, flower).",
+                                "question": "What does a plant need to grow?",
+                                "goal": "Understanding plant life."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-19",
@@ -801,7 +1096,30 @@
                             "subject": "Meditation",
                             "activity": ""
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Story Detectives",
+                        "activities": [
+                            {
+                                "subject": "Literacy Quest",
+                                "action": "Read a short story together.",
+                                "question": "Ask: 'Who was the main character?' and 'What happened at the end?'?",
+                                "goal": "Improve reading comprehension skills."
+                            },
+                            {
+                                "subject": "Shape Shifter",
+                                "action": "Find objects in the house that are solid shapes (sphere like a ball, cube like a box).",
+                                "question": "Is this ball a circle or a sphere?",
+                                "goal": "Identifying 3D shapes."
+                            },
+                            {
+                                "subject": "Green Thumb",
+                                "action": "Look at a plant and name its parts (leaf, stem, flower).",
+                                "question": "What does a plant need to grow?",
+                                "goal": "Understanding plant life."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-20",
@@ -843,7 +1161,18 @@
                             "subject": "Art & Craft",
                             "activity": "Pg no. 38"
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Daily Adventure",
+                        "activities": [
+                            {
+                                "subject": "Review Time",
+                                "action": "Check the school diary/almanac together.",
+                                "question": "What was the most fun part of school today?",
+                                "goal": "Daily recall and bonding."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-21",
@@ -917,7 +1246,24 @@
                             "subject": "Hindi",
                             "activity": "Revision"
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Sound Hunters",
+                        "activities": [
+                            {
+                                "subject": "Phonics Fun",
+                                "action": "Hunt for words in a book that align with today's blend/sound.",
+                                "question": "Can you say three words that have today's special sound?",
+                                "goal": "Reinforce phonic sounds."
+                            },
+                            {
+                                "subject": "Review Time",
+                                "action": "Check the school diary/almanac together.",
+                                "question": "What was the most fun part of school today?",
+                                "goal": "Daily recall and bonding."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-24",
@@ -949,7 +1295,24 @@
                             "subject": "Kannada",
                             "activity": "Fruits (Oral)"
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Sound Hunters",
+                        "activities": [
+                            {
+                                "subject": "Phonics Fun",
+                                "action": "Hunt for words in a book that align with today's blend/sound.",
+                                "question": "Can you say three words that have today's special sound?",
+                                "goal": "Reinforce phonic sounds."
+                            },
+                            {
+                                "subject": "Season Explorer",
+                                "action": "Look outside and talk about the weather today.",
+                                "question": "What clothes do we wear in summer vs winter?",
+                                "goal": "Understanding seasons."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-25",
@@ -981,7 +1344,24 @@
                             "subject": "Hindi",
                             "activity": "Revision"
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Sound Hunters",
+                        "activities": [
+                            {
+                                "subject": "Phonics Fun",
+                                "action": "Hunt for words in a book that align with today's blend/sound.",
+                                "question": "Can you say three words that have today's special sound?",
+                                "goal": "Reinforce phonic sounds."
+                            },
+                            {
+                                "subject": "Math Magic",
+                                "action": "Use buttons or toys to practice taking away.",
+                                "question": "If you have 5 toys and take away 2, how many are left?",
+                                "goal": "Visualizing subtraction."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-26",
@@ -1013,7 +1393,24 @@
                             "subject": "Kannada",
                             "activity": "Flowers (Oral)"
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Sound Hunters",
+                        "activities": [
+                            {
+                                "subject": "Phonics Fun",
+                                "action": "Hunt for words in a book that align with today's blend/sound.",
+                                "question": "Can you say three words that have today's special sound?",
+                                "goal": "Reinforce phonic sounds."
+                            },
+                            {
+                                "subject": "Review Time",
+                                "action": "Check the school diary/almanac together.",
+                                "question": "What was the most fun part of school today?",
+                                "goal": "Daily recall and bonding."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-27",
@@ -1050,7 +1447,24 @@
                             "subject": "Numeracy",
                             "activity": "Dictation: Number names 1-100"
                         }
-                    ]
+                    ],
+                    "aiSuggestedRecap": {
+                        "todayMission": "Sound Hunters",
+                        "activities": [
+                            {
+                                "subject": "Phonics Fun",
+                                "action": "Hunt for words in a book that align with today's blend/sound.",
+                                "question": "Can you say three words that have today's special sound?",
+                                "goal": "Reinforce phonic sounds."
+                            },
+                            {
+                                "subject": "Review Time",
+                                "action": "Check the school diary/almanac together.",
+                                "question": "What was the most fun part of school today?",
+                                "goal": "Daily recall and bonding."
+                            }
+                        ]
+                    }
                 },
                 {
                     "date": "2026-02-28",
