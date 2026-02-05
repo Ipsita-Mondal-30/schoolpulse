@@ -25,6 +25,11 @@
                             "activity": "Recap of Reading Comprehension (A), (B)"
                         },
                         {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "Phonic Book: Recap of Blends"
+                        },
+                        {
                             "time": "10:30-11:00",
                             "subject": "Snack Break",
                             "activity": ""
@@ -48,6 +53,11 @@
                             "time": "12:30-12:50",
                             "subject": "Literacy",
                             "activity": "Dictation: Long vowel (a,e,i,o,u)"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -67,6 +77,11 @@
                             "activity": "Comprehension Passage"
                         },
                         {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "4-line notebook Q&A"
+                        },
+                        {
                             "time": "10:30-11:00",
                             "subject": "Snack Break",
                             "activity": ""
@@ -82,9 +97,19 @@
                             "activity": "Recap"
                         },
                         {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Recap of letters"
+                        },
+                        {
                             "time": "12:30-12:50",
                             "subject": "Art & Craft",
-                            "activity": "Pg no. 36"
+                            "activity": "Pg no. 37"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -100,6 +125,11 @@
                         },
                         {
                             "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "4-line notebook Q&A"
+                        },
+                        {
+                            "time": "10:00-10:30",
                             "subject": "Literacy",
                             "activity": "4-line notebook Q&A"
                         },
@@ -122,6 +152,16 @@
                             "time": "12:00-12:30",
                             "subject": "Kannada",
                             "activity": "Sulekh Pushtika"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Numeracy",
+                            "activity": "Dictation: Numbers 1-100"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -141,6 +181,11 @@
                             "activity": "Comprehension Passage (B)"
                         },
                         {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "Recap of Comprehension (A)"
+                        },
+                        {
                             "time": "10:30-11:00",
                             "subject": "Snack Break",
                             "activity": ""
@@ -156,9 +201,19 @@
                             "activity": "Values for Me"
                         },
                         {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Recap of letters"
+                        },
+                        {
                             "time": "12:30-12:50",
                             "subject": "Art & Craft",
                             "activity": "Pg no. 42"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -168,14 +223,14 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "9:10-9:30",
+                            "time": "9:10-10:00",
                             "subject": "General Assembly",
                             "activity": "Talent Show"
                         },
                         {
-                            "time": "9:30-10:00",
+                            "time": "10:00-10:30",
                             "subject": "Literacy",
-                            "activity": "Phonic Book: Recap of Blends"
+                            "activity": "Phonic Book: Words ending with ow, oy, oi"
                         },
                         {
                             "time": "10:30-11:00",
@@ -193,9 +248,19 @@
                             "activity": "Values for Me"
                         },
                         {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Recap of letters"
+                        },
+                        {
                             "time": "12:30-12:50",
                             "subject": "Socio Emotional Skills",
                             "activity": "Pg no. 15"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -254,6 +319,11 @@
                             "activity": "My Phonic Book: Recap of ff, zz, ss words"
                         },
                         {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Money"
@@ -267,6 +337,16 @@
                             "time": "12:00-12:30",
                             "subject": "Hindi",
                             "activity": "Sulekh Pushtika"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Literacy",
+                            "activity": "Dictation: l-blends"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -291,6 +371,11 @@
                             "activity": "My Phonic Book: Recap of Sound words"
                         },
                         {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Money"
@@ -304,6 +389,16 @@
                             "time": "12:00-12:30",
                             "subject": "Kannada",
                             "activity": "Numbers 1-20 (Oral)"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Art & Craft",
+                            "activity": "Pg no. 39"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -328,6 +423,11 @@
                             "activity": "My Phonic Book: Recap of Sound words"
                         },
                         {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Pictograph"
@@ -341,6 +441,16 @@
                             "time": "12:00-12:30",
                             "subject": "Hindi",
                             "activity": "Sulekh Pushtika"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Numeracy",
+                            "activity": "Dictation: Numbers 1-100"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -362,7 +472,12 @@
                         {
                             "time": "10:00-10:30",
                             "subject": "Literacy",
-                            "activity": "My Phonic Book: Recap of different sounds of a,c,g"
+                            "activity": "My Phonic Book: Recap of Picture talk"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
                         },
                         {
                             "time": "11:00-11:30",
@@ -383,6 +498,11 @@
                             "time": "12:30-12:50",
                             "subject": "Literacy",
                             "activity": "Dictation: 'a' and 'e' long vowel words"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -392,14 +512,19 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "9:10-9:30",
+                            "time": "9:10-10:00",
                             "subject": "General Assembly",
                             "activity": "Talent Show"
                         },
                         {
-                            "time": "9:30-10:00",
+                            "time": "10:00-10:30",
                             "subject": "Literacy",
-                            "activity": "Recap of Picture talk"
+                            "activity": "My Phonic Book: Recap of Picture talk"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
                         },
                         {
                             "time": "11:00-11:30",
@@ -420,6 +545,11 @@
                             "time": "12:30-12:50",
                             "subject": "Numeracy",
                             "activity": "Dictation: Number names 1-100"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -481,6 +611,16 @@
                             "activity": "4-line notebook: Picture Comprehension"
                         },
                         {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "My Phonic Book: Recap of ff, zz, ss words"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Skip counting"
@@ -494,6 +634,16 @@
                             "time": "12:00-12:30",
                             "subject": "Hindi",
                             "activity": "Nirjhar Moti / Sulekh Pushtika"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Literacy",
+                            "activity": "Dictation: r-blends"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -513,6 +663,16 @@
                             "activity": "4-line notebook: Picture Comprehension"
                         },
                         {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "My Phonic Book: Recap of Sound words"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Skip counting"
@@ -526,6 +686,16 @@
                             "time": "12:00-12:30",
                             "subject": "Kannada",
                             "activity": "Days of the week"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Art & Craft",
+                            "activity": "Pg no. 41"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -545,6 +715,16 @@
                             "activity": "4-line notebook: Comprehension Passage"
                         },
                         {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "My Phonic Book: Recap of Sound words"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Skip counting"
@@ -558,6 +738,16 @@
                             "time": "12:00-12:30",
                             "subject": "Hindi",
                             "activity": "Nirjhar Moti"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Numeracy",
+                            "activity": "Dictation: Numbers 1-100"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -577,6 +767,16 @@
                             "activity": "4-line notebook: Comprehension Passage"
                         },
                         {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "My Phonic Book: Recap of different sounds of a,c,g"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
                             "time": "11:00-11:30",
                             "subject": "Numeracy",
                             "activity": "Solid shapes Activity / Vocabulary"
@@ -590,6 +790,16 @@
                             "time": "12:00-12:30",
                             "subject": "Kannada",
                             "activity": "Months of the year (Oral)"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Literacy",
+                            "activity": "Dictation: 'a' and 'e' long vowel words"
+                        },
+                        {
+                            "time": "12:50-1:00",
+                            "subject": "Meditation",
+                            "activity": ""
                         }
                     ]
                 },
@@ -599,14 +809,19 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "9:10-9:30",
+                            "time": "9:10-10:00",
                             "subject": "General Assembly",
                             "activity": "Talent Show"
                         },
                         {
-                            "time": "9:30-10:00",
-                            "subject": "Literacy",
-                            "activity": "Dictation on 'r' blends"
+                            "time": "10:00-10:30",
+                            "subject": "Hindi",
+                            "activity": "Nirjhar Moti"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
                         },
                         {
                             "time": "11:00-11:30",
@@ -678,14 +893,14 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "9:10-9:30",
-                            "subject": "Prayer/Rhymes & Circle Time",
-                            "activity": ""
+                            "time": "9:10-10:00",
+                            "subject": "General Assembly",
+                            "activity": "National Science Day"
                         },
                         {
-                            "time": "9:30-10:00",
+                            "time": "10:00-10:30",
                             "subject": "Literacy",
-                            "activity": "Activity kit: Simple sentence formation"
+                            "activity": "Activity kit: Blends"
                         },
                         {
                             "time": "11:00-11:30",
