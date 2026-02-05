@@ -75,7 +75,9 @@ export interface MonthData {
   };
   story: {
     title: string;
+    content?: string;
     moral: string;
+    image?: string;
   };
   importantDates?: ImportantDate[];
 }
