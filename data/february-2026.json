@@ -390,17 +390,16 @@
                         "weekCovered": "2026-02-02 to 2026-02-08",
                         "subjects": {
                             "Literacy": [
+                                "Reading Comprehension (A) & (B)",
                                 "Comprehension Passage",
-                                "Reading Comprehension (A), (B)",
-                                "Phonic Book",
-                                "Dictation",
-                                "Comprehension (A)",
-                                "Comprehension Passage (B)",
+                                "Phonic Book: Recap of Blends (ow, oy, oi)",
+                                "Dictation: Long vowel (a,e,i,o,u)",
                                 "4-line notebook Q&A"
                             ],
                             "Numeracy": [
-                                "Subtraction",
-                                "Time",
+                                "Recap of Subtraction",
+                                "Introduction to Time",
+                                "Dictation: Number names 51-100",
                                 "Dictation: Numbers 1-100"
                             ],
                             "General Awareness": [
@@ -799,7 +798,26 @@
                         "weekCovered": "Feb 9-13, 2026",
                         "subjects": {
                             "Literacy": [
-                                "Dictation: l-blends (bloom, clock, flute, globe, plate, slide, play, clap, flag, plum, slope, black)"
+                                "4-line notebook Q&A",
+                                "Phonic Book: Recap of ff, zz, ss words",
+                                "Phonic Book: Sound words & Picture talk",
+                                "Days of the week / Months of the year",
+                                "Opposites and Action words",
+                                "Different sounds of a, c, g",
+                                "Dictation: l-blends, r-blends, 'a' & 'e' long vowel words"
+                            ],
+                            "Numeracy": [
+                                "Money",
+                                "Pictograph",
+                                "Solid shapes (Introduction & Clay Activity)",
+                                "Dictation: Numbers 1-100",
+                                "Dictation: Number names 1-100"
+                            ],
+                            "General Awareness": [
+                                "Activity: Save our nature",
+                                "Recap of water",
+                                "Living and non-living things",
+                                "Recap of Seasons"
                             ]
                         }
                     },
@@ -1182,7 +1200,26 @@
                         "weekCovered": "Feb 16-20, 2026",
                         "subjects": {
                             "Literacy": [
-                                "Dictation: r-blends (crab, bread, dress, grass, prawn, frog, train, frame, green, crane, brush)"
+                                "Picture Comprehension (4-line notebook)",
+                                "Phonic Book: Recap of ff, zz, ss words",
+                                "Phonic Book: Sound words",
+                                "Phonic Book: Different sounds of a, c, g",
+                                "Recap of Picture talk",
+                                "Comprehension Passage",
+                                "Dictation: r-blends (crab, bread, dress, grass, prawn, frog, train, frame, green, crane, brush)",
+                                "Dictation: 'a' and 'e' long vowel words"
+                            ],
+                            "Numeracy": [
+                                "Skip counting",
+                                "Solid shapes Activity / Vocabulary",
+                                "3 Dimensional shapes Clay Activity",
+                                "Dictation: Numbers 1-100",
+                                "Dictation: Number names 1-100"
+                            ],
+                            "General Awareness": [
+                                "Recap of Animals",
+                                "Recap of Plants",
+                                "Recap of concepts done so far"
                             ]
                         }
                     },
@@ -1474,7 +1511,19 @@
                         "weekCovered": "Feb 23-27, 2026",
                         "subjects": {
                             "Literacy": [
+                                "Activity kit: Blends & Simple sentence formation",
                                 "Dictation: s-blends (scale, skirt, slide, smile, spin, snail, stick, skull, slice, speak, swim)"
+                            ],
+                            "Numeracy": [
+                                "Number Names Revision",
+                                "Addition & Subtraction Revision",
+                                "Ascending & Descending Order Revision",
+                                "Dictation: Number names 1-100"
+                            ],
+                            "General Awareness": [
+                                "National Science Day",
+                                "Recap on Seasons",
+                                "General Revision"
                             ]
                         }
                     },
