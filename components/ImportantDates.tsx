@@ -40,6 +40,12 @@ export default function ImportantDates({ dates, title = "Important Dates", showA
     return date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
   };
 
+  // Get weekday name
+  const getWeekday = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { weekday: 'long' });
+  };
+
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-3 shadow-sm">
       <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5 font-sans">
@@ -52,6 +58,7 @@ export default function ImportantDates({ dates, title = "Important Dates", showA
           const past = isPast(item.date);
           const dayNum = getDayNumber(item.date);
           const monthAbbr = getMonthAbbr(item.date);
+          const weekday = getWeekday(item.date);
 
           return (
             <div
@@ -73,22 +80,28 @@ export default function ImportantDates({ dates, title = "Important Dates", showA
                     </span>
                   )}
                 </div>
-                <div className="text-[10px] text-gray-500 leading-tight line-clamp-1">{item.description}</div>
+                <div className="text-[10px] text-gray-500 leading-tight line-clamp-1">
+                  <span className="font-bold text-gray-600">{weekday}</span>
+                  <span className="mx-1 opacity-50">•</span>
+                  {item.description}
+                </div>
               </div>
               <div className="text-[9px] font-bold text-gray-400 whitespace-nowrap hidden sm:block">
-                {formatShortDate(item.date).split(',')[0]}
+                {formatShortDate(item.date)}
               </div>
             </div>
           );
         })}
       </div>
-      {!showAll && dates.filter(d => d.date >= today).length > 5 && (
-        <div className="text-[9px] text-gray-400 mt-3 text-center font-bold uppercase tracking-tighter">
-          <span className="bg-gray-100 px-2 py-0.5 rounded-full">
-            + {dates.filter(d => d.date >= today).length - 5} More • View All
-          </span>
-        </div>
-      )}
-    </div>
+      {
+        !showAll && dates.filter(d => d.date >= today).length > 5 && (
+          <div className="text-[9px] text-gray-400 mt-3 text-center font-bold uppercase tracking-tighter">
+            <span className="bg-gray-100 px-2 py-0.5 rounded-full">
+              + {dates.filter(d => d.date >= today).length - 5} More • View All
+            </span>
+          </div>
+        )
+      }
+    </div >
   );
 }

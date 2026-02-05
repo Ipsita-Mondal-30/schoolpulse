@@ -108,12 +108,14 @@ function RhymesContent() {
             <span>🙏</span> Shloka of the Month
           </h2>
           <div className="space-y-3">
-            <p className="text-lg font-medium text-amber-900 leading-relaxed">
+            <p className="text-lg font-medium text-amber-900 leading-relaxed whitespace-pre-wrap">
               {shloka.sanskrit}
             </p>
-            <p className="text-amber-700 italic">
-              {shloka.transliteration}
-            </p>
+            {shloka.transliteration && shloka.transliteration !== shloka.sanskrit && (
+              <p className="text-amber-700 italic whitespace-pre-wrap">
+                {shloka.transliteration}
+              </p>
+            )}
             <div className="pt-2 border-t border-amber-200">
               <p className="text-sm font-medium text-amber-800">Meaning:</p>
               <p className="text-amber-700">{shloka.meaning}</p>
