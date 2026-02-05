@@ -15,9 +15,39 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Recap of Reading Comprehension (A), (B)"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Recap of Subtraction"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "God is one"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Recap of letters"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Literacy",
+                            "activity": "Dictation: Long vowel (a,e,i,o,u)"
                         }
                     ]
                 },
@@ -27,9 +57,34 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Comprehension Passage"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Introduction to Time"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Recap"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Art & Craft",
+                            "activity": "Pg no. 36"
                         }
                     ]
                 },
@@ -39,9 +94,34 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "4-line notebook Q&A"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Dictation: Number names 51-100"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Values for Me"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Sulekh Pushtika"
                         }
                     ]
                 },
@@ -51,9 +131,34 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Comprehension Passage (B)"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Time"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Values for Me"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Art & Craft",
+                            "activity": "Pg no. 42"
                         }
                     ]
                 },
@@ -63,9 +168,34 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "General Assembly",
+                            "activity": "Talent Show"
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Phonic Book: Recap of Blends"
+                        },
+                        {
+                            "time": "10:30-11:00",
+                            "subject": "Snack Break",
+                            "activity": ""
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Time Recap"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Values for Me"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Socio Emotional Skills",
+                            "activity": "Pg no. 15"
                         }
                     ]
                 },
@@ -88,7 +218,20 @@
         {
             "weekStart": "2026-02-09",
             "weekEnd": "2026-02-15",
-            "dictationWords": [],
+            "dictationWords": [
+                "bloom",
+                "clock",
+                "flute",
+                "globe",
+                "plate",
+                "slide",
+                "play",
+                "clap",
+                "flag",
+                "plum",
+                "slope",
+                "black"
+            ],
             "days": [
                 {
                     "date": "2026-02-09",
@@ -96,9 +239,34 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "4-line notebook Q&A"
+                        },
+                        {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "My Phonic Book: Recap of ff, zz, ss words"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Money"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Activity: Save our nature"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Hindi",
+                            "activity": "Sulekh Pushtika"
                         }
                     ]
                 },
@@ -108,9 +276,34 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "4-line notebook Q&A"
+                        },
+                        {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "My Phonic Book: Recap of Sound words"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Money"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Recap of water"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Numbers 1-20 (Oral)"
                         }
                     ]
                 },
@@ -120,9 +313,34 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "4-line notebook: Days of the week / Months of the year"
+                        },
+                        {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "My Phonic Book: Recap of Sound words"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Pictograph"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "Socio Emotional Skills",
+                            "activity": "Pg no. 23"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Hindi",
+                            "activity": "Sulekh Pushtika"
                         }
                     ]
                 },
@@ -132,9 +350,39 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Recap of Opposites and Action words"
+                        },
+                        {
+                            "time": "10:00-10:30",
+                            "subject": "Literacy",
+                            "activity": "My Phonic Book: Recap of different sounds of a,c,g"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Recap"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Recap of living and non-living things"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Recap of Numbers"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Literacy",
+                            "activity": "Dictation: 'a' and 'e' long vowel words"
                         }
                     ]
                 },
@@ -144,23 +392,52 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "General Assembly",
+                            "activity": "Talent Show"
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Recap of Picture talk"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Introduction to Solid shapes"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Recap of Seasons"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Hindi",
+                            "activity": "Sulekh Pushtika"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Numeracy",
+                            "activity": "Dictation: Number names 1-100"
                         }
                     ]
                 },
                 {
                     "date": "2026-02-14",
                     "dayOfWeek": "Saturday",
-                    "isHoliday": false,
-                    "schedule": [
-                        {
-                            "time": "All Day",
-                            "subject": "Grandparent's Day",
-                            "activity": "Special day to celebrate grandparents"
+                    "isHoliday": true,
+                    "holidayName": "Weekend",
+                    "isWeekendRevision": true,
+                    "weekendRevisionContent": {
+                        "weekCovered": "Feb 9-13, 2026",
+                        "subjects": {
+                            "Literacy": [
+                                "Dictation: l-blends (bloom, clock, flute, globe, plate, slide, play, clap, flag, plum, slope, black)"
+                            ]
                         }
-                    ]
+                    },
+                    "schedule": []
                 },
                 {
                     "date": "2026-02-15",
@@ -174,7 +451,19 @@
         {
             "weekStart": "2026-02-16",
             "weekEnd": "2026-02-22",
-            "dictationWords": [],
+            "dictationWords": [
+                "crab",
+                "bread",
+                "dress",
+                "grass",
+                "prawn",
+                "frog",
+                "train",
+                "frame",
+                "green",
+                "crane",
+                "brush"
+            ],
             "days": [
                 {
                     "date": "2026-02-16",
@@ -182,9 +471,29 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "4-line notebook: Picture Comprehension"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Skip counting"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Recap of Animals"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Hindi",
+                            "activity": "Nirjhar Moti / Sulekh Pushtika"
                         }
                     ]
                 },
@@ -194,9 +503,29 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "4-line notebook: Picture Comprehension"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Skip counting"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Recap of Animals"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Days of the week"
                         }
                     ]
                 },
@@ -206,9 +535,29 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "4-line notebook: Comprehension Passage"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Skip counting"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Recap of Plants"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Hindi",
+                            "activity": "Nirjhar Moti"
                         }
                     ]
                 },
@@ -218,9 +567,29 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "4-line notebook: Comprehension Passage"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Solid shapes Activity / Vocabulary"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Recap of Plants"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Months of the year (Oral)"
                         }
                     ]
                 },
@@ -230,9 +599,34 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "General Assembly",
+                            "activity": "Talent Show"
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Dictation on 'r' blends"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "3 Dimensional shapes Clay Activity"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Recap of concepts done so far"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Hindi",
+                            "activity": "Revision"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Art & Craft",
+                            "activity": "Pg no. 38"
                         }
                     ]
                 },
@@ -241,6 +635,15 @@
                     "dayOfWeek": "Saturday",
                     "isHoliday": true,
                     "holidayName": "Weekend",
+                    "isWeekendRevision": true,
+                    "weekendRevisionContent": {
+                        "weekCovered": "Feb 16-20, 2026",
+                        "subjects": {
+                            "Literacy": [
+                                "Dictation: r-blends (crab, bread, dress, grass, prawn, frog, train, frame, green, crane, brush)"
+                            ]
+                        }
+                    },
                     "schedule": []
                 },
                 {
@@ -255,7 +658,19 @@
         {
             "weekStart": "2026-02-23",
             "weekEnd": "2026-02-28",
-            "dictationWords": [],
+            "dictationWords": [
+                "scale",
+                "skirt",
+                "slide",
+                "smile",
+                "spin",
+                "snail",
+                "stick",
+                "skull",
+                "slice",
+                "speak",
+                "swim"
+            ],
             "days": [
                 {
                     "date": "2026-02-23",
@@ -263,9 +678,29 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Activity kit: Simple sentence formation"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Number Names Revision"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "Art & Craft",
+                            "activity": "Pg no. 40"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Hindi",
+                            "activity": "Revision"
                         }
                     ]
                 },
@@ -275,9 +710,29 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Activity kit: Simple sentence formation / Blends"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Addition Revision"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Recap on Seasons"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Fruits (Oral)"
                         }
                     ]
                 },
@@ -287,9 +742,29 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Activity kit: Simple sentence formation / Blends"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Subtraction Revision"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Revision"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Hindi",
+                            "activity": "Revision"
                         }
                     ]
                 },
@@ -299,9 +774,29 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Activity kit: Simple sentence formation / Blends"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Ascending Order Revision"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "General Awareness",
+                            "activity": "Revision"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Kannada",
+                            "activity": "Flowers (Oral)"
                         }
                     ]
                 },
@@ -311,9 +806,34 @@
                     "isHoliday": false,
                     "schedule": [
                         {
-                            "time": "All Day",
-                            "subject": "Waiting for Newsletter",
-                            "activity": "The newsletter details for this day are pending update."
+                            "time": "9:10-9:30",
+                            "subject": "Prayer/Rhymes & Circle Time",
+                            "activity": ""
+                        },
+                        {
+                            "time": "9:30-10:00",
+                            "subject": "Literacy",
+                            "activity": "Activity kit: Blends / Dictation on 's' blends"
+                        },
+                        {
+                            "time": "11:00-11:30",
+                            "subject": "Numeracy",
+                            "activity": "Descending Order Revision"
+                        },
+                        {
+                            "time": "11:30-12:00",
+                            "subject": "Socio Emotional Skills",
+                            "activity": "Pg no. 32"
+                        },
+                        {
+                            "time": "12:00-12:30",
+                            "subject": "Hindi",
+                            "activity": "Revision"
+                        },
+                        {
+                            "time": "12:30-12:50",
+                            "subject": "Numeracy",
+                            "activity": "Dictation: Number names 1-100"
                         }
                     ]
                 },
@@ -322,6 +842,15 @@
                     "dayOfWeek": "Saturday",
                     "isHoliday": true,
                     "holidayName": "Weekend",
+                    "isWeekendRevision": true,
+                    "weekendRevisionContent": {
+                        "weekCovered": "Feb 23-27, 2026",
+                        "subjects": {
+                            "Literacy": [
+                                "Dictation: s-blends (scale, skirt, slide, smile, spin, snail, stick, skull, slice, speak, swim)"
+                            ]
+                        }
+                    },
                     "schedule": []
                 }
             ]
@@ -329,62 +858,106 @@
     ],
     "rhymes": [
         {
-            "title": "Grandparent\u2019s Day Song",
-            "content": "Grandma\u2019s smile is warm and bright,\nGrandpa\u2019s hug feels just so right.\nHand in hand, we laugh and play,\nWe love you more each single day.\n\n\ud83c\udfb6\ud83c\udfb6 Chorus:\nOh dear Grandma, Oh dear Grandpa,\nYou\u2019re our sunshine, near and far.\nHappy hearts we sing and say,\nWe love you \u2013 Happy Grandparents Day!"
+            "title": "ರೊಟ್ಟಿ ಅಂಗಡಿ ಕಿಟ್ಟಿಪ್ಪ (Kannada)",
+            "content": "ರೊಟ್ಟಿ ಅಂಗಡಿ ಕಿಟ್ಟಿಪ್ಪ\nನಂಗಂದು ರೊಟ್ಟಿ ತಟ್ಟಿಪ್ಪ\nಪುಟಾಣಿ ರೊಟ್ಟಿ ಕಂಪಗೆ ಸುಟ್ಟಿ\nಒಂಭತ್ತು ಕಾಸಿಗೆ ತಟ್ಟಿಪ್ಪ\nಬಿಟ್ಟಿ ಹೋಗೆನು ಕಿಟ್ಟಿಪ್ಪ\n\nರೊಟ್ಟಿ ಅಂಗಡಿ ಕಿಟ್ಟಿಪ್ಪ\nರೊಟ್ಟಿಯ ನೋಡಿ ತಟ್ಟಿಪ್ಪ\nರೊಟ್ಟಿಯ ಸುತ್ತು ಹಸಿ ಹಸಿ ಹಿಟ್ಟಿ\nರೊಟ್ಟಿಯ ಬೇರೆ ತಟ್ಟಿಪ್ಪ\nನನಗಿದು ಬೇಡ ಕಿಟ್ಟಿಪ್ಪ\n\nರೊಟ್ಟಿ ಅಂಗಡಿ ಕಿಟ್ಟಿಪ್ಪ\nನಂಗಂದು ರೊಟ್ಟಿ ತಟ್ಟಿಪ್ಪ\nರೊಟ್ಟಿ ಅಂಗಡಿ ಕಿಟ್ಟಿಪ್ಪ\nಬೇರೆ ರೊಟ್ಟಿಯ ತಟ್ಟಿಪ್ಪ\nಕಂಡರೆ ರೊಟ್ಟಿ ಸುಡಬೇಕಪ್ಪ\nಟೂ.. ಟೂ.... ಸಂಗ ಬಿಟ್ಟಿಪ್ಪ\nಟೂ ಟೂ ಸಂಗ ಬಿಟ್ಟಿಪ್ಪ\nಬಿಟ್ಟರೆ ಪುನಹಾ ಕಟ್ಟಿಪ್ಪ"
+        },
+        {
+            "title": "My Eyes are Windows",
+            "content": "My eyes are windows, through which I look and see\nThe Sunshine in the garden\nAnd blossom on the tree\nI must try with all my might\nTo keep my windows\nClean and bright"
+        },
+        {
+            "title": "Two Lovely Eyes",
+            "content": "Two lovely eyes,\nHelp me to see.\nTwo lovely ears,\nhelp me to hear.\nOne lovely nose,\nHelps me to smell.\nOne little mouth,\nTo talk and tell.\nTwo long hands,\nTo write, paint and work.\nTwo strong legs,\nTo hop, skip and jump.\nThank you, God, for this body of mine,\nFit and healthy and oh! So fine."
+        },
+        {
+            "title": "Body Parts",
+            "content": "My hands are for clapping,\nMy arms can hug tight.\nMy fingers can snap,\nOr can turn out tight.\nMy legs are for jumping,\nMy eyes help me see.\nThis is my body,\nAnd I love all of me."
+        },
+        {
+            "title": "Days of the Week",
+            "content": "Every week has seven days,\nseven days, seven days.\nI pray on Monday.\nI walk on Tuesday.\nI talk on Wednesday.\nI dance on Thursday.\nI have fun on Friday.\nI swim on Saturday.\nStop, stop, it is Sunday\nEnjoy one day holiday."
+        },
+        {
+            "title": "Values for Me",
+            "content": "I am special, I am kind,\nI use my heart, and my mind.\nI tell the truth and always share,\nwith my friends for whom I care.\nHelping others, doing right,\nMakes my heart feel big and bright!\nI have values, that is true,\nAnd so do all my friends I knew!"
         }
     ],
     "shloka": {
-        "sanskrit": "Waiting for Update",
-        "transliteration": "Waiting for Update",
-        "meaning": "Shloka for this month will be updated soon."
+        "sanskrit": "Brahma Murāri Surārchita Liṅgam\nNirmala Bhāṣita Śobhita Liṅgam\nJanmaja Duḥkha Vināśaka Liṅgam\nTat Praṇamāmi Sadāśiva Liṅgam\n\nDeva Muni Pravarārchita Liṅgam\nKāma Dahana Karuṇākara Liṅgam\nRāvaṇa Darpa Vināśaka Liṅgam\nTat Praṇamāmi Sadāśiva Liṅgam",
+        "transliteration": "Brahma Murāri Surārchita Liṅgam\nNirmala Bhāṣita Śobhita Liṅgam\nJanmaja Duḥkha Vināśaka Liṅgam\nTat Praṇamāmi Sadāśiva Liṅgam\n\nDeva Muni Pravarārchita Liṅgam\nKāma Dahana Karuṇākara Liṅgam\nRāvaṇa Darpa Vināśaka Liṅgam\nTat Praṇamāmi Sadāśiva Liṅgam",
+        "meaning": "I bow before that Sada Shiva Linga, which is worshipped by Brahma, Vishnu and other Gods, which is praised by pure and holy speeches, and which destroys the cycle of births and deaths."
     },
     "story": {
-        "title": "Waiting for Update",
-        "content": "Story for this month will be updated soon.",
-        "moral": ""
+        "title": "The Elves and the Shoemaker",
+        "content": "Once upon a time, there was a kind shoemaker who lived in a small house with his wife. They worked hard every day making shoes, but they were very poor. They didn’t have enough money to buy food, and soon they didn’t even have enough leather to make shoes.\n\nOne evening, after a long day of work, the shoemaker sighed. \"I wish we had enough money to buy more leather and make more shoes,\" he said. \"But I don’t know how we will manage.\"\n\nThat night, the shoemaker and his wife went to bed early, feeling sad. But little did they know, something magical was about to happen.\n\nWhen the shoemaker woke up the next morning, he saw something amazing! On his workbench were beautifully made shoes, shining and perfect. He couldn't believe his eyes! The shoes were ready to be sold, and the shoemaker was so happy.\n\nHe decided to sell the shoes in the market, and guess what? The shoes sold for a lot of money! The shoemaker bought more leather, hoping to make even more shoes. But that night, something even more magical happened.\n\nWhen he woke up the next morning, more shoes had been made while he was sleeping! They were just as perfect as the first pair. The shoemaker couldn’t understand who was helping him, but he was very grateful.\n\nNight after night, this continued. Every morning, the shoemaker would wake up to find more beautiful shoes made while he slept.\n\nOne evening, the shoemaker and his wife decided to stay awake and find out who was making the shoes. So, they hid behind a curtain and waited.\n\nTo their surprise, in the middle of the night, two tiny elves appeared. The elves worked quickly, sewing and stitching the shoes, and soon they were done. Then, the little elves quietly disappeared into the night.\n\nThe shoemaker was so happy! The next day, he made tiny clothes for the elves as a thank you. That night, when the elves came to help, the shoemaker and his wife gave the clothes to them.\n\nThe elves were very happy and said, “Thank you! We are so glad you gave us clothes. Now we will help you even more!”\n\nFrom that day on, the elves and the shoemaker worked together, and the shoemaker’s shop became the most famous one in the land.\n\nAnd they all lived happily ever after.",
+        "moral": "Kindness and hard work are always rewarded."
     },
     "importantDates": [
         {
-            "date": "2026-02-14",
-            "event": "Grandparent's Day",
+            "date": "2026-02-07",
+            "event": "Dr. Prakashnath Swamijis’ Birthday",
             "type": "event",
-            "description": "Special day to celebrate grandparents"
+            "description": "Birthday celebration"
+        },
+        {
+            "date": "2026-02-14",
+            "event": "Grandparents’ Day Celebration",
+            "type": "event",
+            "description": "Celebration with grandparents"
+        },
+        {
+            "date": "2026-02-15",
+            "event": "Mahashivratri",
+            "type": "holiday",
+            "description": "Festival Holiday"
+        },
+        {
+            "date": "2026-02-26",
+            "event": "Working Day",
+            "type": "event",
+            "description": "Working day in lieu of Shivaratri (Sun, 15th Feb)"
+        },
+        {
+            "date": "2026-02-27",
+            "event": "National Science Day",
+            "type": "event",
+            "description": "Science Day Celebration"
         },
         {
             "date": "2026-03-13",
             "event": "Graduation Day for PP3",
             "type": "event",
-            "description": "Graduation ceremony for Pre-Primary 3 students"
+            "description": "Graduation ceremony"
         },
         {
             "date": "2026-03-18",
             "event": "Last Parent Teacher Interaction",
             "type": "event",
-            "description": "Final PTI for Academic year 2025-26"
+            "description": "For Academic year 2025-26"
         },
         {
             "date": "2026-03-23",
             "event": "Bridge Course Begins",
             "type": "activity",
-            "description": "Bridge Course for PP3 to Grade 1 (23-25 March)"
+            "description": "For students of PP3 to Grade 1 (Ends Mar 25)"
         },
         {
-            "date": "2026-04-09",
+            "date": "2026-03-23",
             "event": "Summer Camp Begins",
             "type": "activity",
-            "description": "Summer Camp for PP3 to Grade 1 (9-11 April)"
+            "description": "For students of PP1 to PP2 and PP2 to PP3 (Ends Apr 15)"
         },
         {
             "date": "2026-05-21",
             "event": "School Reopens (PP3 to Grade 1)",
             "type": "event",
-            "description": "New academic year begins for students moving to Grade 1"
+            "description": "Reopening date"
         },
         {
             "date": "2026-05-25",
-            "event": "School Reopens (PP1 & PP2)",
+            "event": "School Reopens (PP1-PP2, PP2-PP3)",
             "type": "event",
-            "description": "New academic year begins for PP1 to PP2 and PP2 to PP3"
+            "description": "Reopening date"
         }
     ]
 }
