@@ -73,14 +73,14 @@ export default function ImportantDates({ dates, title = "Important Dates", showA
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="font-bold text-xs text-gray-800 truncate">{item.event}</span>
+                  <span className="font-bold text-xs text-gray-800">{item.event}</span>
                   {todayHighlight && (
                     <span className="text-[8px] font-black bg-orange-500 text-white px-1.5 py-0.5 rounded-full animate-pulse">
                       TODAY
                     </span>
                   )}
                 </div>
-                <div className="text-[10px] text-gray-500 leading-tight line-clamp-1">
+                <div className="text-[10px] text-gray-500 leading-tight">
                   <span className="font-bold text-gray-600">{weekday}</span>
                   <span className="mx-1 opacity-50">•</span>
                   {item.description}
