@@ -1679,9 +1679,9 @@
         },
         {
             "date": "2026-02-26",
-            "event": "Working Day",
-            "type": "event",
-            "description": "Working day in lieu of Shivaratri (Sun, 15th Feb)"
+            "event": "Mahashivratri Holiday",
+            "type": "holiday",
+            "description": "School Holiday in lieu of Shivaratri (Sun, 15th Feb)"
         },
         {
             "date": "2026-02-27",
