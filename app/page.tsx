@@ -262,6 +262,23 @@ function HomeContent() {
           <div className="text-sm text-gray-500">This month&apos;s songs and verses</div>
         </Link>
       </div>
+
+      {/* About SchoolPuls Link */}
+      <div className="mt-4">
+        <Link
+          href="/showcase.html"
+          className="block w-full bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-white p-2 rounded-lg shadow-sm text-xl group-hover:scale-110 transition-transform">ℹ️</div>
+            <div>
+              <div className="font-semibold text-gray-800">About SchoolPuls</div>
+              <div className="text-sm text-gray-500">View features and product showcase</div>
+            </div>
+            <div className="ml-auto text-gray-400 group-hover:translate-x-1 transition-transform">→</div>
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }
