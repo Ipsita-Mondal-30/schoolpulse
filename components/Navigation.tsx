@@ -22,9 +22,9 @@ export default function Navigation() {
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="max-w-4xl mx-auto px-0 sm:px-4">
         <div className="flex items-center justify-between h-14">
-          <Link href="/" className="hidden sm:flex items-center gap-2">
+          <Link href="/showcase.html" className="hidden sm:flex items-center gap-2">
             <span className="text-2xl">💓</span>
-            <span className="font-bold text-orange-600">SchoolPulse</span>
+            <span className="font-bold text-orange-600">SchoolPuls</span>
           </Link>
           <div className="flex items-center gap-0 sm:gap-1 w-full sm:w-auto justify-evenly sm:justify-start">
             {links.map((link) => {
