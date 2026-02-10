@@ -1679,6 +1679,12 @@
             "description": "Festival Holiday"
         },
         {
+            "date": "2026-02-26",
+            "event": "Working Day",
+            "type": "event",
+            "description": "Regular working day (Mahashivratri holiday not applicable)"
+        },
+        {
             "date": "2026-02-27",
             "event": "National Science Day",
             "type": "event",
