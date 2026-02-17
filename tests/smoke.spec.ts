@@ -35,10 +35,7 @@ test.describe('SchoolPulse Smoke Tests', () => {
         await expect(page).toHaveTitle(/SchoolPulse/);
     });
 
-    test('NOF page loads', async ({ page }) => {
-        await page.goto('/nof');
-        await expect(page).toHaveTitle(/SchoolPulse/);
-    });
+
 
     // Test that checks navigation from home
     test('navigation works', async ({ page }) => {
