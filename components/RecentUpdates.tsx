@@ -112,15 +112,6 @@ export default function RecentUpdates() {
   return (
     <>
       <div className="flex items-center gap-2">
-        {/* NOF Button */}
-        <Link
-          href="/nof"
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-200 transition-all text-sm font-bold shadow-sm"
-        >
-          <span className="text-base">🏆</span>
-          <span className="inline">Olympiad</span>
-        </Link>
-
         {/* Updates Button */}
         <button
           onClick={handleOpen}
