@@ -189,9 +189,7 @@ export async function fetchHomework(): Promise<Homework[]> {
         // Filter only homework items
         const homeworkUpdates = allUpdates.filter(u => {
             const isHw = u.category?.toLowerCase().includes('homework') || u.type === 'homework';
-            if (u.title?.includes('NOF')) {
-                console.log('DEBUG: Found NOF Item. Category:', u.category, 'Type:', u.type, 'IsHW:', isHw);
-            }
+
             return isHw;
         });
 

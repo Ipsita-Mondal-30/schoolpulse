@@ -35,10 +35,10 @@ function NOFContent() {
             {/* Header */}
             <div className="text-center mb-10">
                 <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-3">
-                    NOF Champions League
+                    Olympiad Exam Schedule
                 </h1>
-                <p className="text-gray-500 font-medium text-lg">
-                    National Olympiad Foundation (2025-26)
+                <p className="text-gray-500 font-medium text-lg italic">
+                    (Completed - Dates Done)
                 </p>
             </div>
 
@@ -134,7 +134,7 @@ function NOFContent() {
 
 export default function NOFPage() {
     return (
-        <Suspense fallback={<div className="p-10 text-center text-gray-400">Loading NOF Schedule...</div>}>
+        <Suspense fallback={<div className="p-10 text-center text-gray-400">Loading Olympiad Schedule...</div>}>
             <NOFContent />
         </Suspense>
     );
