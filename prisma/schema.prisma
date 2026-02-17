@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model School {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  classes   Class[]
+}
+
+model Class {
+  id        String   @id @default(uuid())
+  name      String   // e.g. "PP3", "Grade 1"
+  section   String?  // e.g. "A", "B"
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  months    Month[]
+  users     User[]
+  announcements Announcement[]
+  
+  @@unique([schoolId, name, section])
+}
+
+model Month {
+  id        String   @id @default(uuid())
+  name      String   // e.g. "February"
+  year      Int
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id])
+  weeks     Week[]
+  
+  @@unique([classId, year, name])
+}
+
+model Week {
+  id         String   @id @default(uuid())
+  weekStart  DateTime
+  weekEnd    DateTime
+  dictationWords String? // JSON string or comma separated
+  monthId    String
+  month      Month    @relation(fields: [monthId], references: [id])
+  days       Day[]
+}
+
+model Day {
+  id        String   @id @default(uuid())
+  date      DateTime
+  dayOfWeek String
+  isHoliday Boolean  @default(false)
+  holidayName String?
+  schedule  ScheduleItem[]
+  weekId    String
+  week      Week     @relation(fields: [weekId], references: [id])
+  
+  @@unique([weekId, date])
+}
+
+model ScheduleItem {
+  id        String @id @default(uuid())
+  time      String
+  subject   String
+  activity  String
+  dayId     String
+  day       Day    @relation(fields: [dayId], references: [id])
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  type      String   // info, warning, holiday, important
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  
+  schoolId  String?
+  school    School?  @relation(fields: [schoolId], references: [id])
+  
+  classId   String?
+  class     Class?   @relation(fields: [classId], references: [id])
+}
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  name     String?
+  role     String // ADMIN, TEACHER, PARENT
+  
+  classId  String?
+  class    Class? @relation(fields: [classId], references: [id])
+  
+  createdAt DateTime @default(now())
+}

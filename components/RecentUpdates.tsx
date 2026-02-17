@@ -26,17 +26,17 @@ export default function RecentUpdates() {
 
     // 1. Static/Promotional Updates (NOF Corner)
     // Only add if not already present in external updates to avoid duplication
-    const hasExternalNOF = externalUpdates.some(u => u.title?.includes('NOF') || u.category?.includes('NOF'));
+    const hasExternalNOF = externalUpdates.some(u => u.title?.includes('Olympiad') || u.category?.includes('Olympiad'));
     const distinctNOFUpdate: Update[] = !hasExternalNOF ? [{
       id: 8000,
       createdAt: new Date().toISOString(), // Always fresh
-      title: '🏆 NOF Champions League',
-      message: 'View the exam schedule and latest updates for the National Olympiad Foundation 2025-26.',
+      title: '🏆 Olympiad Dates (Done)',
+      message: 'View the completed exam schedule for the Olympiad 2025-26.',
       type: 'notice',
       priority: 2,
       category: 'School Actions & Notices',
       link: '/nof',
-      linkText: 'Open NOF Corner',
+      linkText: 'View Olympiad Dates',
       expiresAt: '2026-03-01' // Expires after exams
     }] : [];
 
@@ -132,7 +132,7 @@ export default function RecentUpdates() {
           className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-200 transition-all text-sm font-bold shadow-sm"
         >
           <span className="text-base">🏆</span>
-          <span className="inline">NOF</span>
+          <span className="inline">Olympiad</span>
         </Link>
 
         {/* Updates Button */}

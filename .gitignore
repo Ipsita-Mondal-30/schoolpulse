@@ -42,3 +42,4 @@ next-env.d.ts
 
 # Newsletter PDFs (large files)
 newsletters/
+security/zap_report.html
