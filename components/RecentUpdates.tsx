@@ -24,21 +24,7 @@ export default function RecentUpdates() {
   const updates = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
 
-    // 1. Static/Promotional Updates (NOF Corner)
-    // Only add if not already present in external updates to avoid duplication
-    const hasExternalNOF = externalUpdates.some(u => u.title?.includes('Olympiad') || u.category?.includes('Olympiad'));
-    const distinctNOFUpdate: Update[] = !hasExternalNOF ? [{
-      id: 8000,
-      createdAt: new Date().toISOString(), // Always fresh
-      title: '🏆 Olympiad Dates (Done)',
-      message: 'View the completed exam schedule for the Olympiad 2025-26.',
-      type: 'notice',
-      priority: 2,
-      category: 'School Actions & Notices',
-      link: '/nof',
-      linkText: 'View Olympiad Dates',
-      expiresAt: '2026-03-01' // Expires after exams
-    }] : [];
+
 
     // 2. Get today's events from lib/data.ts (System events)
     const todayEvent = getTodayEvent();
@@ -71,7 +57,7 @@ export default function RecentUpdates() {
       }));
 
     // Combine all updates
-    const allUpdates = [...todayEventUpdate, ...distinctNOFUpdate, ...externalUpdates, ...eventUpdates]
+    const allUpdates = [...todayEventUpdate, ...externalUpdates, ...eventUpdates]
       .filter(u => !u.category?.toLowerCase().includes('homework') && !u.category?.toLowerCase().includes('home work') && u.type !== 'homework') // Exclude homework from notifications
       .sort((a, b) => {
         // Sort by priority (1 is highest)
