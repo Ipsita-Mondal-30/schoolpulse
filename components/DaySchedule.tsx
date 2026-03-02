@@ -4,7 +4,7 @@ import { DaySchedule as DayScheduleType, getSubjectColor, formatDate } from '@/l
 import WeekendRevision from './WeekendRevision';
 
 interface DayScheduleProps {
-  day: DayScheduleType;
+  day: DayScheduleType & { newsletterPending?: boolean };
   showHeader?: boolean;
   compact?: boolean;
 }
@@ -37,6 +37,28 @@ export default function DaySchedule({ day, showHeader = true, compact = false }:
           <div>
             <p className="text-xl font-bold text-orange-700">{day.holidayName}</p>
             <p className="text-orange-600">School Holiday</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Newsletter not yet received — show a friendly pending state
+  if (day.newsletterPending || day.schedule.length === 0) {
+    return (
+      <div className={`${compact ? 'p-4' : 'p-6'} bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200`}>
+        {showHeader && (
+          <h2 className={`${compact ? 'text-base' : 'text-lg'} font-semibold text-amber-800 mb-4`}>
+            {formatDate(day.date)}
+          </h2>
+        )}
+        <div className="flex items-center gap-4">
+          <span className="text-4xl">📬</span>
+          <div>
+            <p className="font-bold text-amber-800 text-sm">Newsletter on its way!</p>
+            <p className="text-amber-700 text-xs mt-0.5">
+              March timetable will be updated once the newsletter arrives from school.
+            </p>
           </div>
         </div>
       </div>
