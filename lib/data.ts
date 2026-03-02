@@ -5,6 +5,7 @@ import november2025 from '@/data/november-2025.json';
 import december2025 from '@/data/december-2025.json';
 import january2026 from '@/data/january-2026.json';
 import february2026 from '@/data/february-2026.json';
+import march2026 from '@/data/march-2026.json';
 
 export interface ScheduleItem {
   time: string;
@@ -67,13 +68,15 @@ export interface MonthData {
   class: string;
   school: string;
   weeks: WeekData[];
-  rhymes: Rhyme[];
-  shloka: {
+  newsletterPending?: boolean;
+  newsletterPendingMessage?: string;
+  rhymes?: Rhyme[];
+  shloka?: {
     sanskrit: string;
     transliteration: string;
     meaning: string;
   };
-  story: {
+  story?: {
     title: string;
     content?: string;
     moral: string;
@@ -109,6 +112,7 @@ const monthDataMap: Record<string, MonthData> = {
   'december-2025': december2025 as MonthData,
   'january-2026': january2026 as MonthData,
   'february-2026': february2026 as MonthData,
+  'march-2026': march2026 as MonthData,
 };
 
 export function getAvailableMonths(): MonthInfo[] {
