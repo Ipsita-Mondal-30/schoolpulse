@@ -40,9 +40,9 @@ function RhymesContent() {
     if (!selectedMonthId) return;
 
     const data = getMonthData(selectedMonthId);
-    setRhymes(data.rhymes);
-    setShloka(data.shloka);
-    setStory(data.story);
+    setRhymes(data.rhymes ?? []);
+    setShloka(data.shloka ?? null);
+    setStory(data.story ?? null);
     setMonthInfo({ month: data.month, year: data.year });
   }, [selectedMonthId]);
 
@@ -100,6 +100,19 @@ function RhymesContent() {
           )}
         </div>
       </div>
+
+      {/* Newsletter pending banner */}
+      {!shloka && rhymes.length === 0 && !story && (
+        <div className="mb-6 flex items-center gap-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 p-5">
+          <span className="text-4xl">📬</span>
+          <div>
+            <p className="font-bold text-amber-800">Newsletter on its way!</p>
+            <p className="text-sm text-amber-700 mt-0.5">
+              Rhymes, shloka and story for {monthInfo?.month} will appear here once the newsletter arrives from school.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Shloka */}
       {shloka && (
