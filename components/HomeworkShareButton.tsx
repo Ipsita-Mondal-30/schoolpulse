@@ -40,7 +40,7 @@ export default function HomeworkShareButton({
       });
     }
 
-    text += `_via SchoolPulse_ 💓`;
+    text += `_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
     return text;
   };
 
