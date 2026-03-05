@@ -10,6 +10,12 @@ interface ShareButtonProps {
 export default function ShareButton({ day, className = "" }: ShareButtonProps) {
   const generateShareText = () => {
     if (day.isHoliday) {
+      const isAcademicYearCompleted = day.holidayName?.includes(
+        "Academic year completed",
+      );
+      if (isAcademicYearCompleted) {
+        return `📅 *${formatDate(day.date)}*\n\n🎓 *${day.holidayName}*\n\n_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
+      }
       return `📅 *${formatDate(day.date)}*\n\n🎉 *${day.holidayName}*\nSchool Holiday\n\n_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
     }
 
