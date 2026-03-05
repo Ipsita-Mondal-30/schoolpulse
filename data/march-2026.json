@@ -1,278 +1,898 @@
 {
-    "month": "March",
-    "year": 2026,
-    "class": "PP3",
-    "school": "BGS National Public School",
-    "newsletterPending": true,
-    "newsletterPendingMessage": "March newsletter is on its way! Daily timetable and activities will be updated once the newsletter arrives. Check back soon! 📬",
-    "weeks": [
+  "month": "March",
+  "year": 2026,
+  "class": "PP3",
+  "school": "BGS National Public School",
+  "newsletterPending": false,
+  "weeks": [
+    {
+      "weekStart": "2026-03-02",
+      "weekEnd": "2026-03-08",
+      "dictationWords": [],
+      "days": [
         {
-            "weekStart": "2026-03-02",
-            "weekEnd": "2026-03-08",
-            "dictationWords": [],
-            "days": [
-                {
-                    "date": "2026-03-02",
-                    "dayOfWeek": "Monday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-03",
-                    "dayOfWeek": "Tuesday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-04",
-                    "dayOfWeek": "Wednesday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-05",
-                    "dayOfWeek": "Thursday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-06",
-                    "dayOfWeek": "Friday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-07",
-                    "dayOfWeek": "Saturday",
-                    "isHoliday": true,
-                    "holidayName": "Weekend",
-                    "schedule": []
-                },
-                {
-                    "date": "2026-03-08",
-                    "dayOfWeek": "Sunday",
-                    "isHoliday": true,
-                    "holidayName": "Weekend",
-                    "schedule": []
-                }
+          "date": "2026-03-02",
+          "dayOfWeek": "Monday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "9:10-9:30",
+              "subject": "Prayer/Rhymes & Circle Time",
+              "activity": ""
+            },
+            {
+              "time": "9:30-10:00",
+              "subject": "Literacy",
+              "activity": "Reading passage and answering questions (oral)"
+            },
+            {
+              "time": "10:00-10:30",
+              "subject": "Literacy",
+              "activity": "Activity kit Simple sentence formation"
+            },
+            {
+              "time": "10:30-11:00",
+              "subject": "Snack Break",
+              "activity": ""
+            },
+            {
+              "time": "11:00-11:30",
+              "subject": "Literacy",
+              "activity": "4line note book Dictation s blends"
+            },
+            {
+              "time": "11:30-12:00",
+              "subject": "Numeracy",
+              "activity": "Recap of Tens and ones"
+            },
+            {
+              "time": "12:00-12:30",
+              "subject": "Hindi",
+              "activity": "Nirjhar Moti Pg:38"
+            },
+            {
+              "time": "12:30-12:50",
+              "subject": "General Awareness",
+              "activity": "Recap of concepts"
+            },
+            {
+              "time": "12:50-1:00",
+              "subject": "Meditation",
+              "activity": ""
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "Word Architects",
+            "activities": [
+              {
+                "subject": "Story Time",
+                "action": "Read a short paragraph together.",
+                "question": "What happened in the story? Let's answer some questions aloud.",
+                "goal": "Reading comprehension."
+              },
+              {
+                "subject": "Sentence Builders",
+                "action": "Write two simple sentences using familiar words.",
+                "question": "Can you make a sentence with the word 'cat'?",
+                "goal": "Sentence formation skills."
+              },
+              {
+                "subject": "Number Magic",
+                "action": "Bundle toys or straws in groups of tens and ones.",
+                "question": "How many tens are in the number 24?",
+                "goal": "Understanding place value ( tens and ones)."
+              }
             ]
+          }
         },
         {
-            "weekStart": "2026-03-09",
-            "weekEnd": "2026-03-15",
-            "dictationWords": [],
-            "days": [
-                {
-                    "date": "2026-03-09",
-                    "dayOfWeek": "Monday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-10",
-                    "dayOfWeek": "Tuesday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-11",
-                    "dayOfWeek": "Wednesday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-12",
-                    "dayOfWeek": "Thursday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-13",
-                    "dayOfWeek": "Friday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-14",
-                    "dayOfWeek": "Saturday",
-                    "isHoliday": true,
-                    "holidayName": "Weekend",
-                    "schedule": []
-                },
-                {
-                    "date": "2026-03-15",
-                    "dayOfWeek": "Sunday",
-                    "isHoliday": true,
-                    "holidayName": "Weekend",
-                    "schedule": []
-                }
+          "date": "2026-03-03",
+          "dayOfWeek": "Tuesday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "9:10-9:30",
+              "subject": "Prayer/Rhymes & Circle Time",
+              "activity": ""
+            },
+            {
+              "time": "9:30-10:00",
+              "subject": "Literacy",
+              "activity": "Picture Comprehension (Drawing and writing sentences of their own)"
+            },
+            {
+              "time": "10:00-10:30",
+              "subject": "Numeracy",
+              "activity": "Activity kit Number names"
+            },
+            {
+              "time": "10:30-11:00",
+              "subject": "Snack Break",
+              "activity": ""
+            },
+            {
+              "time": "11:00-11:30",
+              "subject": "Numeracy",
+              "activity": "3 Dimensional Shapes With clay(take home)"
+            },
+            {
+              "time": "11:30-12:00",
+              "subject": "Numeracy",
+              "activity": "Recap of Addition and Subtraction"
+            },
+            {
+              "time": "12:00-12:30",
+              "subject": "Hindi",
+              "activity": "Nirjhar Moti Pg:39"
+            },
+            {
+              "time": "12:30-12:50",
+              "subject": "Kannada",
+              "activity": "Recap of Varnamale Write to in Note Book"
+            },
+            {
+              "time": "12:50-1:00",
+              "subject": "Meditation",
+              "activity": ""
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "Shape Shifters & Storytellers",
+            "activities": [
+              {
+                "subject": "Picture Perfect",
+                "action": "Look at a picture book and describe what's happening.",
+                "question": "Can you write one sentence about this picture?",
+                "goal": "Picture comprehension and writing."
+              },
+              {
+                "subject": "Math Detectives",
+                "action": "Practice reading number names out loud.",
+                "question": "How do we spell the number 12?",
+                "goal": "Number name recognition."
+              },
+              {
+                "subject": "Shape Explorers",
+                "action": "Identify 3D objects in the house (like a ball/sphere or a box/cube).",
+                "question": "What shape is this cereal box?",
+                "goal": "Understanding 3D shapes."
+              }
             ]
+          }
         },
         {
-            "weekStart": "2026-03-16",
-            "weekEnd": "2026-03-22",
-            "dictationWords": [],
-            "days": [
-                {
-                    "date": "2026-03-16",
-                    "dayOfWeek": "Monday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-17",
-                    "dayOfWeek": "Tuesday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-18",
-                    "dayOfWeek": "Wednesday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-19",
-                    "dayOfWeek": "Thursday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-20",
-                    "dayOfWeek": "Friday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-21",
-                    "dayOfWeek": "Saturday",
-                    "isHoliday": true,
-                    "holidayName": "Weekend",
-                    "schedule": []
-                },
-                {
-                    "date": "2026-03-22",
-                    "dayOfWeek": "Sunday",
-                    "isHoliday": true,
-                    "holidayName": "Weekend",
-                    "schedule": []
-                }
-            ]
+          "date": "2026-03-04",
+          "dayOfWeek": "Wednesday",
+          "isHoliday": true,
+          "holidayName": "Holi",
+          "schedule": [],
+          "aiSuggestedRecap": null
         },
         {
-            "weekStart": "2026-03-23",
-            "weekEnd": "2026-03-29",
-            "dictationWords": [],
-            "days": [
-                {
-                    "date": "2026-03-23",
-                    "dayOfWeek": "Monday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-24",
-                    "dayOfWeek": "Tuesday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-25",
-                    "dayOfWeek": "Wednesday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-26",
-                    "dayOfWeek": "Thursday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-27",
-                    "dayOfWeek": "Friday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-28",
-                    "dayOfWeek": "Saturday",
-                    "isHoliday": true,
-                    "holidayName": "Weekend",
-                    "schedule": []
-                },
-                {
-                    "date": "2026-03-29",
-                    "dayOfWeek": "Sunday",
-                    "isHoliday": true,
-                    "holidayName": "Weekend",
-                    "schedule": []
-                }
+          "date": "2026-03-05",
+          "dayOfWeek": "Thursday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "9:10-9:30",
+              "subject": "Prayer/Rhymes & Circle Time",
+              "activity": ""
+            },
+            {
+              "time": "9:30-10:00",
+              "subject": "Literacy",
+              "activity": "Reading passage and answering questions (oral)"
+            },
+            {
+              "time": "10:00-10:30",
+              "subject": "Literacy",
+              "activity": "Activity kit Simple sentence formation"
+            },
+            {
+              "time": "10:30-11:00",
+              "subject": "Snack Break",
+              "activity": ""
+            },
+            {
+              "time": "11:00-11:30",
+              "subject": "Fine Motor",
+              "activity": "Scissor Activity Making a puzzle"
+            },
+            {
+              "time": "11:30-12:00",
+              "subject": "Numeracy",
+              "activity": "Recap of Addition and Subtraction"
+            },
+            {
+              "time": "12:00-12:30",
+              "subject": "Hindi",
+              "activity": "Nirjhar Moti Pg:40,41"
+            },
+            {
+              "time": "12:30-12:50",
+              "subject": "Story",
+              "activity": "Four Friends Narrating the story"
+            },
+            {
+              "time": "12:50-1:00",
+              "subject": "Meditation",
+              "activity": ""
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "Crafty Mathematicians",
+            "activities": [
+              {
+                "subject": "Puzzle Masters",
+                "action": "Cut an old greeting card into pieces and reassemble it.",
+                "question": "Can you put the picture back together?",
+                "goal": "Fine motor skills and spatial awareness."
+              },
+              {
+                "subject": "Math Magic",
+                "action": "Use small toys or beans to practice adding and taking away.",
+                "question": "If you have 4 cars and I give you 3 more, how many do you have?",
+                "goal": "Practicing addition and subtraction."
+              },
+              {
+                "subject": "Story Spinners",
+                "action": "Retell the 'Four Friends' story heard in school.",
+                "question": "Who were the four friends in the story, and what did they do?",
+                "goal": "Memory and sequencing skills."
+              }
             ]
+          }
         },
         {
-            "weekStart": "2026-03-30",
-            "weekEnd": "2026-04-05",
-            "dictationWords": [],
-            "days": [
-                {
-                    "date": "2026-03-30",
-                    "dayOfWeek": "Monday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                },
-                {
-                    "date": "2026-03-31",
-                    "dayOfWeek": "Tuesday",
-                    "isHoliday": false,
-                    "newsletterPending": true,
-                    "schedule": [],
-                    "aiSuggestedRecap": null
-                }
+          "date": "2026-03-06",
+          "dayOfWeek": "Friday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "9:10-9:30",
+              "subject": "Prayer/Rhymes & Circle Time",
+              "activity": ""
+            },
+            {
+              "time": "9:30-10:00",
+              "subject": "Literacy",
+              "activity": "Picture Comprehension (Drawing and writing sentences of their own)"
+            },
+            {
+              "time": "10:00-10:30",
+              "subject": "Wait",
+              "activity": "Free slot based on timetable structure"
+            },
+            {
+              "time": "10:30-11:00",
+              "subject": "Snack Break",
+              "activity": ""
+            },
+            {
+              "time": "11:00-11:30",
+              "subject": "Literacy",
+              "activity": "4line note book Dictation r blends"
+            },
+            {
+              "time": "11:30-12:00",
+              "subject": "Numeracy",
+              "activity": "Recap of Ordinal numbers"
+            },
+            {
+              "time": "12:00-12:30",
+              "subject": "Hindi",
+              "activity": "Nirjhar Moti Pg:42"
+            },
+            {
+              "time": "12:30-12:50",
+              "subject": "Kannada",
+              "activity": "Recap of story \u201cLion and the mouse\u201d"
+            },
+            {
+              "time": "12:50-1:00",
+              "subject": "Meditation",
+              "activity": ""
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "Phonics & Positions",
+            "activities": [
+              {
+                "subject": "Blend Hunt",
+                "action": "Look for words starting with 'r' blends (br, cr, dr, etc.) in a book.",
+                "question": "Can you give me a word that starts with the 'br' sound?",
+                "goal": "Phonics and spelling practice."
+              },
+              {
+                "subject": "The Line Up",
+                "action": "Line up toys and practice ordinal numbers.",
+                "question": "Which toy is first? Which is third?",
+                "goal": "Understanding ordinal positions."
+              },
+              {
+                "subject": "Moral of the Story",
+                "action": "Talk about the 'Lion and the Mouse' story.",
+                "question": "What did the little mouse do for the big lion?",
+                "goal": "Listening and recall."
+              }
             ]
+          }
+        },
+        {
+          "date": "2026-03-07",
+          "dayOfWeek": "Saturday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": [],
+          "isWeekendRevision": true,
+          "weekendRevisionContent": {
+            "weekCovered": "March 2-6, 2026",
+            "subjects": {
+              "Literacy": [
+                "Reading passages and oral Q&A",
+                "Picture Comprehension (Drawing & writing sentences)",
+                "Simple sentence formation (Activity kit)",
+                "Dictation: 's' blends and 'r' blends"
+              ],
+              "Numeracy": [
+                "Recap of Tens and ones",
+                "Number names",
+                "3D Shapes with clay",
+                "Recap of Addition, Subtraction, and Ordinal numbers"
+              ],
+              "General Awareness": ["Recap of general concepts"],
+              "Language": [
+                "Hindi: Nirjhar Moti (Pages 38-42)",
+                "Kannada: Recap of Varnamale, Lion and Mouse story",
+                "Story: Four Friends"
+              ]
+            }
+          }
+        },
+        {
+          "date": "2026-03-08",
+          "dayOfWeek": "Sunday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": []
         }
+      ]
+    },
+    {
+      "weekStart": "2026-03-09",
+      "weekEnd": "2026-03-15",
+      "dictationWords": [],
+      "days": [
+        {
+          "date": "2026-03-09",
+          "dayOfWeek": "Monday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "9:10-9:30",
+              "subject": "Prayer/Rhymes & Circle Time",
+              "activity": ""
+            },
+            {
+              "time": "9:30-10:00",
+              "subject": "Literacy",
+              "activity": "Reading passage and answering questions(oral)"
+            },
+            {
+              "time": "10:00-10:30",
+              "subject": "Literacy",
+              "activity": "Activity kit Pending work"
+            },
+            {
+              "time": "10:30-11:00",
+              "subject": "Snack Break",
+              "activity": ""
+            },
+            {
+              "time": "11:00-11:30",
+              "subject": "Literacy",
+              "activity": "4line note book Dictation a, e, i, o, u words"
+            },
+            {
+              "time": "11:30-12:00",
+              "subject": "Numeracy",
+              "activity": "Recap of Ascending and descending order"
+            },
+            {
+              "time": "12:00-12:30",
+              "subject": "Hindi",
+              "activity": "Nirjhar Moti Pg 43,44"
+            },
+            {
+              "time": "12:30-12:50",
+              "subject": "General Awareness",
+              "activity": "Recap of concepts"
+            },
+            {
+              "time": "12:50-1:00",
+              "subject": "Meditation",
+              "activity": ""
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "Vowel Voyage & Number Ladders",
+            "activities": [
+              {
+                "subject": "Vowel Catchers",
+                "action": "Practice reading simple words with a, e, i, o, u sounds.",
+                "question": "Can you spell 'cat', 'pen', 'pig'?",
+                "goal": "Vowel recognition and spelling."
+              },
+              {
+                "subject": "Staircase Numbers",
+                "action": "Arrange cards/blocks from smallest to largest and back.",
+                "question": "What comes first in ascending order: 5 or 9?",
+                "goal": "Understanding ascending and descending order."
+              },
+              {
+                "subject": "General Knowledge",
+                "action": "Discuss basic concepts learned over the year.",
+                "question": "What are the five elements of nature?",
+                "goal": "Memory and recall."
+              }
+            ]
+          }
+        },
+        {
+          "date": "2026-03-10",
+          "dayOfWeek": "Tuesday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "9:10-9:30",
+              "subject": "Prayer/Rhymes & Circle Time",
+              "activity": ""
+            },
+            {
+              "time": "9:30-10:00",
+              "subject": "Literacy",
+              "activity": "Reading passage and answering questions(oral)"
+            },
+            {
+              "time": "10:00-10:30",
+              "subject": "Numeracy",
+              "activity": "Activity kit: Pending work"
+            },
+            {
+              "time": "10:30-11:00",
+              "subject": "Snack Break",
+              "activity": ""
+            },
+            {
+              "time": "11:00-11:30",
+              "subject": "Story",
+              "activity": "Recap of Story"
+            },
+            {
+              "time": "11:30-12:00",
+              "subject": "Numeracy",
+              "activity": "Dictation of Numbers and Number names (1-100)"
+            },
+            {
+              "time": "12:00-12:30",
+              "subject": "Hindi",
+              "activity": "Nirjhar Moti Recap"
+            },
+            {
+              "time": "12:30-12:50",
+              "subject": "Kannada",
+              "activity": "Recap of the story \u201cGreedy Dog\u201d"
+            },
+            {
+              "time": "12:50-1:00",
+              "subject": "Meditation",
+              "activity": ""
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "Number Champions",
+            "activities": [
+              {
+                "subject": "Story Recall",
+                "action": "Ask your child to narrate their favorite story they heard today.",
+                "question": "Who was the main character in the story?",
+                "goal": "Enhance memory and verbal expression."
+              },
+              {
+                "subject": "Number Names",
+                "action": "Call out random numbers between 1-100 for them to write.",
+                "question": "How do you write the spelling for 45?",
+                "goal": "Number vocabulary practice."
+              },
+              {
+                "subject": "Hindi Practice",
+                "action": "Read the pages of Nirjhar Moti book covered so far.",
+                "question": "Can you identify these Hindi letters?",
+                "goal": "Revising Hindi alphabet."
+              }
+            ]
+          }
+        },
+        {
+          "date": "2026-03-11",
+          "dayOfWeek": "Wednesday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "9:10-9:30",
+              "subject": "Prayer/Rhymes & Circle Time",
+              "activity": ""
+            },
+            {
+              "time": "9:30-10:00",
+              "subject": "Literacy",
+              "activity": "Reading passage and answering questions(oral)"
+            },
+            {
+              "time": "10:00-10:30",
+              "subject": "Literacy",
+              "activity": "Activity kit: Pending work"
+            },
+            {
+              "time": "10:30-11:00",
+              "subject": "Snack Break",
+              "activity": ""
+            },
+            {
+              "time": "11:00-11:30",
+              "subject": "Story",
+              "activity": "Recap of Story"
+            },
+            {
+              "time": "11:30-12:00",
+              "subject": "Numeracy",
+              "activity": "Recap of before, after and in between numbers"
+            },
+            {
+              "time": "12:00-12:30",
+              "subject": "General Awareness",
+              "activity": "Recap of concepts"
+            },
+            {
+              "time": "12:30-12:50",
+              "subject": "Story",
+              "activity": "Recap of Story"
+            },
+            {
+              "time": "12:50-1:00",
+              "subject": "Meditation",
+              "activity": ""
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "Number Neighbors",
+            "activities": [
+              {
+                "subject": "Reading Out Loud",
+                "action": "Read a short paragraph and answer questions about it.",
+                "question": "What happened first in the story? What happened next?",
+                "goal": "Comprehension practice."
+              },
+              {
+                "subject": "Number Neighbors",
+                "action": "Give a number and ask what comes before and after.",
+                "question": "What number comes before 20 and after 20?",
+                "goal": "Understanding number sequencing."
+              },
+              {
+                "subject": "Story Spinners",
+                "action": "Retell a classic school story.",
+                "question": "Why did the character do that in the story?",
+                "goal": "Listening and recall."
+              }
+            ]
+          }
+        },
+        {
+          "date": "2026-03-12",
+          "dayOfWeek": "Thursday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "9:10-9:30",
+              "subject": "General Assembly",
+              "activity": "RUN THROUGH GRADUATION DAY"
+            },
+            {
+              "time": "9:30-10:00",
+              "subject": "General Assembly",
+              "activity": "RUN THROUGH GRADUATION DAY"
+            },
+            {
+              "time": "10:00-10:30",
+              "subject": "General Assembly",
+              "activity": "RUN THROUGH GRADUATION DAY"
+            },
+            {
+              "time": "10:30-11:00",
+              "subject": "Snack Break",
+              "activity": ""
+            },
+            {
+              "time": "11:00-11:30",
+              "subject": "General Assembly",
+              "activity": "RUN THROUGH GRADUATION DAY"
+            },
+            {
+              "time": "11:30-12:00",
+              "subject": "General Assembly",
+              "activity": "RUN THROUGH GRADUATION DAY"
+            },
+            {
+              "time": "12:00-12:30",
+              "subject": "General Assembly",
+              "activity": "RUN THROUGH GRADUATION DAY"
+            },
+            {
+              "time": "12:30-12:50",
+              "subject": "General Assembly",
+              "activity": "RUN THROUGH GRADUATION DAY"
+            },
+            {
+              "time": "12:50-1:00",
+              "subject": "Meditation",
+              "activity": ""
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "Graduation Preparation",
+            "activities": [
+              {
+                "subject": "Practice Makes Perfect",
+                "action": "Practice walking politely like in graduation.",
+                "question": "How do you hold your folder when you get it?",
+                "goal": "Confidence building."
+              }
+            ]
+          }
+        },
+        {
+          "date": "2026-03-13",
+          "dayOfWeek": "Friday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "9:10-1:00",
+              "subject": "Special Event",
+              "activity": "GRADUATION DAY for PP3"
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "Graduates of PP3!",
+            "activities": [
+              {
+                "subject": "Celebration",
+                "action": "Celebrate the end of PP3 and moving up to Grade 1!",
+                "question": "What was your favorite memory from PP3?",
+                "goal": "Reflection and celebration."
+              }
+            ]
+          }
+        },
+        {
+          "date": "2026-03-14",
+          "dayOfWeek": "Saturday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": [],
+          "isWeekendRevision": true,
+          "weekendRevisionContent": {
+            "weekCovered": "March 9-13, 2026",
+            "subjects": {
+              "Literacy": [
+                "Reading passages & oral Q&A",
+                "Dictation: a, e, i, o, u vowels"
+              ],
+              "Numeracy": [
+                "Ascending and descending order",
+                "Dictation of Numbers and Number names (1-100)",
+                "Recap of before, after, and in between numbers"
+              ],
+              "General Awareness": ["Recap of concepts"],
+              "Other": [
+                "Graduation Day Run Through",
+                "Graduation Day Celebration"
+              ]
+            }
+          }
+        },
+        {
+          "date": "2026-03-15",
+          "dayOfWeek": "Sunday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": []
+        }
+      ]
+    },
+    {
+      "weekStart": "2026-03-16",
+      "weekEnd": "2026-03-22",
+      "dictationWords": [],
+      "days": [
+        {
+          "date": "2026-03-16",
+          "dayOfWeek": "Monday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-17",
+          "dayOfWeek": "Tuesday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-18",
+          "dayOfWeek": "Wednesday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-19",
+          "dayOfWeek": "Thursday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-20",
+          "dayOfWeek": "Friday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-21",
+          "dayOfWeek": "Saturday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-22",
+          "dayOfWeek": "Sunday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": []
+        }
+      ]
+    },
+    {
+      "weekStart": "2026-03-23",
+      "weekEnd": "2026-03-29",
+      "dictationWords": [],
+      "days": [
+        {
+          "date": "2026-03-23",
+          "dayOfWeek": "Monday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-24",
+          "dayOfWeek": "Tuesday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-25",
+          "dayOfWeek": "Wednesday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-26",
+          "dayOfWeek": "Thursday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-27",
+          "dayOfWeek": "Friday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-28",
+          "dayOfWeek": "Saturday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-29",
+          "dayOfWeek": "Sunday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": []
+        }
+      ]
+    },
+    {
+      "weekStart": "2026-03-30",
+      "weekEnd": "2026-04-05",
+      "dictationWords": [],
+      "days": [
+        {
+          "date": "2026-03-30",
+          "dayOfWeek": "Monday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        },
+        {
+          "date": "2026-03-31",
+          "dayOfWeek": "Tuesday",
+          "isHoliday": true,
+          "holidayName": "Post Graduation",
+          "schedule": []
+        }
+      ]
+    }
+  ],
+  "storyOfTheMonth": {
+    "title": "Four Friends",
+    "content": [
+      "Once upon a time, in a jungle, lived four friends \u2013 a deer, a crow, a turtle, and a rat. They were very good friends and spent most of their time together. One day, they saw a hunter coming toward them. All of them were terrified and ran for their lives. The crow flew to the highest branch of the nearby tree; the rat hid in a nearby hole while the deer ran fast and hid in the bushes. The turtle, however, could neither hide nor run and was eventually caught by the hunter. The hunter put him in his sack and went away.",
+      "The three friends then thought of a plan to save the turtle. The crow flew high to locate the hunter, and the deer followed him. As soon as they found the hunter, the deer overtook him from a different route and lay still at some distance, pretending to be dead. The hunter saw the deer and dropped his sack to run towards it. Meanwhile, the rat came to the spot and bit the sack with his teeth to free the turtle.",
+      "On the other hand, the deer ran away in the dense forest as soon as the hunter came closer. The hunter was taken aback as to what had happened and returned to the place where he had dropped his sack. To his surprise, the sack was empty, and the turtle was missing. He returned home empty-handed, and the four friends celebrated their escape."
     ],
-    "notifications": []
+    "moral": "Unity is strength."
+  },
+  "notifications": [
+    {
+      "date": "2026-03-13",
+      "type": "alert",
+      "message": "Graduation Day for PP3"
+    },
+    {
+      "date": "2026-03-18",
+      "type": "info",
+      "message": "Last Parent Teacher Interaction for the Academic year 2025-26."
+    },
+    {
+      "date": "2026-03-20/21",
+      "type": "info",
+      "message": "Issue of uniform and shoes for the students of PP1and PP2 going to PP2 and PP3"
+    },
+    {
+      "date": "2026-03-23 to 2026-03-27",
+      "type": "info",
+      "message": "Induction programme for the students of PP3 going to Grade 1 (Academic year 2026-27)"
+    },
+    {
+      "date": "2026-04-18/20",
+      "type": "info",
+      "message": "Issue of books, uniform and shoes for the students of PP3 going to Grade 1 (Academic year 2026-27)"
+    },
+    {
+      "date": "2026-04-28",
+      "type": "info",
+      "message": "Issue of books for the students of PP1and PP2 going to PP2 and PP3 (Academic year 2026-27)"
+    },
+    {
+      "date": "2026-05-21",
+      "type": "alert",
+      "message": "Reopening date for the students of PP3 going to Grade 1 (Academic year 2026-27)"
+    },
+    {
+      "date": "2026-05-25",
+      "type": "alert",
+      "message": "Reopening date for the students of PP1/PP2 going To PP2/PP3"
+    }
+  ]
 }
