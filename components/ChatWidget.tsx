@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react';
-import { getDaySchedule, getWeekForDate, getToday, getUpcomingEvents } from '@/lib/data';
+import { getDaySchedule, getWeekForDate, getToday, getUpcomingEvents, getSchoolContactInfo } from '@/lib/data';
 import { fetchHomework, fetchExternalUpdates } from '@/app/actions';
 
 type MessageRole = 'user' | 'assistant';
@@ -31,6 +31,7 @@ export default function ChatWidget() {
         "What is today's schedule?",
         "What are the dictation words?",
         "Any upcoming events?",
+        "How to contact the school?",
     ];
 
     const scrollToBottom = () => {
@@ -119,6 +120,13 @@ export default function ChatWidget() {
                     answer = "There are no special events coming up in the next 14 days.";
                 }
             }
+            else if (question === "How to contact the school?") {
+                const contactInfo = getSchoolContactInfo();
+                answer = "Here is the contact information for the school leadership:\n\n";
+                answer += `• **PP Coordinator**: [${contactInfo.coordinatorEmail}](mailto:${contactInfo.coordinatorEmail})\n`;
+                answer += `• **Principal**: [${contactInfo.principalEmail}](mailto:${contactInfo.principalEmail})\n\n`;
+                answer += "Please feel free to reach out to them for any queries.";
+            }
             else {
                 answer = "I'm sorry, I can only answer the specific suggested questions right now.";
             }
@@ -138,41 +146,70 @@ export default function ChatWidget() {
     };
 
     const formatText = (text: string) => {
-        // Basic markdown-like formatting for bold (**text**) and lists (•)
+        // Basic markdown-like formatting for links, bold (**text**) and lists (•)
         const lines = text.split('\n');
         return lines.map((line, i) => {
-            // Handle bold text
-            let formattedLine = line;
-            const boldRegex = /\*\*(.*?)\*\*/g;
-
             if (line.trim() === '') return <br key={i} />;
 
-            const parts = [];
+            let parts: React.ReactNode[] = [];
             let lastIndex = 0;
-            let match;
 
-            while ((match = boldRegex.exec(line)) !== null) {
-                if (match.index > lastIndex) {
-                    parts.push(<span key={`${i}-${lastIndex}`}>{line.substring(lastIndex, match.index)}</span>);
-                }
-                parts.push(<strong key={`${i}-bold-${match.index}`} className="font-semibold">{match[1]}</strong>);
-                lastIndex = match.index + match[0].length;
+            // Simple parser that handles links first, then bold inside text portions
+            const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+            let linkMatch;
+
+            while ((linkMatch = linkRegex.exec(line)) !== null) {
+                // Process text before the link for bold
+                const preText = line.substring(lastIndex, linkMatch.index);
+                parts.push(...processBold(preText, `${i}-pre-${linkMatch.index}`));
+
+                // Add the link
+                parts.push(
+                    <a
+                        key={`${i}-link-${linkMatch.index}`}
+                        href={linkMatch[2]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline font-medium"
+                    >
+                        {linkMatch[1]}
+                    </a>
+                );
+                lastIndex = linkMatch.index + linkMatch[0].length;
             }
 
+            // Process remaining text after the last link
             if (lastIndex < line.length) {
-                parts.push(<span key={`${i}-end`}>{line.substring(lastIndex)}</span>);
+                const postText = line.substring(lastIndex);
+                parts.push(...processBold(postText, `${i}-post`));
             }
-
-            // Handle italics
-            const italicsRegex = /\*(.*?)\*/g;
-            const finalParts = parts.length > 0 ? parts : [line];
 
             return (
                 <div key={i} className={line.startsWith('•') ? "ml-4" : "mt-1"}>
-                    {finalParts}
+                    {parts.length > 0 ? parts : line}
                 </div>
             );
         });
+    };
+
+    const processBold = (text: string, keyPrefix: string) => {
+        const boldRegex = /\*\*(.*?)\*\*/g;
+        const parts: React.ReactNode[] = [];
+        let lastIndex = 0;
+        let match;
+
+        while ((match = boldRegex.exec(text)) !== null) {
+            if (match.index > lastIndex) {
+                parts.push(<span key={`${keyPrefix}-text-${lastIndex}`}>{text.substring(lastIndex, match.index)}</span>);
+            }
+            parts.push(<strong key={`${keyPrefix}-bold-${match.index}`} className="font-semibold">{match[1]}</strong>);
+            lastIndex = match.index + match[0].length;
+        }
+
+        if (lastIndex < text.length) {
+            parts.push(<span key={`${keyPrefix}-end`}>{text.substring(lastIndex)}</span>);
+        }
+        return parts;
     };
 
     return (

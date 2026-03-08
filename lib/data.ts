@@ -287,6 +287,14 @@ export function getSubjectColor(subject: string): string {
 
   return 'bg-gray-100 text-gray-800 border-gray-200';
 }
+
+export function getSchoolContactInfo() {
+  return {
+    coordinatorEmail: 'bgsnpsppcoordinator@gmail.com',
+    principalEmail: 'principal@bgsnps.edu.in'
+  };
+}
+
 export async function getExternalUpdates(): Promise<Announcement[]> {
   const SHEET_URL = process.env.NEXT_PUBLIC_UPDATES_SHEET_URL;
   if (!SHEET_URL) {
