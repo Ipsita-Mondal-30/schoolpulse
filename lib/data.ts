@@ -291,7 +291,8 @@ export function getSubjectColor(subject: string): string {
 export function getSchoolContactInfo() {
   return {
     coordinatorEmail: 'bgsnpsppcoordinator@gmail.com',
-    principalEmail: 'principal@bgsnps.edu.in'
+    principalEmail: 'principal@bgsnps.edu.in',
+    phone: '080-26421581 / 82'
   };
 }
 
