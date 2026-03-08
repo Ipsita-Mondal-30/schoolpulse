@@ -293,7 +293,9 @@ export function getSchoolContactInfo() {
     coordinatorEmail: 'bgsnpsppcoordinator@gmail.com',
     principalName: 'Dr. Malini Dutta',
     principalEmail: 'principal@bgsnps.edu.in',
-    phone: '9483338135'
+    schoolEmail: 'bgsnps@yahoo.com',
+    website: 'www.bgsnps.edu.in',
+    phone: '9483338135, 080-26421581, 080-26421582'
   };
 }
 

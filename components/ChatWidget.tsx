@@ -125,7 +125,9 @@ export default function ChatWidget() {
                 answer = "Here is the contact information for the school leadership:\n\n";
                 answer += `• **PP Coordinator**: [${contactInfo.coordinatorEmail}](mailto:${contactInfo.coordinatorEmail})\n`;
                 answer += `• **Principal (${contactInfo.principalName || 'Dr. Malini Dutta'})**: [${contactInfo.principalEmail}](mailto:${contactInfo.principalEmail})\n`;
-                if (contactInfo.phone) answer += `• **Phone**: ${contactInfo.phone}\n\n`;
+                answer += `• **School Email**: [${contactInfo.schoolEmail}](mailto:${contactInfo.schoolEmail})\n`;
+                if (contactInfo.phone) answer += `• **Phone**: ${contactInfo.phone}\n`;
+                if (contactInfo.website) answer += `• **Website**: [${contactInfo.website}](http://${contactInfo.website})\n\n`;
                 else answer += "\n";
                 answer += "Please feel free to reach out to them for any queries.";
             }
