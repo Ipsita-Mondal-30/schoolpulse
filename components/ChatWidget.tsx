@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react';
 import { getDaySchedule, getWeekForDate, getToday, getUpcomingEvents, getSchoolContactInfo } from '@/lib/data';
 import { fetchHomework, fetchExternalUpdates } from '@/app/actions';
+import boredomBusters from '@/data/boredom-busters.json';
 
 type MessageRole = 'user' | 'assistant';
 
@@ -32,6 +33,7 @@ export default function ChatWidget() {
         "What are the dictation words?",
         "Any upcoming events?",
         "How to contact the school?",
+        "I'm bored! What can I do?",
     ];
 
     const scrollToBottom = () => {
@@ -130,6 +132,32 @@ export default function ChatWidget() {
                 if (contactInfo.website) answer += `• **Website**: [${contactInfo.website}](http://${contactInfo.website})\n\n`;
                 else answer += "\n";
                 answer += "Please feel free to reach out to them for any queries.";
+            }
+            else if (question === "I'm bored! What can I do?") {
+                const todayStr = new Date().toISOString().split('T')[0];
+                let busterData = { date: todayStr, count: 0 };
+
+                try {
+                    const stored = localStorage.getItem('schoolpulse_boredom_buster');
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        if (parsed.date === todayStr) {
+                            busterData = parsed;
+                        }
+                    }
+                } catch (e) { }
+
+                if (busterData.count >= 3) {
+                    answer = "You've already reached today's boredom buster limit! Time to get creative with what you have or take some time to rest. Come back tomorrow for more fun! 🌟";
+                } else {
+                    const randomIdx = Math.floor(Math.random() * boredomBusters.length);
+                    const activity = boredomBusters[randomIdx];
+
+                    busterData.count += 1;
+                    localStorage.setItem('schoolpulse_boredom_buster', JSON.stringify(busterData));
+
+                    answer = `Here is a fun idea for you (${busterData.count}/3 for today):\n\n**${activity}**`;
+                }
             }
             else {
                 answer = "I'm sorry, I can only answer the specific suggested questions right now.";
