@@ -26,7 +26,7 @@ export default function ChatWidget() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const modelQuestions = [
-        "What is today's homework?",
+        "Any upcoming homework?",
         "Are there any notices?",
         "What is today's schedule?",
         "What are the dictation words?",
@@ -59,7 +59,7 @@ export default function ChatWidget() {
         const today = getToday();
 
         try {
-            if (question === "What is today's homework?") {
+            if (question === "Any upcoming homework?") {
                 const homework = await fetchHomework();
                 if (homework && homework.length > 0) {
                     answer = "Here is the pending homework:\n\n";
