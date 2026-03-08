@@ -340,7 +340,9 @@
                 "3D Shapes with clay",
                 "Recap of Addition, Subtraction, and Ordinal numbers"
               ],
-              "General Awareness": ["Recap of general concepts"],
+              "General Awareness": [
+                "Recap of general concepts"
+              ],
               "Language": [
                 "Hindi: Nirjhar Moti (Pages 38-42)",
                 "Kannada: Recap of Varnamale, Lion and Mouse story",
@@ -653,7 +655,9 @@
                 "Dictation of Numbers and Number names (1-100)",
                 "Recap of before, after, and in between numbers"
               ],
-              "General Awareness": ["Recap of concepts"],
+              "General Awareness": [
+                "Recap of concepts"
+              ],
               "Other": [
                 "Graduation Day Run Through",
                 "Graduation Day Celebration"
@@ -806,8 +810,7 @@
   ],
   "story": {
     "title": "Four Friends",
-    "image": "/images/mar-2026-story.jpg",
-    "content": "Once upon a time, in a jungle, lived four friends \u2013 a deer, a crow, a turtle, and a rat. They were very good friends and spent most of their time together. One day, they saw a hunter coming toward them. All of them were terrified and ran for their lives. The crow flew to the highest branch of the nearby tree; the rat hid in a nearby hole while the deer ran fast and hid in the bushes. The turtle, however, could neither hide nor run and was eventually caught by the hunter. The hunter put him in his sack and went away.\n\nThe three friends then thought of a plan to save the turtle. The crow flew high to locate the hunter, and the deer followed him. As soon as they found the hunter, the deer overtook him from a different route and lay still at some distance, pretending to be dead. The hunter saw the deer and dropped his sack to run towards it. Meanwhile, the rat came to the spot and bit the sack with his teeth to free the turtle.\n\nOn the other hand, the deer ran away in the dense forest as soon as the hunter came closer. The hunter was taken aback as to what had happened and returned to the place where he had dropped his sack. To his surprise, the sack was empty, and the turtle was missing. He returned home empty-handed, and the four friends celebrated their escape.",
+    "content": "Once upon a time, in a jungle, lived four friends – a deer, a crow, a turtle, and a rat. They were very good friends and spent most of their time together. One day, they saw a hunter coming toward them. All of them were terrified and ran for their lives. The crow flew to the highest branch of the nearby tree; the rat hid in a nearby hole while the deer ran fast and hid in the bushes. The turtle, however, could neither hide nor run and was eventually caught by the hunter. The hunter put him in his sack and went away.\n\nThe three friends then thought of a plan to save the turtle. The crow flew high to locate the hunter, and the deer followed him. As soon as they found the hunter, the deer overtook him from a different route and lay still at some distance, pretending to be dead. The hunter saw the deer and dropped his sack to run towards it. Meanwhile, the rat came to the spot and bit the sack with his teeth to free the turtle.\n\nOn the other hand, the deer ran away in the dense forest as soon as the hunter came closer. The hunter was taken aback as to what had happened and returned to the place where he had dropped his sack. To his surprise, the sack was empty, and the turtle was missing. He returned home empty-handed, and the four friends celebrated their escape.",
     "moral": "Unity is strength."
   },
   "importantDates": [
