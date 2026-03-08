@@ -233,14 +233,21 @@ export function getUpcomingEvents(daysAhead: number = 7): ImportantDate[] {
 
   // Gather from all months
   const months = getAvailableMonths();
-  const allEvents: ImportantDate[] = [];
+  const allEventsMap = new Map<string, ImportantDate>();
 
   for (const month of months) {
     const data = monthDataMap[month.id];
     if (data?.importantDates) {
-      allEvents.push(...data.importantDates);
+      data.importantDates.forEach((e) => {
+        const key = `${e.date}-${e.event}`;
+        if (!allEventsMap.has(key)) {
+          allEventsMap.set(key, e);
+        }
+      });
     }
   }
+
+  const allEvents = Array.from(allEventsMap.values());
 
   return allEvents
     .filter((e) => e.date >= todayStr && e.date <= futureStr)
