@@ -291,6 +291,7 @@ export function getSubjectColor(subject: string): string {
 export function getSchoolContactInfo() {
   return {
     coordinatorEmail: 'bgsnpsppcoordinator@gmail.com',
+    principalName: 'Dr. Malini Dutta',
     principalEmail: 'principal@bgsnps.edu.in',
     phone: '9483338135'
   };
