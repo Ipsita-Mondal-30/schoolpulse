@@ -292,7 +292,7 @@ export function getSchoolContactInfo() {
   return {
     coordinatorEmail: 'bgsnpsppcoordinator@gmail.com',
     principalEmail: 'principal@bgsnps.edu.in',
-    phone: '080-26421581 / 82'
+    phone: '9483338135'
   };
 }
 
