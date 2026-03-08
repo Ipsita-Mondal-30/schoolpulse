@@ -8,6 +8,7 @@ import HomeworkDuePopup from '@/components/HomeworkDuePopup';
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import InstallPrompt from "@/components/InstallPrompt";
+import ChatWidget from "@/components/ChatWidget";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -65,6 +66,7 @@ export default function RootLayout({
             </div>
           </footer>
           <InstallPrompt />
+          <ChatWidget />
           <Analytics />
           <SpeedInsights />
         </UpdatesProvider>
