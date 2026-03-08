@@ -5,6 +5,7 @@ import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react';
 import { getDaySchedule, getWeekForDate, getToday, getUpcomingEvents, getSchoolContactInfo } from '@/lib/data';
 import { fetchHomework, fetchExternalUpdates } from '@/app/actions';
 import boredomBusters from '@/data/boredom-busters.json';
+import physicalActivities from '@/data/physical-activities.json';
 
 type MessageRole = 'user' | 'assistant';
 
@@ -34,6 +35,7 @@ export default function ChatWidget() {
         "Any upcoming events?",
         "How to contact the school?",
         "I'm bored! What can I do?",
+        "Any fun indoor games? 🏃",
     ];
 
     const scrollToBottom = () => {
@@ -157,6 +159,32 @@ export default function ChatWidget() {
                     localStorage.setItem('schoolpulse_boredom_buster', JSON.stringify(busterData));
 
                     answer = `Here is a fun idea for you (${busterData.count}/3 for today):\n\n**${activity}**`;
+                }
+            }
+            else if (question === "Any fun indoor games? 🏃") {
+                const todayStr = new Date().toISOString().split('T')[0];
+                let gameData = { date: todayStr, count: 0 };
+
+                try {
+                    const stored = localStorage.getItem('schoolpulse_physical_games');
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        if (parsed.date === todayStr) {
+                            gameData = parsed;
+                        }
+                    }
+                } catch (e) { }
+
+                if (gameData.count >= 3) {
+                    answer = "Phew! You've played enough games for now. Time to rest your body and drink some water! We can play more active games tomorrow! 💧😴";
+                } else {
+                    const randomIdx = Math.floor(Math.random() * physicalActivities.length);
+                    const activity = physicalActivities[randomIdx];
+
+                    gameData.count += 1;
+                    localStorage.setItem('schoolpulse_physical_games', JSON.stringify(gameData));
+
+                    answer = `Time to move! Get ready for this physical challenge (${gameData.count}/3 for today):\n\n**${activity}**`;
                 }
             }
             else {
