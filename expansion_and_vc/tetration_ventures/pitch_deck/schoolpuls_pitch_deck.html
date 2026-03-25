@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchoolPuls — Investor Pitch Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #1D4ED8;
+    --blue-light: #3B82F6;
+    --blue-pale: #EFF6FF;
+    --amber: #F59E0B;
+    --amber-light: #FEF3C7;
+    --dark: #0F172A;
+    --slate: #1E293B;
+    --muted: #64748B;
+    --border: #E2E8F0;
+    --white: #FFFFFF;
+    --bg: #F8FAFC;
+    --green: #10B981;
+    --red: #EF4444;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #e8eaf0;
+    color: var(--dark);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .slide {
+    width: 297mm;
+    min-height: 167mm;
+    background: var(--white);
+    margin: 16px auto;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+
+  /* ── Slide header bar ─────────────────────────── */
+  .slide-header {
+    background: var(--blue);
+    padding: 10px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .slide-header .logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+  .slide-header .logo span { color: var(--amber); }
+  .slide-header .slide-num {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+  }
+
+  /* ── Slide body ───────────────────────────────── */
+  .slide-body {
+    flex: 1;
+    padding: 28px 36px 24px;
+  }
+
+  .slide-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+
+  h1 { font-size: 36px; font-weight: 900; color: var(--dark); line-height: 1.1; }
+  h2 { font-size: 26px; font-weight: 800; color: var(--dark); line-height: 1.2; margin-bottom: 16px; }
+  h3 { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+
+  p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+  /* ── Cover Slide ──────────────────────────────── */
+  .cover {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--slate) 100%);
+    min-height: 167mm;
+  }
+  .cover .slide-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px 60px;
+  }
+  .cover h1 { color: white; font-size: 52px; }
+  .cover h1 span { color: var(--amber); }
+  .cover .tagline { color: rgba(255,255,255,0.65); font-size: 18px; margin-top: 12px; font-weight: 400; }
+  .cover .meta { margin-top: 32px; display: flex; gap: 32px; }
+  .cover .meta-item { color: rgba(255,255,255,0.5); font-size: 12px; }
+  .cover .meta-item strong { display: block; color: white; font-size: 14px; margin-bottom: 2px; }
+  .cover .badge {
+    display: inline-block;
+    background: var(--amber);
+    color: var(--dark);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Two-column layout ────────────────────────── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .four-col { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+
+  /* ── Cards ────────────────────────────────────── */
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .card.accent {
+    background: var(--blue-pale);
+    border-color: #BFDBFE;
+  }
+  .card.amber {
+    background: var(--amber-light);
+    border-color: #FDE68A;
+  }
+  .card.dark {
+    background: var(--slate);
+    border-color: var(--slate);
+  }
+  .card.dark h3 { color: white; }
+  .card.dark p { color: rgba(255,255,255,0.6); }
+
+  /* ── Stat blocks ──────────────────────────────── */
+  .stat { text-align: center; padding: 16px; }
+  .stat .number { font-size: 36px; font-weight: 900; color: var(--blue); line-height: 1; }
+  .stat .label { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+  .stat .sublabel { font-size: 10px; color: var(--muted); opacity: 0.7; }
+
+  .big-stat .number { font-size: 48px; color: var(--amber); }
+
+  /* ── Problem items ────────────────────────────── */
+  .problem-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .problem-item:last-child { border-bottom: none; }
+  .problem-icon {
+    width: 36px; height: 36px;
+    background: #FEE2E2;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .problem-item h3 { font-size: 13px; margin-bottom: 2px; }
+  .problem-item p { font-size: 12px; }
+
+  /* ── Feature items ────────────────────────────── */
+  .feature-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .feature-icon {
+    width: 32px; height: 32px;
+    background: var(--blue-pale);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .feature-item h3 { font-size: 13px; margin-bottom: 2px; }
+  .feature-item p { font-size: 11px; }
+
+  /* ── Table ────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th {
+    background: var(--slate);
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--muted); }
+  td:first-child { color: var(--dark); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  tr.highlight td { background: var(--blue-pale); color: var(--blue); }
+  tr.highlight td:first-child { color: var(--blue); }
+
+  /* ── Timeline ─────────────────────────────────── */
+  .timeline { display: flex; flex-direction: column; gap: 10px; }
+  .timeline-item { display: flex; gap: 14px; align-items: flex-start; }
+  .timeline-dot {
+    width: 28px; height: 28px;
+    background: var(--blue);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 11px; font-weight: 700; flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .timeline-item h3 { font-size: 12px; margin-bottom: 2px; }
+  .timeline-item p { font-size: 11px; }
+
+  /* ── Progress bar ─────────────────────────────── */
+  .progress-bar {
+    background: var(--border);
+    border-radius: 4px;
+    height: 6px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 4px;
+  }
+
+  /* ── Use of funds donut proxy ─────────────────── */
+  .funds-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .funds-bar {
+    flex: 1;
+    background: var(--border);
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .funds-fill { height: 100%; border-radius: 4px; }
+  .funds-label { font-size: 12px; font-weight: 600; color: var(--dark); min-width: 120px; }
+  .funds-pct { font-size: 12px; font-weight: 700; color: var(--blue); min-width: 40px; text-align: right; }
+
+  /* ── Slide footer ─────────────────────────────── */
+  .slide-footer {
+    border-top: 1px solid var(--border);
+    padding: 8px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .slide-footer span { font-size: 10px; color: var(--muted); }
+
+  /* ── Divider ──────────────────────────────────── */
+  .divider { width: 48px; height: 4px; background: var(--amber); border-radius: 2px; margin-bottom: 16px; }
+
+  /* ── Print styles ─────────────────────────────── */
+  @media print {
+    body { background: white; }
+    .slide { margin: 0; box-shadow: none; page-break-after: always; }
+  }
+
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  /* ── Traction highlight ───────────────────────── */
+  .traction-box {
+    background: linear-gradient(135deg, var(--blue) 0%, #1E40AF 100%);
+    border-radius: 12px;
+    padding: 20px 24px;
+    color: white;
+    text-align: center;
+  }
+  .traction-box .number { font-size: 42px; font-weight: 900; color: var(--amber); }
+  .traction-box .label { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+
+  /* ── Quote block ──────────────────────────────── */
+  .quote {
+    background: var(--blue-pale);
+    border-left: 4px solid var(--blue);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--slate);
+    line-height: 1.6;
+    margin: 12px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 1 — COVER
+════════════════════════════════════════════════════════ -->
+<div class="slide cover">
+  <div class="slide-body">
+    <div class="badge">SEED ROUND — ₹2 CRORE</div>
+    <h1>School<span>Puls</span></h1>
+    <div class="tagline">The Digital Heartbeat of Every School</div>
+    <p style="color:rgba(255,255,255,0.5); margin-top:10px; font-size:14px; max-width:480px;">
+      Replacing WhatsApp chaos with structured, school-branded parent communication —
+      built for India's 1.5 million schools.
+    </p>
+    <div class="meta">
+      <div class="meta-item"><strong>Sreedhara GS</strong>Founder & CEO</div>
+      <div class="meta-item"><strong>sreedhargs2026@gmail.com</strong>Contact</div>
+      <div class="meta-item"><strong>www.schoolpuls.in</strong>Live Product</div>
+      <div class="meta-item"><strong>March 2026</strong>Seed Round</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 2 — THE PROBLEM
+════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header"><span class="logo">School<span>Puls</span></span><span class="slide-num">02 / 11</span></div>
+  <div class="slide-body">
+    <div class="slide-title">The Problem</div>
+    <h2>India's schools have a communication crisis</h2>
+    <div class="two-col">
+      <div>
+        <div class="problem-item">
+          <div class="problem-icon">📱</div>
+          <div>
+            <h3>WhatsApp Chaos</h3>
+            <p>70% of school updates are sent through uncontrolled parent WhatsApp groups — causing misinformation, noise, and legal liability.</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-icon">😩</div>
+          <div>
+            <h3>Teacher Burnout</h3>
+            <p>Teachers spend 2+ hours daily answering the same repetitive parent queries about schedules, homework, and events.</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-icon">😰</div>
+          <div>
+            <h3>Parent Anxiety</h3>
+            <p>Parents have no reliable, single source of truth for their child's daily academic life — leading to stress and disengagement.</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-icon">⚖️</div>
+          <div>
+            <h3>Legal Exposure</h3>
+            <p>Unauthorized student photo sharing in public groups violates India's PDPB privacy laws — schools are unaware and exposed.</p>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="card amber">
+          <h3 style="font-size:28px; font-weight:900; color:#92400E;">₹1,500</h3>
+          <p style="color:#92400E; font-size:12px;">per student/year paid to substandard 3rd-party apps — parents are dissatisfied and schools are locked in</p>
+        </div>
+        <div class="card accent">
+          <h3 style="font-size:13px; margin-bottom:6px;">The Sunday Night Problem</h3>
+          <p style="font-size:12px; font-style:italic; color:#1E40AF;">"It's Sunday evening, my child's bag is half-packed, and I have no idea what's happening tomorrow."<br><br>— Every Indian school parent</p>
+        </div>
+        <div class="card">
+          <p style="font-size:13px; font-weight:600; color:var(--dark);">1.5 million schools in India</p>
+          <p style="font-size:12px; margin-top:4px;">Zero standardised digital communication infrastructure. Paper circulars, verbal updates, and WhatsApp are still the norm.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Confidential — SchoolPuls Technologies Pvt Ltd</span><span>Seed Round 2026</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 3 — THE SOLUTION
+════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header"><span class="logo">School<span>Puls</span></span><span class="slide-num">03 / 11</span></div>
+  <div class="slide-body">
+    <div class="slide-title">The Solution</div>
+    <h2>A white-labeled digital heartbeat for every school</h2>
+    <div class="two-col">
+      <div>
+        <div class="feature-item">
+          <div class="feature-icon">📅</div>
+          <div><h3>Smart Daily Schedules</h3><p>Real-time timetable for the school day — always accurate, always accessible</p></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📝</div>
+          <div><h3>Homework Tracker</h3><p>Assignments with due dates, subject tags, and one-tap WhatsApp sharing</p></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📰</div>
+          <div><h3>Monthly School Magazine</h3><p>Auto-generated highlights, achievements, principal's message, and class updates</p></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🤖</div>
+          <div><h3>AI Parent Assistant</h3><p>Personalised home activity suggestions based on what was taught today</p></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔔</div>
+          <div><h3>Urgent Alerts</h3><p>Push notifications with 95% open rate — "School closed tomorrow" in seconds</p></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🏆</div>
+          <div><h3>Achievement Wall</h3><p>Showcases student wins — builds school pride and parent engagement</p></div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card accent">
+          <h3 style="color:var(--blue); margin-bottom:8px;">Why SchoolPuls Wins</h3>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; gap:8px; align-items:center; font-size:12px;"><span style="color:var(--green); font-weight:700;">✓</span><span><strong>No app download</strong> — Progressive Web App works on any phone</span></div>
+            <div style="display:flex; gap:8px; align-items:center; font-size:12px;"><span style="color:var(--green); font-weight:700;">✓</span><span><strong>24-hour setup</strong> — school is live next day</span></div>
+            <div style="display:flex; gap:8px; align-items:center; font-size:12px;"><span style="color:var(--green); font-weight:700;">✓</span><span><strong>White-labeled</strong> — school's brand, not ours</span></div>
+            <div style="display:flex; gap:8px; align-items:center; font-size:12px;"><span style="color:var(--green); font-weight:700;">✓</span><span><strong>WhatsApp-native sharing</strong> — works with existing habits</span></div>
+            <div style="display:flex; gap:8px; align-items:center; font-size:12px;"><span style="color:var(--green); font-weight:700;">✓</span><span><strong>Indian pricing</strong> — affordable for every school tier</span></div>
+            <div style="display:flex; gap:8px; align-items:center; font-size:12px;"><span style="color:var(--green); font-weight:700;">✓</span><span><strong>AI-powered</strong> — parent engagement built in</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:12px; margin-bottom:8px;">Replaces the entire communication stack</h3>
+          <div style="font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:4px;">
+            <div><span style="color:var(--red);">✕</span> WhatsApp parent groups</div>
+            <div><span style="color:var(--red);">✕</span> Paper circulars</div>
+            <div><span style="color:var(--red);">✕</span> Verbal teacher updates</div>
+            <div><span style="color:var(--red);">✕</span> Overpriced generic ERP apps</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Confidential — SchoolPuls Technologies Pvt Ltd</span><span>Seed Round 2026</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 4 — TRACTION
+════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header"><span class="logo">School<span>Puls</span></span><span class="slide-num">04 / 11</span></div>
+  <div class="slide-body">
+    <div class="slide-title">Traction</div>
+    <h2>Live in production. Real users. Zero churn.</h2>
+    <div class="two-col" style="gap:24px; margin-top:4px;">
+      <div>
+        <div class="four-col" style="gap:12px; margin-bottom:16px;">
+          <div class="traction-box"><div class="number">1K+</div><div class="label">Active parents</div></div>
+          <div class="traction-box"><div class="number">0%</div><div class="label">Churn rate</div></div>
+          <div class="traction-box"><div class="number">95%</div><div class="label">Push open rate</div></div>
+          <div class="traction-box"><div class="number">1</div><div class="label">Live school</div></div>
+        </div>
+        <div class="card" style="margin-bottom:12px;">
+          <h3 style="font-size:12px; color:var(--muted); font-weight:600; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Measurable Results at Pilot School</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div style="text-align:center; padding:8px; background:var(--blue-pale); border-radius:8px;">
+              <div style="font-size:22px; font-weight:900; color:var(--blue);">80%</div>
+              <div style="font-size:10px; color:var(--muted);">Reduction in parent complaints</div>
+            </div>
+            <div style="text-align:center; padding:8px; background:var(--amber-light); border-radius:8px;">
+              <div style="font-size:22px; font-weight:900; color:#92400E;">15h</div>
+              <div style="font-size:10px; color:var(--muted);">Teacher time saved weekly</div>
+            </div>
+            <div style="text-align:center; padding:8px; background:#ECFDF5; border-radius:8px;">
+              <div style="font-size:22px; font-weight:900; color:var(--green);">95%</div>
+              <div style="font-size:10px; color:var(--muted);">Parent engagement rate</div>
+            </div>
+            <div style="text-align:center; padding:8px; background:#FDF4FF; border-radius:8px;">
+              <div style="font-size:22px; font-weight:900; color:#7C3AED;">40%</div>
+              <div style="font-size:10px; color:var(--muted);">Increase in admission inquiries</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="quote">
+          "Every parent who has tried SchoolPuls continues using it daily. The product has become the school's primary communication channel within weeks of launch."
+        </div>
+        <div class="card">
+          <h3 style="font-size:12px; margin-bottom:8px;">Upcoming Pipeline (FY 2026-27)</h3>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div class="funds-row">
+              <span class="funds-label" style="font-size:11px;">3-4 schools (Jun '26)</span>
+              <div class="funds-bar"><div class="funds-fill" style="width:30%; background:var(--blue);"></div></div>
+              <span class="funds-pct" style="font-size:11px; color:var(--muted);">Q1</span>
+            </div>
+            <div class="funds-row">
+              <span class="funds-label" style="font-size:11px;">10 schools (Sep '26)</span>
+              <div class="funds-bar"><div class="funds-fill" style="width:55%; background:var(--blue);"></div></div>
+              <span class="funds-pct" style="font-size:11px; color:var(--muted);">Q2</span>
+            </div>
+            <div class="funds-row">
+              <span class="funds-label" style="font-size:11px;">20 schools (Mar '27)</span>
+              <div class="funds-bar"><div class="funds-fill" style="width:80%; background:var(--amber);"></div></div>
+              <span class="funds-pct" style="font-size:11px; color:var(--muted);">Q4</span>
+            </div>
+          </div>
+          <p style="font-size:10px; margin-top:8px; color:var(--muted);">Target: ₹36 Lakh ARR by end of FY 2026-27</p>
+        </div>
+        <div class="card accent">
+          <p style="font-size:12px; color:var(--slate);"><strong>Built solo, zero capital.</strong> The founder built and shipped this product end-to-end while working full-time — a proven execution signal rarely seen at seed stage.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Confidential — SchoolPuls Technologies Pvt Ltd</span><span>Seed Round 2026</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 5 — MARKET SIZE
+════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header"><span class="logo">School<span>Puls</span></span><span class="slide-num">05 / 11</span></div>
+  <div class="slide-body">
+    <div class="slide-title">Market Opportunity</div>
+    <h2>A structurally large, digitally underserved market</h2>
+    <div class="two-col">
+      <div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="card" style="border-left: 4px solid #BFDBFE;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">TAM — Total Addressable</div>
+                <div style="font-size:28px; font-weight:900; color:var(--dark); margin:2px 0;">₹27,000 Cr</div>
+                <div style="font-size:11px; color:var(--muted);">1.5M schools × 240 parents × ₹750/parent/yr</div>
+              </div>
+              <div style="font-size:32px; opacity:0.15;">🇮🇳</div>
+            </div>
+          </div>
+          <div class="card" style="border-left: 4px solid var(--blue-light);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">SAM — Serviceable</div>
+                <div style="font-size:28px; font-weight:900; color:var(--blue); margin:2px 0;">₹1,200 Cr</div>
+                <div style="font-size:11px; color:var(--muted);">80,000 English-medium private schools × ₹15K/mo</div>
+              </div>
+              <div style="font-size:32px; opacity:0.15;">🏫</div>
+            </div>
+          </div>
+          <div class="card amber" style="border-left: 4px solid var(--amber);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:10px; font-weight:700; color:#92400E; text-transform:uppercase; letter-spacing:1px;">SOM — Year 2 Target</div>
+                <div style="font-size:28px; font-weight:900; color:#92400E; margin:2px 0;">₹18 Cr</div>
+                <div style="font-size:11px; color:#92400E;">1,000 schools by Month 24 at ₹15K/month avg</div>
+              </div>
+              <div style="font-size:32px; opacity:0.15;">🎯</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card">
+          <h3 style="font-size:12px; margin-bottom:8px;">Why Now?</h3>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:12px; color:var(--muted);">
+            <div><span style="color:var(--blue); font-weight:700;">→</span> Post-COVID, digital school communication is now an expectation, not a luxury</div>
+            <div><span style="color:var(--blue); font-weight:700;">→</span> WhatsApp groups are becoming legally risky for schools under India's PDPB</div>
+            <div><span style="color:var(--blue); font-weight:700;">→</span> Indian parents in metros demand app-grade experiences from schools</div>
+            <div><span style="color:var(--blue); font-weight:700;">→</span> "EdTech for schools, not students" is massively underserved — no clear leader</div>
+            <div><span style="color:var(--blue); font-weight:700;">→</span> Existing solutions are expensive ERPs with poor UX — a clear opening</div>
+          </div>
+        </div>
+        <div class="card accent">
+          <h3 style="color:var(--blue); font-size:12px; margin-bottom:6px;">The Revenue Per School Opportunity</h3>
+          <table style="font-size:11px;">
+            <tr><th>Plan</th><th>Price/mo</th><th>Schools/yr</th></tr>
+            <tr><td>Starter (1 class)</td><td>₹3,000</td><td>small schools</td></tr>
+            <tr class="highlight"><td>School (10 classes)</td><td>₹15,000</td><td>primary target</td></tr>
+            <tr><td>Full Campus</td><td>₹40,000</td><td>large schools</td></tr>
+          </table>
+          <p style="font-size:10px; margin-top:6px; color:var(--muted);">+ Future revenue: in-app ads, event promotions, marketplace</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Confidential — SchoolPuls Technologies Pvt Ltd</span><span>Seed Round 2026</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 6 — BUSINESS MODEL
+════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header"><span class="logo">School<span>Puls</span></span><span class="slide-num">06 / 11</span></div>
+  <div class="slide-body">
+    <div class="slide-title">Business Model</div>
+    <h2>SaaS per school — simple, recurring, high retention</h2>
+    <div class="two-col">
+      <div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+          <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <div><h3>Starter</h3><p style="font-size:11px;">1 class · up to 40 parents</p></div>
+            <div style="text-align:right;"><div style="font-size:22px; font-weight:900; color:var(--muted);">₹3,000<span style="font-size:12px; font-weight:500;">/mo</span></div><div style="font-size:10px; color:var(--muted);">₹36,000/yr per school</div></div>
+          </div>
+          <div class="card accent" style="display:flex; justify-content:space-between; align-items:center; border:2px solid var(--blue);">
+            <div><h3 style="color:var(--blue);">School ⭐ Most Popular</h3><p style="font-size:11px; color:var(--blue);">Up to 10 classes · 400 parents</p></div>
+            <div style="text-align:right;"><div style="font-size:22px; font-weight:900; color:var(--blue);">₹15,000<span style="font-size:12px; font-weight:500;">/mo</span></div><div style="font-size:10px; color:var(--muted);">₹1.8L/yr per school</div></div>
+          </div>
+          <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <div><h3>Full Campus</h3><p style="font-size:11px;">Unlimited classes · all features</p></div>
+            <div style="text-align:right;"><div style="font-size:22px; font-weight:900; color:var(--amber);">₹40,000<span style="font-size:12px; font-weight:500;">/mo</span></div><div style="font-size:10px; color:var(--muted);">₹4.8L/yr per school</div></div>
+          </div>
+        </div>
+        <div class="card amber">
+          <h3 style="font-size:12px; margin-bottom:4px;">Replacement Economics</h3>
+          <p style="font-size:11px; color:#92400E;">Current market pays ₹1,500/student/year to competitors. At 500 students, one school pays ₹7.5 Lakhs/year to a bad product. SchoolPuls Full Campus = ₹4.8 Lakhs — better product, lower cost.</p>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card">
+          <h3 style="font-size:12px; margin-bottom:8px;">Growth & Retention Mechanics</h3>
+          <div style="font-size:12px; color:var(--muted); display:flex; flex-direction:column; gap:6px;">
+            <div><span style="color:var(--green); font-weight:700;">↑</span> <strong>Bottom-up adoption:</strong> start with 1 class, expand school-wide</div>
+            <div><span style="color:var(--green); font-weight:700;">↑</span> <strong>Near-zero churn:</strong> parents use it daily — switching cost is high</div>
+            <div><span style="color:var(--green); font-weight:700;">↑</span> <strong>Viral loop:</strong> every WhatsApp share = free marketing with school brand</div>
+            <div><span style="color:var(--green); font-weight:700;">↑</span> <strong>Network effect:</strong> principal referrals grow school pipeline organically</div>
+          </div>
+        </div>
+        <div class="card accent">
+          <h3 style="color:var(--blue); font-size:12px; margin-bottom:6px;">Future Revenue Streams</h3>
+          <div style="font-size:11px; color:var(--slate); display:flex; flex-direction:column; gap:4px;">
+            <div>📍 Hyperlocal ads (nearby tutors, buses, uniforms)</div>
+            <div>🎪 Event and activity promotions</div>
+            <div>📦 School services marketplace</div>
+            <div>🤖 AI premium parent engagement tools</div>
+            <div>📊 School analytics dashboard</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:12px; margin-bottom:6px;">Unit Economics (School Plan)</h3>
+          <div style="font-size:11px; color:var(--muted); display:flex; flex-direction:column; gap:3px;">
+            <div style="display:flex; justify-content:space-between;"><span>Revenue per school (annual)</span><span style="color:var(--dark); font-weight:600;">₹1.8 Lakh</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Infra + support cost/school</span><span style="color:var(--dark); font-weight:600;">~₹18,000</span></div>
+            <div style="display:flex; justify-content:space-between;"><span style="color:var(--green); font-weight:600;">Gross margin</span><span style="color:var(--green); font-weight:700;">~90%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Confidential — SchoolPuls Technologies Pvt Ltd</span><span>Seed Round 2026</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 7 — COMPETITION
+════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header"><span class="logo">School<span>Puls</span></span><span class="slide-num">07 / 11</span></div>
+  <div class="slide-body">
+    <div class="slide-title">Competitive Landscape</div>
+    <h2>A clear gap in the market — and we're already in it</h2>
+    <div class="two-col">
+      <div>
+        <table style="margin-bottom:12px;">
+          <tr><th>Competitor</th><th>Focus</th><th>Gap</th></tr>
+          <tr><td>ClassDojo</td><td>US-focused, behaviour tracking</td><td>Not built for India</td></tr>
+          <tr><td>Parentune</td><td>Parent community platform</td><td>Not school-specific</td></tr>
+          <tr><td>EduSys / iSchool</td><td>Heavy ERP systems</td><td>Expensive, poor UX</td></tr>
+          <tr><td>Generic ERPs</td><td>Admin-focused tools</td><td>No parent engagement</td></tr>
+          <tr class="highlight"><td>WhatsApp Groups</td><td>Free but unstructured</td><td>Our real replacement</td></tr>
+        </table>
+        <div class="card">
+          <p style="font-size:12px; color:var(--muted);">No competitor combines <strong>simplicity + school branding + WhatsApp-native sharing + AI engagement + Indian pricing</strong> in one product designed specifically for the Indian parent.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px;">
+          <h3 style="font-size:12px; margin-bottom:10px; color:var(--blue);">Our Moat</h3>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="font-size:12px;"><strong>1. Distribution moat</strong><br><span style="color:var(--muted);">Principal-to-principal referrals. One school sells the next.</span></div>
+            <div style="font-size:12px;"><strong>2. Parent habit lock-in</strong><br><span style="color:var(--muted);">Parents check it daily — switching cost is the disruption of their routine.</span></div>
+            <div style="font-size:12px;"><strong>3. School brand identity</strong><br><span style="color:var(--muted);">White-labeled — the school "owns" the product. Churn means giving it up.</span></div>
+            <div style="font-size:12px;"><strong>4. AI personalisation</strong><br><span style="color:var(--muted);">AI-generated parent tips per day are a feature no competitor offers at this price.</span></div>
+            <div style="font-size:12px;"><strong>5. Founder insight</strong><br><span style="color:var(--muted);">Built by a parent who lived the problem — not an outsider solving it theoretically.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Confidential — SchoolPuls Technologies Pvt Ltd</span><span>Seed Round 2026</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 8 — TEAM
+════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header"><span class="logo">School<span>Puls</span></span><span class="slide-num">08 / 11</span></div>
+  <div class="slide-body">
+    <div class="slide-title">The Team</div>
+    <h2>A founder who has shipped at enterprise scale — and done it again solo</h2>
+    <div class="two-col">
+      <div>
+        <div class="card accent" style="margin-bottom:14px; padding:20px;">
+          <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="width:52px; height:52px; background:var(--blue); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:20px; font-weight:900; flex-shrink:0;">S</div>
+            <div>
+              <h2 style="font-size:18px; margin-bottom:2px;">Sreedhara GS</h2>
+              <div style="font-size:12px; color:var(--blue); font-weight:600; margin-bottom:8px;">Founder & CEO — SchoolPuls</div>
+              <div style="font-size:12px; color:var(--muted); line-height:1.7;">
+                <strong style="color:var(--dark);">15+ years</strong> in software engineering and product leadership<br>
+                <strong style="color:var(--dark);">10+ years at SAP SE</strong> — delivered enterprise products from zero to global scale<br>
+                Currently <strong style="color:var(--dark);">Engineering Manager at S&P Labs India Pvt Ltd</strong><br>
+                <strong style="color:var(--dark);">Full-stack architect</strong> — built SchoolPuls end-to-end, solo<br>
+                <strong style="color:var(--dark);">Parent-founder</strong> — discovered the problem at his own son's school
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:12px; margin-bottom:8px;">Why This Founder Wins</h3>
+          <div style="font-size:12px; color:var(--muted); display:flex; flex-direction:column; gap:5px;">
+            <div><span style="color:var(--amber); font-weight:700;">★</span> Both developer AND product owner — no communication gap, fast iteration</div>
+            <div><span style="color:var(--amber); font-weight:700;">★</span> Shipped a production product, solo, with 1,000+ daily active users</div>
+            <div><span style="color:var(--amber); font-weight:700;">★</span> Enterprise delivery pedigree (SAP) — knows how to scale</div>
+            <div><span style="color:var(--amber); font-weight:700;">★</span> Zero external capital used — extreme capital efficiency proven</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card">
+          <h3 style="font-size:12px; margin-bottom:8px;">Key Hires (post-funding)</h3>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="font-size:12px;"><strong>2 Full-stack developers</strong><br><span style="color:var(--muted);">Build admin portal, multi-tenant architecture, WhatsApp bot</span></div>
+            <div style="font-size:12px;"><strong>2 School Relationship Managers</strong><br><span style="color:var(--muted);">Onboard schools, maintain relationships, drive referrals</span></div>
+            <div style="font-size:12px;"><strong>1 UX Designer</strong><br><span style="color:var(--muted);">Elevate product quality for broader school market</span></div>
+          </div>
+        </div>
+        <div class="card amber">
+          <h3 style="font-size:12px; margin-bottom:6px; color:#92400E;">Advisors & Support</h3>
+          <p style="font-size:12px; color:#92400E;">Two parent volunteers actively engaged in school community building and product feedback — informal advisors with deep parent network access.</p>
+        </div>
+        <div class="quote" style="margin:0;">
+          "I've been in enterprise software for 15 years. I've seen what scale looks like. SchoolPuls is the first product I've built for myself — and it shows."
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Confidential — SchoolPuls Technologies Pvt Ltd</span><span>Seed Round 2026</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 9 — ROADMAP
+════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header"><span class="logo">School<span>Puls</span></span><span class="slide-num">09 / 11</span></div>
+  <div class="slide-body">
+    <div class="slide-title">Roadmap</div>
+    <h2>12 months to 100 schools. 36 months to national platform.</h2>
+    <div class="three-col">
+      <div>
+        <div style="background:var(--blue); color:white; border-radius:8px 8px 0 0; padding:10px 14px; font-size:12px; font-weight:700;">Phase 1: City Footprint (0–12 months)</div>
+        <div class="card" style="border-radius:0 0 8px 8px; border-top:none;">
+          <div class="timeline">
+            <div class="timeline-item"><div class="timeline-dot" style="background:var(--blue);">3</div><div><h3>Month 3</h3><p>Admin portal live. 5 paid Bangalore schools.</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot" style="background:var(--blue);">6</div><div><h3>Month 6</h3><p>Multi-tenant platform MVP. 20 schools. ₹3L MRR.</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot" style="background:var(--blue);">9</div><div><h3>Month 9</h3><p>WhatsApp bot integration. 50 schools.</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot" style="background:var(--amber);">12</div><div><h3>Month 12</h3><p>100 schools. ₹1.5 Cr ARR. Series A ready.</p></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:#1E40AF; color:white; border-radius:8px 8px 0 0; padding:10px 14px; font-size:12px; font-weight:700;">Phase 2: State Expansion (12–24 months)</div>
+        <div class="card" style="border-radius:0 0 8px 8px; border-top:none;">
+          <div class="timeline">
+            <div class="timeline-item"><div class="timeline-dot" style="background:#1E40AF; font-size:9px;">BLR</div><div><h3>Bangalore dominance</h3><p>50+ schools, principal referral flywheel active</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot" style="background:#1E40AF; font-size:9px;">PUN</div><div><h3>Pune + Hyderabad</h3><p>Replicate Bangalore playbook in 2 new cities</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot" style="background:#1E40AF; font-size:9px;">MUM</div><div><h3>Mumbai + Chennai</h3><p>Metro expansion, CBSE council partnerships</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot" style="background:#1E40AF; font-size:9px;">🇮🇳</div><div><h3>Native language</h3><p>Kannada, Hindi, Tamil UI support launched</p></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--slate); color:white; border-radius:8px 8px 0 0; padding:10px 14px; font-size:12px; font-weight:700;">Phase 3: National Platform (24–36 months)</div>
+        <div class="card" style="border-radius:0 0 8px 8px; border-top:none;">
+          <div class="timeline">
+            <div class="timeline-item"><div class="timeline-dot" style="background:var(--slate); font-size:9px;">🛒</div><div><h3>School marketplace</h3><p>Books, uniforms, transport, tutors</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot" style="background:var(--slate); font-size:9px;">🤖</div><div><h3>Deep AI per student</h3><p>Personalised learning profiles per child</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot" style="background:var(--slate); font-size:9px;">👩‍🏫</div><div><h3>SchoolPuls for Teachers</h3><p>Classroom management + lesson planning tools</p></div></div>
+            <div class="timeline-item"><div class="timeline-dot" style="background:var(--amber); font-size:9px;">🎯</div><div><h3>Series B milestone</h3><p>1,000+ schools, ₹18 Cr ARR</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Confidential — SchoolPuls Technologies Pvt Ltd</span><span>Seed Round 2026</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 10 — THE ASK
+════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header"><span class="logo">School<span>Puls</span></span><span class="slide-num">10 / 11</span></div>
+  <div class="slide-body">
+    <div class="slide-title">The Ask</div>
+    <h2>₹2 Crore seed round to reach 100 schools and ₹1.5 Cr ARR</h2>
+    <div class="two-col">
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <h3 style="font-size:12px; margin-bottom:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Use of Funds</h3>
+          <div class="funds-row"><span class="funds-label">Engineering (2 devs)</span><div class="funds-bar"><div class="funds-fill" style="width:45%; background:var(--blue);"></div></div><span class="funds-pct">45%</span></div>
+          <p style="font-size:10px; color:var(--muted); margin: -6px 0 8px 130px;">Full-stack dev, AI integration, mobile app</p>
+          <div class="funds-row"><span class="funds-label">Sales & Onboarding</span><div class="funds-bar"><div class="funds-fill" style="width:25%; background:var(--blue-light);"></div></div><span class="funds-pct">25%</span></div>
+          <p style="font-size:10px; color:var(--muted); margin: -6px 0 8px 130px;">2 school relationship managers</p>
+          <div class="funds-row"><span class="funds-label">Product & Design</span><div class="funds-bar"><div class="funds-fill" style="width:15%; background:var(--amber);"></div></div><span class="funds-pct">15%</span></div>
+          <p style="font-size:10px; color:var(--muted); margin: -6px 0 8px 130px;">UX designer, product manager</p>
+          <div class="funds-row"><span class="funds-label">Operations</span><div class="funds-bar"><div class="funds-fill" style="width:10%; background:#10B981;"></div></div><span class="funds-pct">10%</span></div>
+          <p style="font-size:10px; color:var(--muted); margin: -6px 0 8px 130px;">Infrastructure, legal, compliance</p>
+          <div class="funds-row"><span class="funds-label">Marketing</span><div class="funds-bar"><div class="funds-fill" style="width:5%; background:#8B5CF6;"></div></div><span class="funds-pct">5%</span></div>
+          <p style="font-size:10px; color:var(--muted); margin: -6px 0 0 130px;">Content, social, school events</p>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card accent">
+          <h3 style="color:var(--blue); font-size:12px; margin-bottom:8px;">Round Terms</h3>
+          <div style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted);">
+            <div style="display:flex; justify-content:space-between;"><span>Instrument</span><span style="color:var(--dark); font-weight:600;">CCPS</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Raise</span><span style="color:var(--dark); font-weight:600;">₹2 Crore (~$240K)</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Pre-money valuation</span><span style="color:var(--dark); font-weight:600;">₹10 Crore</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Dilution</span><span style="color:var(--dark); font-weight:600;">~17%</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Conversion discount</span><span style="color:var(--dark); font-weight:600;">20%</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>Target close</span><span style="color:var(--dark); font-weight:600;">60–90 days</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:12px; margin-bottom:8px;">12-Month Milestones</h3>
+          <div style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--muted);">
+            <div><span style="color:var(--blue); font-weight:700;">M3 →</span> Admin portal live · 5 paid schools</div>
+            <div><span style="color:var(--blue); font-weight:700;">M6 →</span> Multi-tenant MVP · 20 schools</div>
+            <div><span style="color:var(--blue); font-weight:700;">M9 →</span> WhatsApp bot · 50 schools</div>
+            <div><span style="color:var(--amber); font-weight:700;">M12 →</span> 100 schools · ₹1.5 Cr ARR · Series A ready</div>
+          </div>
+        </div>
+        <div class="card amber">
+          <p style="font-size:12px; color:#92400E;"><strong>Projected runway:</strong> ~14 months at ₹4.5L/month burn. Sufficient to reach Series A milestones with buffer.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Confidential — SchoolPuls Technologies Pvt Ltd</span><span>Seed Round 2026</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 11 — VISION / CLOSE
+════════════════════════════════════════════════════════ -->
+<div class="slide" style="background: linear-gradient(135deg, var(--dark) 0%, #1E293B 100%);">
+  <div class="slide-header" style="background:rgba(255,255,255,0.05); border-bottom:1px solid rgba(255,255,255,0.1);">
+    <span class="logo">School<span>Puls</span></span>
+    <span class="slide-num" style="color:rgba(255,255,255,0.3);">11 / 11</span>
+  </div>
+  <div class="slide-body" style="display:flex; flex-direction:column; justify-content:center;">
+    <div style="text-align:center; padding:10px 40px;">
+      <div style="font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--amber); margin-bottom:16px;">The Vision</div>
+      <h1 style="color:white; font-size:38px; line-height:1.2; margin-bottom:16px;">
+        SchoolPuls in every school<br>in India by <span style="color:var(--amber);">2030</span>
+      </h1>
+      <p style="color:rgba(255,255,255,0.55); font-size:14px; max-width:560px; margin:0 auto 28px;">
+        1.5 million schools. 240 million parents. One platform that makes every school day
+        feel less like a mystery — and makes every school a better place for children and families.
+      </p>
+      <div style="display:flex; justify-content:center; gap:40px; margin-bottom:28px;">
+        <div style="text-align:center;">
+          <div style="font-size:32px; font-weight:900; color:var(--amber);">1.5M</div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.4);">Schools in India</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:32px; font-weight:900; color:var(--amber);">240M</div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.4);">Parents addressable</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:32px; font-weight:900; color:var(--amber);">₹27K Cr</div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.4);">Total market</div>
+        </div>
+      </div>
+      <div style="display:inline-flex; gap:24px; background:rgba(255,255,255,0.06); padding:16px 28px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+        <div style="text-align:left;">
+          <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:2px;">Contact</div>
+          <div style="font-size:13px; color:white; font-weight:600;">sreedhargs2026@gmail.com</div>
+        </div>
+        <div style="width:1px; background:rgba(255,255,255,0.1);"></div>
+        <div style="text-align:left;">
+          <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:2px;">Phone</div>
+          <div style="font-size:13px; color:white; font-weight:600;">+91 98803 21906</div>
+        </div>
+        <div style="width:1px; background:rgba(255,255,255,0.1);"></div>
+        <div style="text-align:left;">
+          <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:2px;">Live Product</div>
+          <div style="font-size:13px; color:var(--amber); font-weight:600;">www.schoolpuls.in</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
