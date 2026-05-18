@@ -110,15 +110,7 @@ export default function ReopeningGuidelines() {
             </div>
           </div>
           
-          <div>
-            <h4 className="font-semibold text-gray-800 mb-2">Book Covering Guidelines</h4>
-            <ul className="text-sm text-gray-600 space-y-2 list-disc list-inside bg-gray-50 p-3 rounded-lg border border-gray-200">
-              <li>All textbooks and workbooks should be wrapped in brown paper (do not bind/stitch).</li>
-              <li>Safety books and &quot;Be an Artist&quot; book must be wrapped, not bound.</li>
-              <li>Wrapping is <strong>not compulsory</strong> for Grade 1.</li>
-              <li>Ensure all items are clearly labelled with Name, Class, and Section.</li>
-            </ul>
-          </div>
+
 
           <div className="bg-amber-50 text-amber-800 p-3 rounded-lg text-sm border border-amber-100">
             <strong>Chandana Kannada Book:</strong> This is a Govt issued book and is typically delayed by a month. The school will distribute it when it arrives. Parents do not need to arrange it.
