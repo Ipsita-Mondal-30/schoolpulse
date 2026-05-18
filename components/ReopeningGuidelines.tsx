@@ -117,6 +117,38 @@ export default function ReopeningGuidelines() {
              </div>
              
              <div>
+               <h4 className="font-semibold text-gray-800 mb-2">Phased Book Submission Schedule</h4>
+               <div className="bg-white rounded-lg border border-gray-200 overflow-hidden text-sm mb-4">
+                 <table className="min-w-full divide-y divide-gray-200">
+                   <thead className="bg-gray-50">
+                     <tr>
+                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Books to Send</th>
+                     </tr>
+                   </thead>
+                   <tbody className="bg-white divide-y divide-gray-200 text-gray-600">
+                     <tr>
+                       <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-900">21 May (Thu)</td>
+                       <td className="px-3 py-2">English, Maths, EVS, Value Ed, Art, Cursive Writing, Hindi TBs</td>
+                     </tr>
+                     <tr>
+                       <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-900">22 May (Fri)</td>
+                       <td className="px-3 py-2">Computer Science TB + required notebooks</td>
+                     </tr>
+                     <tr>
+                       <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-900">25 May (Mon)</td>
+                       <td className="px-3 py-2">English Grammar TB + folder</td>
+                     </tr>
+                     <tr>
+                       <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-900">26 May (Tue)</td>
+                       <td className="px-3 py-2">All workbooks</td>
+                     </tr>
+                   </tbody>
+                 </table>
+               </div>
+             </div>
+             
+             <div>
                <h4 className="font-semibold text-gray-800 mb-2">Book Covering Guidelines</h4>
                <ul className="text-sm text-gray-600 space-y-2 list-disc list-inside bg-white p-3 rounded-lg border border-gray-200">
                  <li>All textbooks and workbooks should be wrapped in brown paper (do not bind/stitch).</li>
