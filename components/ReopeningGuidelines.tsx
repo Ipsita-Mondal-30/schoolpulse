@@ -14,10 +14,33 @@ export default function ReopeningGuidelines() {
     }));
   };
 
+  const shareGuidelines = async () => {
+    const text = `🏫 *Class 1 Reopening - BGSNPS*\n📅 *May 21, 2026*\n\n` +
+                 `*Day 1 Important Reminders:*\n` +
+                 `📍 Report by 7:50 AM\n` +
+                 `📚 Bring Day 1 Books (English, Maths, EVS, etc.)\n` +
+                 `🛍️ Note: Uniform Shop (R A Creations) has moved!\n\n` +
+                 `Tap the link below for the complete Day 1 rules, homework policies, and pick-up logistics!\n\n` +
+                 `_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Class 1 Reopening Guidelines',
+          text: text,
+        });
+      } catch (err) {
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+      }
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+    }
+  };
+
   return (
     <div className="mb-6 space-y-4">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-100 to-amber-50 p-4 border border-orange-200 rounded-xl shadow-sm">
+      <div className="bg-gradient-to-r from-orange-100 to-amber-50 p-4 border border-orange-200 rounded-xl shadow-sm flex flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3">
           <div className="text-3xl">🏫</div>
           <div>
@@ -25,6 +48,13 @@ export default function ReopeningGuidelines() {
             <p className="text-sm text-orange-800">May 21, 2026 • First day information & rules</p>
           </div>
         </div>
+        <button 
+          onClick={shareGuidelines}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-xs sm:text-sm font-medium shadow-sm whitespace-nowrap"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+          Share Guide
+        </button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-200 overflow-hidden">
