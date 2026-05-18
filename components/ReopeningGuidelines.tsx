@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 export default function ReopeningGuidelines() {
-  const [activeTab, setActiveTab] = useState<'logistics' | 'books' | 'homework' | 'uniform'>('logistics');
+  const [activeTab, setActiveTab] = useState<'logistics' | 'vendors' | 'books' | 'homework' | 'uniform'>('logistics');
 
   return (
     <div className="mb-6 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
@@ -21,6 +21,12 @@ export default function ReopeningGuidelines() {
           className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-orange-500 text-orange-700' : 'text-gray-500 hover:text-gray-700'}`}
         >
           📍 Logistics & Forms
+        </button>
+        <button
+          onClick={() => setActiveTab('vendors')}
+          className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'vendors' ? 'border-b-2 border-orange-500 text-orange-700' : 'text-gray-500 hover:text-gray-700'}`}
+        >
+          🛍️ Vendor Details
         </button>
         <button
           onClick={() => setActiveTab('books')}
@@ -67,6 +73,40 @@ export default function ReopeningGuidelines() {
                 </ul>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'vendors' && (
+          <div className="space-y-4 animate-in fade-in duration-300">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               {/* Uniform Vendor */}
+               <div className="bg-white p-4 rounded-lg border border-gray-200">
+                 <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">👕 Uniform: R A Creations</h4>
+                 <div className="text-sm text-gray-600 space-y-2">
+                   <p className="bg-blue-50 text-blue-800 p-2 rounded text-xs"><strong>Note:</strong> Shifted to new Jayanagar address (Opposite road to Pantaloon Mall, home-based shop).</p>
+                   <p><span className="font-semibold text-gray-800">Address:</span> #1195, 26TH Main, 9th Block, Jayanagar, Opp Road of Ragigudda Temple Arch, Near Village Naturals Store, Bangalore – 560069</p>
+                   <p><span className="font-semibold text-gray-800">Phone/WhatsApp:</span> <a href="https://wa.me/917483978799" className="text-blue-600 hover:underline">7483978799</a>, 08035814373</p>
+                   <p><span className="font-semibold text-gray-800">Online:</span> <a href="http://racreation.online" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">racreation.online</a></p>
+                 </div>
+               </div>
+
+               {/* Shoes Vendor */}
+               <div className="bg-white p-4 rounded-lg border border-gray-200">
+                 <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">👟 Shoes: Sunrise Enterprises</h4>
+                 <div className="text-sm text-gray-600 space-y-2">
+                   <p><span className="font-semibold text-gray-800">Address:</span> FF-5, Business Point, Brigade Rd, Next to Brigade Tower, Shanthala Nagar, Ashok Nagar, Bengaluru – 560025</p>
+                   <p><span className="font-semibold text-gray-800">Phone:</span> 080-41225990</p>
+                 </div>
+               </div>
+
+               {/* Books Vendor */}
+               <div className="bg-white p-4 rounded-lg border border-gray-200 md:col-span-2">
+                 <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">📚 Books: Hema Book World</h4>
+                 <div className="text-sm text-gray-600 space-y-2">
+                   <p><span className="font-semibold text-gray-800">Address:</span> No. 296, 24th Main Rd, Opp. IDBI Bank, JP Nagar 6th Phase, KR Layout, Bengaluru – 560078</p>
+                 </div>
+               </div>
+             </div>
           </div>
         )}
 
@@ -134,10 +174,6 @@ export default function ReopeningGuidelines() {
               </li>
             </ul>
 
-            <div className="bg-gray-100 border border-gray-200 p-3 rounded-lg border-dashed">
-              <p className="font-semibold text-gray-700 text-sm">Vendor Details (Uniform & Shoes)</p>
-              <p className="text-sm text-gray-500 italic mt-1">Vendor information is pending and will be updated here soon.</p>
-            </div>
           </div>
         )}
       </div>
