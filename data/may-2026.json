@@ -1,0 +1,188 @@
+{
+  "month": "May",
+  "year": 2026,
+  "class": "Class 1",
+  "school": "BGS National Public School",
+  "newsletterPending": false,
+  "weeks": [
+    {
+      "weekStart": "2026-05-18",
+      "weekEnd": "2026-05-24",
+      "dictationWords": [],
+      "days": [
+        {
+          "date": "2026-05-18",
+          "dayOfWeek": "Monday",
+          "isHoliday": true,
+          "holidayName": "Summer Vacation",
+          "schedule": []
+        },
+        {
+          "date": "2026-05-19",
+          "dayOfWeek": "Tuesday",
+          "isHoliday": true,
+          "holidayName": "Summer Vacation",
+          "schedule": []
+        },
+        {
+          "date": "2026-05-20",
+          "dayOfWeek": "Wednesday",
+          "isHoliday": true,
+          "holidayName": "Summer Vacation",
+          "schedule": []
+        },
+        {
+          "date": "2026-05-21",
+          "dayOfWeek": "Thursday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "7:50-8:00",
+              "subject": "Arrival",
+              "activity": "Report to school by 7:50 AM. Gate closes at 8:00 AM."
+            },
+            {
+              "time": "8:00-3:00",
+              "subject": "School Reopens",
+              "activity": "Welcome to Class 1!"
+            },
+            {
+              "time": "All Day",
+              "subject": "Book Submission",
+              "activity": "Submit: English Literature TB, Math TB, EVS TB, Value Education, Art Book, Cursive Writing, Hindi TB"
+            },
+            {
+              "time": "All Day",
+              "subject": "Important Submissions",
+              "activity": "1. Holiday homework (General Awareness, Numeracy, Kannada, Literacy, Hindi).\\n2. Passport size photo.\\n3. Driver's Detail Form + Driver's Aadhar copy (if using private van).\\n4. Consent letter addressed to Class Teacher (for parent pick-up)."
+            },
+            {
+              "time": "All Day",
+              "subject": "Things to Bring",
+              "activity": "Carry: 1 rough notebook, 3 sharpened pencils, eraser, scale, color pencils/crayons, and a spare dress in bag. Carry sufficient water and food for short/lunch break. Ensure all belongings are labelled."
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "First Day of Class 1!",
+            "activities": [
+              {
+                "subject": "Welcome Back",
+                "action": "Ask your child about their first day in Class 1.",
+                "question": "Who did you sit next to today?",
+                "goal": "Re-acclimating to the school routine."
+              }
+            ]
+          }
+        },
+        {
+          "date": "2026-05-22",
+          "dayOfWeek": "Friday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "All Day",
+              "subject": "Book Submission",
+              "activity": "Submit: Computer Science TB, Math NB (100 pgs square), English & EVS NBs (100 pgs four line), Kannada & Hindi NBs (100 pgs double line)"
+            }
+          ],
+          "aiSuggestedRecap": {
+            "todayMission": "Organizing for Success",
+            "activities": [
+              {
+                "subject": "Book Submission",
+                "action": "Ensure all required notebooks are labelled and submitted.",
+                "question": "Did you hand in all your notebooks to the teacher today?",
+                "goal": "Responsibility and organization."
+              }
+            ]
+          }
+        },
+        {
+          "date": "2026-05-23",
+          "dayOfWeek": "Saturday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": []
+        },
+        {
+          "date": "2026-05-24",
+          "dayOfWeek": "Sunday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": []
+        }
+      ]
+    },
+    {
+      "weekStart": "2026-05-25",
+      "weekEnd": "2026-05-31",
+      "dictationWords": [],
+      "days": [
+        {
+          "date": "2026-05-25",
+          "dayOfWeek": "Monday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "All Day",
+              "subject": "Book Submission",
+              "activity": "Submit: English Grammar Textbook, Folder"
+            }
+          ]
+        },
+        {
+          "date": "2026-05-26",
+          "dayOfWeek": "Tuesday",
+          "isHoliday": false,
+          "schedule": [
+            {
+              "time": "All Day",
+              "subject": "Book Submission",
+              "activity": "Submit: All workbooks"
+            }
+          ]
+        },
+        {
+          "date": "2026-05-27",
+          "dayOfWeek": "Wednesday",
+          "isHoliday": false,
+          "schedule": []
+        },
+        {
+          "date": "2026-05-28",
+          "dayOfWeek": "Thursday",
+          "isHoliday": false,
+          "schedule": []
+        },
+        {
+          "date": "2026-05-29",
+          "dayOfWeek": "Friday",
+          "isHoliday": false,
+          "schedule": []
+        },
+        {
+          "date": "2026-05-30",
+          "dayOfWeek": "Saturday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": []
+        },
+        {
+          "date": "2026-05-31",
+          "dayOfWeek": "Sunday",
+          "isHoliday": true,
+          "holidayName": "Weekend",
+          "schedule": []
+        }
+      ]
+    }
+  ],
+  "importantDates": [
+    {
+      "date": "2026-05-21",
+      "event": "School Reopens (Class 1)",
+      "type": "event",
+      "description": "School reopens for Class 1. Report by 7:50 AM."
+    }
+  ]
+}

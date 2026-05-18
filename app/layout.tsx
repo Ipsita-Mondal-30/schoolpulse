@@ -62,7 +62,7 @@ export default function RootLayout({
             <div className="max-w-4xl mx-auto px-4 text-center text-sm text-gray-500">
               <div className="font-semibold text-orange-600">SchoolPulse</div>
               <div>BGS National Public School</div>
-              <div className="text-xs text-gray-400 mt-1">Currently showing PP3 planner only</div>
+              <div className="text-xs text-gray-400 mt-1">Currently showing Class 1 planner only</div>
             </div>
           </footer>
           <InstallPrompt />

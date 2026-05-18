@@ -85,7 +85,7 @@ def create_template_json(month, year):
     return {
         "month": month.capitalize(),
         "year": int(year),
-        "class": "PP3",
+        "class": "Class 1",
         "school": "BGS National Public School",
         "weeks": [],
         "rhymes": [],

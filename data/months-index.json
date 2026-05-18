@@ -1,35 +1,11 @@
 {
   "months": [
     {
-      "id": "november-2025",
-      "month": "November",
-      "year": 2025,
-      "file": "november-2025.json"
-    },
-    {
-      "id": "december-2025",
-      "month": "December",
-      "year": 2025,
-      "file": "december-2025.json"
-    },
-    {
-      "id": "january-2026",
-      "month": "January",
+      "id": "may-2026",
+      "month": "May",
       "year": 2026,
-      "file": "january-2026.json"
-    },
-    {
-      "id": "february-2026",
-      "month": "February",
-      "year": 2026,
-      "file": "february-2026.json"
-    },
-    {
-      "id": "march-2026",
-      "month": "March",
-      "year": 2026,
-      "file": "march-2026.json"
+      "file": "may-2026.json"
     }
   ],
-  "currentMonth": "march-2026"
+  "currentMonth": "may-2026"
 }

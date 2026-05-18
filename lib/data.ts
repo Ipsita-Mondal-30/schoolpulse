@@ -1,11 +1,6 @@
 import monthsIndex from '@/data/months-index.json';
 
-// Import all month data files
-import november2025 from '@/data/november-2025.json';
-import december2025 from '@/data/december-2025.json';
-import january2026 from '@/data/january-2026.json';
-import february2026 from '@/data/february-2026.json';
-import march2026 from '@/data/march-2026.json';
+import may2026 from '@/data/may-2026.json';
 
 export interface ScheduleItem {
   time: string;
@@ -108,11 +103,7 @@ export interface Announcement {
 
 // Map of month IDs to their data
 const monthDataMap: Record<string, MonthData> = {
-  'november-2025': november2025 as MonthData,
-  'december-2025': december2025 as MonthData,
-  'january-2026': january2026 as MonthData,
-  'february-2026': february2026 as MonthData,
-  'march-2026': march2026 as MonthData,
+  'may-2026': may2026 as MonthData,
 };
 
 export function getAvailableMonths(): MonthInfo[] {
@@ -297,12 +288,12 @@ export function getSubjectColor(subject: string): string {
 
 export function getSchoolContactInfo() {
   return {
-    coordinatorEmail: 'bgsnpsppcoordinator@gmail.com',
+    coordinatorEmail: 'bgsnpscoordinatorI@gmail.com',
     principalName: 'Dr. Malini Dutta',
     principalEmail: 'principal@bgsnps.edu.in',
     schoolEmail: 'bgsnps@yahoo.com',
     website: 'www.bgsnps.edu.in',
-    phone: '9483338135, 080-26421581, 080-26421582'
+    phone: '7676242907, 9483338135, 080-26421581, 080-26421582'
   };
 }
 
