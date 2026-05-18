@@ -17,9 +17,11 @@ export default function ReopeningGuidelines() {
   const shareGuidelines = async () => {
     const text = `🏫 *Class 1 Reopening - BGSNPS*\n📅 *May 21, 2026*\n\n` +
                  `*Day 1 Important Reminders:*\n` +
-                 `📍 Report by 7:50 AM\n` +
-                 `📚 Bring Day 1 Books (English, Maths, EVS, etc.)\n` +
-                 `🛍️ Note: Uniform Shop (R A Creations) has moved!\n\n` +
+                 `📍 *Timings:* Report by 7:50 AM\n` +
+                 `🚗 *Pick-up:* 3:00 PM (Parent) | 3:15 PM (Bus)\n` +
+                 `📚 *Books:* Bring Day 1 Books (English, Maths, EVS, etc.)\n` +
+                 `📝 *Homework:* Submit Holiday Homework\n` +
+                 `🛍️ *Uniform:* Shop (R A Creations) has moved!\n\n` +
                  `Tap the link below for the complete Day 1 rules, homework policies, and pick-up logistics!\n\n` +
                  `_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
 
