@@ -56,7 +56,7 @@ export default function ReopeningGuidelines() {
                 <div className="bg-red-50 p-3 rounded-lg border border-red-200">
                   <h4 className="font-semibold text-red-800 mb-1 flex items-center gap-2">⚠️ Mandatory on Day 1</h4>
                   <ul className="text-sm text-red-700 list-disc list-inside">
-                    <li>Passport size photo (NOT stamp size)</li>
+                    <li>Upload Passport size photo to Google Form (do NOT send to school)</li>
                     <li>Van Driver Form + Aadhar copy (if applicable)</li>
                     <li>Parent Pick-up Consent Letter (if applicable)</li>
                   </ul>
