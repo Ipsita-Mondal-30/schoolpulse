@@ -6,9 +6,7 @@ import generalInfoData from '@/data/info/general.json';
 import busesData from '@/data/info/buses.json';
 
 export default function GeneralInfo() {
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    vendors: true,
-  });
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   
   const [pinnedBusRoute, setPinnedBusRoute] = useState<string | null>(null);
 
