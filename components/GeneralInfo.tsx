@@ -7,7 +7,7 @@ import busesData from '@/data/info/buses.json';
 
 export default function GeneralInfo() {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    buses: true,
+    vendors: true,
   });
   
   const [pinnedBusRoute, setPinnedBusRoute] = useState<string | null>(null);
@@ -109,7 +109,7 @@ export default function GeneralInfo() {
             onClick={() => toggleSection('buses')}
             className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
           >
-            <h3 className="text-lg font-bold text-gray-800">🚌 School Bus Tracking</h3>
+            <h3 className="text-lg font-bold text-gray-800">🚌 School Bus Details and Track</h3>
             <span className="text-gray-500">{openSections['buses'] ? '▲' : '▼'}</span>
           </button>
           {openSections['buses'] && (
