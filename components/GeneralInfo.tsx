@@ -67,6 +67,41 @@ export default function GeneralInfo() {
             </div>
           )}
         </div>
+        {/* Contacts Section */}
+        <div>
+          <button 
+            onClick={() => toggleSection('contacts')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
+          >
+            <h3 className="text-lg font-bold text-gray-800">📞 School Contacts</h3>
+            <span className="text-gray-500">{openSections['contacts'] ? '▲' : '▼'}</span>
+          </button>
+          {openSections['contacts'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                {/* Principal */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">👨‍🏫 Principal</h4>
+                  <div className="text-sm text-gray-600 space-y-2">
+                    <p><span className="font-semibold text-gray-800">E-mail:</span> <a href="mailto:principal@bgsnps.edu.in" className="text-blue-600 hover:underline">principal@bgsnps.edu.in</a></p>
+                    <p><span className="font-semibold text-gray-800">Mobile:</span> <a href="tel:+919483338135" className="text-blue-600 hover:underline">+91 94833 38135</a>, <a href="tel:+919448135952" className="text-blue-600 hover:underline">+91 94481 35952</a></p>
+                    <p><span className="font-semibold text-gray-800">Phone:</span> <a href="tel:+918026484933" className="text-blue-600 hover:underline">+91-80-26484933</a></p>
+                  </div>
+                </div>
+
+                {/* Coordinator */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">👩‍💼 Coordinator</h4>
+                  <div className="text-sm text-gray-600 space-y-2">
+                    <p className="text-gray-400 italic">Details to be updated</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Teachers Section */}
         <div>
