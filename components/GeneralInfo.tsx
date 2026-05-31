@@ -115,6 +115,43 @@ export default function GeneralInfo() {
           )}
         </div>
 
+        {/* Houses Section */}
+        <div>
+          <button 
+            onClick={() => toggleSection('houses')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
+          >
+            <h3 className="text-lg font-bold text-gray-800">🏠 House Colors</h3>
+            <span className="text-gray-500">{openSections['houses'] ? '▲' : '▼'}</span>
+          </button>
+          {openSections['houses'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-purple-200 bg-purple-50">
+                  <div className="w-8 h-8 rounded-full bg-purple-600 mb-2 shadow-sm"></div>
+                  <span className="font-bold text-purple-900 text-sm text-center">NARMADA</span>
+                  <span className="text-xs text-purple-700 mt-1">Purple</span>
+                </div>
+                <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-blue-200 bg-blue-50">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 mb-2 shadow-sm"></div>
+                  <span className="font-bold text-blue-900 text-sm text-center">KAVERI</span>
+                  <span className="text-xs text-blue-700 mt-1">Blue</span>
+                </div>
+                <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-orange-200 bg-orange-50">
+                  <div className="w-8 h-8 rounded-full bg-orange-500 mb-2 shadow-sm"></div>
+                  <span className="font-bold text-orange-900 text-sm text-center">GANGA</span>
+                  <span className="text-xs text-orange-700 mt-1">Orange</span>
+                </div>
+                <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-red-200 bg-red-50">
+                  <div className="w-8 h-8 rounded-full bg-[#800000] mb-2 shadow-sm"></div>
+                  <span className="font-bold text-[#800000] text-sm text-center">BRAHMAPUTRA</span>
+                  <span className="text-xs text-[#800000] mt-1">Maroon</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );
