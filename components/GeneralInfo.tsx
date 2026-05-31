@@ -90,7 +90,7 @@ export default function GeneralInfo() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-200 overflow-hidden">
         
-        {/* School Bus Tracking Section */}
+        {/* 1. School Bus Tracking Section */}
         <div>
           <button 
             onClick={() => toggleSection('buses')}
@@ -155,55 +155,7 @@ export default function GeneralInfo() {
           )}
         </div>
 
-        {/* Vendors Section */}
-        <div>
-          <button 
-            onClick={() => toggleSection('vendors')}
-            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
-          >
-            <h3 className="text-lg font-bold text-gray-800">🛍️ Vendor Details</h3>
-            <span className="text-gray-500">{openSections['vendors'] ? '▲' : '▼'}</span>
-          </button>
-          {openSections['vendors'] && (
-            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {generalInfoData.vendors.map((vendor) => (
-                  <div key={vendor.id} className={`bg-gray-50 p-4 rounded-lg border border-gray-200 ${vendor.id === 'books' ? 'md:col-span-2' : ''}`}>
-                    <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">{vendor.icon} {vendor.category}: {vendor.name}</h4>
-                    <div className="text-sm text-gray-600 space-y-2">
-                      {vendor.note && (
-                        <p className="bg-blue-50 text-blue-800 p-2 rounded text-xs"><strong>Note:</strong> {vendor.note}</p>
-                      )}
-                      {vendor.address && (
-                        <p><span className="font-semibold text-gray-800">Address:</span> {vendor.address}</p>
-                      )}
-                      {vendor.phones && vendor.phones.length > 0 && (
-                        <p>
-                          <span className="font-semibold text-gray-800">Phone/WhatsApp:</span>{' '}
-                          {vendor.phones.map((p, idx) => (
-                            <React.Fragment key={p.number}>
-                              {p.isWhatsapp ? (
-                                <a href={`https://wa.me/91${p.number}`} className="text-blue-600 hover:underline">{p.number}</a>
-                              ) : (
-                                <span>{p.number}</span>
-                              )}
-                              {idx < vendor.phones.length - 1 ? ', ' : ''}
-                            </React.Fragment>
-                          ))}
-                        </p>
-                      )}
-                      {vendor.website && (
-                        <p><span className="font-semibold text-gray-800">Online:</span> <a href={`http://${vendor.website}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{vendor.website}</a></p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Contacts Section */}
+        {/* 2. Contacts Section */}
         <div>
           <button 
             onClick={() => toggleSection('contacts')}
@@ -220,7 +172,7 @@ export default function GeneralInfo() {
                     <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">{contact.icon} {contact.role}</h4>
                     <div className="text-sm text-gray-600 space-y-2">
                       {contact.note && (
-                        <p className="text-gray-400 italic">{contact.note}</p>
+                        <p className="text-gray-600 font-semibold">{contact.note}</p>
                       )}
                       {contact.email && (
                         <p><span className="font-semibold text-gray-800">E-mail:</span> <a href={`mailto:${contact.email}`} className="text-blue-600 hover:underline">{contact.email}</a></p>
@@ -247,7 +199,7 @@ export default function GeneralInfo() {
           )}
         </div>
 
-        {/* Teachers Section */}
+        {/* 3. Teachers Section */}
         <div>
           <button 
             onClick={() => toggleSection('teachers')}
@@ -282,31 +234,7 @@ export default function GeneralInfo() {
           )}
         </div>
 
-        {/* Houses Section */}
-        <div>
-          <button 
-            onClick={() => toggleSection('houses')}
-            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
-          >
-            <h3 className="text-lg font-bold text-gray-800">🏠 House Colors</h3>
-            <span className="text-gray-500">{openSections['houses'] ? '▲' : '▼'}</span>
-          </button>
-          {openSections['houses'] && (
-            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {generalInfoData.houses.map((house) => (
-                  <div key={house.name} className={`flex flex-col items-center justify-center p-3 rounded-lg border ${house.borderColor} ${house.bgColor}`}>
-                    <div className={`w-8 h-8 rounded-full ${house.circleColor} mb-2 shadow-sm`}></div>
-                    <span className={`font-bold ${house.textColor} text-sm text-center`}>{house.name}</span>
-                    <span className={`text-xs ${house.subTextColor} mt-1`}>{house.color}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Uniform Schedule Section */}
+        {/* 4. Uniform Schedule Section */}
         <div>
           <button 
             onClick={() => toggleSection('uniform_schedule')}
@@ -353,6 +281,78 @@ export default function GeneralInfo() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 5. Houses Section */}
+        <div>
+          <button 
+            onClick={() => toggleSection('houses')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
+          >
+            <h3 className="text-lg font-bold text-gray-800">🏠 House Colors</h3>
+            <span className="text-gray-500">{openSections['houses'] ? '▲' : '▼'}</span>
+          </button>
+          {openSections['houses'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {generalInfoData.houses.map((house) => (
+                  <div key={house.name} className={`flex flex-col items-center justify-center p-3 rounded-lg border ${house.borderColor} ${house.bgColor}`}>
+                    <div className={`w-8 h-8 rounded-full ${house.circleColor} mb-2 shadow-sm`}></div>
+                    <span className={`font-bold ${house.textColor} text-sm text-center`}>{house.name}</span>
+                    <span className={`text-xs ${house.subTextColor} mt-1`}>{house.color}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 6. Vendors Section (Last) */}
+        <div>
+          <button 
+            onClick={() => toggleSection('vendors')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
+          >
+            <h3 className="text-lg font-bold text-gray-800">🛍️ Vendor Details</h3>
+            <span className="text-gray-500">{openSections['vendors'] ? '▲' : '▼'}</span>
+          </button>
+          {openSections['vendors'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {generalInfoData.vendors.map((vendor) => (
+                  <div key={vendor.id} className={`bg-gray-50 p-4 rounded-lg border border-gray-200 ${vendor.id === 'books' ? 'md:col-span-2' : ''}`}>
+                    <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">{vendor.icon} {vendor.category}: {vendor.name}</h4>
+                    <div className="text-sm text-gray-600 space-y-2">
+                      {vendor.note && (
+                        <p className="bg-blue-50 text-blue-800 p-2 rounded text-xs"><strong>Note:</strong> {vendor.note}</p>
+                      )}
+                      {vendor.address && (
+                        <p><span className="font-semibold text-gray-800">Address:</span> {vendor.address}</p>
+                      )}
+                      {vendor.phones && vendor.phones.length > 0 && (
+                        <p>
+                          <span className="font-semibold text-gray-800">Phone/WhatsApp:</span>{' '}
+                          {vendor.phones.map((p, idx) => (
+                            <React.Fragment key={p.number}>
+                              {p.isWhatsapp ? (
+                                <a href={`https://wa.me/91${p.number}`} className="text-blue-600 hover:underline">{p.number}</a>
+                              ) : (
+                                <span>{p.number}</span>
+                              )}
+                              {idx < vendor.phones.length - 1 ? ', ' : ''}
+                            </React.Fragment>
+                          ))}
+                        </p>
+                      )}
+                      {vendor.website && (
+                        <p><span className="font-semibold text-gray-800">Online:</span> <a href={`http://${vendor.website}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{vendor.website}</a></p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
