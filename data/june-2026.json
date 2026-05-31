@@ -7,6 +7,12 @@
   "weeks": [],
   "importantDates": [
     {
+      "date": "2026-06-10",
+      "event": "MUSIC MANIA - SEASON 17",
+      "type": "event",
+      "description": "Audition date"
+    },
+    {
       "date": "2026-06-26",
       "event": "Last Day of Muharram",
       "type": "holiday",
