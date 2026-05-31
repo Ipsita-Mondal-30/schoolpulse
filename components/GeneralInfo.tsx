@@ -1,14 +1,34 @@
 'use client';
 
-import React, { useState } from 'react';
-import { MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { MapPin, Pin, PinOff } from 'lucide-react';
 import generalInfoData from '@/data/info/general.json';
 import busesData from '@/data/info/buses.json';
 
 export default function GeneralInfo() {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    vendors: true,
+    buses: true,
   });
+  
+  const [pinnedBusRoute, setPinnedBusRoute] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load pinned bus from local storage on mount
+    const saved = localStorage.getItem('pinnedBusRoute');
+    if (saved) {
+      setPinnedBusRoute(saved);
+    }
+  }, []);
+
+  const togglePin = (route: string) => {
+    if (pinnedBusRoute === route) {
+      setPinnedBusRoute(null);
+      localStorage.removeItem('pinnedBusRoute');
+    } else {
+      setPinnedBusRoute(route);
+      localStorage.setItem('pinnedBusRoute', route);
+    }
+  };
 
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({
@@ -32,6 +52,8 @@ export default function GeneralInfo() {
     }
   };
 
+  const pinnedBus = pinnedBusRoute ? busesData.find(b => b.route === pinnedBusRoute) : null;
+
   return (
     <div className="mb-6 space-y-4">
       {/* Header */}
@@ -45,13 +67,112 @@ export default function GeneralInfo() {
         </div>
       </div>
 
+      {/* Pinned Bus Section */}
+      {pinnedBus && (
+        <div className="bg-gradient-to-r from-yellow-50 to-amber-50 p-4 border border-yellow-300 rounded-xl shadow-sm animate-in fade-in duration-300">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-bold text-yellow-900 flex items-center gap-2">
+              <Pin size={18} className="fill-yellow-600 text-yellow-600" /> 
+              My Pinned Bus (Route {pinnedBus.route})
+            </h3>
+            <button 
+              onClick={() => togglePin(pinnedBus.route)}
+              className="text-yellow-700 hover:text-yellow-900 bg-yellow-200/50 hover:bg-yellow-200 p-1.5 rounded-full transition-colors"
+              title="Unpin bus"
+            >
+              <PinOff size={16} />
+            </button>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between bg-white/60 p-3 rounded-lg border border-yellow-200/50">
+            <div>
+              <div className="font-medium text-gray-800">Driver: {pinnedBus.driverName}</div>
+              <div className="text-sm text-gray-600">Vehicle: <span className="font-semibold">{pinnedBus.vehicle}</span> | Phone: <a href={`tel:${pinnedBus.driverPhone}`} className="text-blue-600 hover:underline">{pinnedBus.driverPhone}</a></div>
+            </div>
+            <a 
+              href={pinnedBus.gprsLink} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors shadow-sm whitespace-nowrap font-medium"
+            >
+              <MapPin size={18} />
+              Track Bus Live
+            </a>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-200 overflow-hidden">
         
+        {/* School Bus Tracking Section */}
+        <div>
+          <button 
+            onClick={() => toggleSection('buses')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
+          >
+            <h3 className="text-lg font-bold text-gray-800">🚌 School Bus Tracking</h3>
+            <span className="text-gray-500">{openSections['buses'] ? '▲' : '▼'}</span>
+          </button>
+          {openSections['buses'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200 overflow-x-auto">
+              <div className="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm mb-4 border border-yellow-200 shadow-sm flex items-start gap-2">
+                <span>⚠️</span>
+                <p>Click the <strong>Track</strong> icon to view the live GPS location of your bus. You can pin your kid's bus to the top of this page using the pin icon.</p>
+              </div>
+              <table className="w-full text-sm text-left text-gray-600 border border-gray-200 rounded-lg overflow-hidden">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-100 border-b border-gray-200">
+                  <tr>
+                    <th scope="col" className="px-3 py-3 border-r border-gray-200 text-center w-10">Pin</th>
+                    <th scope="col" className="px-3 py-3 border-r border-gray-200 text-center">Route</th>
+                    <th scope="col" className="px-4 py-3 border-r border-gray-200 text-center">Track</th>
+                    <th scope="col" className="px-4 py-3 border-r border-gray-200">Driver Details</th>
+                    <th scope="col" className="px-4 py-3 text-center">Vehicle</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {busesData.map((bus, i) => {
+                    const isPinned = pinnedBusRoute === bus.route;
+                    return (
+                      <tr key={bus.route} className={`${isPinned ? 'bg-yellow-50/50' : (i % 2 === 0 ? 'bg-white' : 'bg-gray-50')} border-b border-gray-200`}>
+                        <td className="px-3 py-3 border-r border-gray-200 text-center">
+                          <button 
+                            onClick={() => togglePin(bus.route)}
+                            className={`p-1.5 rounded-full transition-colors ${isPinned ? 'text-yellow-600 bg-yellow-100 hover:bg-yellow-200' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200'}`}
+                            title={isPinned ? "Unpin bus" : "Pin bus to top"}
+                          >
+                            <Pin size={16} className={isPinned ? "fill-yellow-600" : ""} />
+                          </button>
+                        </td>
+                        <td className="px-3 py-3 border-r border-gray-200 font-bold text-gray-900 text-center bg-yellow-100/30">{bus.route}</td>
+                        <td className="px-4 py-3 border-r border-gray-200 text-center">
+                          <a 
+                            href={bus.gprsLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center p-2 bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900 rounded-full transition-colors shadow-sm"
+                            title="Track Bus"
+                          >
+                            <MapPin size={18} />
+                          </a>
+                        </td>
+                        <td className="px-4 py-3 border-r border-gray-200">
+                          <div className="font-semibold text-gray-900">{bus.driverName}</div>
+                          <div className="text-xs text-gray-500 mt-0.5"><a href={`tel:${bus.driverPhone}`} className="text-blue-600 hover:underline">{bus.driverPhone}</a></div>
+                        </td>
+                        <td className="px-4 py-3 text-center font-medium text-gray-800 whitespace-nowrap">{bus.vehicle}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
         {/* Vendors Section */}
         <div>
           <button 
             onClick={() => toggleSection('vendors')}
-            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
           >
             <h3 className="text-lg font-bold text-gray-800">🛍️ Vendor Details</h3>
             <span className="text-gray-500">{openSections['vendors'] ? '▲' : '▼'}</span>
@@ -246,58 +367,6 @@ export default function GeneralInfo() {
                   );
                 })}
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* School Bus Tracking Section */}
-        <div>
-          <button 
-            onClick={() => toggleSection('buses')}
-            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
-          >
-            <h3 className="text-lg font-bold text-gray-800">🚌 School Bus Tracking</h3>
-            <span className="text-gray-500">{openSections['buses'] ? '▲' : '▼'}</span>
-          </button>
-          {openSections['buses'] && (
-            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200 overflow-x-auto">
-              <div className="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm mb-4 border border-yellow-200 shadow-sm flex items-start gap-2">
-                <span>⚠️</span>
-                <p>Click the <strong>Track</strong> icon to view the live GPS location of your bus. Note: The GPRS link only works while the bus is actively on its route.</p>
-              </div>
-              <table className="w-full text-sm text-left text-gray-600 border border-gray-200 rounded-lg overflow-hidden">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-100 border-b border-gray-200">
-                  <tr>
-                    <th scope="col" className="px-3 py-3 border-r border-gray-200 text-center">Route</th>
-                    <th scope="col" className="px-4 py-3 border-r border-gray-200">Vehicle</th>
-                    <th scope="col" className="px-4 py-3 border-r border-gray-200">Driver Details</th>
-                    <th scope="col" className="px-4 py-3 text-center">Track</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {busesData.map((bus, i) => (
-                    <tr key={bus.route} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50 border-b border-t border-gray-100'}>
-                      <td className="px-3 py-3 border-r border-gray-200 font-bold text-gray-900 text-center bg-yellow-100/50">{bus.route}</td>
-                      <td className="px-4 py-3 border-r border-gray-200 font-medium text-gray-800 whitespace-nowrap">{bus.vehicle}</td>
-                      <td className="px-4 py-3 border-r border-gray-200">
-                        <div className="font-semibold text-gray-900">{bus.driverName}</div>
-                        <div className="text-xs text-gray-500 mt-0.5"><a href={`tel:${bus.driverPhone}`} className="text-blue-600 hover:underline">{bus.driverPhone}</a></div>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <a 
-                          href={bus.gprsLink} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center p-2 bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900 rounded-full transition-colors shadow-sm"
-                          title="Track Bus"
-                        >
-                          <MapPin size={18} />
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           )}
         </div>
