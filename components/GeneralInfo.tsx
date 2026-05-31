@@ -152,6 +152,71 @@ export default function GeneralInfo() {
           )}
         </div>
 
+        {/* Uniform Schedule Section */}
+        <div>
+          <button 
+            onClick={() => toggleSection('uniform_schedule')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
+          >
+            <h3 className="text-lg font-bold text-gray-800">👕 Uniform Schedule</h3>
+            <span className="text-gray-500">{openSections['uniform_schedule'] ? '▲' : '▼'}</span>
+          </button>
+          {openSections['uniform_schedule'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
+              <div className="space-y-4">
+                
+                {/* Mon, Tue, Thu */}
+                <div className="bg-blue-50 border border-blue-100 rounded-xl overflow-hidden">
+                  <div className="bg-blue-100 px-4 py-2 font-bold text-blue-900 border-b border-blue-200">
+                    Monday, Tuesday & Thursday
+                  </div>
+                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
+                      <div className="font-bold text-gray-800 mb-1 flex items-center gap-2">👦 BOYS</div>
+                      <p className="text-sm text-gray-600">White Shirt, Gray Half Pant, Tie, Belt and Gray Socks with Maroon Stripe.</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
+                      <div className="font-bold text-gray-800 mb-1 flex items-center gap-2">👧 GIRLS</div>
+                      <p className="text-sm text-gray-600">White Shirt, Gray Pinafore, Cycling Shorts, Tie, Belt and Gray Socks with Maroon Stripe.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Wednesday */}
+                <div className="bg-green-50 border border-green-100 rounded-xl overflow-hidden">
+                  <div className="bg-green-100 px-4 py-2 font-bold text-green-900 border-b border-green-200">
+                    Wednesday
+                  </div>
+                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white p-3 rounded-lg border border-green-100 shadow-sm">
+                      <div className="font-bold text-gray-800 mb-1 flex items-center gap-2">👦 BOYS</div>
+                      <p className="text-sm text-gray-600">White T-shirt, White Half Pant, Belt, White Socks.</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border border-green-100 shadow-sm">
+                      <div className="font-bold text-gray-800 mb-1 flex items-center gap-2">👧 GIRLS</div>
+                      <p className="text-sm text-gray-600">White T-shirt, White Skirt, White Cycling Shorts, Belt, White Socks.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Friday */}
+                <div className="bg-purple-50 border border-purple-100 rounded-xl overflow-hidden">
+                  <div className="bg-purple-100 px-4 py-2 font-bold text-purple-900 border-b border-purple-200">
+                    Friday
+                  </div>
+                  <div className="p-4">
+                    <div className="bg-white p-3 rounded-lg border border-purple-100 shadow-sm flex flex-col md:flex-row gap-2 md:gap-4 md:items-center">
+                      <div className="font-bold text-gray-800 flex items-center gap-2 whitespace-nowrap">👦 BOYS & 👧 GIRLS</div>
+                      <p className="text-sm text-gray-600">House T-shirt with Navy Blue Track Pant (White Piping), Gray socks with Maroon Stripe.</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );
