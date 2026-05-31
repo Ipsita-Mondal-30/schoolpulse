@@ -5,7 +5,146 @@
   "school": "BGS National Public School",
   "newsletterPending": true,
   "weeks": [],
-  "importantDates": [],
+  "importantDates": [
+    {
+      "date": "2026-06-26",
+      "event": "Last Day of Muharram",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-08-15",
+      "event": "Independence Day",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-08-25",
+      "event": "Onam / Eid-E-Milad",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-08-28",
+      "event": "Varalakshmi Vratha",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-09-04",
+      "event": "Krishna Janmashtami",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-09-14",
+      "event": "Vinayaka Chaturthi",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-10-02",
+      "event": "Gandhi Jayanti",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-10-10",
+      "event": "Mahala Amavasya",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-10-15",
+      "event": "Dussehra Break Starts",
+      "type": "holiday",
+      "description": "15th to 21st October"
+    },
+    {
+      "date": "2026-10-20",
+      "event": "Ayudha Pooja",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-10-21",
+      "event": "Vijaya Dashami",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-10-26",
+      "event": "Valmiki Jayanti",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-11-01",
+      "event": "Kannada Rajyotsava",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-11-08",
+      "event": "Naraka Chaturdasi",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-11-09",
+      "event": "Lakshmi Pooja",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-11-10",
+      "event": "Balipadyami",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-12-25",
+      "event": "Winter Break Starts",
+      "type": "holiday",
+      "description": "25th Dec 2026 to 3rd Jan 2027"
+    },
+    {
+      "date": "2027-01-15",
+      "event": "Makara Sankranti",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2027-01-26",
+      "event": "Republic Day",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2027-03-06",
+      "event": "Mahashivratri",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2027-03-09",
+      "event": "Id-Ul-Fitr",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2027-03-22",
+      "event": "Holi",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2027-03-26",
+      "event": "Good Friday",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    }
+  ],
   "rhymes": [],
   "shlokas": [],
   "stories": []
