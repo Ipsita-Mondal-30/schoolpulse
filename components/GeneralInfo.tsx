@@ -167,8 +167,9 @@ export default function GeneralInfo() {
                 
                 {/* Mon, Tue, Thu */}
                 <div className="bg-blue-50 border border-blue-100 rounded-xl overflow-hidden">
-                  <div className="bg-blue-100 px-4 py-2 font-bold text-blue-900 border-b border-blue-200">
-                    Monday, Tuesday & Thursday
+                  <div className="bg-blue-100 px-4 py-2 font-bold text-blue-900 border-b border-blue-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                    <span>Monday, Tuesday & Thursday</span>
+                    <span className="text-xs bg-blue-200 text-blue-900 px-2 py-1 rounded-full self-start sm:self-auto">🧥 Blazers only on Mondays</span>
                   </div>
                   <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
