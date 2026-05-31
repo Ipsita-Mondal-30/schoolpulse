@@ -12,9 +12,10 @@ export default function Navigation() {
     { href: '/', label: 'Today', icon: '📖' },
     { href: '/week', label: 'Week', icon: '7️⃣' },
     { href: '/homework', label: 'Homework', icon: '📚' },
-    { href: '/month', label: 'Month', icon: '🗓️' },
+    { href: '/info', label: 'Info', icon: 'ℹ️' },
     { href: '/dates', label: 'Events', icon: '🔔' },
     { href: '/rhymes', label: 'Rhymes', icon: '🎵' },
+    { href: '/month', label: 'Month', icon: '🗓️' },
     // { href: '/admin', label: 'Admin', icon: '⚙️' },
   ];
 

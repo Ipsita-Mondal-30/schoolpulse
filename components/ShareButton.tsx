@@ -9,19 +9,36 @@ interface ShareButtonProps {
 
 export default function ShareButton({ day, className = "" }: ShareButtonProps) {
   const generateShareText = () => {
-    // Custom share for Day 1 Reopening
-    if (day.date === "2026-05-21") {
-      return `🏫 *Class 1 Reopening - BGSNPS*\n📅 *${formatDate(day.date)}*\n\n` +
-             `*Glimpse of Day 1:*\n` +
-             `📍 *Timings:* Report by 7:50 AM\n` +
-             `📚 *Books:* English, Maths, EVS, Value Ed, Art, Cursive, Hindi TBs\n` +
-             `🛍️ *Uniform Shop:* Shifted to new Jayanagar address\n\n` +
-             `For complete Day 1 rules, homework policies, and pick-up logistics, tap the link below!\n\n` +
-             `_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
+    if (day.isHoliday) {
+      const isAcademicYearCompleted = day.holidayName?.includes(
+        "Academic year completed",
+      );
+      if (isAcademicYearCompleted) {
+        return `📅 *${formatDate(day.date)}*\n\n🎓 *${day.holidayName}*\n\n_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
+      }
+      return `📅 *${formatDate(day.date)}*\n\n🎉 *${day.holidayName}*\nSchool Holiday\n\n_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
     }
 
-    // Temporarily disabled default schedule dump for a few days to drive app traffic
-    return `🏫 *SchoolPuls - Class 1 Planner*\n📅 *${formatDate(day.date)}*\n\nTap the link below to view today's complete schedule, homework updates, and important notices!\n\n_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
+    let text = `📅 *${formatDate(day.date)}*\n\n`;
+    text += `🏫 *Today's Schedule*\n\n`;
+
+    for (const item of day.schedule) {
+      if (item.subject === "Snack Break") {
+        text += `☕ ${item.time} - Break\n`;
+      } else if (item.subject === "Meditation") {
+        text += `🧘 ${item.time} - Meditation\n`;
+      } else {
+        const emoji = getSubjectEmoji(item.subject);
+        text += `${emoji} ${item.time} - *${item.subject}*`;
+        if (item.activity) {
+          text += `\n   _${item.activity}_`;
+        }
+        text += "\n";
+      }
+    }
+
+    text += `\n_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
+    return text;
   };
 
   const getSubjectEmoji = (subject: string): string => {

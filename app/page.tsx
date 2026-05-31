@@ -10,7 +10,6 @@ import ImportantDates from '@/components/ImportantDates';
 import ShareButton from '@/components/ShareButton';
 import RecentUpdates from '@/components/RecentUpdates';
 import AISuggestedRecap from '@/components/AISuggestedRecap';
-import ReopeningGuidelines from '@/components/ReopeningGuidelines';
 import {
   getMonthData,
   getDaySchedule,
@@ -141,8 +140,6 @@ function HomeContent() {
         </div>
       </div>
 
-      {/* Reopening Guidelines */}
-      <ReopeningGuidelines />
 
       {/* Date Navigator */}
       <div className="flex items-center justify-between mb-6 bg-white rounded-xl p-2 sm:p-3 border border-gray-200 shadow-sm gap-1 sm:gap-2">

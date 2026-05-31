@@ -5,7 +5,13 @@
       "month": "May",
       "year": 2026,
       "file": "may-2026.json"
+    },
+    {
+      "id": "june-2026",
+      "month": "June",
+      "year": 2026,
+      "file": "june-2026.json"
     }
   ],
-  "currentMonth": "may-2026"
+  "currentMonth": "june-2026"
 }
