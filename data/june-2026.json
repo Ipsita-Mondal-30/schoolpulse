@@ -7,6 +7,60 @@
   "weeks": [],
   "importantDates": [
     {
+      "date": "2026-03-03",
+      "event": "Holi",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-03-20",
+      "event": "Ugadi",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-03-21",
+      "event": "Id-Ul-Fitr",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-04-03",
+      "event": "Good Friday",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-04-14",
+      "event": "Dr Ambedkar Jayanti",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-04-19",
+      "event": "Summer Vacation Starts",
+      "type": "holiday",
+      "description": "19th April to 20th May"
+    },
+    {
+      "date": "2026-04-20",
+      "event": "Basava Jayanti",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-05-01",
+      "event": "May Day",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
+      "date": "2026-05-27",
+      "event": "Bakrid",
+      "type": "holiday",
+      "description": "Tentative School Holiday"
+    },
+    {
       "date": "2026-06-26",
       "event": "Last Day of Muharram",
       "type": "holiday",
