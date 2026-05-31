@@ -1,0 +1,72 @@
+[
+  {
+    "route": "1",
+    "vehicle": "KA51B 3962",
+    "driverName": "SUNIL J.C",
+    "driverPhone": "8884120941",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/00048d8ccbbcf042cc318f3d0c1f418dad664b55"
+  },
+  {
+    "route": "1A",
+    "vehicle": "KA51C 4506",
+    "driverName": "RAVI. L",
+    "driverPhone": "6362499251",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/d1566a2167995e06aa71d6acbc95b940179f4f3c"
+  },
+  {
+    "route": "2",
+    "vehicle": "KA42 7873",
+    "driverName": "NAVEEN V",
+    "driverPhone": "9901654169",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/2c14c507b4562c19adb0d40cdf5b8618e56f0c55"
+  },
+  {
+    "route": "2A",
+    "vehicle": "KA51B 8669",
+    "driverName": "SATISH. B.R",
+    "driverPhone": "9886837088",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/f93c5823422632b3ee0d1bf410592ae26c5efc1e"
+  },
+  {
+    "route": "2B",
+    "vehicle": "KA51D 4539",
+    "driverName": "DURGESH",
+    "driverPhone": "9108789258",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/d5a624a439fd672b73f16b1f373f8e7dd07183eb"
+  },
+  {
+    "route": "2C",
+    "vehicle": "KA51B 9030",
+    "driverName": "AKBHAR ALI. M.I",
+    "driverPhone": "8892214339",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/089b58fc1235eb902c8486862cf4742af68487db"
+  },
+  {
+    "route": "3",
+    "vehicle": "KA51B 4017",
+    "driverName": "RAMESH",
+    "driverPhone": "6364611145",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/8e8257361c11d8b3cb779e5da79a8e4a201e9107"
+  },
+  {
+    "route": "3A",
+    "vehicle": "KA51B 9036",
+    "driverName": "RAMACHANDREGOWDA",
+    "driverPhone": "9141499246",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/997498e97d0c8c2d6aecccef031d499660952e8d"
+  },
+  {
+    "route": "3B",
+    "vehicle": "KA51B 9031",
+    "driverName": "SIDDAPPA",
+    "driverPhone": "9448204798",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/47a47090613d38b21c8bdd1cfd3cca9d94207624"
+  },
+  {
+    "route": "4",
+    "vehicle": "KA05AN 9601",
+    "driverName": "NAGARAJ.K",
+    "driverPhone": "9972511450",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/09fc705957651c07d0e5336bae1fc6bb318ca196"
+  }
+]

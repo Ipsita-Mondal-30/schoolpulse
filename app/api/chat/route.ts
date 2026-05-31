@@ -3,6 +3,7 @@ import { streamText } from 'ai';
 import { getDaySchedule, getWeekForDate, getToday, getUpcomingEvents, getSchoolContactInfo } from '@/lib/data';
 import { fetchHomework, fetchExternalUpdates } from '@/app/actions';
 import generalInfoData from '@/data/info/general.json';
+import busesData from '@/data/info/buses.json';
 
 export const maxDuration = 30;
 
@@ -52,6 +53,9 @@ ${JSON.stringify(contactInfo, null, 2)}
 
 [GENERAL INFORMATION (Vendors, Contacts, Teachers, Houses, Uniforms)]:
 ${JSON.stringify(generalInfoData, null, 2)}
+
+[SCHOOL BUS TRACKING DATA (Route, Vehicle, Driver, Phone, GPRS Link)]:
+${JSON.stringify(busesData, null, 2)}
 
 Answer the parent's message using the above information.
 `;

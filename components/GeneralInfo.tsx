@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { MapPin } from 'lucide-react';
 import generalInfoData from '@/data/info/general.json';
+import busesData from '@/data/info/buses.json';
 
 export default function GeneralInfo() {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -244,6 +246,58 @@ export default function GeneralInfo() {
                   );
                 })}
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* School Bus Tracking Section */}
+        <div>
+          <button 
+            onClick={() => toggleSection('buses')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
+          >
+            <h3 className="text-lg font-bold text-gray-800">🚌 School Bus Tracking</h3>
+            <span className="text-gray-500">{openSections['buses'] ? '▲' : '▼'}</span>
+          </button>
+          {openSections['buses'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200 overflow-x-auto">
+              <div className="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm mb-4 border border-yellow-200 shadow-sm flex items-start gap-2">
+                <span>⚠️</span>
+                <p>Click the <strong>Track</strong> icon to view the live GPS location of your bus. Note: The GPRS link only works while the bus is actively on its route.</p>
+              </div>
+              <table className="w-full text-sm text-left text-gray-600 border border-gray-200 rounded-lg overflow-hidden">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-100 border-b border-gray-200">
+                  <tr>
+                    <th scope="col" className="px-3 py-3 border-r border-gray-200 text-center">Route</th>
+                    <th scope="col" className="px-4 py-3 border-r border-gray-200">Vehicle</th>
+                    <th scope="col" className="px-4 py-3 border-r border-gray-200">Driver Details</th>
+                    <th scope="col" className="px-4 py-3 text-center">Track</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {busesData.map((bus, i) => (
+                    <tr key={bus.route} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50 border-b border-t border-gray-100'}>
+                      <td className="px-3 py-3 border-r border-gray-200 font-bold text-gray-900 text-center bg-yellow-100/50">{bus.route}</td>
+                      <td className="px-4 py-3 border-r border-gray-200 font-medium text-gray-800 whitespace-nowrap">{bus.vehicle}</td>
+                      <td className="px-4 py-3 border-r border-gray-200">
+                        <div className="font-semibold text-gray-900">{bus.driverName}</div>
+                        <div className="text-xs text-gray-500 mt-0.5"><a href={`tel:${bus.driverPhone}`} className="text-blue-600 hover:underline">{bus.driverPhone}</a></div>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <a 
+                          href={bus.gprsLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center p-2 bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900 rounded-full transition-colors shadow-sm"
+                          title="Track Bus"
+                        >
+                          <MapPin size={18} />
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
