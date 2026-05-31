@@ -37,13 +37,31 @@
       "role": "Principal",
       "icon": "👨‍🏫",
       "email": "principal@bgsnps.edu.in",
-      "mobiles": ["+91 94833 38135", "+91 94481 35952"],
-      "phone": "+91-80-26484933"
+      "mobiles": ["+91 94481 35952"],
+      "phone": "+91-80-26484933",
+      "note": ""
     },
     {
-      "role": "Coordinator",
+      "role": "Coordinator (Grade 1)",
       "icon": "👩‍💼",
-      "note": "Details to be updated"
+      "email": "bgsnpscoordinatori@gmail.com",
+      "note": "Ms. SUMALATHA.R"
+    },
+    {
+      "role": "Main Block Reception",
+      "icon": "🏢",
+      "mobiles": ["+91 94833 38135"]
+    },
+    {
+      "role": "Primary Block Reception",
+      "icon": "🏫",
+      "mobiles": ["+91 7676242907"]
+    },
+    {
+      "role": "Bus Coordinator",
+      "icon": "🚌",
+      "note": "Mr. Venkatesh",
+      "mobiles": ["+91 80955 61100"]
     }
   ],
   "teachers": [
