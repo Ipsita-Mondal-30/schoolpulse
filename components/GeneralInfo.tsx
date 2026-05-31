@@ -22,7 +22,7 @@ export default function GeneralInfo() {
           <div className="text-3xl">ℹ️</div>
           <div>
             <h2 className="text-xl font-bold text-orange-900">General Info & Rules</h2>
-            <p className="text-sm text-orange-800">Vendor details and uniform code</p>
+            <p className="text-sm text-orange-800">Vendor and teacher details</p>
           </div>
         </div>
       </div>
@@ -68,47 +68,49 @@ export default function GeneralInfo() {
           )}
         </div>
 
-        {/* Uniform Section */}
+        {/* Teachers Section */}
         <div>
           <button 
-            onClick={() => toggleSection('uniform')}
-            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
+            onClick={() => toggleSection('teachers')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
           >
-            <h3 className="text-lg font-bold text-gray-800">👕 Uniform & Rules</h3>
-            <span className="text-gray-500">{openSections['uniform'] ? '▲' : '▼'}</span>
+            <h3 className="text-lg font-bold text-gray-800">👩‍🏫 Class Teachers (Grade 1)</h3>
+            <span className="text-gray-500">{openSections['teachers'] ? '▲' : '▼'}</span>
           </button>
-          {openSections['uniform'] && (
-            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
-              <ul className="text-sm text-gray-600 space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <li className="flex gap-3">
-                  <span className="text-xl">👕</span>
-                  <div>
-                    <strong>Uniform Code</strong><br/>
-                    Must be neat and tidy. Proper school uniform is mandatory everyday.
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-xl">✂️</span>
-                  <div>
-                    <strong>Hair Styles</strong><br/>
-                    Boys must have neatly trimmed hair. Girls with short hair must wear a black band. Girls with long hair must be braided.
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-xl">🎧</span>
-                  <div>
-                    <strong>Accessories</strong><br/>
-                    Ear muffs must be black with no fancy designs.
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-xl">📱</span>
-                  <div>
-                    <strong>Gadgets & Watches</strong><br/>
-                    No electronic gadgets allowed. Analogue watches are permitted ONLY on your birthday.
-                  </div>
-                </li>
-              </ul>
+          {openSections['teachers'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200 overflow-x-auto">
+              <table className="w-full text-sm text-left text-gray-600 border border-gray-200">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-100 border-b border-gray-200">
+                  <tr>
+                    <th scope="col" className="px-4 py-3 border-r border-gray-200 whitespace-nowrap">Class & Sec.</th>
+                    <th scope="col" className="px-4 py-3 border-r border-gray-200 whitespace-nowrap">Class Teacher</th>
+                    <th scope="col" className="px-4 py-3 whitespace-nowrap">Mail ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { sec: '1A', teacher: 'Ms. SUVARNA M', email: 'bgsnpsclassteacher1a2026@gmail.com' },
+                    { sec: '1B', teacher: 'Ms. SHUBHA B', email: 'bgsnpsclassteacher1b2026@gmail.com' },
+                    { sec: '1C', teacher: 'Ms. LAVANYA MJ', email: 'bgsnpsclassteacher1c2026@gmail.com' },
+                    { sec: '1D', teacher: 'Ms. NEETU SINGH', email: 'bgsnpsclassteacher1d2026@gmail.com' },
+                    { sec: '1E', teacher: 'Ms. P MONA RAJ', email: 'bgsnpsclassteacher1e2026@gmail.com' },
+                    { sec: '1F', teacher: 'Ms. RAJESWARI S', email: 'bgsnpsclassteacher1f2026@gmail.com' },
+                    { sec: '1G', teacher: 'Ms. JENIFER J', email: 'bgsnpsclassteacher1g2026@gmail.com' },
+                    { sec: '1H', teacher: 'Ms. SHUBHA GOPAL', email: 'bgsnpsclassteacher1h2026@gmail.com' },
+                    { sec: '1I', teacher: 'Ms. NEETHU KRISHNAN TS', email: 'bgsnpsclassteacher1i2026@gmail.com' },
+                    { sec: '1J', teacher: 'Ms. ANITHA K', email: 'bgsnpsclassteacherof1j@gmail.com' },
+                    { sec: '1K', teacher: 'Ms. MONIKA SINHA', email: 'bgsnpsclassteacher1k2026@gmail.com' },
+                  ].map((row, i) => (
+                    <tr key={row.sec} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50 border-b border-t border-gray-100'}>
+                      <td className="px-4 py-2 border-r border-gray-200 font-medium text-gray-900 whitespace-nowrap">{row.sec}</td>
+                      <td className="px-4 py-2 border-r border-gray-200 whitespace-nowrap">{row.teacher}</td>
+                      <td className="px-4 py-2">
+                        <a href={`mailto:${row.email}`} className="text-blue-600 hover:underline">{row.email}</a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
