@@ -8,6 +8,7 @@ import {
   getAvailableMonths,
   getCurrentMonthId,
   getImportantDates,
+  getAllImportantDates,
   MonthInfo,
   ImportantDate,
 } from '@/lib/data';
@@ -16,19 +17,32 @@ export default function DatesPage() {
   const [selectedMonthId, setSelectedMonthId] = useState<string>('');
   const [availableMonths, setAvailableMonths] = useState<MonthInfo[]>([]);
   const [importantDates, setImportantDates] = useState<ImportantDate[]>([]);
-  const [monthInfo, setMonthInfo] = useState<{ month: string; year: number } | null>(null);
+  const [monthInfo, setMonthInfo] = useState<{ month: string; year: string | number } | null>(null);
 
   useEffect(() => {
     const months = getAvailableMonths();
-    setAvailableMonths(months);
-    setSelectedMonthId(getCurrentMonthId());
+    // Add "All Months" to the front
+    const allMonthsOption: MonthInfo = { id: 'all', month: 'All', year: 'Months' as any, file: '' };
+    setAvailableMonths([allMonthsOption, ...months]);
+    setSelectedMonthId('all'); // default to all
   }, []);
 
   useEffect(() => {
     if (!selectedMonthId) return;
-    const data = getMonthData(selectedMonthId);
-    setMonthInfo({ month: data.month, year: data.year });
-    setImportantDates(getImportantDates(selectedMonthId));
+    
+    if (selectedMonthId === 'all') {
+      setMonthInfo({ month: 'All', year: 'Months' });
+      setImportantDates(getAllImportantDates());
+    } else {
+      const data = getMonthData(selectedMonthId);
+      setMonthInfo({ month: data.month, year: data.year });
+      
+      const monthIndex = new Date(`${data.month} 1, ${data.year}`).getMonth() + 1;
+      const prefix = `${data.year}-${String(monthIndex).padStart(2, '0')}`;
+      
+      const filteredDates = getAllImportantDates().filter(d => d.date.startsWith(prefix));
+      setImportantDates(filteredDates);
+    }
   }, [selectedMonthId]);
 
   if (!monthInfo) {

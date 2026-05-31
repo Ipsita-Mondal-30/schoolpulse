@@ -216,6 +216,29 @@ export function getImportantDates(monthId?: string): ImportantDate[] {
   return data.importantDates || [];
 }
 
+export function getAllImportantDates(): ImportantDate[] {
+  const months = getAvailableMonths();
+  const allEventsMap = new Map<string, ImportantDate>();
+
+  for (const month of months) {
+    const data = monthDataMap[month.id];
+    if (data?.importantDates) {
+      data.importantDates.forEach((e) => {
+        const key = `${e.date}-${e.event}`;
+        if (!allEventsMap.has(key)) {
+          allEventsMap.set(key, e);
+        }
+      });
+    }
+  }
+
+  const allEvents = Array.from(allEventsMap.values());
+
+  return allEvents
+    .filter((e) => e.date >= '2026-06-01') // Filter out events before June 2026
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 export function getUpcomingEvents(daysAhead: number = 7): ImportantDate[] {
   const today = new Date();
   const futureDate = new Date();
