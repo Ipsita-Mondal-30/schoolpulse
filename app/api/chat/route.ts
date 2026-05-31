@@ -2,6 +2,7 @@ import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import { getDaySchedule, getWeekForDate, getToday, getUpcomingEvents, getSchoolContactInfo } from '@/lib/data';
 import { fetchHomework, fetchExternalUpdates } from '@/app/actions';
+import generalInfoData from '@/data/info/general.json';
 
 export const maxDuration = 30;
 
@@ -49,16 +50,8 @@ ${JSON.stringify(updates, null, 2)}
 [SCHOOL CONTACT INFO]:
 ${JSON.stringify(contactInfo, null, 2)}
 
-[UNIFORM RULES]
-Monday, Tuesday & Thursday: 
-- BOYS: White Shirt, Gray Half Pant, Tie, Belt and Gray Socks with Maroon Stripe. 
-- GIRLS: White Shirt, Gray Pinafore, Cycling Shorts, Tie, Belt and Gray Socks with Maroon Stripe.
-- NOTE: Blazers only on Mondays.
-Wednesday: 
-- BOYS: White T-shirt, White Half Pant, Belt, White Socks.
-- GIRLS: White T-shirt, White Skirt, White Cycling Shorts, Belt, White Socks.
-Friday: 
-- BOYS & GIRLS: House T-shirt with Navy Blue Track Pant (White Piping), Gray socks with Maroon Stripe.
+[GENERAL INFORMATION (Vendors, Contacts, Teachers, Houses, Uniforms)]:
+${JSON.stringify(generalInfoData, null, 2)}
 
 Answer the parent's message using the above information.
 `;

@@ -1,0 +1,124 @@
+{
+  "vendors": [
+    {
+      "id": "uniform",
+      "category": "Uniform",
+      "name": "R A Creations",
+      "icon": "👕",
+      "note": "Shifted to new Jayanagar address (Opposite road to Pantaloon Mall, home-based shop).",
+      "address": "#1195, 26TH Main, 9th Block, Jayanagar, Opp Road of Ragigudda Temple Arch, Near Village Naturals Store, Bangalore – 560069",
+      "phones": [
+        { "number": "7483978799", "isWhatsapp": true },
+        { "number": "08035814373", "isWhatsapp": false }
+      ],
+      "website": "racreation.online"
+    },
+    {
+      "id": "shoes",
+      "category": "Shoes",
+      "name": "Sunrise Enterprises",
+      "icon": "👟",
+      "address": "FF-5, Business Point, Brigade Rd, Next to Brigade Tower, Shanthala Nagar, Ashok Nagar, Bengaluru – 560025",
+      "phones": [
+        { "number": "080-41225990", "isWhatsapp": false }
+      ]
+    },
+    {
+      "id": "books",
+      "category": "Books",
+      "name": "Hema Book World",
+      "icon": "📚",
+      "address": "No. 296, 24th Main Rd, Opp. IDBI Bank, JP Nagar 6th Phase, KR Layout, Bengaluru – 560078",
+      "phones": []
+    }
+  ],
+  "contacts": [
+    {
+      "role": "Principal",
+      "icon": "👨‍🏫",
+      "email": "principal@bgsnps.edu.in",
+      "mobiles": ["+91 94833 38135", "+91 94481 35952"],
+      "phone": "+91-80-26484933"
+    },
+    {
+      "role": "Coordinator",
+      "icon": "👩‍💼",
+      "note": "Details to be updated"
+    }
+  ],
+  "teachers": [
+    { "sec": "1A", "teacher": "Ms. SUVARNA M", "email": "bgsnpsclassteacher1a2026@gmail.com" },
+    { "sec": "1B", "teacher": "Ms. SHUBHA B", "email": "bgsnpsclassteacher1b2026@gmail.com" },
+    { "sec": "1C", "teacher": "Ms. LAVANYA MJ", "email": "bgsnpsclassteacher1c2026@gmail.com" },
+    { "sec": "1D", "teacher": "Ms. NEETU SINGH", "email": "bgsnpsclassteacher1d2026@gmail.com" },
+    { "sec": "1E", "teacher": "Ms. P MONA RAJ", "email": "bgsnpsclassteacher1e2026@gmail.com" },
+    { "sec": "1F", "teacher": "Ms. RAJESWARI S", "email": "bgsnpsclassteacher1f2026@gmail.com" },
+    { "sec": "1G", "teacher": "Ms. JENIFER J", "email": "bgsnpsclassteacher1g2026@gmail.com" },
+    { "sec": "1H", "teacher": "Ms. SHUBHA GOPAL", "email": "bgsnpsclassteacher1h2026@gmail.com" },
+    { "sec": "1I", "teacher": "Ms. NEETHU KRISHNAN TS", "email": "bgsnpsclassteacher1i2026@gmail.com" },
+    { "sec": "1J", "teacher": "Ms. ANITHA K", "email": "bgsnpsclassteacherof1j@gmail.com" },
+    { "sec": "1K", "teacher": "Ms. MONIKA SINHA", "email": "bgsnpsclassteacher1k2026@gmail.com" }
+  ],
+  "houses": [
+    {
+      "name": "NARMADA",
+      "color": "Purple",
+      "hex": "#9333ea",
+      "bgColor": "bg-purple-50",
+      "borderColor": "border-purple-200",
+      "textColor": "text-purple-900",
+      "subTextColor": "text-purple-700",
+      "circleColor": "bg-purple-600"
+    },
+    {
+      "name": "KAVERI",
+      "color": "Blue",
+      "hex": "#2563eb",
+      "bgColor": "bg-blue-50",
+      "borderColor": "border-blue-200",
+      "textColor": "text-blue-900",
+      "subTextColor": "text-blue-700",
+      "circleColor": "bg-blue-600"
+    },
+    {
+      "name": "GANGA",
+      "color": "Orange",
+      "hex": "#f97316",
+      "bgColor": "bg-orange-50",
+      "borderColor": "border-orange-200",
+      "textColor": "text-orange-900",
+      "subTextColor": "text-orange-700",
+      "circleColor": "bg-orange-500"
+    },
+    {
+      "name": "BRAHMAPUTRA",
+      "color": "Maroon",
+      "hex": "#800000",
+      "bgColor": "bg-red-50",
+      "borderColor": "border-red-200",
+      "textColor": "text-[#800000]",
+      "subTextColor": "text-[#800000]",
+      "circleColor": "bg-[#800000]"
+    }
+  ],
+  "uniform_schedule": [
+    {
+      "days": "Monday, Tuesday & Thursday",
+      "themeColor": "blue",
+      "note": "🧥 Blazers only on Mondays",
+      "boys": "White Shirt, Gray Half Pant, Tie, Belt and Gray Socks with Maroon Stripe.",
+      "girls": "White Shirt, Gray Pinafore, Cycling Shorts, Tie, Belt and Gray Socks with Maroon Stripe."
+    },
+    {
+      "days": "Wednesday",
+      "themeColor": "green",
+      "boys": "White T-shirt, White Half Pant, Belt, White Socks.",
+      "girls": "White T-shirt, White Skirt, White Cycling Shorts, Belt, White Socks."
+    },
+    {
+      "days": "Friday",
+      "themeColor": "purple",
+      "boysAndGirls": "House T-shirt with Navy Blue Track Pant (White Piping), Gray socks with Maroon Stripe."
+    }
+  ]
+}

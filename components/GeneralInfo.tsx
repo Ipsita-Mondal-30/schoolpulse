@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import generalInfoData from '@/data/info/general.json';
 
 export default function GeneralInfo() {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -12,6 +13,21 @@ export default function GeneralInfo() {
       ...prev,
       [section]: !prev[section]
     }));
+  };
+
+  const themeClasses: Record<string, { bg50: string; bg100: string; bg200: string; border100: string; border200: string; text900: string; }> = {
+    blue: {
+      bg50: 'bg-blue-50', bg100: 'bg-blue-100', bg200: 'bg-blue-200',
+      border100: 'border-blue-100', border200: 'border-blue-200', text900: 'text-blue-900'
+    },
+    green: {
+      bg50: 'bg-green-50', bg100: 'bg-green-100', bg200: 'bg-green-200',
+      border100: 'border-green-100', border200: 'border-green-200', text900: 'text-green-900'
+    },
+    purple: {
+      bg50: 'bg-purple-50', bg100: 'bg-purple-100', bg200: 'bg-purple-200',
+      border100: 'border-purple-100', border200: 'border-purple-200', text900: 'text-purple-900'
+    }
   };
 
   return (
@@ -41,32 +57,42 @@ export default function GeneralInfo() {
           {openSections['vendors'] && (
             <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">👕 Uniform: R A Creations</h4>
-                  <div className="text-sm text-gray-600 space-y-2">
-                    <p className="bg-blue-50 text-blue-800 p-2 rounded text-xs"><strong>Note:</strong> Shifted to new Jayanagar address (Opposite road to Pantaloon Mall, home-based shop).</p>
-                    <p><span className="font-semibold text-gray-800">Address:</span> #1195, 26TH Main, 9th Block, Jayanagar, Opp Road of Ragigudda Temple Arch, Near Village Naturals Store, Bangalore – 560069</p>
-                    <p><span className="font-semibold text-gray-800">Phone/WhatsApp:</span> <a href="https://wa.me/917483978799" className="text-blue-600 hover:underline">7483978799</a>, 08035814373</p>
-                    <p><span className="font-semibold text-gray-800">Online:</span> <a href="http://racreation.online" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">racreation.online</a></p>
+                {generalInfoData.vendors.map((vendor) => (
+                  <div key={vendor.id} className={`bg-gray-50 p-4 rounded-lg border border-gray-200 ${vendor.id === 'books' ? 'md:col-span-2' : ''}`}>
+                    <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">{vendor.icon} {vendor.category}: {vendor.name}</h4>
+                    <div className="text-sm text-gray-600 space-y-2">
+                      {vendor.note && (
+                        <p className="bg-blue-50 text-blue-800 p-2 rounded text-xs"><strong>Note:</strong> {vendor.note}</p>
+                      )}
+                      {vendor.address && (
+                        <p><span className="font-semibold text-gray-800">Address:</span> {vendor.address}</p>
+                      )}
+                      {vendor.phones && vendor.phones.length > 0 && (
+                        <p>
+                          <span className="font-semibold text-gray-800">Phone/WhatsApp:</span>{' '}
+                          {vendor.phones.map((p, idx) => (
+                            <React.Fragment key={p.number}>
+                              {p.isWhatsapp ? (
+                                <a href={`https://wa.me/91${p.number}`} className="text-blue-600 hover:underline">{p.number}</a>
+                              ) : (
+                                <span>{p.number}</span>
+                              )}
+                              {idx < vendor.phones.length - 1 ? ', ' : ''}
+                            </React.Fragment>
+                          ))}
+                        </p>
+                      )}
+                      {vendor.website && (
+                        <p><span className="font-semibold text-gray-800">Online:</span> <a href={`http://${vendor.website}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{vendor.website}</a></p>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">👟 Shoes: Sunrise Enterprises</h4>
-                  <div className="text-sm text-gray-600 space-y-2">
-                    <p><span className="font-semibold text-gray-800">Address:</span> FF-5, Business Point, Brigade Rd, Next to Brigade Tower, Shanthala Nagar, Ashok Nagar, Bengaluru – 560025</p>
-                    <p><span className="font-semibold text-gray-800">Phone:</span> 080-41225990</p>
-                  </div>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 md:col-span-2">
-                  <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">📚 Books: Hema Book World</h4>
-                  <div className="text-sm text-gray-600 space-y-2">
-                    <p><span className="font-semibold text-gray-800">Address:</span> No. 296, 24th Main Rd, Opp. IDBI Bank, JP Nagar 6th Phase, KR Layout, Bengaluru – 560078</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           )}
         </div>
+
         {/* Contacts Section */}
         <div>
           <button 
@@ -79,25 +105,33 @@ export default function GeneralInfo() {
           {openSections['contacts'] && (
             <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                {/* Principal */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">👨‍🏫 Principal</h4>
-                  <div className="text-sm text-gray-600 space-y-2">
-                    <p><span className="font-semibold text-gray-800">E-mail:</span> <a href="mailto:principal@bgsnps.edu.in" className="text-blue-600 hover:underline">principal@bgsnps.edu.in</a></p>
-                    <p><span className="font-semibold text-gray-800">Mobile:</span> <a href="tel:+919483338135" className="text-blue-600 hover:underline">+91 94833 38135</a>, <a href="tel:+919448135952" className="text-blue-600 hover:underline">+91 94481 35952</a></p>
-                    <p><span className="font-semibold text-gray-800">Phone:</span> <a href="tel:+918026484933" className="text-blue-600 hover:underline">+91-80-26484933</a></p>
+                {generalInfoData.contacts.map((contact, idx) => (
+                  <div key={idx} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">{contact.icon} {contact.role}</h4>
+                    <div className="text-sm text-gray-600 space-y-2">
+                      {contact.note && (
+                        <p className="text-gray-400 italic">{contact.note}</p>
+                      )}
+                      {contact.email && (
+                        <p><span className="font-semibold text-gray-800">E-mail:</span> <a href={`mailto:${contact.email}`} className="text-blue-600 hover:underline">{contact.email}</a></p>
+                      )}
+                      {contact.mobiles && contact.mobiles.length > 0 && (
+                        <p>
+                          <span className="font-semibold text-gray-800">Mobile:</span>{' '}
+                          {contact.mobiles.map((mob, mIdx) => (
+                            <React.Fragment key={mob}>
+                              <a href={`tel:${mob.replace(/ /g, '')}`} className="text-blue-600 hover:underline">{mob}</a>
+                              {mIdx < contact.mobiles.length - 1 ? ', ' : ''}
+                            </React.Fragment>
+                          ))}
+                        </p>
+                      )}
+                      {contact.phone && (
+                        <p><span className="font-semibold text-gray-800">Phone:</span> <a href={`tel:${contact.phone}`} className="text-blue-600 hover:underline">{contact.phone}</a></p>
+                      )}
+                    </div>
                   </div>
-                </div>
-
-                {/* Coordinator */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">👩‍💼 Coordinator</h4>
-                  <div className="text-sm text-gray-600 space-y-2">
-                    <p className="text-gray-400 italic">Details to be updated</p>
-                  </div>
-                </div>
-
+                ))}
               </div>
             </div>
           )}
@@ -123,19 +157,7 @@ export default function GeneralInfo() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { sec: '1A', teacher: 'Ms. SUVARNA M', email: 'bgsnpsclassteacher1a2026@gmail.com' },
-                    { sec: '1B', teacher: 'Ms. SHUBHA B', email: 'bgsnpsclassteacher1b2026@gmail.com' },
-                    { sec: '1C', teacher: 'Ms. LAVANYA MJ', email: 'bgsnpsclassteacher1c2026@gmail.com' },
-                    { sec: '1D', teacher: 'Ms. NEETU SINGH', email: 'bgsnpsclassteacher1d2026@gmail.com' },
-                    { sec: '1E', teacher: 'Ms. P MONA RAJ', email: 'bgsnpsclassteacher1e2026@gmail.com' },
-                    { sec: '1F', teacher: 'Ms. RAJESWARI S', email: 'bgsnpsclassteacher1f2026@gmail.com' },
-                    { sec: '1G', teacher: 'Ms. JENIFER J', email: 'bgsnpsclassteacher1g2026@gmail.com' },
-                    { sec: '1H', teacher: 'Ms. SHUBHA GOPAL', email: 'bgsnpsclassteacher1h2026@gmail.com' },
-                    { sec: '1I', teacher: 'Ms. NEETHU KRISHNAN TS', email: 'bgsnpsclassteacher1i2026@gmail.com' },
-                    { sec: '1J', teacher: 'Ms. ANITHA K', email: 'bgsnpsclassteacherof1j@gmail.com' },
-                    { sec: '1K', teacher: 'Ms. MONIKA SINHA', email: 'bgsnpsclassteacher1k2026@gmail.com' },
-                  ].map((row, i) => (
+                  {generalInfoData.teachers.map((row, i) => (
                     <tr key={row.sec} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50 border-b border-t border-gray-100'}>
                       <td className="px-4 py-2 border-r border-gray-200 font-medium text-gray-900 whitespace-nowrap">{row.sec}</td>
                       <td className="px-4 py-2 border-r border-gray-200 whitespace-nowrap">{row.teacher}</td>
@@ -162,26 +184,13 @@ export default function GeneralInfo() {
           {openSections['houses'] && (
             <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-purple-200 bg-purple-50">
-                  <div className="w-8 h-8 rounded-full bg-purple-600 mb-2 shadow-sm"></div>
-                  <span className="font-bold text-purple-900 text-sm text-center">NARMADA</span>
-                  <span className="text-xs text-purple-700 mt-1">Purple</span>
-                </div>
-                <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-blue-200 bg-blue-50">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 mb-2 shadow-sm"></div>
-                  <span className="font-bold text-blue-900 text-sm text-center">KAVERI</span>
-                  <span className="text-xs text-blue-700 mt-1">Blue</span>
-                </div>
-                <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-orange-200 bg-orange-50">
-                  <div className="w-8 h-8 rounded-full bg-orange-500 mb-2 shadow-sm"></div>
-                  <span className="font-bold text-orange-900 text-sm text-center">GANGA</span>
-                  <span className="text-xs text-orange-700 mt-1">Orange</span>
-                </div>
-                <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-red-200 bg-red-50">
-                  <div className="w-8 h-8 rounded-full bg-[#800000] mb-2 shadow-sm"></div>
-                  <span className="font-bold text-[#800000] text-sm text-center">BRAHMAPUTRA</span>
-                  <span className="text-xs text-[#800000] mt-1">Maroon</span>
-                </div>
+                {generalInfoData.houses.map((house) => (
+                  <div key={house.name} className={`flex flex-col items-center justify-center p-3 rounded-lg border ${house.borderColor} ${house.bgColor}`}>
+                    <div className={`w-8 h-8 rounded-full ${house.circleColor} mb-2 shadow-sm`}></div>
+                    <span className={`font-bold ${house.textColor} text-sm text-center`}>{house.name}</span>
+                    <span className={`text-xs ${house.subTextColor} mt-1`}>{house.color}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -199,55 +208,41 @@ export default function GeneralInfo() {
           {openSections['uniform_schedule'] && (
             <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200">
               <div className="space-y-4">
-                
-                {/* Mon, Tue, Thu */}
-                <div className="bg-blue-50 border border-blue-100 rounded-xl overflow-hidden">
-                  <div className="bg-blue-100 px-4 py-2 font-bold text-blue-900 border-b border-blue-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
-                    <span>Monday, Tuesday & Thursday</span>
-                    <span className="text-xs bg-blue-200 text-blue-900 px-2 py-1 rounded-full self-start sm:self-auto">🧥 Blazers only on Mondays</span>
-                  </div>
-                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
-                      <div className="font-bold text-gray-800 mb-1 flex items-center gap-2">👦 BOYS</div>
-                      <p className="text-sm text-gray-600">White Shirt, Gray Half Pant, Tie, Belt and Gray Socks with Maroon Stripe.</p>
+                {generalInfoData.uniform_schedule.map((schedule, idx) => {
+                  const t = themeClasses[schedule.themeColor] || themeClasses.blue;
+                  return (
+                    <div key={idx} className={`${t.bg50} border ${t.border100} rounded-xl overflow-hidden`}>
+                      <div className={`${t.bg100} px-4 py-2 font-bold ${t.text900} border-b ${t.border200} flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1`}>
+                        <span>{schedule.days}</span>
+                        {schedule.note && (
+                          <span className={`text-xs ${t.bg200} ${t.text900} px-2 py-1 rounded-full self-start sm:self-auto`}>
+                            {schedule.note}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {schedule.boysAndGirls ? (
+                        <div className="p-4">
+                          <div className={`bg-white p-3 rounded-lg border ${t.border100} shadow-sm flex flex-col md:flex-row gap-2 md:gap-4 md:items-center`}>
+                            <div className="font-bold text-gray-800 flex items-center gap-2 whitespace-nowrap">👦 BOYS & 👧 GIRLS</div>
+                            <p className="text-sm text-gray-600">{schedule.boysAndGirls}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className={`bg-white p-3 rounded-lg border ${t.border100} shadow-sm`}>
+                            <div className="font-bold text-gray-800 mb-1 flex items-center gap-2">👦 BOYS</div>
+                            <p className="text-sm text-gray-600">{schedule.boys}</p>
+                          </div>
+                          <div className={`bg-white p-3 rounded-lg border ${t.border100} shadow-sm`}>
+                            <div className="font-bold text-gray-800 mb-1 flex items-center gap-2">👧 GIRLS</div>
+                            <p className="text-sm text-gray-600">{schedule.girls}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
-                      <div className="font-bold text-gray-800 mb-1 flex items-center gap-2">👧 GIRLS</div>
-                      <p className="text-sm text-gray-600">White Shirt, Gray Pinafore, Cycling Shorts, Tie, Belt and Gray Socks with Maroon Stripe.</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Wednesday */}
-                <div className="bg-green-50 border border-green-100 rounded-xl overflow-hidden">
-                  <div className="bg-green-100 px-4 py-2 font-bold text-green-900 border-b border-green-200">
-                    Wednesday
-                  </div>
-                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-white p-3 rounded-lg border border-green-100 shadow-sm">
-                      <div className="font-bold text-gray-800 mb-1 flex items-center gap-2">👦 BOYS</div>
-                      <p className="text-sm text-gray-600">White T-shirt, White Half Pant, Belt, White Socks.</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-lg border border-green-100 shadow-sm">
-                      <div className="font-bold text-gray-800 mb-1 flex items-center gap-2">👧 GIRLS</div>
-                      <p className="text-sm text-gray-600">White T-shirt, White Skirt, White Cycling Shorts, Belt, White Socks.</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Friday */}
-                <div className="bg-purple-50 border border-purple-100 rounded-xl overflow-hidden">
-                  <div className="bg-purple-100 px-4 py-2 font-bold text-purple-900 border-b border-purple-200">
-                    Friday
-                  </div>
-                  <div className="p-4">
-                    <div className="bg-white p-3 rounded-lg border border-purple-100 shadow-sm flex flex-col md:flex-row gap-2 md:gap-4 md:items-center">
-                      <div className="font-bold text-gray-800 flex items-center gap-2 whitespace-nowrap">👦 BOYS & 👧 GIRLS</div>
-                      <p className="text-sm text-gray-600">House T-shirt with Navy Blue Track Pant (White Piping), Gray socks with Maroon Stripe.</p>
-                    </div>
-                  </div>
-                </div>
-
+                  );
+                })}
               </div>
             </div>
           )}
