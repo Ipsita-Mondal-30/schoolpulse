@@ -1,69 +1,471 @@
 [
-  { "route": "1", "vehicle": "KA51B 3962", "driverName": "SUNIL J.C", "driverPhone": "8884120941", "gprsLink": "https://lokkate.tracknerd.io/live/link/00048d8ccbbcf042cc318f3d0c1f418dad664b55" },
-  { "route": "1A", "vehicle": "KA51C 4506", "driverName": "RAVI. L", "driverPhone": "6362499251", "gprsLink": "https://lokkate.tracknerd.io/live/link/d1566a2167995e06aa71d6acbc95b940179f4f3c" },
-  { "route": "2", "vehicle": "KA42 7873", "driverName": "NAVEEN V", "driverPhone": "9901654169", "gprsLink": "https://lokkate.tracknerd.io/live/link/2c14c507b4562c19adb0d40cdf5b8618e56f0c55" },
-  { "route": "2A", "vehicle": "KA51B 8669", "driverName": "SATISH. B.R", "driverPhone": "9886837088", "gprsLink": "https://lokkate.tracknerd.io/live/link/f93c5823422632b3ee0d1bf410592ae26c5efc1e" },
-  { "route": "2B", "vehicle": "KA51D 4539", "driverName": "DURGESH", "driverPhone": "9108789258", "gprsLink": "https://lokkate.tracknerd.io/live/link/d5a624a439fd672b73f16b1f373f8e7dd07183eb" },
-  { "route": "2C", "vehicle": "KA51B 9030", "driverName": "AKBHAR ALI. M.I", "driverPhone": "8892214339", "gprsLink": "https://lokkate.tracknerd.io/live/link/089b58fc1235eb902c8486862cf4742af68487db" },
-  { "route": "3", "vehicle": "KA51B 4017", "driverName": "RAMESH", "driverPhone": "6364611145", "gprsLink": "https://lokkate.tracknerd.io/live/link/8e8257361c11d8b3cb779e5da79a8e4a201e9107" },
-  { "route": "3A", "vehicle": "KA51B 9036", "driverName": "RAMACHANDREGOWDA", "driverPhone": "9141499246", "gprsLink": "https://lokkate.tracknerd.io/live/link/997498e97d0c8c2d6aecccef031d499660952e8d" },
-  { "route": "3B", "vehicle": "KA51B 9031", "driverName": "SIDDAPPA", "driverPhone": "9448204798", "gprsLink": "https://lokkate.tracknerd.io/live/link/47a47090613d38b21c8bdd1cfd3cca9d94207624" },
-  { "route": "4", "vehicle": "KA05AN 9601", "driverName": "NAGARAJ.K", "driverPhone": "9972511450", "gprsLink": "https://lokkate.tracknerd.io/live/link/09fc705957651c07d0e5336bae1fc6bb318ca196" },
-  { "route": "6", "vehicle": "KA51B 4061", "driverName": "MUNIYAPPA", "driverPhone": "8217740393", "gprsLink": "https://lokkate.tracknerd.io/live/link/a7f5eafed02a9626c4da8ac5473fa8f7080f873f" },
-  { "route": "6A", "vehicle": "KA05AN 9625", "driverName": "RAVI KUMAR", "driverPhone": "9108904493", "gprsLink": "https://lokkate.tracknerd.io/live/link/d7b82403f5cf92790392af4505c9882b86be6032" },
-  { "route": "6B", "vehicle": "KA05AN 9257", "driverName": "ASHWATH NARAYAN", "driverPhone": "9060746663", "gprsLink": "https://lokkate.tracknerd.io/live/link/8bb5b6fa5ad34b674919da68f1e8b7f3737609dd" },
-  { "route": "6D", "vehicle": "KA51AF 0057", "driverName": "VENKATASWAMY", "driverPhone": "9901505644", "gprsLink": "https://lokkate.tracknerd.io/live/link/8991be21f30ea16a1f483ea1931037ecb2f8a68a" },
-  { "route": "7", "vehicle": "KA51C 4679", "driverName": "SANTOSHA A.S", "driverPhone": "7892273458", "gprsLink": "https://lokkate.tracknerd.io/live/link/0b56be4742e95e1082c864fa69b81b199e90608d" },
-  { "route": "7A", "vehicle": "KA51B 8672", "driverName": "JEEVAN", "driverPhone": "7760387926", "gprsLink": "https://lokkate.tracknerd.io/live/link/6471264a832233543fa895a69890147421c21e96" },
-  { "route": "7B", "vehicle": "KA51AF 0058", "driverName": "MOHAMMED HANEEF", "driverPhone": "9844732786", "gprsLink": "https://lokkate.tracknerd.io/live/link/bc73f7106657dc9af31e1fb79dbdd118ecc158d9" },
-  { "route": "7C", "vehicle": "KA51B 8806", "driverName": "THIMMEGOWDA T", "driverPhone": "9844606412", "gprsLink": "https://lokkate.tracknerd.io/live/link/b951f3129b61ff62e7d6977f84d52b629c20096c" },
-  { "route": "7D", "vehicle": "KA51C 5123", "driverName": "THEJA", "driverPhone": "9035179636", "gprsLink": "https://lokkate.tracknerd.io/live/link/ce1110a242a70303246814bb272c4526026ccf18" },
-  { "route": "7E", "vehicle": "KA51AH 2519", "driverName": "SHANTHA", "driverPhone": "8792739856", "gprsLink": "https://lokkate.tracknerd.io/live/link/5d4fca181a0c954edcc19c4f89a8fca8fe1d69f2" },
-  { "route": "7F", "vehicle": "KA51B 4015", "driverName": "RAVI", "driverPhone": "9380845759", "gprsLink": "https://lokkate.tracknerd.io/live/link/7ded188c5e21cf4b62e969427f59964bd45d1fb1" },
-  { "route": "7G", "vehicle": "KA51B 9322", "driverName": "SHIVANNA R", "driverPhone": "9585582753", "gprsLink": "https://lokkate.tracknerd.io/live/link/4f322694c2786218d8db59999134b81954e49be8" },
-  { "route": "7H", "vehicle": "KA05AN 9886", "driverName": "ANIL KUMAR K R", "driverPhone": "9740931411", "gprsLink": "https://lokkate.tracknerd.io/live/link/5ba0b664ff1e84dad9f6544767ed499e5622789f" },
-  { "route": "7I", "vehicle": "KA51AJ 1558", "driverName": "GOLLALAPPA S GOLAGERI", "driverPhone": "8197917596", "gprsLink": "https://lokkate.tracknerd.io/live/link/9c542491d27faffe0df872246ca13718b9ff2612" },
-  { "route": "8", "vehicle": "KA51C 4478", "driverName": "MADHU C P", "driverPhone": "8971467070", "gprsLink": "https://lokkate.tracknerd.io/live/link/8a12ff710ad0e42d77360bb5c90211a196d29a83" },
-  { "route": "8A", "vehicle": "KA51B 9317", "driverName": "PERIYANNA", "driverPhone": "9943302524", "gprsLink": "https://lokkate.tracknerd.io/live/link/e49096976ffe4c4e8db9488b8ee2a76b2dd2a2f7" },
-  { "route": "9", "vehicle": "KA05AN 9889", "driverName": "KALAIAHA", "driverPhone": "8970455886", "gprsLink": "https://lokkate.tracknerd.io/live/link/85bfbb979b6cd9e9b6c6c5dd8bc9bfd8407bca9d" },
-  { "route": "9A", "vehicle": "KA51AH 2280", "driverName": "SYED BHAKER", "driverPhone": "9743302439", "gprsLink": "https://lokkate.tracknerd.io/live/link/3a018562ef5d6aacc362e225d5bcfd41f703a301" },
-  { "route": "10", "vehicle": "KA05AC 0397", "driverName": "NAVEENA Y D", "driverPhone": "9663641268", "gprsLink": "https://lokkate.tracknerd.io/live/link/1561ffe7a77eef7a667ae66d8b32d60642ef6b1d" },
-  { "route": "10.1", "vehicle": "KA51B 4019", "driverName": "P N DAYANANDA", "driverPhone": "9880564415", "gprsLink": "https://lokkate.tracknerd.io/live/link/43b1bc80bafeb7337c9a666f973cca4ae9ff55db" },
-  { "route": "10A", "vehicle": "KA51B 4016", "driverName": "AJAY", "driverPhone": "9663641268", "gprsLink": "https://lokkate.tracknerd.io/live/link/244b8b9af2eecfdc5781bec20613da1c19417657" },
-  { "route": "10A.1", "vehicle": "KA51C 3837", "driverName": "KUMAR", "driverPhone": "9538082799", "gprsLink": "https://lokkate.tracknerd.io/live/link/be631548f30c0f22a8f38c733d92fd998ff72ff7" },
-  { "route": "10A.2", "vehicle": "KA51B 5122", "driverName": "M BABU", "driverPhone": "9986675509", "gprsLink": "https://lokkate.tracknerd.io/live/link/971e84a0abc00856497303936452196142c96a4e" },
-  { "route": "10A.3", "vehicle": "KA51AF 0059", "driverName": "MADHU G M", "driverPhone": "8867770272", "gprsLink": "https://lokkate.tracknerd.io/live/link/02653cd2509e4af3048739f55d0b8f38297df569" },
-  { "route": "10B", "vehicle": "KA05AN 9296", "driverName": "ALLALLAPPA", "driverPhone": "9880994417", "gprsLink": "https://lokkate.tracknerd.io/live/link/8894c6880a234c9e7b8aec22ca6aece12da956d7" },
-  { "route": "10C", "vehicle": "KA01AC 3564", "driverName": "VENKATESH. P", "driverPhone": "7996610508", "gprsLink": "https://lokkate.tracknerd.io/live/link/d35609902ad2d5d6afa7d8193a3596bcea0aa734" },
-  { "route": "10C.1", "vehicle": "KA51AH 2283", "driverName": "KRISHNAPPA U G", "driverPhone": "9242314946", "gprsLink": "https://lokkate.tracknerd.io/live/link/10c6a2fe03ddd072543d991e9a6d69a76e3ebd91" },
-  { "route": "10C.2", "vehicle": "KA51C 9624", "driverName": "NAGANNA", "driverPhone": "9740467535", "gprsLink": "https://lokkate.tracknerd.io/live/link/3343df2110fa238a3da36fe12fc928650e2b955f" },
-  { "route": "10C.3", "vehicle": "KA51B 8345", "driverName": "LAKSHMINARAYAN", "driverPhone": "7090149081", "gprsLink": "https://lokkate.tracknerd.io/live/link/fd025328efa42cae4a9805241e3b2e02482161f9" },
-  { "route": "10D", "vehicle": "KA05AN 9872", "driverName": "MARUTHI", "driverPhone": "8861850368", "gprsLink": "https://lokkate.tracknerd.io/live/link/0197aa0599340be9417d2b066146ff615f3d1fbe" },
-  { "route": "10E", "vehicle": "KA51B 3953", "driverName": "MURTHY", "driverPhone": "9980462692", "gprsLink": "https://lokkate.tracknerd.io/live/link/5f30018191824389a3ba2bca044b362a55206a69" },
-  { "route": "10F", "vehicle": "KA51B 4012", "driverName": "RAVI P", "driverPhone": "9986693220", "gprsLink": "https://lokkate.tracknerd.io/live/link/3ade0d4e8e2d5806af2b1fb895c1c0c607bbe90a" },
-  { "route": "10G", "vehicle": "KA41A 7761", "driverName": "MURTY", "driverPhone": "7846099043", "gprsLink": "https://lokkate.tracknerd.io/live/link/3434227a0013ed0163f89ee29dcac6dcbbbc8348" },
-  { "route": "10H", "vehicle": "KA51B 4020", "driverName": "CHANDRAKANTH", "driverPhone": "7259448456", "gprsLink": "https://lokkate.tracknerd.io/live/link/ff12b227956fefee5e7f628241bd62b456eaf529" },
-  { "route": "10J", "vehicle": "KA51B 8670", "driverName": "AJITH", "driverPhone": "9110812668", "gprsLink": "https://lokkate.tracknerd.io/live/link/1dba51b08fd984d7a3ee986bf921498c71c0ac8d" },
-  { "route": "11", "vehicle": "KA51B 9587", "driverName": "MANJUNATH", "driverPhone": "9741226737", "gprsLink": "https://lokkate.tracknerd.io/live/link/7e11c938ef3a93f14b27df1346c4ea8a10b0934e" },
-  { "route": "11A", "vehicle": "KA51AJ 1566", "driverName": "MAHAMAD SALIM ALI", "driverPhone": "7349449047", "gprsLink": "https://lokkate.tracknerd.io/live/link/200d6d863808091d3bf7e5f06aeb6434af3b3a80" },
-  { "route": "12", "vehicle": "KA42 7871", "driverName": "OBALAPPA", "driverPhone": "8790437500", "gprsLink": "https://lokkate.tracknerd.io/live/link/56c9a985ee239904d005a01afd338a5f4109d963" },
-  { "route": "13", "vehicle": "KA05AN 9885", "driverName": "MAHADEVA", "driverPhone": "9880658957", "gprsLink": "https://lokkate.tracknerd.io/live/link/3925dd97666d67ad960fcb744de6467f305b299c" },
-  { "route": "13A", "vehicle": "KA42 7872", "driverName": "MOUNAPPA", "driverPhone": "8073591418", "gprsLink": "https://lokkate.tracknerd.io/live/link/8669a4f5fb2d8984ef4275389e0e3e57ecdf46be" },
-  { "route": "14", "vehicle": "KA51AB 5081", "driverName": "GOVINDA G", "driverPhone": "9901809200", "gprsLink": "https://lokkate.tracknerd.io/live/link/d1e59af4e49c3df6b97ffea00690fe95269ae5ff" },
-  { "route": "14A", "vehicle": "KA42 7877", "driverName": "KUMAR K", "driverPhone": "7829025440", "gprsLink": "https://lokkate.tracknerd.io/live/link/af2295da40b43c456d10a9d801e326ffca109294" },
-  { "route": "14B", "vehicle": "KA51B 9035", "driverName": "PARASHURAM NAIDU", "driverPhone": "9611996336", "gprsLink": "https://lokkate.tracknerd.io/live/link/6aca9cefbe167e01ef0f3f18bf3ab9d0ed1b1f71" },
-  { "route": "14C", "vehicle": "KA42 7875", "driverName": "LAKSHMAN KAMBLE", "driverPhone": "9902981196", "gprsLink": "https://lokkate.tracknerd.io/live/link/3206e4cd6aad870cb1442467113abe064a3250a3" },
-  { "route": "15", "vehicle": "KA51B 4018", "driverName": "DHANUSH", "driverPhone": "8310231270", "gprsLink": "https://lokkate.tracknerd.io/live/link/b00f21bff5af76d99dfbe9aae3ecc0cd8b7eaf6d" },
-  { "route": "15A", "vehicle": "KA51B 8668", "driverName": "CHALUVARAJ", "driverPhone": "8197895392", "gprsLink": "https://lokkate.tracknerd.io/live/link/0d797fd69baf66ce6b9764933ed8fbfe31ea3d73" },
-  { "route": "15B", "vehicle": "KA51B 4013", "driverName": "MANJUNATH BHARMAPPA", "driverPhone": "9900716544", "gprsLink": "https://lokkate.tracknerd.io/live/link/8da022bd762c09b3ff2f5f7221f43f185375372b" },
-  { "route": "15C", "vehicle": "KA05AN 9299", "driverName": "ABHISHEKER", "driverPhone": "8861952667", "gprsLink": "https://lokkate.tracknerd.io/live/link/479eaf8469a550fd936695151fe8a889f0b701c3" },
-  { "route": "15D", "vehicle": "KA51D 4045", "driverName": "DHARMA", "driverPhone": "9480003531", "gprsLink": "https://lokkate.tracknerd.io/live/link/c8fb7bc4d5950fc5c08fc65b3130de5547002fd5" },
-  { "route": "15E", "vehicle": "KA05AN 9255", "driverName": "ANAND. C", "driverPhone": "9916274350", "gprsLink": "https://lokkate.tracknerd.io/live/link/304fd1877a894116e9779e58fe22ee79f7179dda" },
-  { "route": "16", "vehicle": "KA51B 8783", "driverName": "ANAND P", "driverPhone": "6360385231", "gprsLink": "https://lokkate.tracknerd.io/live/link/c6b79b62a0ea77af87b4fa4cdfa008694ac0c34b" },
-  { "route": "16A", "vehicle": "KA51B 8671", "driverName": "MANJAPPA", "driverPhone": "9663693370", "gprsLink": "https://lokkate.tracknerd.io/live/link/b168a268ad55da3e4e719b6fb6abfa6924776a58" },
-  { "route": "17", "vehicle": "KA51AF 0055", "driverName": "SRINIVASA", "driverPhone": "9845168154", "gprsLink": "https://lokkate.tracknerd.io/live/link/9b470d2baa60ac0024ee11ce293ce8f53f7f6a53" },
-  { "route": "17A", "vehicle": "KA05AN 9883", "driverName": "MAHESH", "driverPhone": "8618934291", "gprsLink": "https://lokkate.tracknerd.io/live/link/496c19e611acfad77dcf4b95bbd730550f4cc89b" },
-  { "route": "17B", "vehicle": "KA51AF 0056", "driverName": "YOUSUF", "driverPhone": "9972662353", "gprsLink": "https://lokkate.tracknerd.io/live/link/7b2a0500e9b8c375c9b2b00d298a48ba442d6997" },
-  { "route": "18", "vehicle": "KA42 7874", "driverName": "ANJANAIHA POOJARI", "driverPhone": "8652622504", "gprsLink": "https://lokkate.tracknerd.io/live/link/7c38da5942403b6be6e03f3b16ccf7ea4550b4c2" },
-  { "route": "18A", "vehicle": "KA51B 4021", "driverName": "KRISHNA", "driverPhone": "9353890975", "gprsLink": "https://lokkate.tracknerd.io/live/link/79a49fe39e768a9bd798ceaed3514fa0d2334b08" }
+  {
+    "route": "1",
+    "vehicle": "KA 51B 3962",
+    "driverName": "SUNIL J.C",
+    "driverPhone": "8884120941",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/00048d8ccbbcf042cc318f3d0c1f418dad664b55"
+  },
+  {
+    "route": "1A",
+    "vehicle": "KA 51C 4506",
+    "driverName": "RAVI. L",
+    "driverPhone": "6362499251",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/d1566a2167995e06aa71d6acbc95b940179f4f3c"
+  },
+  {
+    "route": "2",
+    "vehicle": "KA 42 7873",
+    "driverName": "NAVEEN V",
+    "driverPhone": "9901654169",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/2c14c507b4562c19adb0d40cdf5b8618e56f0c55"
+  },
+  {
+    "route": "2A",
+    "vehicle": "KA 51B 8669",
+    "driverName": "SATISH. B.R",
+    "driverPhone": "9886837088",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/f93c5823422632b3ee0d1bf410592ae26c5efc1e"
+  },
+  {
+    "route": "2B",
+    "vehicle": "KA 51B 9317",
+    "driverName": "DURGESH",
+    "driverPhone": "9108789258",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/d5a624a439fd672b73f16b1f373f8e7dd07183eb"
+  },
+  {
+    "route": "2C",
+    "vehicle": "KA 51B 9030",
+    "driverName": "AKBHAR ALI. M.I",
+    "driverPhone": "8892214339",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/089b58fc1235eb902c8486862cf4742af68487db"
+  },
+  {
+    "route": "3",
+    "vehicle": "KA 51B 4017",
+    "driverName": "RAMESH",
+    "driverPhone": "6364611145",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/8e8257361c11d8b3cb779e5da79a8e4a201e9107"
+  },
+  {
+    "route": "3A",
+    "vehicle": "KA 51C 4679",
+    "driverName": "RAMACHANDREGOWDA",
+    "driverPhone": "9141499246",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/997498e97d0c8c2d6aecccef031d499660952e8d"
+  },
+  {
+    "route": "3B",
+    "vehicle": "KA 51B 9031",
+    "driverName": "SIDDAPPA",
+    "driverPhone": "9448204798",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/47a47090613d38b21c8bdd1cfd3cca9d94207624"
+  },
+  {
+    "route": "4",
+    "vehicle": "KA 05 AN 9601",
+    "driverName": "NAGARAJ.K",
+    "driverPhone": "9972511450",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/09fc705957651c07d0e5336bae1fc6bb318ca196"
+  },
+  {
+    "route": "6",
+    "vehicle": "KA 51B 4061",
+    "driverName": "MUNIYAPPA",
+    "driverPhone": "8217740393",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/a7f5eafed02a9626c4da8ac5473fa8f7080f873f"
+  },
+  {
+    "route": "6A",
+    "vehicle": "KA 05AN 9625",
+    "driverName": "RAVI KUMAR",
+    "driverPhone": "9108904493",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/d7b82403f5cf92790392af4505c9882b86be6032"
+  },
+  {
+    "route": "6B",
+    "vehicle": "KA 05 AN 9257",
+    "driverName": "ASHWATH NARAYAN",
+    "driverPhone": "9060746663",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/8bb5b6fa5ad34b674919da68f1e8b7f3737609dd"
+  },
+  {
+    "route": "6D",
+    "vehicle": "KA 51AF 0057",
+    "driverName": "VENKATASWAMY",
+    "driverPhone": "9901505644",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/8991be21f30ea16a1f483ea1931037ecb2f8a68a"
+  },
+  {
+    "route": "7",
+    "vehicle": "KA 51B 9036",
+    "driverName": "SANTOSHA A.S",
+    "driverPhone": "7892273458",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/0b56be4742e95e1082c864fa69b81b199e90608d"
+  },
+  {
+    "route": "7A",
+    "vehicle": "KA 51B 8672",
+    "driverName": "JEEVAN",
+    "driverPhone": "7760387926",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/6471264a832233543fa895a69890147421c21e96"
+  },
+  {
+    "route": "7B",
+    "vehicle": "KA 51B 4015",
+    "driverName": "MOHAMMED HANEEF",
+    "driverPhone": "9844732786",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/bc73f7106657dc9af31e1fb79dbdd118ecc158d9"
+  },
+  {
+    "route": "7C",
+    "vehicle": "KA 51B 8806",
+    "driverName": "THIMMEGOWDA T",
+    "driverPhone": "9844606412",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/b951f3129b61ff62e7d6977f84d52b629c20096c"
+  },
+  {
+    "route": "7D",
+    "vehicle": "KA 51C 5123",
+    "driverName": "THEJA",
+    "driverPhone": "9035179636",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/ce1110a242a70303246814bb272c4526026ccf18"
+  },
+  {
+    "route": "7E",
+    "vehicle": "KA 51AH 2519",
+    "driverName": "SHANTHA",
+    "driverPhone": "8792739856",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/5d4fca181a0c954edcc19c4f89a8fca8fe1d69f2"
+  },
+  {
+    "route": "7F",
+    "vehicle": "KA 51AF 0058",
+    "driverName": "RAVI",
+    "driverPhone": "9380845759",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/7ded188c5e21cf4b62e969427f59964bd45d1fb1"
+  },
+  {
+    "route": "7G",
+    "vehicle": "KA 51B 9322",
+    "driverName": "SHIVANNA R",
+    "driverPhone": "9585582753",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/4f322694c2786218d8db59999134b81954e49be8"
+  },
+  {
+    "route": "7H",
+    "vehicle": "KA 05 AN 9886",
+    "driverName": "ANIL KUMAR K R",
+    "driverPhone": "9740931411",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/5ba0b664ff1e84dad9f6544767ed499e5622789f"
+  },
+  {
+    "route": "7I",
+    "vehicle": "KA 51 AJ 1558",
+    "driverName": "GOLLALAPPA S GOLAGERI",
+    "driverPhone": "8197917596",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/9c542491d27faffe0df872246ca13718b9ff2612"
+  },
+  {
+    "route": "8",
+    "vehicle": "KA 51C 4478",
+    "driverName": "MADHU C P",
+    "driverPhone": "8971467070",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/8a12ff710ad0e42d77360bb5c90211a196d29a83"
+  },
+  {
+    "route": "8A",
+    "vehicle": "KA 42 7876",
+    "driverName": "PERIYANNA",
+    "driverPhone": "9943302524",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/e49096976ffe4c4e8db9488b8ee2a76b2dd2a2f7"
+  },
+  {
+    "route": "9",
+    "vehicle": "KA 05 AN 9889",
+    "driverName": "KALAIAHA",
+    "driverPhone": "8970455886",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/85bfbb979b6cd9e9b6c6c5dd8bc9bfd8407bca9d"
+  },
+  {
+    "route": "9A",
+    "vehicle": "KA 51AH 2280",
+    "driverName": "SYED BHAKER",
+    "driverPhone": "9743302439",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/3a018562ef5d6aacc362e225d5bcfd41f703a301"
+  },
+  {
+    "route": "10",
+    "vehicle": "KA 05AC 0397",
+    "driverName": "NAVEENA Y D",
+    "driverPhone": "9663641268",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/1561ffe7a77eef7a667ae66d8b32d60642ef6b1d"
+  },
+  {
+    "route": "10.1",
+    "vehicle": "KA 51B 4019",
+    "driverName": "P N DAYANANDA",
+    "driverPhone": "9880564415",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/43b1bc80bafeb7337c9a666f973cca4ae9ff55db"
+  },
+  {
+    "route": "10A",
+    "vehicle": "KA 51B 4016",
+    "driverName": "AJAY",
+    "driverPhone": "9663641268",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/244b8b9af2eecfdc5781bec20613da1c19417657"
+  },
+  {
+    "route": "10A.1",
+    "vehicle": "KA 51C 3837",
+    "driverName": "KUMAR",
+    "driverPhone": "9538082799",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/be631548f30c0f22a8f38c733d92fd998ff72ff7"
+  },
+  {
+    "route": "10A.2",
+    "vehicle": "KA 04D 6184",
+    "driverName": "M BABU",
+    "driverPhone": "9986675509",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/971e84a0abc00856497303936452196142c96a4e"
+  },
+  {
+    "route": "10A.3",
+    "vehicle": "KA 51AF 0059",
+    "driverName": "MADHU G M",
+    "driverPhone": "8867770272",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/02653cd2509e4af3048739f55d0b8f38297df569"
+  },
+  {
+    "route": "10B",
+    "vehicle": "KA 05AN 9296",
+    "driverName": "ALLALLAPPA",
+    "driverPhone": "9880994417",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/8894c6880a234c9e7b8aec22ca6aece12da956d7"
+  },
+  {
+    "route": "10C",
+    "vehicle": "KA 01AC 3564",
+    "driverName": "VENKATESH. P",
+    "driverPhone": "7996610508",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/d35609902ad2d5d6afa7d8193a3596bcea0aa734"
+  },
+  {
+    "route": "10C.1",
+    "vehicle": "KA 51AH 2283",
+    "driverName": "KRISHNAPPA U G",
+    "driverPhone": "9242314946",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/10c6a2fe03ddd072543d991e9a4d69a76e3ebd91"
+  },
+  {
+    "route": "10C.2",
+    "vehicle": "KA 51C 9624",
+    "driverName": "NAGANNA",
+    "driverPhone": "9740467535",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/3343df2110fa238a3da36fe12fc928650e2b955f"
+  },
+  {
+    "route": "10C.3",
+    "vehicle": "KA 51B 8345",
+    "driverName": "LAKSHMINARAYAN",
+    "driverPhone": "7090149081",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/fd025328efa42cae4a9805241e3b2e02482161f9"
+  },
+  {
+    "route": "10D",
+    "vehicle": "KA 05AN 9872",
+    "driverName": "MARUTHI",
+    "driverPhone": "8861850368",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/0197aa0599340be9417d2b066146ff615f3d1fbe"
+  },
+  {
+    "route": "10E",
+    "vehicle": "KA 51B 3953",
+    "driverName": "MURTHY",
+    "driverPhone": "9980462692",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/5f30018191824389a3ba2bca044b362a55206a69"
+  },
+  {
+    "route": "10F",
+    "vehicle": "KA 51B 4012",
+    "driverName": "RAVI P",
+    "driverPhone": "9986693220",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/3ade0d4e8e2d5806af2b1fb895c1c0c607bbe90a"
+  },
+  {
+    "route": "10G",
+    "vehicle": "KA 51B 5122",
+    "driverName": "MURTY",
+    "driverPhone": "7846099043",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/3434227a0013ed0163f89ee29dcac6dcbbbc8348"
+  },
+  {
+    "route": "10H",
+    "vehicle": "KA 51B 4020",
+    "driverName": "CHANDRAKANTH",
+    "driverPhone": "7259448456",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/ff12b227956fefee5e7f628241bd62b456eaf529"
+  },
+  {
+    "route": "10J",
+    "vehicle": "KA 51B 8670",
+    "driverName": "AJITH",
+    "driverPhone": "9110812668",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/1dba51b08fd984d7a3ee986bf921498c71c0ac8d"
+  },
+  {
+    "route": "11",
+    "vehicle": "KA 51B 9587",
+    "driverName": "MANJUNATH",
+    "driverPhone": "9741226737",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/7e11c938ef3a93f14b27df1346c4ea8a10b0934e"
+  },
+  {
+    "route": "11A",
+    "vehicle": "KA 51AJ 1566",
+    "driverName": "MAHAMAD SALIM ALI",
+    "driverPhone": "7349449047",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/200d6d863808091d3bf7e5f06aeb6434af3b3a80"
+  },
+  {
+    "route": "12",
+    "vehicle": "KA 42 7871",
+    "driverName": "OBALAPPA",
+    "driverPhone": "8790437500",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/56c9a985ee239904d005a01afd338a5f4109d963"
+  },
+  {
+    "route": "13",
+    "vehicle": "KA 05AN 9885",
+    "driverName": "MAHADEVA",
+    "driverPhone": "9880658957",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/3925dd97666d67ad960fcb744de6467f305b299c"
+  },
+  {
+    "route": "13A",
+    "vehicle": "KA 42 7872",
+    "driverName": "MOUNAPPA",
+    "driverPhone": "8073591418",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/8669a4f5fb2d8984ef4275389e0e3e57ecdf46be"
+  },
+  {
+    "route": "14",
+    "vehicle": "KA 51AB 5081",
+    "driverName": "GOVINDA G",
+    "driverPhone": "9901809200",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/d1e59af4e49c3df6b97ffea00690fe95269ae5ff"
+  },
+  {
+    "route": "14A",
+    "vehicle": "KA 42 7877",
+    "driverName": "KUMAR K",
+    "driverPhone": "7829025440",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/af2295da40b43c456d10a9d801e326ffca109294"
+  },
+  {
+    "route": "14B",
+    "vehicle": "KA 51B 9035",
+    "driverName": "PARASHURAM NAIDU",
+    "driverPhone": "9611996336",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/6aca9cefbe167e01ef0f3f18bf3ab9d0ed1b1f71"
+  },
+  {
+    "route": "14C",
+    "vehicle": "KA 42 7875",
+    "driverName": "LAKSHMAN KAMBLE",
+    "driverPhone": "9902981196",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/3206e4cd6aad870cb1442467113abe064a3250a3"
+  },
+  {
+    "route": "15",
+    "vehicle": "KA 51B 4018",
+    "driverName": "DHANUSH",
+    "driverPhone": "8310231270",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/b00f21bff5af76d99dfbe9aae3ecc0cd8b7eaf6d"
+  },
+  {
+    "route": "15A",
+    "vehicle": "KA 51B 8668",
+    "driverName": "CHALUVARAJ",
+    "driverPhone": "8197895392",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/0d797fd69baf66ce6b9764933ed8fbf631ea3d73"
+  },
+  {
+    "route": "15B",
+    "vehicle": "KA 51B 4013",
+    "driverName": "MANJUNATH BHARMAPPA",
+    "driverPhone": "9900716544",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/8da022bd762c09b3ff2f5f7221f43f185375372b"
+  },
+  {
+    "route": "15C",
+    "vehicle": "KA 05AN 9299",
+    "driverName": "ABHISHEKER",
+    "driverPhone": "8861952667",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/479eaf8469a550fd936695151fe8a889f0b701c3"
+  },
+  {
+    "route": "15D",
+    "vehicle": "KA 51D 4045",
+    "driverName": "DHARMA",
+    "driverPhone": "9480003531",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/c8fb7bc4d5950fc5c08fc65b3130de5547002fd5"
+  },
+  {
+    "route": "15E",
+    "vehicle": "KA 05 AN 9255",
+    "driverName": "ANAND. C",
+    "driverPhone": "9916274350",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/304fd1877a894116e9779e58fe22ee79f7179dda"
+  },
+  {
+    "route": "16",
+    "vehicle": "KA 51B 8783",
+    "driverName": "ANAND P",
+    "driverPhone": "6360385231",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/c6b79b62a0ea77af87b4fa4cdfa008694ac0c34b"
+  },
+  {
+    "route": "16A",
+    "vehicle": "KA 51B 8671",
+    "driverName": "MANJAPPA",
+    "driverPhone": "9663693370",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/b168a268ad55da3e4e719b6fb6abfa6924776a58"
+  },
+  {
+    "route": "17",
+    "vehicle": "KA 51AF 0055",
+    "driverName": "SRINIVASA",
+    "driverPhone": "9845168154",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/9b470d2baa60ac0024ee11ce293ce8f53f7f6a53"
+  },
+  {
+    "route": "17A",
+    "vehicle": "KA 05 AN 9883",
+    "driverName": "MAHESH",
+    "driverPhone": "8618934291",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/496c19e611acfad77dcf4b95bbd730550f4cc89b"
+  },
+  {
+    "route": "17B",
+    "vehicle": "KA 51AF 0056",
+    "driverName": "YOUSUF",
+    "driverPhone": "9972662353",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/7b2a0500e9b8c375c9b2b00d298a48ba442d6997"
+  },
+  {
+    "route": "18",
+    "vehicle": "KA 42 7874",
+    "driverName": "ANJANAIHA POOJARI",
+    "driverPhone": "8652622504",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/7c38da5942403b6be6e03f3b16ccf7ea4550b4c2"
+  },
+  {
+    "route": "18A",
+    "vehicle": "KA 51B 4021",
+    "driverName": "KRISHNA",
+    "driverPhone": "9353890975",
+    "gprsLink": "https://lokkate.tracknerd.io/live/link/79a49fe39e768a9bd798ceaed3514fa0d2334b08"
+  }
 ]

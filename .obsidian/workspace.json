@@ -185,6 +185,8 @@
   },
   "active": "7a2ae9a24c1ff694",
   "lastOpenFiles": [
+    "update_buses.py",
+    "extract_links.py",
     "data/info/buses.json",
     "data/info/general.json",
     "data/info",
@@ -194,8 +196,6 @@
     "node_modules/zod-to-json-schema/postesm.ts",
     "node_modules/zod-to-json-schema/postcjs.ts",
     "node_modules/zod/v4/core/function.d.cts",
-    "node_modules/zod-to-json-schema/createIndex.ts",
-    "node_modules/zod-to-json-schema/dist/types/parsers/unknown.d.ts",
     "node_modules/zod-to-json-schema/README.md",
     "node_modules/zod-to-json-schema/contributing.md",
     "node_modules/zod-to-json-schema/changelog.md",
