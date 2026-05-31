@@ -56,17 +56,6 @@ export default function GeneralInfo() {
 
   return (
     <div className="mb-6 space-y-4">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-orange-100 to-amber-50 p-4 border border-orange-200 rounded-xl shadow-sm flex flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-3">
-          <div className="text-3xl">ℹ️</div>
-          <div>
-            <h2 className="text-xl font-bold text-orange-900">General Info & Rules</h2>
-            <p className="text-sm text-orange-800">Vendor and teacher details</p>
-          </div>
-        </div>
-      </div>
-
       {/* Pinned Bus Section */}
       {pinnedBus && (
         <div className="bg-gradient-to-r from-yellow-50 to-amber-50 p-4 border border-yellow-300 rounded-xl shadow-sm animate-in fade-in duration-300">
