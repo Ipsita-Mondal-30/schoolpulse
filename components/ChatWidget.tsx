@@ -1,41 +1,29 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react';
-import { getDaySchedule, getWeekForDate, getToday, getUpcomingEvents, getSchoolContactInfo } from '@/lib/data';
-import { fetchHomework, fetchExternalUpdates } from '@/app/actions';
-import boredomBusters from '@/data/boredom-busters.json';
-import physicalActivities from '@/data/physical-activities.json';
-
-type MessageRole = 'user' | 'assistant';
-
-interface Message {
-    id: string;
-    role: MessageRole;
-    text: string;
-}
+import { MessageCircle, X, Send, Bot } from 'lucide-react';
+import { useChat } from 'ai/react';
 
 export default function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: 'welcome-1',
-            role: 'assistant',
-            text: 'Hello! I am the SchoolPulse assistant. How can I help you today?',
-        },
-    ]);
-    const [isTyping, setIsTyping] = useState(false);
+    
+    const { messages, input, handleInputChange, handleSubmit, isLoading, append } = useChat({
+        initialMessages: [
+            {
+                id: 'welcome-1',
+                role: 'assistant',
+                content: 'Hello! I am the SchoolPulse AI assistant. How can I help you today?',
+            }
+        ]
+    });
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const modelQuestions = [
-        "Any upcoming homework?",
-        "Are there any notices?",
-        "What is today's schedule?",
-        "What are the dictation words?",
-        "Any upcoming events?",
-        "How to contact the school?",
-        "I'm bored! What can I do?",
-        "Any fun indoor games? 🏃",
+        "Today's homework",
+        "Today's events",
+        "What will my kid learn in school today?",
+        "What uniform on Monday?",
     ];
 
     const scrollToBottom = () => {
@@ -44,166 +32,7 @@ export default function ChatWidget() {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, isTyping, isOpen]);
-
-    const handleQuestionClick = async (question: string) => {
-        // Add user message
-        const userMsg: Message = {
-            id: Date.now().toString(),
-            role: 'user',
-            text: question,
-        };
-        setMessages((prev) => [...prev, userMsg]);
-        setIsTyping(true);
-
-        // Simulate network/processing delay
-        await new Promise((resolve) => setTimeout(resolve, 600));
-
-        let answer = "";
-        const today = getToday();
-
-        try {
-            if (question === "Any upcoming homework?") {
-                const homework = await fetchHomework();
-                if (homework && homework.length > 0) {
-                    answer = "Here is the pending homework:\n\n";
-                    homework.forEach((hw) => {
-                        answer += `**${hw.subject}**: ${hw.content}\n*Due: ${hw.submissionDate}*\n\n`;
-                    });
-                } else {
-                    answer = "There is no pending homework right now. Enjoy the free time! 🎉";
-                }
-            }
-            else if (question === "Are there any notices?") {
-                const updates = await fetchExternalUpdates();
-                const notices = updates.filter((u: any) => u.type !== 'homework'); // exclude homework
-                if (notices && notices.length > 0) {
-                    answer = "Here are the latest notices:\n\n";
-                    notices.slice(0, 3).forEach((n: any) => {
-                        answer += `**${n.title || n.category}**: ${n.message}\n\n`;
-                    });
-                    if (notices.length > 3) answer += `*(and ${notices.length - 3} more...)*`
-                } else {
-                    answer = "There are no new notices at the moment.";
-                }
-            }
-            else if (question === "What is today's schedule?") {
-                const schedule = getDaySchedule(today);
-                if (schedule && !schedule.isHoliday && schedule.schedule && schedule.schedule.length > 0) {
-                    answer = `Here is the schedule for today (${schedule.dayOfWeek}):\n\n`;
-                    schedule.schedule.forEach(item => {
-                        answer += `• **${item.time}**: ${item.subject}\n`;
-                    });
-                } else if (schedule && schedule.isHoliday) {
-                    answer = `Today is a holiday: ${schedule.holidayName || 'Enjoy your day off!'}`;
-                } else {
-                    answer = "I don't have the schedule for today. It might be a weekend.";
-                }
-            }
-            else if (question === "What are the dictation words?") {
-                const weekInfo = getWeekForDate(today);
-                if (weekInfo && weekInfo.dictationWords && weekInfo.dictationWords.length > 0) {
-                    answer = `The dictation words for this week are:\n\n${weekInfo.dictationWords.join(', ')}`;
-                    if (weekInfo.dictationSentences && weekInfo.dictationSentences.length > 0) {
-                        answer += `\n\n**Sentences:**\n`;
-                        weekInfo.dictationSentences.forEach(s => answer += `• ${s}\n`);
-                    }
-                } else {
-                    answer = "There are no dictation words currently assigned for this week.";
-                }
-            }
-            else if (question === "Any upcoming events?") {
-                const events = getUpcomingEvents(14); // Next 14 days
-                if (events && events.length > 0) {
-                    answer = "Here are the upcoming events in the next two weeks:\n\n";
-                    events.forEach(e => {
-                        const eventDate = new Date(e.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
-                        answer += `• **${eventDate}**: ${e.event} (${e.type})\n`;
-                    });
-                } else {
-                    answer = "There are no special events coming up in the next 14 days.";
-                }
-            }
-            else if (question === "How to contact the school?") {
-                const contactInfo = getSchoolContactInfo();
-                answer = "Here is the contact information for the school leadership:\n\n";
-                answer += `• **PP Coordinator**: [${contactInfo.coordinatorEmail}](mailto:${contactInfo.coordinatorEmail})\n`;
-                answer += `• **Principal (${contactInfo.principalName || 'Dr. Malini Dutta'})**: [${contactInfo.principalEmail}](mailto:${contactInfo.principalEmail})\n`;
-                answer += `• **School Email**: [${contactInfo.schoolEmail}](mailto:${contactInfo.schoolEmail})\n`;
-                if (contactInfo.phone) answer += `• **Phone**: ${contactInfo.phone}\n`;
-                if (contactInfo.website) answer += `• **Website**: [${contactInfo.website}](http://${contactInfo.website})\n\n`;
-                else answer += "\n";
-                answer += "Please feel free to reach out to them for any queries.";
-            }
-            else if (question === "I'm bored! What can I do?") {
-                const todayStr = new Date().toISOString().split('T')[0];
-                let busterData = { date: todayStr, count: 0 };
-
-                try {
-                    const stored = localStorage.getItem('schoolpulse_boredom_buster');
-                    if (stored) {
-                        const parsed = JSON.parse(stored);
-                        if (parsed.date === todayStr) {
-                            busterData = parsed;
-                        }
-                    }
-                } catch (e) { }
-
-                if (busterData.count >= 3) {
-                    answer = "You've already reached today's boredom buster limit! Time to get creative with what you have or take some time to rest. Come back tomorrow for more fun! 🌟";
-                } else {
-                    const randomIdx = Math.floor(Math.random() * boredomBusters.length);
-                    const activity = boredomBusters[randomIdx];
-
-                    busterData.count += 1;
-                    localStorage.setItem('schoolpulse_boredom_buster', JSON.stringify(busterData));
-
-                    answer = `Here is a fun idea for you (${busterData.count}/3 for today):\n\n**${activity}**`;
-                }
-            }
-            else if (question === "Any fun indoor games? 🏃") {
-                const todayStr = new Date().toISOString().split('T')[0];
-                let gameData = { date: todayStr, count: 0 };
-
-                try {
-                    const stored = localStorage.getItem('schoolpulse_physical_games');
-                    if (stored) {
-                        const parsed = JSON.parse(stored);
-                        if (parsed.date === todayStr) {
-                            gameData = parsed;
-                        }
-                    }
-                } catch (e) { }
-
-                if (gameData.count >= 3) {
-                    answer = "Phew! You've played enough games for now. Time to rest your body and drink some water! We can play more active games tomorrow! 💧😴";
-                } else {
-                    const randomIdx = Math.floor(Math.random() * physicalActivities.length);
-                    const activity = physicalActivities[randomIdx];
-
-                    gameData.count += 1;
-                    localStorage.setItem('schoolpulse_physical_games', JSON.stringify(gameData));
-
-                    answer = `Time to move! Get ready for this physical challenge (${gameData.count}/3 for today):\n\n**${activity}**`;
-                }
-            }
-            else {
-                answer = "I'm sorry, I can only answer the specific suggested questions right now.";
-            }
-        } catch (error) {
-            console.error("Chat error:", error);
-            answer = "Sorry, I ran into an error trying to fetch that information for you. Please try again later.";
-        }
-
-        const assistantMsg: Message = {
-            id: (Date.now() + 1).toString(),
-            role: 'assistant',
-            text: answer,
-        };
-
-        setMessages((prev) => [...prev, assistantMsg]);
-        setIsTyping(false);
-    };
+    }, [messages, isLoading, isOpen]);
 
     const formatText = (text: string) => {
         // Basic markdown-like formatting for links, bold (**text**) and lists (•)
@@ -214,16 +43,13 @@ export default function ChatWidget() {
             let parts: React.ReactNode[] = [];
             let lastIndex = 0;
 
-            // Simple parser that handles links first, then bold inside text portions
             const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
             let linkMatch;
 
             while ((linkMatch = linkRegex.exec(line)) !== null) {
-                // Process text before the link for bold
                 const preText = line.substring(lastIndex, linkMatch.index);
                 parts.push(...processBold(preText, `${i}-pre-${linkMatch.index}`));
 
-                // Add the link
                 parts.push(
                     <a
                         key={`${i}-link-${linkMatch.index}`}
@@ -238,14 +64,13 @@ export default function ChatWidget() {
                 lastIndex = linkMatch.index + linkMatch[0].length;
             }
 
-            // Process remaining text after the last link
             if (lastIndex < line.length) {
                 const postText = line.substring(lastIndex);
                 parts.push(...processBold(postText, `${i}-post`));
             }
 
             return (
-                <div key={i} className={line.startsWith('•') ? "ml-4" : "mt-1"}>
+                <div key={i} className={line.startsWith('-') || line.startsWith('•') ? "ml-4" : "mt-1"}>
                     {parts.length > 0 ? parts : line}
                 </div>
             );
@@ -290,7 +115,7 @@ export default function ChatWidget() {
 
             {/* Chat Window */}
             <div
-                className={`fixed bottom-4 right-4 left-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[380px] h-[80vh] sm:h-[580px] max-h-[calc(100vh-96px)] sm:max-h-[calc(100vh-48px)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col transition-all duration-300 transform origin-bottom-right focus:outline-none overflow-hidden border border-gray-100
+                className={`fixed bottom-4 right-4 left-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[380px] h-[80vh] sm:h-[620px] max-h-[calc(100vh-96px)] sm:max-h-[calc(100vh-48px)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col transition-all duration-300 transform origin-bottom-right focus:outline-none overflow-hidden border border-gray-100
         ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 pointer-events-none translate-y-10'}`}
             >
                 {/* Header */}
@@ -318,7 +143,6 @@ export default function ChatWidget() {
 
                 {/* Messages Area */}
                 <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-slate-50 relative scroll-smooth">
-                    {/* Soft background blob */}
                     <div className="absolute -top-20 -left-20 w-64 h-64 bg-rose-100/40 rounded-full blur-3xl pointer-events-none"></div>
                     <div className="absolute top-40 -right-20 w-64 h-64 bg-orange-100/40 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -333,19 +157,19 @@ export default function ChatWidget() {
                                 </div>
                             )}
                             <div
-                                className={`p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm
+                                className={`p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm break-words
                 ${msg.role === 'user'
                                         ? 'bg-gradient-to-br from-orange-500 to-rose-500 text-white rounded-br-sm'
                                         : 'bg-white text-gray-800 border border-gray-100 rounded-bl-sm'
                                     }`}
                                 style={{ maxWidth: '85%' }}
                             >
-                                {formatText(msg.text)}
+                                {msg.role === 'assistant' ? formatText(msg.content) : msg.content}
                             </div>
                         </div>
                     ))}
 
-                    {isTyping && (
+                    {isLoading && (
                         <div className="flex justify-start relative z-10 animate-fade-in">
                             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-400 to-rose-400 flex items-center justify-center text-white p-1.5 mr-2 mt-1 shadow-sm flex-shrink-0">
                                 <Bot size={14} />
@@ -361,26 +185,43 @@ export default function ChatWidget() {
                 </div>
 
                 {/* Suggestion Chips */}
-                <div className="p-3 bg-white border-t border-gray-100 shadow-[0_-4px_20px_-15px_rgba(0,0,0,0.1)] z-10 relative">
+                <div className="px-3 pt-3 bg-white border-t border-gray-100 z-10 relative">
                     <div className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider pl-1">Ask a question:</div>
-                    <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-[160px] pr-2 custom-scrollbar pb-1">
+                    <div className="flex overflow-x-auto gap-2 pb-2 custom-scrollbar snap-x">
                         {modelQuestions.map((q, idx) => (
                             <button
                                 key={idx}
-                                onClick={() => handleQuestionClick(q)}
-                                disabled={isTyping}
-                                className="text-left text-xs bg-slate-50 border border-slate-200 hover:border-orange-300 hover:bg-orange-50 text-slate-700 px-2.5 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-sm leading-snug flex items-center"
+                                onClick={() => append({ role: 'user', content: q })}
+                                disabled={isLoading}
+                                className="whitespace-nowrap snap-start text-xs bg-slate-50 border border-slate-200 hover:border-orange-300 hover:bg-orange-50 text-slate-700 px-3 py-2 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-sm flex items-center"
                             >
                                 {q}
                             </button>
                         ))}
                     </div>
                 </div>
+
+                {/* Form Input */}
+                <form onSubmit={handleSubmit} className="p-3 bg-white flex items-center gap-2 relative z-10">
+                    <input
+                        className="flex-1 bg-slate-50 border border-slate-200 text-slate-700 text-sm px-4 py-2.5 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-300 transition-all"
+                        value={input}
+                        onChange={handleInputChange}
+                        placeholder="Ask me anything..."
+                    />
+                    <button
+                        type="submit"
+                        disabled={isLoading || !input.trim()}
+                        className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-full disabled:opacity-50 transition-colors"
+                    >
+                        <Send size={18} />
+                    </button>
+                </form>
             </div>
 
             <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
+            height: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
