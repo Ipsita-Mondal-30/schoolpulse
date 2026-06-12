@@ -7,7 +7,6 @@ import MonthlyPlanner from '@/components/MonthlyPlanner';
 import MorningAlarm from '@/components/MorningAlarm';
 import MonthSelector from '@/components/MonthSelector';
 import ImportantDates from '@/components/ImportantDates';
-import RecentUpdates from '@/components/RecentUpdates';
 import {
   getMonthData,
   getMonthlyPlanner,
@@ -59,14 +58,13 @@ function HomeContent() {
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-24">
 
-      {/* ── Top Bar: Month Selector + Updates ── */}
+      {/* ── Top Bar: Month Selector ── */}
       <div className="flex items-center justify-between mb-5">
         <MonthSelector
           months={availableMonths}
           selectedMonthId={selectedMonthId}
           onMonthChange={setSelectedMonthId}
         />
-        <RecentUpdates />
       </div>
 
       {/* ── Hero Banner ── */}
