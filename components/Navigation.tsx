@@ -15,7 +15,7 @@ export default function Navigation() {
     { href: '/homework', label: 'Homework', icon: '📚' },
     { href: '/info', label: 'Info', icon: 'ℹ️' },
     { href: '/dates', label: 'Events', icon: '🔔' },
-    { href: '/month', label: 'Month', icon: '🗓️' },
+    { href: '/month', label: 'Revision', icon: '📝' },
   ];
 
   return (
