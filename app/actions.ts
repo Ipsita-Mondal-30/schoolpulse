@@ -228,12 +228,15 @@ export interface SchoolEvent {
 }
 
 export async function fetchEvents(): Promise<SchoolEvent[]> {
-    const SHEET_URL = process.env.NEXT_PUBLIC_EVENTS_SHEET_URL;
+    const BASE_URL = process.env.NEXT_PUBLIC_UPDATES_SHEET_URL;
 
-    if (!SHEET_URL) {
-        console.error('SERVER ACTION ERROR: NEXT_PUBLIC_EVENTS_SHEET_URL is missing');
+    if (!BASE_URL) {
+        console.error('SERVER ACTION ERROR: NEXT_PUBLIC_UPDATES_SHEET_URL is missing');
         return [];
     }
+
+    // Reuse the same spreadsheet, just swap to the events tab gid
+    const SHEET_URL = BASE_URL.replace(/gid=\d+/, 'gid=1056366110');
 
     try {
         const response = await fetch(SHEET_URL, { next: { revalidate: 300 } });
