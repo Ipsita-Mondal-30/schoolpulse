@@ -109,9 +109,26 @@ export default function RecentUpdates() {
     }
   };
 
+  const triggerMorningAlert = () => {
+    const today = new Date();
+    const weekday = today.toLocaleDateString("en-US", { weekday: "long" });
+    // Mock prep notification context matches user's request details
+    alert(`⏰ Daily Prep Digest - ${weekday}\n\n☀️ Uniform: Wear regular school uniform today.\n🎒 Bag Prep: Pack EVS Textbook & Workbook.\n🚌 Transport: School bus scheduled for 08:15 AM.\n📝 Homework: Check active homework timeline tab.`);
+  };
+
   return (
     <>
       <div className="flex items-center gap-2">
+        {/* Morning Prep Digest Quick Button */}
+        <button
+          onClick={triggerMorningAlert}
+          className="relative flex items-center justify-center w-[34px] h-[34px] bg-rose-50 border border-rose-100 text-rose-600 rounded-full hover:bg-rose-100 transition-all shadow-sm"
+          aria-label="Daily Prep Digest"
+          title="Daily Prep Digest"
+        >
+          <span className="text-sm">⏰</span>
+        </button>
+
         {/* Updates Button */}
         <button
           onClick={handleOpen}
