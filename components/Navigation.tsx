@@ -10,12 +10,12 @@ export default function Navigation() {
   const { homeworkCount } = useUpdates();
 
   const links = [
-    { href: '/', label: 'Planner', icon: '📋' },
-    { href: '/week', label: 'Kids Quest', icon: '🎮' },
-    { href: '/homework', label: 'Homework', icon: '📚' },
-    { href: '/info', label: 'Info', icon: 'ℹ️' },
-    { href: '/dates', label: 'Events', icon: '🔔' },
-    { href: '/month', label: 'Revision', icon: '📝' },
+    { href: '/', label: 'Planner', shortLabel: 'Planner', icon: '📋' },
+    { href: '/week', label: 'Kids Quest', shortLabel: 'Quest', icon: '🎮' },
+    { href: '/homework', label: 'Homework', shortLabel: 'Homework', icon: '📚' },
+    { href: '/info', label: 'Info', shortLabel: 'Info', icon: 'ℹ️' },
+    { href: '/dates', label: 'Events', shortLabel: 'Events', icon: '🔔' },
+    { href: '/month', label: 'Revision', shortLabel: 'Revision', icon: '📝' },
   ];
 
   return (
@@ -40,10 +40,10 @@ export default function Navigation() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-orange-100 text-orange-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-orange-100 text-orange-700 font-semibold'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
                   {link.label === 'Homework' && homeworkCount > 0 && (
@@ -51,7 +51,8 @@ export default function Navigation() {
                       {homeworkCount}
                     </span>
                   )}
-                  {link.label}
+                  <span className="text-base">{link.icon}</span>
+                  <span>{link.label}</span>
                 </Link>
               );
             })}
@@ -62,8 +63,8 @@ export default function Navigation() {
         </div>
       </div>
 
-      {/* Mobile Scrollable Tabs Bar (hidden on desktop, scrollable on mobile) */}
-      <div className="sm:hidden w-full border-t border-gray-100 overflow-x-auto whitespace-nowrap bg-gray-50/50 py-2 px-3 flex gap-1.5 items-center scrollbar-none">
+      {/* Mobile Tabs Bar (hidden on desktop, justify-around on mobile for premium look) */}
+      <div className="sm:hidden w-full border-t border-gray-100 bg-gray-50/50 py-2 px-3 flex gap-1 items-center justify-around">
         {links.map((link) => {
           const isActive = pathname === link.href;
           return (
@@ -76,10 +77,14 @@ export default function Navigation() {
                   : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-150'
               }`}
             >
-              <span>{link.icon}</span>
-              <span>{link.label}</span>
+              <span className="text-sm">{link.icon}</span>
+              {isActive && <span>{link.shortLabel}</span>}
               {link.label === 'Homework' && homeworkCount > 0 && (
-                <span className="flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white shadow-sm ring-1 ring-white animate-pulse">
+                <span
+                  className={`flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white shadow-sm ring-1 ring-white animate-pulse ${
+                    !isActive ? 'absolute -top-1.5 -right-1.5' : ''
+                  }`}
+                >
                   {homeworkCount}
                 </span>
               )}
