@@ -34,6 +34,23 @@ export default function ChatWidget() {
         scrollToBottom();
     }, [messages, isLoading, isOpen]);
 
+    // Close chat widget on page/tab navigation clicks
+    useEffect(() => {
+        const handleNavigation = () => {
+            setIsOpen(false);
+        };
+        window.addEventListener('click', (e) => {
+            // If user clicked any navigation link tag, trigger collapse
+            const target = e.target as HTMLElement;
+            if (target.closest('a[href]') || target.closest('button[href]')) {
+                handleNavigation();
+            }
+        });
+        return () => {
+            window.removeEventListener('click', handleNavigation);
+        };
+    }, []);
+
     const formatText = (text: string) => {
         // Basic markdown-like formatting for links, bold (**text**) and lists (•)
         const lines = text.split('\n');
