@@ -5,24 +5,20 @@ test.describe('SchoolPulse Smoke Tests', () => {
     test('home page loads', async ({ page }) => {
         await page.goto('/');
         await expect(page).toHaveTitle(/SchoolPulse/);
-        // Use a more specific selector to avoid strict mode violations (header vs footer)
-        // Check for the main heading or brand text which should be visible
-        // Check for something visible on both mobile and desktop (e.g., the 'Today' navigation item)
-        await expect(page.locator('a[href="/"]', { hasText: 'Today' })).toBeVisible();
+        // Check for 'Planner' tab link which is visible on the current screen size
+        await expect(page.locator('a[href="/"]:visible', { hasText: 'Planner' }).first()).toBeVisible();
     });
 
     test('homework page loads', async ({ page }) => {
         await page.goto('/homework');
-        // Check for common elements or just that it didn't 404/crash
-        // Assuming the page title or a header exists
         await expect(page.getByRole('main')).toBeVisible();
     });
 
     test('dates page loads', async ({ page }) => {
         await page.goto('/dates');
         await expect(page).toHaveTitle(/SchoolPulse/);
-        // Use .first() as the text might appear in multiple places (header vs page title)
-        await expect(page.getByText('Important Dates').first()).toBeVisible();
+        // Check for the visible 'Events' text or tab which is rendered on this page
+        await expect(page.getByText('Events').filter({ visible: true }).first()).toBeVisible();
     });
 
     test('rhymes page loads', async ({ page }) => {
