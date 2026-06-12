@@ -1,0 +1,102 @@
+[
+  {
+    "day": "Day 1-2",
+    "focus": "English Naming Words & Maths Shapes",
+    "activities": [
+      {
+        "subject": "English",
+        "topic": "Naming Words (Nouns)",
+        "guide": "Help the child look around the room. Play a game: 'I spy with my little eye a naming word (noun) starting with P.' Name people, places, animals, and things.",
+        "interactiveQuestion": "Can you name 3 things in this room, 2 animals, and 1 place you love to go? Are all these naming words?",
+        "funTask": "🎒 Put 5 random toys/items on the table and ask the child to classify them into 'Person' (toys), 'Place' (draw a house), 'Animal', or 'Thing'."
+      },
+      {
+        "subject": "Mathematics",
+        "topic": "Pre-Number Concepts (Big/Small, Near/Far)",
+        "guide": "Compare household items. Use a large bowl and a small spoon. Use objects close to you versus things far away.",
+        "interactiveQuestion": "Look at the refrigerator and this glass. Which one is bigger? Look at the window. Is it near us or far away?",
+        "funTask": "🚶 Stand near the child, then walk to the door. Ask the child to say 'Near' or 'Far' based on your position."
+      }
+    ]
+  },
+  {
+    "day": "Day 3-4",
+    "focus": "EVS body parts & Kannada Vowels",
+    "activities": [
+      {
+        "subject": "EVS",
+        "topic": "My Body Parts",
+        "guide": "Look in the mirror together. Touch and identify forehead, cheeks, chin, shoulders, elbows, and knees.",
+        "interactiveQuestion": "Point to your elbows. What do they help you do? Point to your knees. Can you bend them?",
+        "funTask": "💃 Play 'Simon Says' touching different body parts. E.g., 'Simon says touch your shoulders, Simon says blink your eyes!'"
+      },
+      {
+        "subject": "Kannada",
+        "topic": "Vowels (ಸ್ವರಗಳು - ಅ ರಿಂದ ಳ)",
+        "guide": "Sing simple Kannada alphabet rhymes or practice writing the strokes of 'ಅ' (a) and 'ಆ' (aa).",
+        "interactiveQuestion": "What is the first letter of Kannada Swaragalu? Can you trace the shape of 'ಅ' in the air?",
+        "funTask": "🎨 Draw the letter 'ಅ' on a paper and let your child paint/color it."
+      }
+    ]
+  },
+  {
+    "day": "Day 5-6",
+    "focus": "English Literature & Maths Numbers 0-10",
+    "activities": [
+      {
+        "subject": "English",
+        "topic": "Literature: If You Are Happy (Poem)",
+        "guide": "Recite the poem together with full actions. Clapping hands, patting knees, stamping feet, blinking eyes.",
+        "interactiveQuestion": "Can you show me what actions you do in the poem when you are happy? What is the spelling of 'Happy'?",
+        "funTask": "🎭 Act out different emotions: Happy (smile & clap), Sad (frown), Angry (cross arms), Excited (jump)!"
+      },
+      {
+        "subject": "Mathematics",
+        "topic": "Numbers 0 to 10 (Counting & Writing)",
+        "guide": "Use rajma beans, matchsticks, or pencils to count up to 10. Practice backward counting from 10 to 0.",
+        "interactiveQuestion": "If I give you 3 pencils and add 2 more, how many do you have? Let's count backward: 10, 9, 8...",
+        "funTask": "✏️ Pencil activity: Make groups of tens and ones using pencils bound together with a rubber band."
+      }
+    ]
+  },
+  {
+    "day": "Day 7-8",
+    "focus": "EVS Sense Organs & Hindi Vowels",
+    "activities": [
+      {
+        "subject": "EVS",
+        "topic": "My Sense Organs",
+        "guide": "Explain the 5 sense organs (Eyes, Ears, Nose, Tongue, Skin). Play the sensory guessing game.",
+        "interactiveQuestion": "Which sense organ helps you taste an ice cream? Which one helps you hear your favourite song?",
+        "funTask": "🙈 Blindfold Game: Blindfold the child and have them touch an object (e.g. soft toy) or smell a fruit, then guess what it is!"
+      },
+      {
+        "subject": "Hindi",
+        "topic": "Vowels & Consonants (व्यंजन क - श)",
+        "guide": "Identify pictures starting with व्यंजन (क से कबूतर, ख से खरगोश). Practice tracing the letters.",
+        "interactiveQuestion": "Which letter comes after 'क'? Can you name a fruit starting with 'अ' (अ से अनार)?",
+        "funTask": "🌳 व्यंजन का पेड़ (Consonant Tree): Draw a tree and place leaf cutouts with Hindi letters on it."
+      }
+    ]
+  },
+  {
+    "day": "Day 9-10",
+    "focus": "Computer Parts & English Families",
+    "activities": [
+      {
+        "subject": "Computer Science",
+        "topic": "Parts of a Computer",
+        "guide": "Identify CPU, Monitor, Keyboard, Mouse. Compare a computer to human body parts.",
+        "interactiveQuestion": "What is the brain of the computer called? What do we use to type words on a screen?",
+        "funTask": "💻 Draw a simple computer monitor, keyboard, and mouse, and write your child's name inside the screen."
+      },
+      {
+        "subject": "English",
+        "topic": "Literature: Meet My Family",
+        "guide": "Talk about family members (Father, Mother, Sister, Brother, Grandparents). Introduce your family relationships.",
+        "interactiveQuestion": "Who is the oldest member of our family? What is your father's / mother's name?",
+        "funTask": "🎨 Draw a Family Tree on an A4 sheet. Paste small photos or draw faces of family members."
+      }
+    ]
+  }
+]
