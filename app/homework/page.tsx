@@ -150,14 +150,14 @@ export default function HomeworkPage() {
         dateObj.setHours(0,0,0,0);
 
         if (dateObj.getTime() === today.getTime()) {
-          return "Today (June 12, 2026)";
+          return "Today (June 12)";
         }
         if (dateObj.getTime() === yesterday.getTime()) {
-          return "Yesterday (June 11, 2026)";
+          return "Yesterday (June 11)";
         }
+        // Exclude year from return string
         return dateObj.toLocaleDateString("en-US", {
           weekday: "long",
-          year: "numeric",
           month: "long",
           day: "numeric",
         });
@@ -170,42 +170,15 @@ export default function HomeworkPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-3xl p-6 md:p-8 text-white shadow-xl mb-8 relative overflow-hidden">
-        <div className="absolute right-0 bottom-0 opacity-15 transform translate-x-4 translate-y-4">
-          <span className="text-9xl">📚</span>
-        </div>
-        <div className="relative z-10">
-          <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold tracking-wider uppercase">
-            Class Diary
-          </span>
-          <h1 className="text-3xl md:text-4xl font-extrabold mt-3 tracking-tight">
-            Homework Tracker
-          </h1>
-          <p className="text-white/85 text-sm md:text-base mt-2 max-w-xl">
-            Keep track of daily subject assignments, submission deadlines, and preparation steps.
-          </p>
-          <div className="flex flex-wrap gap-4 mt-6">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl px-4 py-2 border border-white/10 flex items-center gap-2">
-              <span className="text-lg">📊</span>
-              <span className="text-xs md:text-sm font-medium">
-                {homeworkList.length} Total Assignments
-              </span>
-            </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl px-4 py-2 border border-white/10 flex items-center gap-2">
-              <span className="text-lg">📅</span>
-              <span className="text-xs md:text-sm font-medium">
-                {sortedDates.length} Days Tracked
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <span>📅</span> Timeline
-        </h2>
+        <div className="flex items-baseline gap-2">
+          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <span>📅</span> Timeline
+          </h2>
+          <span className="text-xs text-gray-500 font-semibold bg-gray-100 border border-gray-200 px-2.5 py-0.5 rounded-full">
+            {homeworkList.length} Assignments
+          </span>
+        </div>
         <div className="flex items-center gap-3">
           <HomeworkShareButton homeworkList={homeworkList} />
           <button
