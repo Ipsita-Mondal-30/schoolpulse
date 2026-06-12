@@ -79,6 +79,7 @@ export interface MonthData {
     image?: string;
   };
   importantDates?: ImportantDate[];
+  monthlyPlanner?: PlannerSubject[];
 }
 
 export interface MonthInfo {
@@ -86,6 +87,12 @@ export interface MonthInfo {
   month: string;
   year: number;
   file: string;
+}
+
+export interface PlannerSubject {
+  subject: string;
+  portions: string[];
+  activities: string[];
 }
 
 export interface Announcement {
@@ -152,6 +159,10 @@ export function getCurrentMonthId(): string {
 export function getMonthData(monthId?: string): MonthData {
   const id = monthId || getCurrentMonthId();
   return monthDataMap[id] || monthDataMap[getCurrentMonthId()];
+}
+
+export function getMonthlyPlanner(monthId?: string): PlannerSubject[] {
+  return getMonthData(monthId).monthlyPlanner || [];
 }
 
 

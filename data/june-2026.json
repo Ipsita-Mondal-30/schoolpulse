@@ -5,6 +5,79 @@
   "school": "BGS National Public School",
   "newsletterPending": true,
   "weeks": [],
+  "monthlyPlanner": [
+    {
+      "subject": "English",
+      "portions": [
+        "Literature: Chapter 1 - If You Are Happy",
+        "Literature: Chapter 2 - Meet My Family (Introduction)",
+        "Grammar: Chapter 1 - My Teddy (Naming words)",
+        "Grammar: Chapter 2 - Take care I am here (More about Naming words)"
+      ],
+      "activities": [
+        "Recitation of the poem 'If You are Happy'",
+        "Draw a tree and write a rhyming word for the given word on the leaves",
+        "Recite the 'Family Song' using the finger puppets"
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "portions": [
+        "Chapter 1 - Pre-number concept (continuation)",
+        "Chapter 2 - Playing with numbers (0 to 20)"
+      ],
+      "activities": [
+        "Math in action (before, after, between)",
+        "Pencil activity: tens and ones"
+      ]
+    },
+    {
+      "subject": "EVS",
+      "portions": [
+        "Chapter 1: Myself (Continuation)",
+        "Chapter 2: My Body",
+        "Chapter 3: My Sense Organs"
+      ],
+      "activities": [
+        "Show and Tell Activity (My Favourite toy)",
+        "Draw a caterpillar and paste your favourite things on it (Food, sports, toy, colour and cartoon character)",
+        "Draw and label the parts of the face",
+        "Draw / paste / list two activities you do every day to keep your body fit and healthy",
+        "Smell, Touch, Hearing Game"
+      ]
+    },
+    {
+      "subject": "Hindi",
+      "portions": [
+        "१. व्यंजन (क - श)",
+        "२. शब्द रचना - दो वर्णों वाले शब्द, तीन वर्णों वाले शब्द, चार वर्णों वाले शब्द"
+      ],
+      "activities": [
+        "गतिविधि - व्यंजन का पेड़"
+      ]
+    },
+    {
+      "subject": "Kannada",
+      "portions": [
+        "ವರ್ಣಮಾಲೆ (ಅ-ಳ)",
+        "ಮುಂದಿನ, ಹಿಂದಿನ, ಮಧ್ಯದ ಅಕ್ಷರಗಳು",
+        "ಪಾರ-ಲ ಪದ ಓದು ಅಕ್ಷರಕಳಿ (ಅಕ್ಷರಾಭ್ಯಾಸ ೧,೯)",
+        "ಪದ್ಯ-ಗ ವಂದನೆ"
+      ],
+      "activities": [
+        "ಚಟುವಟಿಕೆ: ಮರದ ಚಿತ್ರ ಬಿಡಿಸಿ, ವರ್ಣಮಾಲೆ ಅಕ್ಷರಗಳನ್ನು ಬರೆಯುವುದು"
+      ]
+    },
+    {
+      "subject": "Computer Science",
+      "portions": [
+        "Module 3: Parts of a Computer"
+      ],
+      "activities": [
+        "Picture Activity of Computer Hardware & Computer Software"
+      ]
+    }
+  ],
   "importantDates": [
     {
       "date": "2026-06-10",
