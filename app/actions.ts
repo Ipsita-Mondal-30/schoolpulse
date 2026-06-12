@@ -25,7 +25,7 @@ export async function fetchExternalUpdates(): Promise<Announcement[]> {
 
     try {
         const response = await fetch(SHEET_URL, {
-            next: { revalidate: 60 }, // Cache for 1 minute (fresh on first open)
+            next: { revalidate: 900 }, // Cache for 15 minutes to prevent frequent reloading
         });
 
         console.log('SERVER ACTION: Response status:', response.status);

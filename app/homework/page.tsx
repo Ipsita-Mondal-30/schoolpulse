@@ -10,11 +10,29 @@ export default function HomeworkPage() {
   const [homeworkList, setHomeworkList] = useState<Homework[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadData = async () => {
+  const loadData = async (forceRefresh = false) => {
+    // Check local storage cache first if not forcing refresh
+    if (!forceRefresh && typeof window !== "undefined") {
+      const cached = localStorage.getItem("homework_cache_data");
+      const cachedTime = localStorage.getItem("homework_cache_time");
+      if (cached && cachedTime) {
+        const age = Date.now() - Number(cachedTime);
+        if (age < 15 * 60 * 1000) { // 15 minutes
+          setHomeworkList(JSON.parse(cached));
+          setLoading(false);
+          return;
+        }
+      }
+    }
+
     setLoading(true);
     try {
       const data = await fetchHomework();
       setHomeworkList(data);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("homework_cache_data", JSON.stringify(data));
+        localStorage.setItem("homework_cache_time", String(Date.now()));
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -23,7 +41,7 @@ export default function HomeworkPage() {
   };
 
   useEffect(() => {
-    loadData();
+    loadData(false);
   }, []);
 
   // Helper to safely unpack notes structure
@@ -177,7 +195,7 @@ export default function HomeworkPage() {
         <div className="flex items-center gap-3">
           <HomeworkShareButton homeworkList={homeworkList} />
           <button
-            onClick={loadData}
+            onClick={() => loadData(true)}
             className="p-2 text-gray-500 hover:text-orange-500 transition-all rounded-xl hover:bg-orange-50 border border-gray-200 bg-white shadow-sm flex items-center gap-1.5 text-xs font-semibold"
             title="Refresh Data"
           >
