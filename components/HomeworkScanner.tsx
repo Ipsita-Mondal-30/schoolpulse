@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 interface HomeworkScannerProps {
   onHomeworkScanned: (newHw: { subject: string; chapter: string; content: string; submissionDate: string }) => void;
@@ -8,83 +8,77 @@ interface HomeworkScannerProps {
 
 export default function HomeworkScanner({ onHomeworkScanned }: HomeworkScannerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [inputMessage, setInputMessage] = useState("");
+  const [subject, setSubject] = useState("MATHEMATICS");
+  const [chapter, setChapter] = useState("");
+  const [notes, setNotes] = useState("");
   const [statusText, setStatusText] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [dailyUploads, setDailyUploads] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handlePasteAnalyze = async () => {
-    if (!inputMessage.trim()) return;
-    setLoading(true);
-    setStatusText("Analyzing text content...");
-
-    try {
-      // Direct integration with GPT parser inside route or client action
-      const response = await fetch("/api/homework/parse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: inputMessage }),
-      });
-
-      if (!response.ok) throw new Error("Failed to parse homework");
-
-      const result = await response.json();
-      if (result && result.subject) {
-        onHomeworkScanned(result);
-        setStatusText("✅ Homework parsed and added successfully!");
-        setInputMessage("");
-        setTimeout(() => {
-          setStatusText("");
-          setIsOpen(false);
-        }, 2500);
-      } else {
-        throw new Error("Invalid parse response");
-      }
-    } catch (e) {
-      console.error(e);
-      setStatusText("❌ Failed to parse. Try entering/editing manually.");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const todayKey = `hw_uploads_${new Date().toISOString().split("T")[0]}`;
+      const saved = localStorage.getItem(todayKey);
+      if (saved) setDailyUploads(JSON.parse(saved));
     }
+  }, []);
+
+  const saveUploadToLocal = (base64Image: string) => {
+    const todayKey = `hw_uploads_${new Date().toISOString().split("T")[0]}`;
+    const updated = [...dailyUploads, base64Image];
+    setDailyUploads(updated);
+    localStorage.setItem(todayKey, JSON.stringify(updated));
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (dailyUploads.length >= 5) {
+      setStatusText("⚠️ Daily limit reached! Maximum 5 photo uploads allowed per day to save space.");
+      return;
+    }
+
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setLoading(true);
-    setStatusText("Uploading and scanning worksheet image...");
+    setStatusText("Processing image upload...");
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      saveUploadToLocal(base64);
+      setStatusText("✅ Photo uploaded successfully! Image added below.");
+      
+      // Auto-append placeholder item so it shows on the page
+      onHomeworkScanned({
+        subject: "GENERAL WORK",
+        chapter: `Worksheet Photo #${dailyUploads.length + 1}`,
+        content: `Uploaded Worksheet Homework Photo. View details below.`,
+        submissionDate: "2026-06-15"
+      });
 
-    try {
-      // Simulate/mock OCR scanning using browser FileReader/vision
-      const reader = new FileReader();
-      reader.onload = async () => {
-        // Mock OCR result triggers parser
-        setTimeout(async () => {
-          const mockOcrText = `Chapter 2. My Body ENVIRONMENTAL SCIENCE I-A Notes: Complete workbook pg 19 and bring next class.`;
-          try {
-            const response = await fetch("/api/homework/parse", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ text: mockOcrText }),
-            });
-            const result = await response.json();
-            onHomeworkScanned(result);
-            setStatusText("✅ Image scanned & added successfully!");
-            setTimeout(() => {
-              setStatusText("");
-              setIsOpen(false);
-            }, 2500);
-          } catch (err) {
-            setStatusText("❌ Parsing scanned text failed.");
-          }
-        }, 1500);
-      };
-      reader.readAsDataURL(file);
-    } catch (err) {
-      setStatusText("❌ Scanning failed.");
-      setLoading(false);
+      setTimeout(() => setStatusText(""), 3000);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleManualAdd = () => {
+    if (!notes.trim()) {
+      setStatusText("⚠️ Notes details cannot be empty.");
+      return;
     }
+
+    onHomeworkScanned({
+      subject,
+      chapter: chapter || "General Assignment",
+      content: notes,
+      submissionDate: "2026-06-15"
+    });
+
+    setStatusText("✅ Homework added successfully!");
+    setChapter("");
+    setNotes("");
+    setTimeout(() => {
+      setStatusText("");
+      setIsOpen(false);
+    }, 2000);
   };
 
   return (
@@ -97,24 +91,30 @@ export default function HomeworkScanner({ onHomeworkScanned }: HomeworkScannerPr
           <span className="text-2xl">📸</span>
           <div>
             <h3 className="font-bold text-gray-800 text-sm md:text-base">
-              WhatsApp Paste & Camera Scanner
+              Add Homework Photo / Notes
             </h3>
             <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-              Instantly scan worksheets or paste parent portal messages to update your local timeline.
+              Upload photos (Max 5/day) or write down homework entries manually.
             </p>
           </div>
         </div>
-        <span className="text-orange-600 font-bold text-sm">
+        <span className="text-orange-600 font-bold text-sm bg-white shadow-sm border border-orange-200 px-3 py-1 rounded-xl">
           {isOpen ? "Close" : "Open ⚡"}
         </span>
       </button>
 
       {isOpen && (
-        <div className="mt-3 p-5 bg-white rounded-3xl border border-gray-150 shadow-sm space-y-4">
+        <div className="mt-3 p-5 bg-white rounded-3xl border border-gray-150 shadow-sm space-y-5">
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-              Option A: Upload Worksheet Image (Camera / Gallery)
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Photo Uploader (Camera / Gallery)
+              </label>
+              <span className="text-[10px] text-gray-400 font-bold">
+                {dailyUploads.length}/5 Uploaded Today
+              </span>
+            </div>
+            
             <input
               type="file"
               accept="image/*"
@@ -122,40 +122,92 @@ export default function HomeworkScanner({ onHomeworkScanned }: HomeworkScannerPr
               onChange={handleFileUpload}
               ref={fileInputRef}
               className="hidden"
+              disabled={dailyUploads.length >= 5}
             />
+            
             <button
               onClick={() => fileInputRef.current?.click()}
-              disabled={loading}
-              className="w-full py-3 border-2 border-dashed border-gray-300 hover:border-orange-400 text-gray-600 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all"
+              disabled={dailyUploads.length >= 5}
+              className={`w-full py-4 border-2 border-dashed rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                dailyUploads.length >= 5
+                  ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+                  : "border-gray-300 hover:border-orange-400 text-gray-600 hover:bg-slate-50"
+              }`}
             >
-              <span>📷</span> Take Photo or Upload Image
+              <span>📷</span> Tap to Capture Worksheet / Upload Image
             </button>
+
+            {dailyUploads.length > 0 && (
+              <div className="mt-4">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Scanned Worksheets today:</p>
+                <div className="grid grid-cols-5 gap-2">
+                  {dailyUploads.map((src, i) => (
+                    <div key={i} className="relative aspect-square rounded-lg border border-gray-200 overflow-hidden bg-slate-50">
+                      <img src={src} alt={`Worksheet ${i + 1}`} className="w-full h-full object-cover" />
+                      <span className="absolute bottom-0.5 right-0.5 bg-black/60 text-white text-[8px] font-bold px-1 rounded">
+                        #{i + 1}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="relative flex py-2 items-center">
+          <div className="relative flex py-1 items-center">
             <div className="flex-grow border-t border-gray-150"></div>
-            <span className="flex-shrink mx-4 text-xs font-black text-gray-400 uppercase">OR</span>
+            <span className="flex-shrink mx-4 text-xs font-black text-gray-300 uppercase">OR</span>
             <div className="flex-grow border-t border-gray-150"></div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-              Option B: Paste school WhatsApp text
+          <div className="space-y-3">
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Add Homework Notes Manually
             </label>
-            <textarea
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Paste raw WhatsApp text diary here..."
-              disabled={loading}
-              rows={4}
-              className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-orange-300"
-            />
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 mb-1">Subject</label>
+                <select
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 focus:outline-none"
+                >
+                  <option value="MATHEMATICS">Mathematics</option>
+                  <option value="ENVIRONMENTAL SCIENCE">EVS</option>
+                  <option value="ENGLISH">English</option>
+                  <option value="KANNADA">Kannada</option>
+                  <option value="GENERAL">General</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 mb-1">Chapter/Topic</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Chapter 2. My Body"
+                  value={chapter}
+                  onChange={(e) => setChapter(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 focus:outline-none focus:ring-1 focus:ring-orange-350"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 mb-1">Assignment Details</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Write homework assignment details here..."
+                rows={3}
+                className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-orange-350"
+              />
+            </div>
+
             <button
-              onClick={handlePasteAnalyze}
-              disabled={loading || !inputMessage.trim()}
-              className="w-full mt-3 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-sm"
+              onClick={handleManualAdd}
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-sm"
             >
-              🚀 Analyze & Parse Text
+              🚀 Save Assignment Notes
             </button>
           </div>
 
