@@ -214,3 +214,84 @@ export async function fetchHomework(): Promise<Homework[]> {
         return [];
     }
 }
+
+// ----- Events (from separate sheet tab) -----
+
+export interface SchoolEvent {
+    id: string;
+    topic: string;
+    toDo: string;
+    registrationDeadline: string;
+    competitionDate: string;
+    registrationMode: string;
+    fees: string;
+}
+
+export async function fetchEvents(): Promise<SchoolEvent[]> {
+    const SHEET_URL = process.env.NEXT_PUBLIC_EVENTS_SHEET_URL;
+
+    if (!SHEET_URL) {
+        console.error('SERVER ACTION ERROR: NEXT_PUBLIC_EVENTS_SHEET_URL is missing');
+        return [];
+    }
+
+    try {
+        const response = await fetch(SHEET_URL, { next: { revalidate: 300 } });
+        if (!response.ok) return [];
+
+        const csvData = await response.text();
+
+        const parseCSV = (text: string) => {
+            const rows: string[][] = [];
+            let currentRow: string[] = [];
+            let currentCell = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) { currentRow.push(currentCell.trim()); currentCell = ''; }
+                else if (char === '\n' && !inQuotes) { currentRow.push(currentCell.trim()); rows.push(currentRow); currentRow = []; currentCell = ''; }
+                else { currentCell += char; }
+            }
+            if (currentCell || currentRow.length > 0) { currentRow.push(currentCell.trim()); rows.push(currentRow); }
+            return rows;
+        };
+
+        const rows = parseCSV(csvData);
+        if (rows.length < 2) return [];
+
+        // Find header row (contains 'topic')
+        let headerIdx = -1;
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].some(c => c.toLowerCase().includes('topic'))) { headerIdx = i; break; }
+        }
+        if (headerIdx === -1) return [];
+
+        const headers = rows[headerIdx].map(h => h.toLowerCase().trim());
+        const col = (name: string) => headers.findIndex(h => h.includes(name));
+
+        const idxTopic = col('topic');
+        const idxToDo = col('to do');
+        const idxRegDate = col('last date');
+        const idxCompDate = col('date of');
+        const idxMode = col('mode');
+        const idxFees = col('fees');
+
+        return rows.slice(headerIdx + 1)
+            .filter(row => row[idxTopic] && row[idxTopic].trim() !== '')
+            .map((row, i) => ({
+                id: `evt-${i + 1}`,
+                topic: row[idxTopic] || '',
+                toDo: row[idxToDo] || '',
+                registrationDeadline: row[idxRegDate] || '-',
+                competitionDate: row[idxCompDate] || '-',
+                registrationMode: row[idxMode] || '-',
+                fees: row[idxFees] || '-',
+            }));
+
+    } catch (error) {
+        console.error('Failed to fetch events', error);
+        return [];
+    }
+}
+

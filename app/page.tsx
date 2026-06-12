@@ -245,22 +245,14 @@ function HomeContent() {
       )}
 
       {/* Quick Links */}
-      <div className="mt-6 grid grid-cols-2 gap-4">
+      <div className="mt-6">
         <Link
           href={`/week?month=${selectedMonthId}`}
-          className="bg-white rounded-xl p-4 border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all"
+          className="block bg-white rounded-xl p-4 border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all"
         >
           <div className="text-2xl mb-2">📆</div>
           <div className="font-semibold text-gray-800">View Full Week</div>
           <div className="text-sm text-gray-500">See all activities for the week</div>
-        </Link>
-        <Link
-          href={`/rhymes?month=${selectedMonthId}`}
-          className="bg-white rounded-xl p-4 border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all"
-        >
-          <div className="text-2xl mb-2">🎵</div>
-          <div className="font-semibold text-gray-800">Rhymes & Shloka</div>
-          <div className="text-sm text-gray-500">This month&apos;s songs and verses</div>
         </Link>
       </div>
 

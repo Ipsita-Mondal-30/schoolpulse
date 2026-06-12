@@ -23,9 +23,10 @@ function HomeworkContent() {
     .map((u) => ({
       id: `hw-${u.id}`,
       status: "Active",
-      subject: (u.title || "General")
-        .replace(/^home\s*work\s*-\s*/i, "")
-        .trim(),
+      subject:
+        (u.title || "General")
+          .replace(/^home\s*work\s*-\s*/i, "")
+          .trim() || "General",
       content: u.message,
       submissionDate: u.expiresAt,
       notes: u.link ? `Link: ${u.link}` : "",
@@ -144,7 +145,7 @@ function HomeworkContent() {
                 className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 relative overflow-hidden group"
               >
                 <div
-                  className={`absolute left-0 top-0 bottom-0 w-1.5 ${getSubjectColor(hw.subject).split(" ")[0].replace("bg-", "bg-")}`}
+                  className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl ${getSubjectColor(hw.subject).split(" ")[0].replace(/-100$/, "-500").replace(/-50$/, "-400")}`}
                 ></div>
 
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
