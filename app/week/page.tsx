@@ -52,7 +52,19 @@ export default function KidsQuestPage() {
         const currentPlanner = getMonthlyPlanner();
         setPlanner(currentPlanner);
 
-        const hwList = await fetchHomework();
+        let hwList: Homework[] = [];
+        if (typeof window !== "undefined") {
+          const cached = localStorage.getItem("homework_cache_data");
+          if (cached) {
+            try {
+              hwList = JSON.parse(cached);
+            } catch (e) {}
+          }
+        }
+        if (hwList.length === 0) {
+          hwList = await fetchHomework().catch(() => []);
+        }
+
         // filter homework belonging to today or recently active
         const todaysHw = hwList.filter(h => {
           let hDate = h.createdAt || "";

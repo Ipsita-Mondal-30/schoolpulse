@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { fetchHomework, Homework } from "../actions";
+import { getToday } from "@/lib/data";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import HomeworkShareButton from "@/components/HomeworkShareButton";
@@ -11,15 +12,22 @@ export default function HomeworkPage() {
   const [homeworkList, setHomeworkList] = useState<Homework[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const handleHomeworkScanned = (newHw: { subject: string; chapter: string; content: string; submissionDate: string }) => {
+  const handleHomeworkScanned = (newHw: {
+    subject: string;
+    chapter: string;
+    content: string;
+    submissionDate: string;
+    assignedDate?: string;
+  }) => {
+    const assignedDate = newHw.assignedDate || getToday();
     const homeworkItem: Homework = {
       id: `hw-scanned-${Date.now()}`,
       status: "Active",
       subject: newHw.subject,
       content: newHw.content,
       submissionDate: newHw.submissionDate,
-      notes: JSON.stringify({ assigned: "2026-06-12", chapter: newHw.chapter }),
-      createdAt: "2026-06-12"
+      notes: JSON.stringify({ assigned: assignedDate, chapter: newHw.chapter }),
+      createdAt: assignedDate
     };
 
     setHomeworkList(prev => {
@@ -50,9 +58,23 @@ export default function HomeworkPage() {
     setLoading(true);
     try {
       const data = await fetchHomework();
-      setHomeworkList(data);
+      
+      // Preserve any locally scanned items from cache
+      let localScanned: Homework[] = [];
       if (typeof window !== "undefined") {
-        localStorage.setItem("homework_cache_data", JSON.stringify(data));
+        const cached = localStorage.getItem("homework_cache_data");
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached) as Homework[];
+            localScanned = parsed.filter(item => item.id.startsWith("hw-scanned-"));
+          } catch (e) {}
+        }
+      }
+      
+      const mergedData = [...localScanned, ...data];
+      setHomeworkList(mergedData);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("homework_cache_data", JSON.stringify(mergedData));
         localStorage.setItem("homework_cache_time", String(Date.now()));
       }
     } catch (e) {
@@ -189,11 +211,12 @@ export default function HomeworkPage() {
         yesterday.setHours(0,0,0,0);
         dateObj.setHours(0,0,0,0);
 
+        const options: Intl.DateTimeFormatOptions = { month: "long", day: "numeric" };
         if (dateObj.getTime() === today.getTime()) {
-          return "Today (June 12)";
+          return `Today (${dateObj.toLocaleDateString("en-US", options)})`;
         }
         if (dateObj.getTime() === yesterday.getTime()) {
-          return "Yesterday (June 11)";
+          return `Yesterday (${dateObj.toLocaleDateString("en-US", options)})`;
         }
         // Exclude year from return string
         return dateObj.toLocaleDateString("en-US", {
