@@ -20,10 +20,10 @@ export default function ChatWidget() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const modelQuestions = [
-        "Today's homework",
-        "Today's events",
-        "What will my kid learn in school today?",
-        "What uniform on Monday?",
+        "What homework needs to be submitted on Monday?",
+        "Track my school bus (Route, driver details)",
+        "What is the uniform schedule for next week?",
+        "What school events & competitions are coming up?",
     ];
 
     const scrollToBottom = () => {
