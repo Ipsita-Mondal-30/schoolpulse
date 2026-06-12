@@ -61,8 +61,13 @@ export default function RootLayout({
           <footer className="bg-white border-t border-gray-200 py-4">
             <div className="max-w-4xl mx-auto px-4 text-center text-sm text-gray-500">
               <div className="font-semibold text-orange-600">SchoolPulse</div>
-              <div>BGS National Public School</div>
-              <div className="text-xs text-gray-400 mt-1">Currently showing Class 1 planner only</div>
+              <div className="font-medium">BGS National Public School</div>
+              <div className="text-[10px] text-gray-400 mt-1 max-w-md mx-auto leading-relaxed">
+                Currently showing Class 1 planner only.
+              </div>
+              <div className="text-[10px] text-orange-500/80 font-semibold mt-1.5 uppercase tracking-wider">
+                Disclaimer: This app is not official from the school. It is built by parents, for parents.
+              </div>
             </div>
           </footer>
           <InstallPrompt />
