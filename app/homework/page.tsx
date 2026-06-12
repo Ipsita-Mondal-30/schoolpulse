@@ -5,10 +5,32 @@ import { fetchHomework, Homework } from "../actions";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import HomeworkShareButton from "@/components/HomeworkShareButton";
+import HomeworkScanner from "@/components/HomeworkScanner";
 
 export default function HomeworkPage() {
   const [homeworkList, setHomeworkList] = useState<Homework[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const handleHomeworkScanned = (newHw: { subject: string; chapter: string; content: string; submissionDate: string }) => {
+    const homeworkItem: Homework = {
+      id: `hw-scanned-${Date.now()}`,
+      status: "Active",
+      subject: newHw.subject,
+      content: newHw.content,
+      submissionDate: newHw.submissionDate,
+      notes: JSON.stringify({ assigned: "2026-06-12", chapter: newHw.chapter }),
+      createdAt: "2026-06-12"
+    };
+
+    setHomeworkList(prev => {
+      const updated = [homeworkItem, ...prev];
+      if (typeof window !== "undefined") {
+        localStorage.setItem("homework_cache_data", JSON.stringify(updated));
+        localStorage.setItem("homework_cache_time", String(Date.now()));
+      }
+      return updated;
+    });
+  };
 
   const loadData = async (forceRefresh = false) => {
     // Check local storage cache first if not forcing refresh
@@ -203,6 +225,9 @@ export default function HomeworkPage() {
           </button>
         </div>
       </div>
+
+      {/* Homework Image Paste Scanner */}
+      <HomeworkScanner onHomeworkScanned={handleHomeworkScanned} />
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
