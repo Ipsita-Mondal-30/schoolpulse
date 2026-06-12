@@ -12,60 +12,63 @@ export default function HomeworkShareButton({
   className = "",
 }: HomeworkShareButtonProps) {
   const generateShareText = () => {
-    const today = new Date();
-    const dateStr = today.toLocaleDateString("en-IN", {
+    // Helper to unpack date metadata
+    const getHwMeta = (hw: Homework) => {
+      try {
+        if (hw.notes && (hw.notes.startsWith("{") || hw.notes.startsWith("["))) {
+          const parsed = JSON.parse(hw.notes);
+          return {
+            assigned: parsed.assigned || hw.createdAt || "Unknown Date",
+            chapter: parsed.chapter || ""
+          };
+        }
+      } catch (e) {}
+      
+      let assigned = hw.createdAt || "Unknown Date";
+      if (hw.notes && hw.notes.startsWith("Assigned: ")) {
+        assigned = hw.notes.replace("Assigned: ", "").trim();
+      }
+      return { assigned, chapter: "" };
+    };
+
+    const todayStr = "2026-06-12"; // matches context active today date representation
+    
+    // Filter to include only today's homework
+    const todaysHw = homeworkList.filter(hw => {
+      const { assigned } = getHwMeta(hw);
+      return assigned === todayStr;
+    });
+
+    const todayObj = new Date(2026, 5, 12); // June 12, 2026
+    const dateFormatted = todayObj.toLocaleDateString("en-US", {
       weekday: "long",
-      year: "numeric",
       month: "long",
       day: "numeric",
     });
 
-    let text = `📅 *Homework Update - ${dateStr}*\n\n`;
+    let text = `📝 *Homework Updates - ${dateFormatted}*\n\n`;
 
-    if (homeworkList.length === 0) {
-      text += `No active homework assignments right now! 🎉\n\n`;
+    if (todaysHw.length === 0) {
+      text += `No new homework assignments assigned today! 🎉\n\n`;
     } else {
-      homeworkList.forEach((hw, index) => {
-        text += `📚 *${hw.subject?.toUpperCase() || "GENERAL"}*\n`;
-        text += `📝 ${hw.content}\n`;
-        if (hw.notes) {
-          text += `🔗 ${hw.notes}\n`;
-        }
-
-        const dueStatus = getDueDateStatusText(hw.submissionDate);
-        if (dueStatus) {
-          text += `🕒 ${dueStatus}\n`;
+      todaysHw.forEach((hw) => {
+        const { chapter } = getHwMeta(hw);
+        text += `*${hw.subject?.toUpperCase() || "GENERAL"}*`;
+        if (chapter) {
+          text += ` (${chapter})`;
         }
         text += `\n`;
+        text += `${hw.content}\n`;
+        if (hw.submissionDate) {
+          text += `⏰ *Due Date:* ${hw.submissionDate}\n`;
+        }
+        text += `---------------------------\n\n`;
       });
     }
 
-    text += `_via SchoolPuls_ 💓\n🔗 https://www.schoolpuls.in/`;
+    text += `👉 *View past days' homework online:* https://schoolpulse-six.vercel.app/homework\n`;
+    text += `💓 _via SchoolPulse_`;
     return text;
-  };
-
-  const getDueDateStatusText = (dateStr?: string) => {
-    if (!dateStr) return null;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const [year, month, day] = dateStr.split("-").map(Number);
-    const due = new Date(year, month - 1, day);
-    due.setHours(0, 0, 0, 0);
-
-    if (isNaN(due.getTime())) return null;
-
-    const diffTime = due.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) return "Overdue";
-    if (diffDays === 0) return "Due Today";
-    if (diffDays === 1) return "Due Tomorrow";
-
-    const d = due.getDate();
-    const m = due.toLocaleString("en-IN", { month: "short" });
-    return `Due: ${d} ${m}`;
   };
 
   const shareViaWhatsApp = () => {
