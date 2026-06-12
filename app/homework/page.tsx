@@ -249,7 +249,16 @@ export default function HomeworkPage() {
                   className="w-full px-6 py-4 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-150 text-left"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">📅</span>
+                    <span className="text-xl flex">
+                      {(() => {
+                        const dayPart = date.split("-")[0];
+                        const digitMap: Record<string, string> = {
+                          "0": "0️⃣", "1": "1️⃣", "2": "2️⃣", "3": "3️⃣", "4": "4️⃣",
+                          "5": "5️⃣", "6": "6️⃣", "7": "7️⃣", "8": "8️⃣", "9": "9️⃣"
+                        };
+                        return dayPart.split("").map(char => digitMap[char] || char).join("");
+                      })()}
+                    </span>
                     <div>
                       <h3 className="font-bold text-gray-800 text-sm md:text-base">
                         {formatDateLabel(date)}

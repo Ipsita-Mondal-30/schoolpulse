@@ -115,7 +115,7 @@ export default function ChatWidget() {
 
             {/* Chat Window */}
             <div
-                className={`fixed bottom-4 right-4 left-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[380px] h-[80vh] sm:h-[620px] max-h-[calc(100vh-96px)] sm:max-h-[calc(100vh-48px)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col transition-all duration-300 transform origin-bottom-right focus:outline-none overflow-hidden border border-gray-100
+                className={`fixed bottom-4 right-4 left-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[320px] h-[70vh] sm:h-[480px] max-h-[calc(100vh-96px)] sm:max-h-[calc(100vh-48px)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col transition-all duration-300 transform origin-bottom-right focus:outline-none overflow-hidden border border-gray-100
         ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 pointer-events-none translate-y-10'}`}
             >
                 {/* Header */}
