@@ -66,7 +66,7 @@ export default function HomeworkShareButton({
       });
     }
 
-    text += `👉 *View past days' homework online:* https://schoolpulse-six.vercel.app/homework\n`;
+    text += `👉 *View past days' homework online:* https://www.schoolpuls.in/homework\n`;
     text += `💓 _via SchoolPulse_`;
     return text;
   };
