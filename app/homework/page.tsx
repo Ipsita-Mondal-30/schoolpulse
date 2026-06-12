@@ -171,14 +171,9 @@ export default function HomeworkPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-baseline gap-2">
-          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            <span>📅</span> Timeline
-          </h2>
-          <span className="text-xs text-gray-500 font-semibold bg-gray-100 border border-gray-200 px-2.5 py-0.5 rounded-full">
-            {homeworkList.length} Assignments
-          </span>
-        </div>
+        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+          <span>📅</span> Timeline
+        </h2>
         <div className="flex items-center gap-3">
           <HomeworkShareButton homeworkList={homeworkList} />
           <button
@@ -224,12 +219,22 @@ export default function HomeworkPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-xl flex">
                       {(() => {
-                        const dayPart = date.split("-")[0];
+                        // Extract only day part. E.g. "12" from "12-Jun-2026" or "2026-06-12"
+                        let dayVal = "";
+                        const parts = date.split("-");
+                        if (parts.length === 3) {
+                          if (parts[0].length === 4) {
+                            dayVal = parts[2]; // YYYY-MM-DD
+                          } else {
+                            dayVal = parts[0]; // DD-MMM-YYYY or DD-MM-YYYY
+                          }
+                        }
+                        const finalDay = dayVal || "12";
                         const digitMap: Record<string, string> = {
                           "0": "0️⃣", "1": "1️⃣", "2": "2️⃣", "3": "3️⃣", "4": "4️⃣",
                           "5": "5️⃣", "6": "6️⃣", "7": "7️⃣", "8": "8️⃣", "9": "9️⃣"
                         };
-                        return dayPart.split("").map(char => digitMap[char] || char).join("");
+                        return finalDay.split("").map(char => digitMap[char] || char).join("");
                       })()}
                     </span>
                     <div>
