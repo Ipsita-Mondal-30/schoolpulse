@@ -10,7 +10,7 @@ export default function Navigation() {
 
   const links = [
     { href: '/', label: 'Planner', icon: '📋' },
-    { href: '/week', label: 'Week', icon: '7️⃣' },
+    { href: '/week', label: 'Kids Quest', icon: '🎮' },
     { href: '/homework', label: 'Homework', icon: '📚' },
     { href: '/info', label: 'Info', icon: 'ℹ️' },
     { href: '/dates', label: 'Events', icon: '🔔' },
