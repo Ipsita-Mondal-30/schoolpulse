@@ -1,7 +1,7 @@
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import { getDaySchedule, getWeekForDate, getToday, getUpcomingEvents, getSchoolContactInfo } from '@/lib/data';
-import { fetchHomework, fetchExternalUpdates } from '@/app/actions';
+import { fetchHomework, fetchExternalUpdates, fetchEvents } from '@/app/actions';
 import generalInfoData from '@/data/info/general.json';
 import busesData from '@/data/info/buses.json';
 
@@ -19,6 +19,7 @@ export async function POST(req: Request) {
   // Fetch async data
   const homework = await fetchHomework().catch(() => []);
   const updates = await fetchExternalUpdates().catch(() => []);
+  const schoolEvents = await fetchEvents().catch(() => []);
 
   const systemMessage = `
 You are the "SchoolPulse AI Assistant", a friendly, helpful, and highly accurate AI chatbot for parents of Class 1 at BGS National Public School. 
@@ -39,8 +40,11 @@ ${JSON.stringify(schedule, null, 2)}
 [THIS WEEK'S DICTATION & INFO]:
 ${JSON.stringify(weekInfo, null, 2)}
 
-[UPCOMING EVENTS (Next 14 Days)]:
+[UPCOMING CALENDAR EVENTS (Next 14 Days from timetable)]:
 ${JSON.stringify(events, null, 2)}
+
+[SCHOOL COMPETITIONS & ACTIVITIES (from live sheet — Music Mania, Scouts, Science Quest, Super Dancers, Hindi Olympiad, Brush Stroke, etc.)]:
+${JSON.stringify(schoolEvents, null, 2)}
 
 [PENDING HOMEWORK]:
 ${JSON.stringify(homework, null, 2)}
