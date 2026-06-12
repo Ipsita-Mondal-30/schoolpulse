@@ -1,7 +1,7 @@
 [
   {
-    "day": "Day 1-2",
-    "focus": "English Naming Words & Maths Shapes",
+    "day": "Day 1",
+    "focus": "English Naming Words (Nouns)",
     "activities": [
       {
         "subject": "English",
@@ -9,7 +9,13 @@
         "guide": "Help the child look around the room. Play a game: 'I spy with my little eye a naming word (noun) starting with P.' Name people, places, animals, and things.",
         "interactiveQuestion": "Can you name 3 things in this room, 2 animals, and 1 place you love to go? Are all these naming words?",
         "funTask": "🎒 Put 5 random toys/items on the table and ask the child to classify them into 'Person' (toys), 'Place' (draw a house), 'Animal', or 'Thing'."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 2",
+    "focus": "Maths Shapes & Pre-Number Concepts",
+    "activities": [
       {
         "subject": "Mathematics",
         "topic": "Pre-Number Concepts (Big/Small, Near/Far)",
@@ -20,8 +26,8 @@
     ]
   },
   {
-    "day": "Day 3-4",
-    "focus": "EVS body parts & Kannada Vowels",
+    "day": "Day 3",
+    "focus": "EVS Body Parts",
     "activities": [
       {
         "subject": "EVS",
@@ -29,7 +35,13 @@
         "guide": "Look in the mirror together. Touch and identify forehead, cheeks, chin, shoulders, elbows, and knees.",
         "interactiveQuestion": "Point to your elbows. What do they help you do? Point to your knees. Can you bend them?",
         "funTask": "💃 Play 'Simon Says' touching different body parts. E.g., 'Simon says touch your shoulders, Simon says blink your eyes!'"
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 4",
+    "focus": "Kannada Vowels",
+    "activities": [
       {
         "subject": "Kannada",
         "topic": "Vowels (ಸ್ವರಗಳು - ಅ ರಿಂದ ಳ)",
@@ -40,8 +52,8 @@
     ]
   },
   {
-    "day": "Day 5-6",
-    "focus": "English Literature & Maths Numbers 0-10",
+    "day": "Day 5",
+    "focus": "English Literature: If You Are Happy Poem",
     "activities": [
       {
         "subject": "English",
@@ -49,7 +61,13 @@
         "guide": "Recite the poem together with full actions. Clapping hands, patting knees, stamping feet, blinking eyes.",
         "interactiveQuestion": "Can you show me what actions you do in the poem when you are happy? What is the spelling of 'Happy'?",
         "funTask": "🎭 Act out different emotions: Happy (smile & clap), Sad (frown), Angry (cross arms), Excited (jump)!"
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 6",
+    "focus": "Maths Numbers 0 to 10",
+    "activities": [
       {
         "subject": "Mathematics",
         "topic": "Numbers 0 to 10 (Counting & Writing)",
@@ -60,8 +78,8 @@
     ]
   },
   {
-    "day": "Day 7-8",
-    "focus": "EVS Sense Organs & Hindi Vowels",
+    "day": "Day 7",
+    "focus": "EVS Sense Organs",
     "activities": [
       {
         "subject": "EVS",
@@ -69,7 +87,13 @@
         "guide": "Explain the 5 sense organs (Eyes, Ears, Nose, Tongue, Skin). Play the sensory guessing game.",
         "interactiveQuestion": "Which sense organ helps you taste an ice cream? Which one helps you hear your favourite song?",
         "funTask": "🙈 Blindfold Game: Blindfold the child and have them touch an object (e.g. soft toy) or smell a fruit, then guess what it is!"
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 8",
+    "focus": "Hindi Vowels & Consonants (क - श)",
+    "activities": [
       {
         "subject": "Hindi",
         "topic": "Vowels & Consonants (व्यंजन क - श)",
@@ -80,8 +104,8 @@
     ]
   },
   {
-    "day": "Day 9-10",
-    "focus": "Computer Parts & English Families",
+    "day": "Day 9",
+    "focus": "Computer Parts (CPU, Monitor, Keyboard, Mouse)",
     "activities": [
       {
         "subject": "Computer Science",
@@ -89,7 +113,13 @@
         "guide": "Identify CPU, Monitor, Keyboard, Mouse. Compare a computer to human body parts.",
         "interactiveQuestion": "What is the brain of the computer called? What do we use to type words on a screen?",
         "funTask": "💻 Draw a simple computer monitor, keyboard, and mouse, and write your child's name inside the screen."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 10",
+    "focus": "English Literature: Meet My Family",
+    "activities": [
       {
         "subject": "English",
         "topic": "Literature: Meet My Family",
@@ -100,8 +130,8 @@
     ]
   },
   {
-    "day": "Day 11-12",
-    "focus": "Nouns Classification & Pre-Number Concepts",
+    "day": "Day 11",
+    "focus": "English Grammar: Common & Proper Nouns",
     "activities": [
       {
         "subject": "English",
@@ -109,7 +139,13 @@
         "guide": "Explain that naming words can be sorted into Common names (boy, dog) and Special names (Rahul, Bruno).",
         "interactiveQuestion": "Is 'pencil' a common name or a special name? What about your name?",
         "funTask": "📝 Write 3 common nouns and 3 proper nouns on flashcards and ask the child to sort them."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 12",
+    "focus": "Maths Concepts: Inside/Outside & Top/Bottom",
+    "activities": [
       {
         "subject": "Mathematics",
         "topic": "Pre-Number Concepts (Inside/Outside, Top/Bottom)",
@@ -120,8 +156,8 @@
     ]
   },
   {
-    "day": "Day 13-14",
-    "focus": "EVS Myself & Kannada Consonants",
+    "day": "Day 13",
+    "focus": "EVS: Myself (Introduction & Likes)",
     "activities": [
       {
         "subject": "EVS",
@@ -129,7 +165,13 @@
         "guide": "Help the child practice speaking 5 lines about themselves: name, age, class, school, and favourite activity.",
         "interactiveQuestion": "Can you introduce yourself to me in English? What is your favourite sport?",
         "funTask": "🎤 Play 'Press Interview': Use a dummy mic and interview your child about their likes and dislikes."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 14",
+    "focus": "Kannada Consonants (ಕ ರಿಂದ ಞ)",
+    "activities": [
       {
         "subject": "Kannada",
         "topic": "Consonants (ವ್ಯಂಜನಗಳು - ಕ ರಿಂದ ಞ)",
@@ -140,8 +182,8 @@
     ]
   },
   {
-    "day": "Day 15-16",
-    "focus": "English Family Song & Maths Numbers 11-20",
+    "day": "Day 15",
+    "focus": "English Literature: Family Song",
     "activities": [
       {
         "subject": "English",
@@ -149,7 +191,13 @@
         "guide": "Sing the 'Family Song' together using finger puppets. Draw faces of family members on fingers using sketch pens.",
         "interactiveQuestion": "Can you name all the fingers in the family song? (Father finger, Mother finger...)",
         "funTask": "🎭 Finger puppet play: Act out a small conversation between the Father finger and Baby finger."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 16",
+    "focus": "Maths Numbers 11 to 20",
+    "activities": [
       {
         "subject": "Mathematics",
         "topic": "Numbers 11 to 20 (Writing & Grouping)",
@@ -160,8 +208,8 @@
     ]
   },
   {
-    "day": "Day 17-18",
-    "focus": "EVS Body Fitness & Hindi Consonants",
+    "day": "Day 17",
+    "focus": "EVS: Keeping Body Fit & Healthy",
     "activities": [
       {
         "subject": "EVS",
@@ -169,7 +217,13 @@
         "guide": "Talk about healthy habits: brushing twice, bathing, exercising, drinking water, and sleeping early.",
         "interactiveQuestion": "Why should we brush our teeth twice a day? How many hours of sleep do you need?",
         "funTask": "📋 Draw / paste pictures of 3 healthy foods and 3 healthy activities (e.g. running, sleeping) on a sheet."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 18",
+    "focus": "Hindi Consonants (च से ञ)",
+    "activities": [
       {
         "subject": "Hindi",
         "topic": "Consonants (व्यंजन च से ञ)",
@@ -180,8 +234,8 @@
     ]
   },
   {
-    "day": "Day 19-20",
-    "focus": "Computer Input Devices & English Naming Words",
+    "day": "Day 19",
+    "focus": "Computer: Keyboard & Mouse",
     "activities": [
       {
         "subject": "Computer Science",
@@ -189,7 +243,13 @@
         "guide": "Explain the keyboard has keys to type, and the mouse has buttons to click. Compare keys to typewriter keys.",
         "interactiveQuestion": "What button on the mouse do we click to select things? What do we use to type your name?",
         "funTask": "⌨️ Draw a large keyboard layout on cardboard and let the child pretend to 'type' spelling words on it."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 20",
+    "focus": "English Grammar: Nouns Practice",
+    "activities": [
       {
         "subject": "English",
         "topic": "Grammar: More Nouns Practice",
@@ -200,8 +260,8 @@
     ]
   },
   {
-    "day": "Day 21-22",
-    "focus": "English Rhyming Words & Maths Order",
+    "day": "Day 21",
+    "focus": "English Literature: Rhyming Words",
     "activities": [
       {
         "subject": "English",
@@ -209,7 +269,13 @@
         "guide": "Explain that rhyming words sound similar at the end. E.g. happy/snappy, sad/bad, teddy/ready.",
         "interactiveQuestion": "What rhymes with 'Happy'? What is a rhyming word for 'Cat'?",
         "funTask": "🌳 Rhyming Tree: Draw a tree and write rhyming words (e.g. log, dog, fog) on green leaf cutouts and paste them."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 22",
+    "focus": "Maths Sequence: Before, After & Between",
+    "activities": [
       {
         "subject": "Mathematics",
         "topic": "Before, After & Between Numbers (0-20)",
@@ -220,8 +286,8 @@
     ]
   },
   {
-    "day": "Day 23-24",
-    "focus": "EVS Face Labeling & Kannada Order",
+    "day": "Day 23",
+    "focus": "EVS: Parts of the Face",
     "activities": [
       {
         "subject": "EVS",
@@ -229,7 +295,13 @@
         "guide": "Focus on the parts of the face: eyes, nose, ears, mouth, chin, forehead, cheeks.",
         "interactiveQuestion": "Where are your cheeks? What part of your face is below your mouth?",
         "funTask": "🎨 Face drawing: Draw a circle outline and have the child draw and label eyes, eyebrows, nose, mouth, and ears."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 24",
+    "focus": "Kannada Letter Sequence",
+    "activities": [
       {
         "subject": "Kannada",
         "topic": "Before & After Letters (ಮುಂದಿನ, ಹಿಂದಿನ ಅಕ್ಷರಗಳು)",
@@ -240,16 +312,22 @@
     ]
   },
   {
-    "day": "Day 25-26",
-    "focus": "Hindi Consonants & Maths Place Value",
+    "day": "Day 25",
+    "focus": "Hindi Consonants (ट से म)",
     "activities": [
       {
         "subject": "Hindi",
         "topic": "Consonants (व्यंजन ट से म)",
         "guide": "Identify consonants from ट to म (ट से टमाटर, ठ से ठठेरा, ड से डमरू... त से तरबूज... प से पतंग... म से मछली).",
-        "interactiveQuestion": "Which Hindi letter represents 'मछلی' (Fish)? What is the starting letter of 'पतंग' (Kite)?",
+        "interactiveQuestion": "Which Hindi letter represents 'मछли' (Fish)? What is the starting letter of 'पतंग' (Kite)?",
         "funTask": "🌳 व्यंजन का पेड़ part 2: Add leaf cutouts with letters from ट to म on the consonant tree."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 26",
+    "focus": "Maths Concepts: Place Value",
+    "activities": [
       {
         "subject": "Mathematics",
         "topic": "Place Value (Tens & Ones)",
@@ -260,8 +338,8 @@
     ]
   },
   {
-    "day": "Day 27-28",
-    "focus": "EVS Caterpillars & Kannada Word Reading",
+    "day": "Day 27",
+    "focus": "EVS: My Favourite Things",
     "activities": [
       {
         "subject": "EVS",
@@ -269,7 +347,13 @@
         "guide": "Discuss what a child likes (favourite sports, foods, cartoon characters, toys).",
         "interactiveQuestion": "Who is your favourite cartoon character? What is your favourite food to eat?",
         "funTask": "🐛 Draw a large caterpillar. In each body segment, paste a drawing or picture of your child's favourite sports, toy, and food."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 28",
+    "focus": "Kannada Word Reading (ಪದ ಓದು)",
+    "activities": [
       {
         "subject": "Kannada",
         "topic": "Word Reading (ಪದ ಓದು ಅಕ್ಷರಕಳಿ)",
@@ -280,8 +364,8 @@
     ]
   },
   {
-    "day": "Day 29-30",
-    "focus": "Computer Hardware & Hindi Word Reading",
+    "day": "Day 29",
+    "focus": "Computer: Hardware & Software",
     "activities": [
       {
         "subject": "Computer Science",
@@ -289,7 +373,13 @@
         "guide": "Explain the difference: Hardware is what you can touch (monitor, keyboard), Software is inside (games, drawing paint).",
         "interactiveQuestion": "Can you touch a computer game? Is a computer mouse hardware or software?",
         "funTask": "🖥️ Hardware activity: Cut out pictures from magazines of keyboard, monitor, printer, CPU, and sort them into a collage."
-      },
+      }
+    ]
+  },
+  {
+    "day": "Day 30",
+    "focus": "Hindi Word Reading (बिना मात्रा के शब्द)",
+    "activities": [
       {
         "subject": "Hindi",
         "topic": "Word Reading (बिना मात्रा के शब्द)",

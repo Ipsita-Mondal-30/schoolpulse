@@ -206,7 +206,7 @@ function MonthViewContent() {
         </div>
       </div>
 
-      {/* Innovative 10-Day Revision Plan View */}
+      {/* Innovative 30-Day Revision Plan View */}
       <div className="space-y-6">
         {/* Progress Dashboard Card */}
         <div className="bg-gradient-to-br from-gray-900 to-slate-800 bg-slate-900 rounded-2xl p-5 text-white shadow-xl relative overflow-hidden">
@@ -257,7 +257,7 @@ function MonthViewContent() {
           </div>
         </div>
 
-        {/* 10-Day Collapsible Timeline */}
+        {/* 30-Day Collapsible Timeline */}
         <div className="space-y-4">
           {revisionPlan.map((dayItem, dayIdx) => {
             const isExpanded = expandedDays[dayIdx];
@@ -291,7 +291,7 @@ function MonthViewContent() {
                           : 'bg-gray-100 text-gray-600'
                       }`}
                     >
-                      {isAllDone ? '✓' : `D${dayIdx * 2 + 1}`}
+                      {isAllDone ? '✓' : `D${dayIdx + 1}`}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
@@ -330,7 +330,7 @@ function MonthViewContent() {
 
                 {/* Day Content */}
                 {isExpanded && (
-                  <div className="p-4 border-t border-gray-100 bg-white grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className={`p-4 border-t border-gray-100 bg-white grid grid-cols-1 ${dayItem.activities.length > 1 ? 'md:grid-cols-2' : ''} gap-4`}>
                     {dayItem.activities.map((act, actIdx) => {
                       const styling = SUBJECT_STYLING[act.subject] || DEFAULT_STYLING;
                       const isCompleted = !!completedActivities[`${dayIdx}-${actIdx}`];
