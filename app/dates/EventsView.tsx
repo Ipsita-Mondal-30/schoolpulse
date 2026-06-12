@@ -106,6 +106,43 @@ function EventCard({ event, index }: { event: SchoolEvent; index: number }) {
                 <p className="text-gray-700 font-medium">{hasFees ? `₹${event.fees}` : 'Free'}</p>
               </div>
             </div>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Parse date (e.g. "25th June" -> 2026-06-25)
+                  const cleanDateStr = event.competitionDate || "";
+                  const dayMatch = cleanDateStr.match(/^(\d+)/);
+                  const day = dayMatch ? dayMatch[1].padStart(2, '0') : "25";
+                  const year = "2026";
+                  const month = cleanDateStr.toLowerCase().includes("july") ? "07" : "06"; 
+                  const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.topic)}&dates=${year}${month}${day}T090000Z/${year}${month}${day}T170000Z&details=${encodeURIComponent(event.toDo + " (Fees: " + event.fees + ")")}`;
+                  window.open(googleUrl, '_blank');
+                }}
+                className="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors"
+              >
+                📅 Add to Google Calendar
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const cleanDateStr = event.competitionDate || "";
+                  const dayMatch = cleanDateStr.match(/^(\d+)/);
+                  const day = dayMatch ? dayMatch[1].padStart(2, '0') : "25";
+                  const year = "2026";
+                  const month = cleanDateStr.toLowerCase().includes("july") ? "07" : "06"; 
+                  const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${event.topic}\nDESCRIPTION:${event.toDo}\nDTSTART:${year}${month}${day}T090000Z\nDTEND:${year}${month}${day}T170000Z\nEND:VEVENT\nEND:VCALENDAR`;
+                  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                  const link = document.createElement('a');
+                  link.href = URL.createObjectURL(blob);
+                  link.download = `${event.topic.replace(/\s+/g, "_")}.ics`;
+                  link.click();
+                }}
+                className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 text-gray-750 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                🍏 Add to Apple Calendar
+              </button>
+            </div>
             <div>
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">How to Register</p>
               {hasLink ? (
@@ -132,6 +169,7 @@ function EventCard({ event, index }: { event: SchoolEvent; index: number }) {
 // ── Holiday Row ───────────────────────────────────────────────────────────────
 
 function HolidayRow({ item, today }: { item: ImportantDate; today: string }) {
+  const [expanded, setExpanded] = useState(false);
   const isPast = item.date < today;
   const isToday = item.date === today;
   const [y, m, d] = item.date.split('-').map(Number);
@@ -140,29 +178,64 @@ function HolidayRow({ item, today }: { item: ImportantDate; today: string }) {
   const monthAbbr = dateObj.toLocaleString('default', { month: 'short' }).toUpperCase();
   const weekday = dateObj.toLocaleString('default', { weekday: 'short' });
 
+  // Format clean date for template
+  const cleanDateStr = item.date.replace(/-/g, "");
+
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-      isToday ? 'bg-orange-50 border-orange-200 ring-1 ring-orange-300'
-      : isPast ? 'bg-gray-50 border-gray-100 opacity-50'
-      : 'bg-white border-gray-100 hover:border-red-200 hover:shadow-sm'
-    }`}>
-      <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-xl flex-shrink-0 shadow-sm ${
-        isToday ? 'bg-orange-500 text-white' : isPast ? 'bg-gray-300 text-white' : 'bg-red-500 text-white'
-      }`}>
-        <span className="text-[8px] font-bold leading-none">{monthAbbr}</span>
-        <span className="text-sm font-black leading-none mt-0.5">{dayNum}</span>
-        <span className="text-[8px] leading-none opacity-80">{weekday}</span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm text-gray-800 leading-tight">{item.event}</span>
-          {isToday && (
-            <span className="text-[9px] font-black bg-orange-500 text-white px-1.5 py-0.5 rounded-full animate-pulse">TODAY</span>
-          )}
+    <div 
+      onClick={() => setExpanded(!expanded)}
+      className={`flex flex-col p-3 rounded-xl border transition-all cursor-pointer ${
+        isToday ? 'bg-orange-50 border-orange-200 ring-1 ring-orange-300'
+        : isPast ? 'bg-gray-50 border-gray-100 opacity-50'
+        : 'bg-white border-gray-100 hover:border-red-200 hover:shadow-sm'
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-xl flex-shrink-0 shadow-sm ${
+          isToday ? 'bg-orange-500 text-white' : isPast ? 'bg-gray-300 text-white' : 'bg-red-500 text-white'
+        }`}>
+          <span className="text-[8px] font-bold leading-none">{monthAbbr}</span>
+          <span className="text-sm font-black leading-none mt-0.5">{dayNum}</span>
+          <span className="text-[8px] leading-none opacity-80">{weekday}</span>
         </div>
-        {item.description && <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-sm text-gray-800 leading-tight">{item.event}</span>
+            {isToday && (
+              <span className="text-[9px] font-black bg-orange-500 text-white px-1.5 py-0.5 rounded-full animate-pulse">TODAY</span>
+            )}
+          </div>
+          {item.description && <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>}
+        </div>
+        <span className={`text-gray-400 transition-transform duration-200 text-xs ${expanded ? 'rotate-180' : ''}`}>▼</span>
       </div>
-      <span className="text-lg flex-shrink-0">{isPast ? '✅' : '🎉'}</span>
+
+      {expanded && (
+        <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-2" onClick={e => e.stopPropagation()}>
+          <button
+            onClick={() => {
+              const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("Holiday: " + item.event)}&dates=${cleanDateStr}/${cleanDateStr}&details=${encodeURIComponent(item.description || "")}`;
+              window.open(googleUrl, '_blank');
+            }}
+            className="inline-flex items-center gap-1 bg-red-50 border border-red-200 text-red-700 text-[10px] font-bold px-2 py-1.5 rounded-lg hover:bg-red-100 transition-colors"
+          >
+            📅 Google Calendar
+          </button>
+          <button
+            onClick={() => {
+              const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:Holiday: ${item.event}\nDESCRIPTION:${item.description || ''}\nDTSTART;VALUE=DATE:${cleanDateStr}\nDTEND;VALUE=DATE:${cleanDateStr}\nEND:VEVENT\nEND:VCALENDAR`;
+              const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = `Holiday_${item.event.replace(/\s+/g, "_")}.ics`;
+              link.click();
+            }}
+            className="inline-flex items-center gap-1 bg-gray-50 border border-gray-200 text-gray-700 text-[10px] font-bold px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            🍏 Apple Calendar
+          </button>
+        </div>
+      )}
     </div>
   );
 }
