@@ -20,7 +20,7 @@ export default function ChatWidget() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const modelQuestions = [
-        "What homework needs to be submitted on Monday?",
+        "What is the homework for today?",
         "Track my school bus (Route, driver details)",
         "What is the uniform schedule for next week?",
         "What school events & competitions are coming up?",
@@ -187,15 +187,16 @@ export default function ChatWidget() {
                 {/* Suggestion Chips */}
                 <div className="px-3 pt-3 bg-white border-t border-gray-100 z-10 relative">
                     <div className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider pl-1">Ask a question:</div>
-                    <div className="flex overflow-x-auto gap-2 pb-2 custom-scrollbar snap-x">
+                    <div className="flex flex-col gap-1.5 pb-2">
                         {modelQuestions.map((q, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => append({ role: 'user', content: q })}
                                 disabled={isLoading}
-                                className="whitespace-nowrap snap-start text-xs bg-slate-50 border border-slate-200 hover:border-orange-300 hover:bg-orange-50 text-slate-700 px-3 py-2 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-sm flex items-center"
+                                className="w-full text-left text-xs bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 text-slate-700 px-3.5 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-sm flex items-center justify-between"
                             >
-                                {q}
+                                <span>{q}</span>
+                                <span className="text-gray-300 group-hover:text-orange-500 font-bold ml-2">→</span>
                             </button>
                         ))}
                     </div>
