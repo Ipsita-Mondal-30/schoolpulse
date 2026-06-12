@@ -9,7 +9,7 @@ export default function Navigation() {
   const { homeworkCount } = useUpdates();
 
   const links = [
-    { href: '/', label: 'Today', icon: '📖' },
+    { href: '/', label: 'Planner', icon: '📋' },
     { href: '/week', label: 'Week', icon: '7️⃣' },
     { href: '/homework', label: 'Homework', icon: '📚' },
     { href: '/info', label: 'Info', icon: 'ℹ️' },
