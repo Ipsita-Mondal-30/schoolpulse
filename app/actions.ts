@@ -183,21 +183,39 @@ export async function fetchExternalUpdates(): Promise<Announcement[]> {
 
 export async function fetchHomework(): Promise<Homework[]> {
     try {
+        // Fetch local homework records
+        let localHw: Homework[] = [];
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const dataPath = path.join(process.cwd(), 'data', 'homework.json');
+            if (fs.existsSync(dataPath)) {
+                const fileContent = fs.readFileSync(dataPath, 'utf8');
+                const rawLocal = JSON.parse(fileContent);
+                localHw = rawLocal.map((item: any) => ({
+                    id: item.id,
+                    status: 'Active',
+                    subject: item.subject,
+                    content: item.content,
+                    submissionDate: item.submissionDate,
+                    notes: `Assigned: ${item.homeworkDate}`,
+                    createdAt: item.homeworkDate
+                }));
+            }
+        } catch (e) {
+            console.error('Failed to load local homework.json data', e);
+        }
+
         // Reuse the main updates fetcher
         const allUpdates = await fetchExternalUpdates();
 
         // Filter only homework items
         const homeworkUpdates = allUpdates.filter(u => {
             const isHw = u.category?.toLowerCase().includes('homework') || u.type === 'homework';
-
             return isHw;
         });
 
-        return homeworkUpdates.map((u, idx) => {
-            // Map Announcement fields to Homework fields
-            // Title -> Subject
-            // Message -> Content
-            // ExpiresAt -> Submission Date
+        const sheetHw = homeworkUpdates.map((u) => {
             return {
                 id: `hw-${u.id}`,
                 status: 'Active',
@@ -209,6 +227,7 @@ export async function fetchHomework(): Promise<Homework[]> {
             } as Homework;
         });
 
+        return [...localHw, ...sheetHw];
     } catch (error) {
         console.error('Failed to fetch homework from updates', error);
         return [];
