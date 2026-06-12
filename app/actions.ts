@@ -198,7 +198,7 @@ export async function fetchHomework(): Promise<Homework[]> {
                     subject: item.subject,
                     content: item.content,
                     submissionDate: item.submissionDate,
-                    notes: `Assigned: ${item.homeworkDate}`,
+                    notes: JSON.stringify({ assigned: item.homeworkDate, chapter: item.chapter || '' }),
                     createdAt: item.homeworkDate
                 }));
             }
@@ -265,7 +265,9 @@ export async function fetchEvents(): Promise<SchoolEvent[]> {
 
     try {
         console.log('EVENTS: Fetching from', SHEET_URL);
-        const response = await fetch(SHEET_URL, { cache: 'no-store' });
+        const response = await fetch(SHEET_URL, {
+            next: { revalidate: 60 } // Cache for 1 minute to prevent slow page load transitions
+        });
         console.log('EVENTS: Response status', response.status);
 
         if (!response.ok) return [];
