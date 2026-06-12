@@ -93,7 +93,7 @@ function MonthViewContent() {
   const [availableMonths, setAvailableMonths] = useState<MonthInfo[]>([]);
 
   // Toggle between calendar view and revision view
-  const [activeTab, setActiveTab] = useState<'calendar' | 'revision'>('calendar');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'revision'>('revision');
 
   // Revision state
   const [completedActivities, setCompletedActivities] = useState<Record<string, boolean>>({});
@@ -111,7 +111,9 @@ function MonthViewContent() {
 
     // If URL contains tab parameter or we check current month and default
     const urlTab = searchParams.get('tab');
-    if (urlTab === 'revision') {
+    if (urlTab === 'calendar') {
+      setActiveTab('calendar');
+    } else if (urlTab === 'revision') {
       setActiveTab('revision');
     }
   }, [searchParams, urlMonth]);
