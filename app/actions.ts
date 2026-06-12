@@ -235,13 +235,20 @@ export async function fetchEvents(): Promise<SchoolEvent[]> {
         return [];
     }
 
-    // Reuse the same spreadsheet, just swap to the events tab gid
-    const SHEET_URL = BASE_URL.replace(/gid=\d+/, 'gid=1056366110');
+    // Extract the spreadsheet ID from the base URL and build a clean events sheet URL
+    // This works regardless of whether the base URL has a gid param or not
+    const sheetIdMatch = BASE_URL.match(/\/spreadsheets\/d\/([^/]+)\//);
+    if (!sheetIdMatch) {
+        console.error('EVENTS: Could not extract spreadsheet ID from', BASE_URL);
+        return [];
+    }
+    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${sheetIdMatch[1]}/export?format=csv&gid=1056366110`;
 
     try {
         console.log('EVENTS: Fetching from', SHEET_URL);
         const response = await fetch(SHEET_URL, { cache: 'no-store' });
         console.log('EVENTS: Response status', response.status);
+
         if (!response.ok) return [];
 
         const csvData = await response.text();
