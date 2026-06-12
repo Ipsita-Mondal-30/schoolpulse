@@ -239,10 +239,13 @@ export async function fetchEvents(): Promise<SchoolEvent[]> {
     const SHEET_URL = BASE_URL.replace(/gid=\d+/, 'gid=1056366110');
 
     try {
-        const response = await fetch(SHEET_URL, { next: { revalidate: 300 } });
+        console.log('EVENTS: Fetching from', SHEET_URL);
+        const response = await fetch(SHEET_URL, { cache: 'no-store' });
+        console.log('EVENTS: Response status', response.status);
         if (!response.ok) return [];
 
         const csvData = await response.text();
+        console.log('EVENTS: CSV length', csvData.length, '| Start:', csvData.substring(0, 80));
 
         const parseCSV = (text: string) => {
             const rows: string[][] = [];
@@ -261,6 +264,7 @@ export async function fetchEvents(): Promise<SchoolEvent[]> {
         };
 
         const rows = parseCSV(csvData);
+        console.log('EVENTS: Total rows parsed', rows.length);
         if (rows.length < 2) return [];
 
         // Find header row (contains 'topic')
@@ -268,9 +272,11 @@ export async function fetchEvents(): Promise<SchoolEvent[]> {
         for (let i = 0; i < rows.length; i++) {
             if (rows[i].some(c => c.toLowerCase().includes('topic'))) { headerIdx = i; break; }
         }
+        console.log('EVENTS: Header row index', headerIdx);
         if (headerIdx === -1) return [];
 
         const headers = rows[headerIdx].map(h => h.toLowerCase().trim());
+        console.log('EVENTS: Headers', headers);
         const col = (name: string) => headers.findIndex(h => h.includes(name));
 
         const idxTopic = col('topic');
@@ -280,7 +286,7 @@ export async function fetchEvents(): Promise<SchoolEvent[]> {
         const idxMode = col('mode');
         const idxFees = col('fees');
 
-        return rows.slice(headerIdx + 1)
+        const result = rows.slice(headerIdx + 1)
             .filter(row => row[idxTopic] && row[idxTopic].trim() !== '')
             .map((row, i) => ({
                 id: `evt-${i + 1}`,
@@ -291,6 +297,9 @@ export async function fetchEvents(): Promise<SchoolEvent[]> {
                 registrationMode: row[idxMode] || '-',
                 fees: row[idxFees] || '-',
             }));
+
+        console.log('EVENTS: Parsed event count', result.length);
+        return result;
 
     } catch (error) {
         console.error('Failed to fetch events', error);
