@@ -18,15 +18,32 @@ export default function Navigation() {
     // { href: '/admin', label: 'Admin', icon: '⚙️' },
   ];
 
+  const triggerMorningAlert = () => {
+    const today = new Date();
+    const weekday = today.toLocaleDateString("en-US", { weekday: "long" });
+    alert(`⏰ Daily Prep Digest - ${weekday}\n\n☀️ Uniform: Wear regular school uniform today.\n🎒 Bag Prep: Pack EVS Textbook & Workbook.\n🚌 Transport: School bus scheduled for 08:15 AM.\n📝 Homework: Check active homework timeline tab.`);
+  };
+
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
-      <div className="max-w-4xl mx-auto px-0 sm:px-4">
+      <div className="max-w-4xl mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between h-14">
-          <Link href="/showcase.html" className="hidden sm:flex items-center gap-2">
-            <span className="text-2xl">💓</span>
-            <span className="font-bold text-orange-600">SchoolPuls</span>
-          </Link>
-          <div className="flex items-center gap-0 sm:gap-1 w-full sm:w-auto justify-evenly sm:justify-start">
+          <div className="flex items-center gap-2">
+            <Link href="/showcase.html" className="flex items-center gap-1">
+              <span className="text-xl sm:text-2xl">💓</span>
+              <span className="font-bold text-orange-600 text-sm sm:text-base">SchoolPuls</span>
+            </Link>
+            {/* Alarm Button inside navigation header */}
+            <button
+              onClick={triggerMorningAlert}
+              className="flex items-center justify-center w-[30px] h-[30px] bg-rose-50 border border-rose-100 text-rose-600 rounded-full hover:bg-rose-100 transition-all shadow-sm active:scale-90"
+              title="Daily Prep Alarm"
+              aria-label="Daily Prep Alarm"
+            >
+              <span className="text-sm">⏰</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-0 sm:gap-1 w-auto justify-end sm:justify-start">
             {links.map((link) => {
               const isActive = pathname === link.href;
               return (
