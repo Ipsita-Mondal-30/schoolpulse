@@ -98,5 +98,205 @@
         "funTask": "🎨 Draw a Family Tree on an A4 sheet. Paste small photos or draw faces of family members."
       }
     ]
+  },
+  {
+    "day": "Day 11-12",
+    "focus": "Nouns Classification & Pre-Number Concepts",
+    "activities": [
+      {
+        "subject": "English",
+        "topic": "Grammar: More about Naming Words",
+        "guide": "Explain that naming words can be sorted into Common names (boy, dog) and Special names (Rahul, Bruno).",
+        "interactiveQuestion": "Is 'pencil' a common name or a special name? What about your name?",
+        "funTask": "📝 Write 3 common nouns and 3 proper nouns on flashcards and ask the child to sort them."
+      },
+      {
+        "subject": "Mathematics",
+        "topic": "Pre-Number Concepts (Inside/Outside, Top/Bottom)",
+        "guide": "Use a box and toys to demonstrate inside/outside. Point to the top of a shelf and bottom of a shelf.",
+        "interactiveQuestion": "Are your toys inside the basket or outside? Put the book on the top shelf.",
+        "funTask": "🏀 Draw a circle on the floor. Play 'In and Out': child jumps inside when you say 'Inside' and outside when you say 'Outside'."
+      }
+    ]
+  },
+  {
+    "day": "Day 13-14",
+    "focus": "EVS Myself & Kannada Consonants",
+    "activities": [
+      {
+        "subject": "EVS",
+        "topic": "Myself (Introduction & Likes)",
+        "guide": "Help the child practice speaking 5 lines about themselves: name, age, class, school, and favourite activity.",
+        "interactiveQuestion": "Can you introduce yourself to me in English? What is your favourite sport?",
+        "funTask": "🎤 Play 'Press Interview': Use a dummy mic and interview your child about their likes and dislikes."
+      },
+      {
+        "subject": "Kannada",
+        "topic": "Consonants (ವ್ಯಂಜನಗಳು - ಕ ರಿಂದ ಞ)",
+        "guide": "Practice writing and identifying the strokes of Kannada consonants: ಕ, ಖ, ಗ, ಘ, ಙ.",
+        "interactiveQuestion": "Which Kannada letter stands for 'ಕಮಲ' (Lotus)? Can you pronounce 'ಗ'?",
+        "funTask": "✏️ Clay modeling: Use playdough to mold the shapes of Kannada letters 'ಕ' and 'ಗ'."
+      }
+    ]
+  },
+  {
+    "day": "Day 15-16",
+    "focus": "English Family Song & Maths Numbers 11-20",
+    "activities": [
+      {
+        "subject": "English",
+        "topic": "Literature: Family Song",
+        "guide": "Sing the 'Family Song' together using finger puppets. Draw faces of family members on fingers using sketch pens.",
+        "interactiveQuestion": "Can you name all the fingers in the family song? (Father finger, Mother finger...)",
+        "funTask": "🎭 Finger puppet play: Act out a small conversation between the Father finger and Baby finger."
+      },
+      {
+        "subject": "Mathematics",
+        "topic": "Numbers 11 to 20 (Writing & Grouping)",
+        "guide": "Count 20 spoons, crayons, or buttons. Show that 11 is '1 ten and 1 one', 12 is '1 ten and 2 ones', etc.",
+        "interactiveQuestion": "If we have one bundle of 10 pencils and 5 loose pencils, what number is it?",
+        "funTask": "✏️ Bundle activity: Bind 10 ice cream sticks with a rubber band to represent a 'Ten', and use loose sticks to count up to 20."
+      }
+    ]
+  },
+  {
+    "day": "Day 17-18",
+    "focus": "EVS Body Fitness & Hindi Consonants",
+    "activities": [
+      {
+        "subject": "EVS",
+        "topic": "Keeping Body Fit & Healthy",
+        "guide": "Talk about healthy habits: brushing twice, bathing, exercising, drinking water, and sleeping early.",
+        "interactiveQuestion": "Why should we brush our teeth twice a day? How many hours of sleep do you need?",
+        "funTask": "📋 Draw / paste pictures of 3 healthy foods and 3 healthy activities (e.g. running, sleeping) on a sheet."
+      },
+      {
+        "subject": "Hindi",
+        "topic": "Consonants (व्यंजन च से ञ)",
+        "guide": "Learn to read and write the second line of consonants: च से चम्मच, छ से छतरी, ज से जहाज, झ से झंडा, ञ.",
+        "interactiveQuestion": "Which letter stands for 'छतरी' (umbrella)? Can you write 'ज'?",
+        "funTask": "🎨 Letter tracing: Trace the letter 'झ' with seeds or pulses glued onto card paper."
+      }
+    ]
+  },
+  {
+    "day": "Day 19-20",
+    "focus": "Computer Input Devices & English Naming Words",
+    "activities": [
+      {
+        "subject": "Computer Science",
+        "topic": "Keyboard & Mouse",
+        "guide": "Explain the keyboard has keys to type, and the mouse has buttons to click. Compare keys to typewriter keys.",
+        "interactiveQuestion": "What button on the mouse do we click to select things? What do we use to type your name?",
+        "funTask": "⌨️ Draw a large keyboard layout on cardboard and let the child pretend to 'type' spelling words on it."
+      },
+      {
+        "subject": "English",
+        "topic": "Grammar: More Nouns Practice",
+        "guide": "Identify naming words in short sentences. Write simple sentences like 'The dog runs.' and point out the nouns.",
+        "interactiveQuestion": "In the sentence 'The cat sleeps on the mat', what are the naming words?",
+        "funTask": "🔍 Noun Hunt: Read a short storybook page together and have your child circle all the naming words they find."
+      }
+    ]
+  },
+  {
+    "day": "Day 21-22",
+    "focus": "English Rhyming Words & Maths Order",
+    "activities": [
+      {
+        "subject": "English",
+        "topic": "Literature: Rhyming Words",
+        "guide": "Explain that rhyming words sound similar at the end. E.g. happy/snappy, sad/bad, teddy/ready.",
+        "interactiveQuestion": "What rhymes with 'Happy'? What is a rhyming word for 'Cat'?",
+        "funTask": "🌳 Rhyming Tree: Draw a tree and write rhyming words (e.g. log, dog, fog) on green leaf cutouts and paste them."
+      },
+      {
+        "subject": "Mathematics",
+        "topic": "Before, After & Between Numbers (0-20)",
+        "guide": "Place objects in a line to explain before, after, and between. Connect it to number sequences.",
+        "interactiveQuestion": "What number comes before 15? What number is between 11 and 13?",
+        "funTask": "🏃 Hopscotch: Draw a grid with numbers 1 to 20. Ask your child to jump to the number that comes 'after 8' or 'before 15'."
+      }
+    ]
+  },
+  {
+    "day": "Day 23-24",
+    "focus": "EVS Face Labeling & Kannada Order",
+    "activities": [
+      {
+        "subject": "EVS",
+        "topic": "Parts of the Face",
+        "guide": "Focus on the parts of the face: eyes, nose, ears, mouth, chin, forehead, cheeks.",
+        "interactiveQuestion": "Where are your cheeks? What part of your face is below your mouth?",
+        "funTask": "🎨 Face drawing: Draw a circle outline and have the child draw and label eyes, eyebrows, nose, mouth, and ears."
+      },
+      {
+        "subject": "Kannada",
+        "topic": "Before & After Letters (ಮುಂದಿನ, ಹಿಂದಿನ ಅಕ್ಷರಗಳು)",
+        "guide": "Practice writing the letters that come before and after given Kannada alphabets.",
+        "interactiveQuestion": "What Kannada letter comes after 'ಅ'? What comes before 'ಇ'?",
+        "funTask": "🧩 Matching Cards: Write letters on cards. Have the child pair the consecutive letters (e.g. ಅ -> ಆ)."
+      }
+    ]
+  },
+  {
+    "day": "Day 25-26",
+    "focus": "Hindi Consonants & Maths Place Value",
+    "activities": [
+      {
+        "subject": "Hindi",
+        "topic": "Consonants (व्यंजन ट से म)",
+        "guide": "Identify consonants from ट to म (ट से टमाटर, ठ से ठठेरा, ड से डमरू... त से तरबूज... प से पतंग... म से मछली).",
+        "interactiveQuestion": "Which Hindi letter represents 'मछلی' (Fish)? What is the starting letter of 'पतंग' (Kite)?",
+        "funTask": "🌳 व्यंजन का पेड़ part 2: Add leaf cutouts with letters from ट to म on the consonant tree."
+      },
+      {
+        "subject": "Mathematics",
+        "topic": "Place Value (Tens & Ones)",
+        "guide": "Reinforce place value. 15 is 1 Ten and 5 Ones. 20 is 2 Tens and 0 Ones.",
+        "interactiveQuestion": "If I have 18 crayons, how many groups of tens do I have? How many single ones are left over?",
+        "funTask": "🍬 Use sweet treats or beans to make groups of 10. Let your child eat the 'ones' to understand subtraction!"
+      }
+    ]
+  },
+  {
+    "day": "Day 27-28",
+    "focus": "EVS Caterpillars & Kannada Word Reading",
+    "activities": [
+      {
+        "subject": "EVS",
+        "topic": "My Favourite Things",
+        "guide": "Discuss what a child likes (favourite sports, foods, cartoon characters, toys).",
+        "interactiveQuestion": "Who is your favourite cartoon character? What is your favourite food to eat?",
+        "funTask": "🐛 Draw a large caterpillar. In each body segment, paste a drawing or picture of your child's favourite sports, toy, and food."
+      },
+      {
+        "subject": "Kannada",
+        "topic": "Word Reading (ಪದ ಓದು ಅಕ್ಷರಕಳಿ)",
+        "guide": "Read simple 2-letter Kannada words using Swaragalu and simple consonants (ಅಕ್ಷರಾಭ್ಯಾಸ ೧,೯). E.g. ಅರ, ಆಲ, ಕರ, ಗಜ.",
+        "interactiveQuestion": "Can you read the word 'ಅರ' (file)? How do you sound out 'ಆಲ' (Banyan tree)?",
+        "funTask": "📖 Word tracing: Write simple 2-letter Kannada words in dotted lines and have the child trace and read them aloud."
+      }
+    ]
+  },
+  {
+    "day": "Day 29-30",
+    "focus": "Computer Hardware & Hindi Word Reading",
+    "activities": [
+      {
+        "subject": "Computer Science",
+        "topic": "Hardware & Software",
+        "guide": "Explain the difference: Hardware is what you can touch (monitor, keyboard), Software is inside (games, drawing paint).",
+        "interactiveQuestion": "Can you touch a computer game? Is a computer mouse hardware or software?",
+        "funTask": "🖥️ Hardware activity: Cut out pictures from magazines of keyboard, monitor, printer, CPU, and sort them into a collage."
+      },
+      {
+        "subject": "Hindi",
+        "topic": "Word Reading (बिना मात्रा के शब्द)",
+        "guide": "Read two, three, and four-letter Hindi words without मात्रा (vowels). E.g. नल, घर, फल, मटर, कमल, बरगद, अचकन.",
+        "interactiveQuestion": "Can you combine 'न' and 'ल' to read the word? What does 'घर' mean?",
+        "funTask": "🧩 Word Builder: Use alphabet cards to build simple Hindi words like 'फल' and 'मटर' and read them."
+      }
+    ]
   }
 ]
