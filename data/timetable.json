@@ -15,7 +15,7 @@
     { "number": 9, "startTime": "14:20", "endTime": "15:00" }
   ],
   "days": {
-    "Monday":    ["EVS", "DWO", "Eng", "Math", "Kan", "Comp", "Hindi", "Art", "EVS"],
+    "Monday":    ["EVS", "TW", "Eng", "Math", "Kan", "Comp", "Hindi", "Art", "EVS"],
     "Tuesday":   ["EVS", "Math", "Eng", "Hindi", "Ulipsu", "Kan", "Maths", "Games", "Eng"],
     "Wednesday": ["EVS", "Math", "Eng", "Eng", "Ulipsu", "Hindi", "EVS", "Eng", "Library"],
     "Thursday":  ["EVS", "Eng", "Kan", "Life Skill", "Comp", "Kan", "Music", "Kan", "Hindi"],
@@ -35,7 +35,7 @@
     "Library": { "fullName": "Library", "color": "yellow" },
     "Dance": { "fullName": "Dance", "color": "rose" },
     "Life Skill": { "fullName": "Life Skill", "color": "teal" },
-    "DWO": { "fullName": "DWO", "color": "slate" },
+    "TW": { "fullName": "TW", "color": "slate" },
     "Ulipsu": { "fullName": "Ulipsu", "color": "orange" },
     "Craft": { "fullName": "Craft", "color": "lime" }
   }
