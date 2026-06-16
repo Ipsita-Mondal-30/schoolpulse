@@ -1,7 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import { UpdatesProvider } from "@/context/UpdatesContext";
 import HomeworkDuePopup from '@/components/HomeworkDuePopup';
 
@@ -10,9 +9,6 @@ import Navigation from "@/components/Navigation";
 import InstallPrompt from "@/components/InstallPrompt";
 import ChatWidget from "@/components/ChatWidget";
 
-const inter = Inter({
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "SchoolPulse - Daily School Schedule",
@@ -50,7 +46,7 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
-      <body className={`${inter.className} antialiased bg-gray-50 overflow-x-hidden`}>
+      <body className="font-sans antialiased bg-gray-50 overflow-x-hidden">
         <UpdatesProvider>
           <Navigation />
           <HomeworkDuePopup />

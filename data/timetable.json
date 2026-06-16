@@ -1,0 +1,42 @@
+{
+  "class": "Class I-A",
+  "school": "BGS National Public School",
+  "periods": [
+    { "number": 1, "startTime": "08:20", "endTime": "09:00" },
+    { "number": 2, "startTime": "09:00", "endTime": "09:40" },
+    { "number": 3, "startTime": "09:40", "endTime": "10:20" },
+    { "type": "break", "label": "Short Break", "startTime": "10:20", "endTime": "10:35" },
+    { "number": 4, "startTime": "10:35", "endTime": "11:15" },
+    { "number": 5, "startTime": "11:15", "endTime": "11:55" },
+    { "number": 6, "startTime": "11:55", "endTime": "12:35" },
+    { "type": "break", "label": "Lunch Break", "startTime": "12:35", "endTime": "13:00" },
+    { "number": 7, "startTime": "13:00", "endTime": "13:40" },
+    { "number": 8, "startTime": "13:40", "endTime": "14:20" },
+    { "number": 9, "startTime": "14:20", "endTime": "15:00" }
+  ],
+  "days": {
+    "Monday":    ["EVS", "DWO", "Eng", "Math", "Kan", "Comp", "Hindi", "Art", "EVS"],
+    "Tuesday":   ["EVS", "Math", "Eng", "Hindi", "Ulipsu", "Kan", "Maths", "Games", "Eng"],
+    "Wednesday": ["EVS", "Math", "Eng", "Eng", "Ulipsu", "Hindi", "EVS", "Eng", "Library"],
+    "Thursday":  ["EVS", "Eng", "Kan", "Life Skill", "Comp", "Kan", "Music", "Kan", "Hindi"],
+    "Friday":    ["EVS", "Math", "Kan", "Hindi", "Games", "Eng", "Ulipsu", "Maths", "Dance"]
+  },
+  "subjects": {
+    "EVS": { "fullName": "Environmental Science", "color": "green" },
+    "Eng": { "fullName": "English", "color": "purple" },
+    "Math": { "fullName": "Mathematics", "color": "blue" },
+    "Maths": { "fullName": "Mathematics", "color": "blue" },
+    "Kan": { "fullName": "Kannada", "color": "amber" },
+    "Hindi": { "fullName": "Hindi", "color": "red" },
+    "Comp": { "fullName": "Computer", "color": "cyan" },
+    "Art": { "fullName": "Art", "color": "pink" },
+    "Music": { "fullName": "Music", "color": "indigo" },
+    "Games": { "fullName": "Games", "color": "emerald" },
+    "Library": { "fullName": "Library", "color": "yellow" },
+    "Dance": { "fullName": "Dance", "color": "rose" },
+    "Life Skill": { "fullName": "Life Skill", "color": "teal" },
+    "DWO": { "fullName": "DWO", "color": "slate" },
+    "Ulipsu": { "fullName": "Ulipsu", "color": "orange" },
+    "Craft": { "fullName": "Craft", "color": "lime" }
+  }
+}
