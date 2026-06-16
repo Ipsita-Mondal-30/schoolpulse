@@ -1,0 +1,32 @@
+{
+  "year": "2026-27",
+  "months": {
+    "june-2026": [
+      { "date": "2026-06-03", "day": "Wednesday", "topic": "" },
+      { "date": "2026-06-04", "day": "Thursday", "topic": "Fundamental Rights" },
+      { "date": "2026-06-05", "day": "Friday", "topic": "World Environment Day" },
+      { "date": "2026-06-06", "day": "Saturday", "topic": "Fundamental Duty and Responsibilities" },
+      { "date": "2026-06-08", "day": "Monday", "topic": "Campaign, Propaganda, & Transparency" },
+      { "date": "2026-06-09", "day": "Tuesday", "topic": "Coral Triangle Day" },
+      { "date": "2026-06-10", "day": "Wednesday", "topic": "Importance of Leadership Roles" },
+      { "date": "2026-06-11", "day": "Thursday", "topic": "Importance of School Committees & Commitment" },
+      { "date": "2026-06-12", "day": "Friday", "topic": "Honesty is the Best Policy" },
+      { "date": "2026-06-13", "day": "Saturday", "topic": "International Albinism Awareness Day" },
+      { "date": "2026-06-14", "day": "Sunday", "topic": "Blood Donor Day" },
+      { "date": "2026-06-15", "day": "Monday", "topic": "International Day of Family Remittances" },
+      { "date": "2026-06-17", "day": "Wednesday", "topic": "National Eat Your Vegetables Day" },
+      { "date": "2026-06-18", "day": "Thursday", "topic": "Father's Day" },
+      { "date": "2026-06-19", "day": "Friday", "topic": "Forgive and Forget" },
+      { "date": "2026-06-20", "day": "Saturday", "topic": "Keep Your Promise" },
+      { "date": "2026-06-21", "day": "Sunday", "topic": "International Yoga Day" },
+      { "date": "2026-06-22", "day": "Monday", "topic": "Sacrifice" },
+      { "date": "2026-06-23", "day": "Tuesday", "topic": "National Typewriter Day" },
+      { "date": "2026-06-24", "day": "Wednesday", "topic": "Conquering Shyness" },
+      { "date": "2026-06-25", "day": "Thursday", "topic": "Pride Goes Before A Fall" },
+      { "date": "2026-06-26", "day": "Friday", "topic": "Muharam" },
+      { "date": "2026-06-27", "day": "Saturday", "topic": "We Rise by Lifting Others" },
+      { "date": "2026-06-29", "day": "Monday", "topic": "Team Building Activities" },
+      { "date": "2026-06-30", "day": "Tuesday", "topic": "International Day of Parliamentarism" }
+    ]
+  }
+}
