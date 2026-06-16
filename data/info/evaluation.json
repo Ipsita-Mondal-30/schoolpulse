@@ -1,0 +1,51 @@
+{
+  "title": "Scheme of Evaluation – Foundational Stage",
+  "subtitle": "Joy of Learning (Pre Primary and Classes I & II)",
+  "overview": "Assessment is a part of the teaching-learning process. Assessment and Evaluation will be continuous and comprehensive as per the New Education Policy 'NEP-2020' and National Curriculum Framework - Foundational Stage. It involves the systematic gathering of information from different sources regarding children's learning. In a 'Competency-based curriculum' as proposed by NCF, evidences of the learning achievements of children is gathered and documented through observations of the child and analysing artefacts.",
+  "monitoring": {
+    "title": "Monitoring and Measurement",
+    "focus": "Foundational skills & readiness",
+    "areas": [
+      { "area": "Cognitive Development", "detail": "Recognition, sorting, sequencing", "icon": "🧠" },
+      { "area": "Language Skills", "detail": "Listening, speaking, reading, writing and enrichment of vocabulary", "icon": "🗣️" },
+      { "area": "Motor Skills", "detail": "Fine & gross motor coordination", "icon": "✋" },
+      { "area": "Social Behaviour", "detail": "Sharing, cooperation", "icon": "🤝" },
+      { "area": "Emotional Development", "detail": "Confidence and self-expression", "icon": "💛" },
+      { "area": "Attention & Curiosity", "detail": "Attention span and curiosity", "icon": "🔍" },
+      { "area": "Response to Instructions", "detail": "Following directions and instructions", "icon": "👂" },
+      { "area": "Creativity & Imagination", "detail": "Creative thinking and imaginative expression", "icon": "🎨" }
+    ]
+  },
+  "tools": [
+    "Anecdotal records",
+    "Checklists",
+    "Rating scales",
+    "Portfolio samples (artwork, Joy of Learning worksheets)"
+  ],
+  "assessmentNote": "In accordance with NEP-2020 and CBSE guidelines, the school follows continuous and holistic assessment with no formal examinations. Children's progress is monitored through activities and observations. Parent Teacher Interactions are conducted four times a year, and Holistic Progress Cards are issued annually.",
+  "scholasticGrades": {
+    "title": "Grade Sheet – Scholastic Area (Joy of Learning)",
+    "grades": [
+      { "grade": "A+", "description": "Outstanding", "color": "emerald" },
+      { "grade": "A", "description": "Excellent", "color": "green" },
+      { "grade": "B+", "description": "Very Good", "color": "blue" },
+      { "grade": "B", "description": "Good", "color": "amber" },
+      { "grade": "C", "description": "Fair", "color": "orange" }
+    ]
+  },
+  "overallGrades": {
+    "title": "Overall Grades",
+    "grades": [
+      { "level": "Beginner", "code": "B", "color": "orange" },
+      { "level": "Progressing", "code": "R", "color": "blue" },
+      { "level": "Proficient", "code": "PR", "color": "emerald" }
+    ]
+  },
+  "holisticProgressCard": "Holistic Progress Card is a 360-degree, multidimensional report of progress, that reflects the progress as well as the uniqueness of each learner in the cognitive, affective, emotional, and psychomotor domains. It is a shift in assessment from one that is primarily testing rote memorization skills, to one that is more regular and formatively competency-based. It promotes learning and development for children, and evaluates higher-order skills, such as analysis, critical thinking, and conceptual clarity.",
+  "terms": {
+    "title": "Academic Year Structure",
+    "info": "Competency Based Curriculum — 2 terms",
+    "term1": "April to September",
+    "term2": "October to March"
+  }
+}
