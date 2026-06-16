@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Pin, PinOff } from 'lucide-react';
 import generalInfoData from '@/data/info/general.json';
 import busesData from '@/data/info/buses.json';
+import evaluationData from '@/data/info/evaluation.json';
 
 export default function GeneralInfo() {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
@@ -234,7 +235,149 @@ export default function GeneralInfo() {
           )}
         </div>
 
-        {/* 4. Uniform Schedule Section */}
+        {/* 4. Evaluation & Assessment Section */}
+        <div>
+          <button
+            onClick={() => toggleSection('evaluation')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
+          >
+            <h3 className="text-lg font-bold text-gray-800">📊 Evaluation & Assessment</h3>
+            <span className="text-gray-500">{openSections['evaluation'] ? '▲' : '▼'}</span>
+          </button>
+          {openSections['evaluation'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200 space-y-5">
+              {/* NEP Badge */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200 uppercase tracking-wider">NEP 2020</span>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200 uppercase tracking-wider">CBSE</span>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 uppercase tracking-wider">Competency Based</span>
+              </div>
+
+              {/* Title & Overview */}
+              <div>
+                <h4 className="font-bold text-gray-900 text-base">{evaluationData.subtitle}</h4>
+                <p className="text-sm text-gray-600 mt-2 leading-relaxed">{evaluationData.overview}</p>
+              </div>
+
+              {/* Key Highlight */}
+              <div className="bg-green-50 border border-green-200 rounded-xl p-3.5">
+                <p className="text-sm text-green-800 font-medium leading-relaxed">
+                  ✅ {evaluationData.assessmentNote}
+                </p>
+              </div>
+
+              {/* Monitoring Areas */}
+              <div>
+                <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  🎯 {evaluationData.monitoring.title}
+                </h4>
+                <p className="text-xs text-gray-500 mb-3">Focus: {evaluationData.monitoring.focus}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {evaluationData.monitoring.areas.map((item) => (
+                    <div key={item.area} className="flex items-start gap-2.5 p-2.5 bg-gray-50 rounded-lg border border-gray-100">
+                      <span className="text-lg shrink-0">{item.icon}</span>
+                      <div>
+                        <div className="font-bold text-sm text-gray-800">{item.area}</div>
+                        <div className="text-xs text-gray-500">{item.detail}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Assessment Tools */}
+              <div>
+                <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">🛠️ Assessment Tools</h4>
+                <div className="flex flex-wrap gap-2">
+                  {evaluationData.tools.map((tool) => (
+                    <span key={tool} className="inline-flex items-center px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium border border-slate-200">
+                      {tool}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Grading Tables */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Scholastic Grades */}
+                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="bg-gray-50 px-3 py-2 border-b border-gray-200">
+                    <h5 className="font-bold text-xs text-gray-700 uppercase tracking-wider">Scholastic Grades</h5>
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                    {evaluationData.scholasticGrades.grades.map((g) => {
+                      const colorMap: Record<string, string> = {
+                        emerald: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                        green: 'bg-green-100 text-green-800 border-green-200',
+                        blue: 'bg-blue-100 text-blue-800 border-blue-200',
+                        amber: 'bg-amber-100 text-amber-800 border-amber-200',
+                        orange: 'bg-orange-100 text-orange-800 border-orange-200',
+                      };
+                      return (
+                        <div key={g.grade} className="flex items-center justify-between px-3 py-2">
+                          <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg border text-xs font-black ${colorMap[g.color] || ''}`}>
+                            {g.grade}
+                          </span>
+                          <span className="text-sm font-medium text-gray-700">{g.description}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Overall Grades */}
+                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="bg-gray-50 px-3 py-2 border-b border-gray-200">
+                    <h5 className="font-bold text-xs text-gray-700 uppercase tracking-wider">Overall Progress Grades</h5>
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                    {evaluationData.overallGrades.grades.map((g) => {
+                      const colorMap: Record<string, string> = {
+                        orange: 'bg-orange-100 text-orange-800 border-orange-200',
+                        blue: 'bg-blue-100 text-blue-800 border-blue-200',
+                        emerald: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                      };
+                      return (
+                        <div key={g.code} className="flex items-center justify-between px-3 py-2.5">
+                          <div className="flex items-center gap-2.5">
+                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg border text-xs font-black ${colorMap[g.color] || ''}`}>
+                              {g.code}
+                            </span>
+                            <span className="text-sm font-medium text-gray-700">{g.level}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Holistic Progress Card */}
+              <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3.5">
+                <h4 className="font-bold text-indigo-900 text-sm mb-1.5 flex items-center gap-2">📋 Holistic Progress Card</h4>
+                <p className="text-xs text-indigo-800 leading-relaxed">{evaluationData.holisticProgressCard}</p>
+              </div>
+
+              {/* Term Structure */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+                <h4 className="font-bold text-amber-900 text-sm mb-2 flex items-center gap-2">📅 {evaluationData.terms.title}</h4>
+                <p className="text-xs text-amber-700 mb-2 font-medium">{evaluationData.terms.info}</p>
+                <div className="flex gap-3">
+                  <div className="flex-1 bg-white rounded-lg border border-amber-200 p-2.5 text-center">
+                    <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Term I</div>
+                    <div className="text-sm font-bold text-gray-800 mt-0.5">{evaluationData.terms.term1}</div>
+                  </div>
+                  <div className="flex-1 bg-white rounded-lg border border-amber-200 p-2.5 text-center">
+                    <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Term II</div>
+                    <div className="text-sm font-bold text-gray-800 mt-0.5">{evaluationData.terms.term2}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 5. Uniform Schedule Section */}
         <div>
           <button 
             onClick={() => toggleSection('uniform_schedule')}
