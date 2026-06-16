@@ -2,6 +2,7 @@
   "class": "Class I-A",
   "school": "BGS National Public School",
   "periods": [
+    { "type": "assembly", "label": "Assembly", "startTime": "07:55", "endTime": "08:15" },
     { "number": 1, "startTime": "08:20", "endTime": "09:00" },
     { "number": 2, "startTime": "09:00", "endTime": "09:40" },
     { "number": 3, "startTime": "09:40", "endTime": "10:20" },

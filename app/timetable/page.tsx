@@ -121,6 +121,42 @@ export default function TimetablePage() {
       {/* Mobile: Vertical Timeline */}
       <div className="sm:hidden space-y-2">
         {periods.map((period, i) => {
+          if (period.type === 'assembly') {
+            const current = isCurrentPeriod(period) && isToday(selectedDayName);
+            return (
+              <div
+                key="assembly"
+                className={`flex items-stretch rounded-xl border transition-all ${
+                  current
+                    ? 'border-amber-400 ring-2 ring-amber-100 shadow-md'
+                    : 'border-amber-200 bg-amber-50/50'
+                }`}
+              >
+                <div className={`w-16 shrink-0 flex flex-col items-center justify-center py-3 px-1 rounded-l-xl ${
+                  current ? 'bg-amber-100' : 'bg-amber-50'
+                }`}>
+                  <span className="text-sm">🙏</span>
+                  <span className="text-[9px] text-amber-600 mt-0.5 leading-tight text-center">
+                    {formatTime12(period.startTime)}
+                  </span>
+                </div>
+                <div className={`flex-1 flex items-center gap-2.5 px-3 py-3 rounded-r-xl ${
+                  current ? 'bg-amber-50/60' : 'bg-amber-50/30'
+                }`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-sm text-amber-800">Assembly</div>
+                    <div className="text-[10px] text-amber-600">{formatTime12(period.startTime)} – {formatTime12(period.endTime)}</div>
+                  </div>
+                  {current && (
+                    <span className="shrink-0 text-[9px] font-bold text-amber-700 bg-amber-200 px-2 py-0.5 rounded-full uppercase animate-pulse">
+                      Now
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          }
+
           if (period.type === 'break') {
             return (
               <div key={`break-${i}`} className="flex items-center gap-3 py-2 px-1">
@@ -206,6 +242,24 @@ export default function TimetablePage() {
                 DAYS.forEach(d => { periodCounters[d] = 0; });
 
                 return periods.map((period, i) => {
+                  if (period.type === 'assembly') {
+                    const current = isCurrentPeriod(period);
+                    return (
+                      <tr key="assembly" className={current ? 'bg-amber-50/60' : 'bg-amber-50/30'}>
+                        <td className="py-2 px-3 border-t border-amber-100" colSpan={6}>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">🙏</span>
+                            <span className="text-[11px] font-bold text-amber-800">Assembly</span>
+                            <span className="text-[10px] text-amber-600">{formatTime12(period.startTime)} – {formatTime12(period.endTime)}</span>
+                            {current && (
+                              <span className="text-[8px] font-bold text-amber-700 bg-amber-200 px-1.5 py-0.5 rounded-full uppercase animate-pulse">Now</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  }
+
                   if (period.type === 'break') {
                     return (
                       <tr key={`break-${i}`} className="bg-gray-50/60">
