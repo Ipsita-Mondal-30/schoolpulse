@@ -7,10 +7,24 @@ import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import HomeworkShareButton from "@/components/HomeworkShareButton";
 import HomeworkScanner from "@/components/HomeworkScanner";
+import schoolHomeworkData from "@/data/school-homework.json";
+
+const MY_SECTION = "I-A";
+
+interface SchoolHomework {
+  id: string;
+  title: string;
+  subject: string;
+  sections: string[];
+  description: string;
+  sentDate: string;
+}
 
 export default function HomeworkPage() {
+  const [activeTab, setActiveTab] = useState<"class" | "school">("class");
   const [homeworkList, setHomeworkList] = useState<Homework[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showMySectionOnly, setShowMySectionOnly] = useState(true);
 
   const handleHomeworkScanned = (newHw: {
     subject: string;
@@ -41,13 +55,12 @@ export default function HomeworkPage() {
   };
 
   const loadData = async (forceRefresh = false) => {
-    // Check local storage cache first if not forcing refresh
     if (!forceRefresh && typeof window !== "undefined") {
       const cached = localStorage.getItem("homework_cache_data");
       const cachedTime = localStorage.getItem("homework_cache_time");
       if (cached && cachedTime) {
         const age = Date.now() - Number(cachedTime);
-        if (age < 15 * 60 * 1000) { // 15 minutes
+        if (age < 15 * 60 * 1000) {
           setHomeworkList(JSON.parse(cached));
           setLoading(false);
           return;
@@ -58,8 +71,6 @@ export default function HomeworkPage() {
     setLoading(true);
     try {
       const data = await fetchHomework();
-      
-      // Preserve any locally scanned items from cache
       let localScanned: Homework[] = [];
       if (typeof window !== "undefined") {
         const cached = localStorage.getItem("homework_cache_data");
@@ -70,7 +81,6 @@ export default function HomeworkPage() {
           } catch (e) {}
         }
       }
-      
       const mergedData = [...localScanned, ...data];
       setHomeworkList(mergedData);
       if (typeof window !== "undefined") {
@@ -88,7 +98,6 @@ export default function HomeworkPage() {
     loadData(false);
   }, []);
 
-  // Helper to safely unpack notes structure
   const getHwMeta = (hw: Homework) => {
     try {
       if (hw.notes && (hw.notes.startsWith("{") || hw.notes.startsWith("["))) {
@@ -99,8 +108,6 @@ export default function HomeworkPage() {
         };
       }
     } catch (e) {}
-    
-    // Fallback if not stringified JSON
     let assigned = hw.createdAt || "Unknown Date";
     if (hw.notes && hw.notes.startsWith("Assigned: ")) {
       assigned = hw.notes.replace("Assigned: ", "").trim();
@@ -108,36 +115,25 @@ export default function HomeworkPage() {
     return { assigned, chapter: "" };
   };
 
-  // Group by assigned date
   const groupedHomework = homeworkList.reduce((acc, hw) => {
     const { assigned } = getHwMeta(hw);
-    if (!acc[assigned]) {
-      acc[assigned] = [];
-    }
+    if (!acc[assigned]) acc[assigned] = [];
     acc[assigned].push(hw);
     return acc;
   }, {} as Record<string, Homework[]>);
 
-  // Parse and sort dates descending
   const sortedDates = Object.keys(groupedHomework).sort((a, b) => {
     if (a === "Unknown Date") return 1;
     if (b === "Unknown Date") return -1;
-    
     const parseDate = (dStr: string) => {
       const parts = dStr.split("-");
       if (parts.length === 3) {
-        if (parts[0].length === 4) {
-          return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])).getTime();
-        } else {
-          const day = Number(parts[0]);
-          const year = Number(parts[2]);
-          const monthMap: Record<string, number> = {
-            jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11
-          };
-          const mStr = parts[1].toLowerCase().substring(0, 3);
-          const month = monthMap[mStr] !== undefined ? monthMap[mStr] : Number(parts[1]) - 1;
-          return new Date(year, month, day).getTime();
-        }
+        if (parts[0].length === 4) return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])).getTime();
+        const day = Number(parts[0]);
+        const year = Number(parts[2]);
+        const monthMap: Record<string, number> = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
+        const month = monthMap[parts[1].toLowerCase().substring(0,3)] ?? Number(parts[1]) - 1;
+        return new Date(year, month, day).getTime();
       }
       return new Date(dStr).getTime() || 0;
     };
@@ -165,80 +161,73 @@ export default function HomeworkPage() {
     return "📝";
   };
 
-  // State to track collapsed/expanded dates
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (sortedDates.length > 0) {
       const initial: Record<string, boolean> = {};
-      sortedDates.forEach((date, index) => {
-        initial[date] = index < 3;
-      });
+      sortedDates.forEach((date, index) => { initial[date] = index < 3; });
       setExpandedDates(initial);
     }
   }, [homeworkList]);
 
   const toggleDate = (date: string) => {
-    setExpandedDates(prev => ({
-      ...prev,
-      [date]: !prev[date]
-    }));
+    setExpandedDates(prev => ({ ...prev, [date]: !prev[date] }));
   };
 
   const formatDateLabel = (dateStr: string) => {
     if (dateStr === "Unknown Date") return dateStr;
     try {
       const parts = dateStr.split("-");
-      let dateObj: Date;
       if (parts.length === 3) {
+        let dateObj: Date;
         if (parts[0].length === 4) {
           dateObj = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
         } else {
           const day = Number(parts[0]);
           const year = Number(parts[2]);
-          const monthMap: Record<string, number> = {
-            jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11
-          };
-          const mStr = parts[1].toLowerCase().substring(0, 3);
-          const month = monthMap[mStr] !== undefined ? monthMap[mStr] : Number(parts[1]) - 1;
+          const monthMap: Record<string, number> = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
+          const month = monthMap[parts[1].toLowerCase().substring(0,3)] ?? Number(parts[1]) - 1;
           dateObj = new Date(year, month, day);
         }
-        const today = new Date();
-        const yesterday = new Date();
-        yesterday.setDate(today.getDate() - 1);
-
-        today.setHours(0,0,0,0);
-        yesterday.setHours(0,0,0,0);
+        const today = new Date(); today.setHours(0,0,0,0);
+        const yesterday = new Date(); yesterday.setDate(today.getDate()-1); yesterday.setHours(0,0,0,0);
         dateObj.setHours(0,0,0,0);
-
-        const options: Intl.DateTimeFormatOptions = { month: "long", day: "numeric" };
-        if (dateObj.getTime() === today.getTime()) {
-          return `Today (${dateObj.toLocaleDateString("en-US", options)})`;
-        }
-        if (dateObj.getTime() === yesterday.getTime()) {
-          return `Yesterday (${dateObj.toLocaleDateString("en-US", options)})`;
-        }
-        // Exclude year from return string
-        return dateObj.toLocaleDateString("en-US", {
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-        });
+        if (dateObj.getTime() === today.getTime()) return `Today (${dateObj.toLocaleDateString("en-US", { month:"long", day:"numeric" })})`;
+        if (dateObj.getTime() === yesterday.getTime()) return `Yesterday (${dateObj.toLocaleDateString("en-US", { month:"long", day:"numeric" })})`;
+        return dateObj.toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
       }
       return dateStr;
-    } catch (e) {
-      return dateStr;
-    }
+    } catch (e) { return dateStr; }
   };
+
+  // School homework logic
+  const allSchoolHw = schoolHomeworkData as SchoolHomework[];
+  const filteredSchoolHw = showMySectionOnly
+    ? allSchoolHw.filter(hw => hw.sections.includes(MY_SECTION))
+    : allSchoolHw;
+
+  const schoolHwByDate = filteredSchoolHw.reduce((acc, hw) => {
+    if (!acc[hw.sentDate]) acc[hw.sentDate] = [];
+    acc[hw.sentDate].push(hw);
+    return acc;
+  }, {} as Record<string, SchoolHomework[]>);
+
+  const schoolSortedDates = Object.keys(schoolHwByDate).sort((a, b) =>
+    new Date(b).getTime() - new Date(a).getTime()
+  );
+
+  const allSections = Array.from(new Set(allSchoolHw.flatMap(hw => hw.sections))).sort();
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
-      <div className="flex items-center justify-between mb-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <span>📅</span> Timeline
+          <span>📚</span> Homework
         </h2>
         <div className="flex items-center gap-3">
-          <HomeworkShareButton homeworkList={homeworkList} />
+          {activeTab === "class" && <HomeworkShareButton homeworkList={homeworkList} />}
           <button
             onClick={() => loadData(true)}
             className="p-2 text-gray-500 hover:text-orange-500 transition-all rounded-xl hover:bg-orange-50 border border-gray-200 bg-white shadow-sm flex items-center gap-1.5 text-xs font-semibold"
@@ -249,120 +238,236 @@ export default function HomeworkPage() {
         </div>
       </div>
 
-      {/* Homework Image Paste Scanner */}
-      <HomeworkScanner onHomeworkScanned={handleHomeworkScanned} />
+      {/* Tab Switcher */}
+      <div className="flex gap-2 mb-5 bg-gray-100 rounded-2xl p-1">
+        <button
+          onClick={() => setActiveTab("class")}
+          className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            activeTab === "class"
+              ? "bg-white text-orange-700 shadow-sm border border-orange-100"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <span>📝</span> Class Teacher
+          <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+            activeTab === "class" ? "bg-orange-100 text-orange-700" : "bg-gray-200 text-gray-500"
+          }`}>
+            {homeworkList.length}
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveTab("school")}
+          className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            activeTab === "school"
+              ? "bg-white text-blue-700 shadow-sm border border-blue-100"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <span>🏫</span> School Notice
+          <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+            activeTab === "school" ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-500"
+          }`}>
+            {allSchoolHw.filter(h => h.sections.includes(MY_SECTION)).length}
+          </span>
+        </button>
+      </div>
 
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mb-4"></div>
-          <p className="text-gray-500 animate-pulse text-sm">
-            Fetching active homework planner...
-          </p>
-        </div>
-      ) : homeworkList.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200 shadow-sm">
-          <div className="text-6xl mb-4 opacity-50">📝</div>
-          <p className="text-xl text-gray-500 font-bold">
-            No homework assignments found.
-          </p>
-          <p className="text-sm text-gray-400 mt-2">
-            Check back later for updates or sync with neverskip.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {sortedDates.map((date, index) => {
-            const isExpanded = expandedDates[date];
-            const list = groupedHomework[date];
+      {/* TAB 1: Class Teacher Homework */}
+      {activeTab === "class" && (
+        <>
+          <HomeworkScanner onHomeworkScanned={handleHomeworkScanned} />
 
-            return (
-              <div key={date} className="bg-white rounded-3xl border border-gray-150 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-                {/* Accordion Date Header */}
-                <button
-                  onClick={() => toggleDate(date)}
-                  className="w-full px-6 py-4 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-150 text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl flex">
-                      {(() => {
-                        // Extract only day part. E.g. "12" from "12-Jun-2026" or "2026-06-12"
-                        let dayVal = "";
-                        const parts = date.split("-");
-                        if (parts.length === 3) {
-                          if (parts[0].length === 4) {
-                            dayVal = parts[2]; // YYYY-MM-DD
-                          } else {
-                            dayVal = parts[0]; // DD-MMM-YYYY or DD-MM-YYYY
-                          }
-                        }
-                        const finalDay = dayVal || "12";
-                        const digitMap: Record<string, string> = {
-                          "0": "0️⃣", "1": "1️⃣", "2": "2️⃣", "3": "3️⃣", "4": "4️⃣",
-                          "5": "5️⃣", "6": "6️⃣", "7": "7️⃣", "8": "8️⃣", "9": "9️⃣"
-                        };
-                        return finalDay.split("").map(char => digitMap[char] || char).join("");
-                      })()}
-                    </span>
-                    <div>
-                      <h3 className="font-bold text-gray-800 text-sm md:text-base">
-                        {formatDateLabel(date)}
-                      </h3>
-                      <p className="text-xs text-gray-500 font-medium mt-0.5">
-                        {list.length} {list.length === 1 ? "assignment" : "assignments"}
-                      </p>
-                    </div>
-                  </div>
-                  <span className={`text-lg transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-                    ▼
-                  </span>
-                </button>
-
-                {/* Assignments List */}
-                {isExpanded && (
-                  <div className="p-6 space-y-6 bg-white divide-y divide-gray-100">
-                    {list.map((hw, idx) => {
-                      const { chapter } = getHwMeta(hw);
-                      return (
-                        <div
-                          key={hw.id}
-                          className="pt-5 first:pt-0 flex flex-col gap-2 relative"
-                        >
-                          <div className="flex flex-wrap items-start justify-between gap-2">
-                            <div className="flex flex-col gap-1">
-                              {/* Chapter Heading */}
-                              {chapter && (
-                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                  {chapter}
-                                </h4>
-                              )}
-                              <div className="flex items-center gap-2">
-                                <span className="text-base">{getSubjectIcon(hw.subject)}</span>
-                                <span className="font-extrabold text-gray-900 text-sm md:text-base tracking-tight">
-                                  {hw.subject}
-                                </span>
-                                <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border rounded-md bg-gray-100 text-gray-600 border-gray-200">
-                                  I-A
-                                </span>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mb-4"></div>
+              <p className="text-gray-500 animate-pulse text-sm">Fetching active homework planner...</p>
+            </div>
+          ) : homeworkList.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200 shadow-sm">
+              <div className="text-6xl mb-4 opacity-50">📝</div>
+              <p className="text-xl text-gray-500 font-bold">No homework assignments found.</p>
+              <p className="text-sm text-gray-400 mt-2">Check back later for updates.</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {sortedDates.map((date) => {
+                const isExpanded = expandedDates[date];
+                const list = groupedHomework[date];
+                return (
+                  <div key={date} className="bg-white rounded-3xl border border-gray-150 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+                    <button
+                      onClick={() => toggleDate(date)}
+                      className="w-full px-6 py-4 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-150 text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl flex">
+                          {(() => {
+                            let dayVal = "";
+                            const parts = date.split("-");
+                            if (parts.length === 3) {
+                              dayVal = parts[0].length === 4 ? parts[2] : parts[0];
+                            }
+                            const finalDay = dayVal || "12";
+                            const digitMap: Record<string, string> = {"0":"0️⃣","1":"1️⃣","2":"2️⃣","3":"3️⃣","4":"4️⃣","5":"5️⃣","6":"6️⃣","7":"7️⃣","8":"8️⃣","9":"9️⃣"};
+                            return finalDay.split("").map(char => digitMap[char] || char).join("");
+                          })()}
+                        </span>
+                        <div>
+                          <h3 className="font-bold text-gray-800 text-sm md:text-base">{formatDateLabel(date)}</h3>
+                          <p className="text-xs text-gray-500 font-medium mt-0.5">{list.length} {list.length === 1 ? "assignment" : "assignments"}</p>
+                        </div>
+                      </div>
+                      <span className={`text-lg transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+                    </button>
+                    {isExpanded && (
+                      <div className="p-6 space-y-6 bg-white divide-y divide-gray-100">
+                        {list.map((hw) => {
+                          const { chapter } = getHwMeta(hw);
+                          return (
+                            <div key={hw.id} className="pt-5 first:pt-0 flex flex-col gap-2 relative">
+                              <div className="flex flex-wrap items-start justify-between gap-2">
+                                <div className="flex flex-col gap-1">
+                                  {chapter && <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">{chapter}</h4>}
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-base">{getSubjectIcon(hw.subject)}</span>
+                                    <span className="font-extrabold text-gray-900 text-sm md:text-base tracking-tight">{hw.subject}</span>
+                                    <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border rounded-md bg-orange-100 text-orange-700 border-orange-200">I-A</span>
+                                  </div>
+                                </div>
+                                {hw.submissionDate && (
+                                  <span className="px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full border border-red-100 flex items-center gap-1">
+                                    ⏰ Submit by: {hw.submissionDate}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-gray-700 leading-relaxed text-sm md:text-base bg-gray-50/50 rounded-2xl p-4 border border-gray-100/80 mt-1 whitespace-pre-line">
+                                {hw.content}
                               </div>
                             </div>
-                            {hw.submissionDate && (
-                              <span className="px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full border border-red-100 flex items-center gap-1">
-                                ⏰ Submit by: {hw.submissionDate}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="text-gray-700 leading-relaxed text-sm md:text-base bg-gray-50/50 rounded-2xl p-4 border border-gray-100/80 mt-1 whitespace-pre-line">
-                            {hw.content}
-                          </div>
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                )}
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* TAB 2: School Notice Homework */}
+      {activeTab === "school" && (
+        <div className="space-y-4">
+          {/* Section Filter */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Filter by Section</span>
+              <button
+                onClick={() => setShowMySectionOnly(!showMySectionOnly)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                  showMySectionOnly
+                    ? "bg-orange-500 text-white border-orange-500"
+                    : "bg-gray-100 text-gray-600 border-gray-200"
+                }`}
+              >
+                {showMySectionOnly ? `My Section (${MY_SECTION})` : "All Sections"}
+              </button>
+            </div>
+            {!showMySectionOnly && (
+              <div className="flex flex-wrap gap-1.5">
+                {allSections.map(sec => (
+                  <span
+                    key={sec}
+                    className={`px-2 py-1 rounded-md text-[10px] font-bold border ${
+                      sec === MY_SECTION
+                        ? "bg-orange-100 text-orange-800 border-orange-200 ring-1 ring-orange-300"
+                        : "bg-gray-50 text-gray-500 border-gray-200"
+                    }`}
+                  >
+                    {sec}
+                    {sec === MY_SECTION && " ★"}
+                  </span>
+                ))}
               </div>
-            );
-          })}
+            )}
+          </div>
+
+          {/* School Homework Cards */}
+          {filteredSchoolHw.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200 shadow-sm">
+              <div className="text-6xl mb-4 opacity-50">🏫</div>
+              <p className="text-xl text-gray-500 font-bold">No school notices found.</p>
+              <p className="text-sm text-gray-400 mt-2">School-level homework will appear here.</p>
+            </div>
+          ) : (
+            schoolSortedDates.map(date => (
+              <div key={date}>
+                <div className="flex items-center gap-2 mb-2 mt-2">
+                  <div className="h-px flex-1 bg-gray-200" />
+                  <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 shrink-0">
+                    {formatDateLabel(date)}
+                  </span>
+                  <div className="h-px flex-1 bg-gray-200" />
+                </div>
+                <div className="space-y-3">
+                  {schoolHwByDate[date].map(hw => {
+                    const isForMySection = hw.sections.includes(MY_SECTION);
+                    return (
+                      <div
+                        key={hw.id}
+                        className={`bg-white rounded-2xl border overflow-hidden shadow-sm transition-all ${
+                          isForMySection
+                            ? "border-orange-200 ring-1 ring-orange-100"
+                            : "border-gray-200"
+                        }`}
+                      >
+                        {/* Card Header */}
+                        <div className={`px-4 py-3 flex items-start justify-between gap-2 ${
+                          isForMySection ? "bg-orange-50/50" : "bg-gray-50/50"
+                        }`}>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-lg shrink-0">{getSubjectIcon(hw.subject)}</span>
+                            <div className="min-w-0">
+                              <div className="font-extrabold text-gray-900 text-sm">{hw.title}</div>
+                              <div className="text-[11px] text-gray-500 font-medium">{hw.subject}</div>
+                            </div>
+                          </div>
+                          {isForMySection && (
+                            <span className="shrink-0 px-2 py-0.5 bg-orange-500 text-white text-[9px] font-black rounded-full uppercase tracking-wider">
+                              Your Section
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Description */}
+                        <div className="px-4 py-3 border-t border-gray-100">
+                          <p className="text-sm text-gray-700 leading-relaxed">{hw.description}</p>
+                        </div>
+
+                        {/* Section Badges */}
+                        <div className="px-4 py-2.5 bg-gray-50 border-t border-gray-100 flex items-center gap-2 flex-wrap">
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Sections:</span>
+                          {hw.sections.map(sec => (
+                            <span
+                              key={sec}
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                                sec === MY_SECTION
+                                  ? "bg-orange-100 text-orange-800 border-orange-300 ring-1 ring-orange-200"
+                                  : "bg-white text-gray-500 border-gray-200"
+                              }`}
+                            >
+                              {sec}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>
