@@ -1,9 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { fetchHomework, Homework } from "../actions";
-import { getToday } from "@/lib/data";
-import HomeworkShareButton from "@/components/HomeworkShareButton";
 import HomeworkScanner from "@/components/HomeworkScanner";
 import schoolHomeworkData from "@/data/school-homework.json";
 
@@ -17,25 +14,14 @@ interface SchoolHomework {
   subject: string;
   sections: string[];
   description: string;
+  submissionDate?: string;
   sentDate: string;
 }
 
-interface UnifiedHomework {
-  id: string;
-  subject: string;
-  title: string;
-  content: string;
-  date: string;
-  submissionDate?: string;
-  sections: string[];
-  source: "class-teacher" | "school-notice";
-}
-
 export default function HomeworkPage() {
-  const [homeworkList, setHomeworkList] = useState<Homework[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedSection, setSelectedSection] = useState<string>(DEFAULT_SECTION);
   const [pinnedSection, setPinnedSection] = useState<string>(DEFAULT_SECTION);
+  const [scannedItems, setScannedItems] = useState<SchoolHomework[]>([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -61,148 +47,37 @@ export default function HomeworkPage() {
     submissionDate: string;
     assignedDate?: string;
   }) => {
-    const assignedDate = newHw.assignedDate || getToday();
-    const homeworkItem: Homework = {
+    const item: SchoolHomework = {
       id: `hw-scanned-${Date.now()}`,
-      status: "Active",
+      title: newHw.chapter,
       subject: newHw.subject,
-      content: newHw.content,
+      sections: [pinnedSection],
+      description: newHw.content,
       submissionDate: newHw.submissionDate,
-      notes: JSON.stringify({ assigned: assignedDate, chapter: newHw.chapter }),
-      createdAt: assignedDate
+      sentDate: newHw.assignedDate || new Date().toISOString().split("T")[0],
     };
-
-    setHomeworkList(prev => {
-      const updated = [homeworkItem, ...prev];
-      if (typeof window !== "undefined") {
-        localStorage.setItem("homework_cache_data", JSON.stringify(updated));
-        localStorage.setItem("homework_cache_time", String(Date.now()));
-      }
-      return updated;
-    });
+    setScannedItems(prev => [item, ...prev]);
   };
 
-  const loadData = async (forceRefresh = false) => {
-    if (!forceRefresh && typeof window !== "undefined") {
-      const cached = localStorage.getItem("homework_cache_data");
-      const cachedTime = localStorage.getItem("homework_cache_time");
-      if (cached && cachedTime) {
-        const age = Date.now() - Number(cachedTime);
-        if (age < 15 * 60 * 1000) {
-          setHomeworkList(JSON.parse(cached));
-          setLoading(false);
-          return;
-        }
-      }
-    }
-
-    setLoading(true);
-    try {
-      const data = await fetchHomework();
-      let localScanned: Homework[] = [];
-      if (typeof window !== "undefined") {
-        const cached = localStorage.getItem("homework_cache_data");
-        if (cached) {
-          try {
-            const parsed = JSON.parse(cached) as Homework[];
-            localScanned = parsed.filter(item => item.id.startsWith("hw-scanned-"));
-          } catch (e) {}
-        }
-      }
-      const mergedData = [...localScanned, ...data];
-      setHomeworkList(mergedData);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("homework_cache_data", JSON.stringify(mergedData));
-        localStorage.setItem("homework_cache_time", String(Date.now()));
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData(false);
-  }, []);
-
-  const getHwMeta = (hw: Homework) => {
-    try {
-      if (hw.notes && (hw.notes.startsWith("{") || hw.notes.startsWith("["))) {
-        const parsed = JSON.parse(hw.notes);
-        return {
-          assigned: parsed.assigned || hw.createdAt || "Unknown Date",
-          chapter: parsed.chapter || ""
-        };
-      }
-    } catch (e) {}
-    let assigned = hw.createdAt || "Unknown Date";
-    if (hw.notes && hw.notes.startsWith("Assigned: ")) {
-      assigned = hw.notes.replace("Assigned: ", "").trim();
-    }
-    return { assigned, chapter: "" };
-  };
-
-  // Unify all homework into a single list
-  const allSchoolHw = schoolHomeworkData as SchoolHomework[];
-
-  const unifiedList: UnifiedHomework[] = [
-    ...homeworkList.map(hw => {
-      const { assigned, chapter } = getHwMeta(hw);
-      return {
-        id: hw.id,
-        subject: hw.subject,
-        title: chapter,
-        content: hw.content,
-        date: assigned,
-        submissionDate: hw.submissionDate,
-        sections: [pinnedSection],
-        source: "class-teacher" as const,
-      };
-    }),
-    ...allSchoolHw.map(hw => ({
-      id: hw.id,
-      subject: hw.subject,
-      title: hw.title,
-      content: hw.description,
-      date: hw.sentDate,
-      submissionDate: undefined,
-      sections: hw.sections,
-      source: "school-notice" as const,
-    })),
+  const allHomework: SchoolHomework[] = [
+    ...scannedItems,
+    ...(schoolHomeworkData as SchoolHomework[]),
   ];
 
-  // Filter by selected section
-  const filteredList = unifiedList.filter(hw => hw.sections.includes(selectedSection));
+  const filteredList = allHomework.filter(hw => hw.sections.includes(selectedSection));
 
-  // Group by date
   const groupedByDate = filteredList.reduce((acc, hw) => {
-    if (!acc[hw.date]) acc[hw.date] = [];
-    acc[hw.date].push(hw);
+    if (!acc[hw.sentDate]) acc[hw.sentDate] = [];
+    acc[hw.sentDate].push(hw);
     return acc;
-  }, {} as Record<string, UnifiedHomework[]>);
+  }, {} as Record<string, SchoolHomework[]>);
 
-  const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
-    if (a === "Unknown Date") return 1;
-    if (b === "Unknown Date") return -1;
-    const parseDate = (dStr: string) => {
-      const parts = dStr.split("-");
-      if (parts.length === 3) {
-        if (parts[0].length === 4) return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])).getTime();
-        const day = Number(parts[0]);
-        const year = Number(parts[2]);
-        const monthMap: Record<string, number> = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
-        const month = monthMap[parts[1].toLowerCase().substring(0,3)] ?? Number(parts[1]) - 1;
-        return new Date(year, month, day).getTime();
-      }
-      return new Date(dStr).getTime() || 0;
-    };
-    return parseDate(b) - parseDate(a);
-  });
+  const sortedDates = Object.keys(groupedByDate).sort((a, b) =>
+    new Date(b).getTime() - new Date(a).getTime()
+  );
 
-  // Count homework per section (for pills)
   const sectionCounts = ALL_SECTIONS.reduce((acc, sec) => {
-    acc[sec] = unifiedList.filter(hw => hw.sections.includes(sec)).length;
+    acc[sec] = allHomework.filter(hw => hw.sections.includes(sec)).length;
     return acc;
   }, {} as Record<string, number>);
 
@@ -225,44 +100,28 @@ export default function HomeworkPage() {
       sortedDates.forEach((date, index) => { initial[date] = index < 3; });
       setExpandedDates(initial);
     }
-  }, [homeworkList, selectedSection]);
+  }, [selectedSection]);
 
   const toggleDate = (date: string) => {
     setExpandedDates(prev => ({ ...prev, [date]: !prev[date] }));
   };
 
   const formatDateLabel = (dateStr: string) => {
-    if (dateStr === "Unknown Date") return dateStr;
     try {
-      const parts = dateStr.split("-");
-      if (parts.length === 3) {
-        let dateObj: Date;
-        if (parts[0].length === 4) {
-          dateObj = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-        } else {
-          const day = Number(parts[0]);
-          const year = Number(parts[2]);
-          const monthMap: Record<string, number> = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
-          const month = monthMap[parts[1].toLowerCase().substring(0,3)] ?? Number(parts[1]) - 1;
-          dateObj = new Date(year, month, day);
-        }
-        const today = new Date(); today.setHours(0,0,0,0);
-        const yesterday = new Date(); yesterday.setDate(today.getDate()-1); yesterday.setHours(0,0,0,0);
-        dateObj.setHours(0,0,0,0);
-        if (dateObj.getTime() === today.getTime()) return `Today (${dateObj.toLocaleDateString("en-US", { month:"long", day:"numeric" })})`;
-        if (dateObj.getTime() === yesterday.getTime()) return `Yesterday (${dateObj.toLocaleDateString("en-US", { month:"long", day:"numeric" })})`;
-        return dateObj.toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
-      }
-      return dateStr;
-    } catch (e) { return dateStr; }
+      const dateObj = new Date(dateStr + "T00:00:00");
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const yesterday = new Date(); yesterday.setDate(today.getDate() - 1); yesterday.setHours(0, 0, 0, 0);
+      dateObj.setHours(0, 0, 0, 0);
+      if (dateObj.getTime() === today.getTime()) return `Today (${dateObj.toLocaleDateString("en-US", { month: "long", day: "numeric" })})`;
+      if (dateObj.getTime() === yesterday.getTime()) return `Yesterday (${dateObj.toLocaleDateString("en-US", { month: "long", day: "numeric" })})`;
+      return dateObj.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    } catch { return dateStr; }
   };
 
   const getDayEmoji = (dateStr: string) => {
-    const parts = dateStr.split("-");
-    if (parts.length !== 3) return "📅";
-    const dayVal = parts[0].length === 4 ? parts[2] : parts[0];
-    const digitMap: Record<string, string> = {"0":"0️⃣","1":"1️⃣","2":"2️⃣","3":"3️⃣","4":"4️⃣","5":"5️⃣","6":"6️⃣","7":"7️⃣","8":"8️⃣","9":"9️⃣"};
-    return dayVal.split("").map(char => digitMap[char] || char).join("");
+    const day = dateStr.split("-")[2] || "0";
+    const digitMap: Record<string, string> = { "0": "0️⃣", "1": "1️⃣", "2": "2️⃣", "3": "3️⃣", "4": "4️⃣", "5": "5️⃣", "6": "6️⃣", "7": "7️⃣", "8": "8️⃣", "9": "9️⃣" };
+    return day.split("").map(c => digitMap[c] || c).join("");
   };
 
   return (
@@ -272,16 +131,6 @@ export default function HomeworkPage() {
         <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
           <span>📚</span> Homework
         </h2>
-        <div className="flex items-center gap-3">
-          <HomeworkShareButton homeworkList={homeworkList} />
-          <button
-            onClick={() => loadData(true)}
-            className="p-2 text-gray-500 hover:text-orange-500 transition-all rounded-xl hover:bg-orange-50 border border-gray-200 bg-white shadow-sm flex items-center gap-1.5 text-xs font-semibold"
-            title="Refresh Data"
-          >
-            <span>🔄</span> Refresh
-          </button>
-        </div>
       </div>
 
       {/* Section Navigator */}
@@ -352,12 +201,7 @@ export default function HomeworkPage() {
       <HomeworkScanner onHomeworkScanned={handleHomeworkScanned} />
 
       {/* Homework List */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mb-4"></div>
-          <p className="text-gray-500 animate-pulse text-sm">Fetching homework...</p>
-        </div>
-      ) : filteredList.length === 0 ? (
+      {filteredList.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200 shadow-sm">
           <div className="text-6xl mb-4 opacity-50">📭</div>
           <p className="text-xl text-gray-500 font-bold">No homework for Section {selectedSection}</p>
@@ -393,9 +237,6 @@ export default function HomeworkPage() {
                             <div className="flex items-center gap-2">
                               <span className="text-base">{getSubjectIcon(hw.subject)}</span>
                               <span className="font-extrabold text-gray-900 text-sm md:text-base tracking-tight">{hw.subject}</span>
-                              {hw.source === "school-notice" && (
-                                <span className="px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase border rounded-md bg-blue-50 text-blue-600 border-blue-200">School</span>
-                              )}
                             </div>
                           </div>
                           {hw.submissionDate && (
@@ -405,7 +246,7 @@ export default function HomeworkPage() {
                           )}
                         </div>
                         <div className="text-gray-700 leading-relaxed text-sm md:text-base bg-gray-50/50 rounded-2xl p-4 border border-gray-100/80 mt-1 whitespace-pre-line">
-                          {hw.content}
+                          {hw.description}
                         </div>
                         {/* Section badges */}
                         <div className="flex items-center gap-1.5 flex-wrap mt-1">
