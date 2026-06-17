@@ -5,6 +5,7 @@ import { MapPin, Pin, PinOff } from 'lucide-react';
 import generalInfoData from '@/data/info/general.json';
 import busesData from '@/data/info/buses.json';
 import evaluationData from '@/data/info/evaluation.json';
+import assemblyData from '@/data/assembly-topics.json';
 
 export default function GeneralInfo() {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
@@ -377,7 +378,79 @@ export default function GeneralInfo() {
           )}
         </div>
 
-        {/* 5. Uniform Schedule Section */}
+        {/* 5. Assembly Topics Section */}
+        <div>
+          <button
+            onClick={() => toggleSection('assembly')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
+          >
+            <h3 className="text-lg font-bold text-gray-800">🙏 Assembly Topics</h3>
+            <span className="text-gray-500">{openSections['assembly'] ? '▲' : '▼'}</span>
+          </button>
+          {openSections['assembly'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200 space-y-3">
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Every morning during assembly, children learn about an important topic. Here are the daily topics with simple explanations to help your child understand and talk about them at home.
+              </p>
+              {(() => {
+                const today = new Date().toISOString().split('T')[0];
+                const allEntries = Object.values(assemblyData.months).flat() as Array<{ date: string; day: string; topic: string; kidNote?: string }>;
+                const entries = allEntries.filter(e => e.topic);
+                const todayEntry = entries.find(e => e.date === today);
+
+                return (
+                  <>
+                    {todayEntry && (
+                      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 mb-2">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600 mb-1">Today&apos;s Topic</div>
+                        <div className="font-bold text-base text-amber-900">{todayEntry.topic}</div>
+                        {todayEntry.kidNote && (
+                          <p className="text-sm text-amber-800 mt-2 leading-relaxed">{todayEntry.kidNote}</p>
+                        )}
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      {entries.map(entry => {
+                        const isToday = entry.date === today;
+                        const isPast = entry.date < today;
+                        const dateObj = new Date(entry.date + 'T00:00:00');
+                        const dateLabel = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                        if (isToday) return null;
+
+                        return (
+                          <div
+                            key={entry.date}
+                            className={`rounded-xl border p-3 transition-all ${
+                              isPast
+                                ? 'bg-gray-50/50 border-gray-100 opacity-70'
+                                : 'bg-white border-gray-200 hover:shadow-sm'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`shrink-0 w-12 text-center ${isPast ? 'text-gray-400' : 'text-gray-600'}`}>
+                                <div className="text-[10px] font-bold uppercase">{entry.day.slice(0, 3)}</div>
+                                <div className="text-sm font-bold">{dateLabel}</div>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className={`font-bold text-sm ${isPast ? 'text-gray-500' : 'text-gray-800'}`}>{entry.topic}</div>
+                                {entry.kidNote && (
+                                  <p className={`text-xs mt-1 leading-relaxed ${isPast ? 'text-gray-400' : 'text-gray-500'}`}>{entry.kidNote}</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          )}
+        </div>
+
+        {/* 6. Uniform Schedule Section */}
         <div>
           <button 
             onClick={() => toggleSection('uniform_schedule')}
