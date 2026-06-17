@@ -11,6 +11,8 @@ import schoolHomeworkData from "@/data/school-homework.json";
 
 const MY_SECTION = "I-A";
 
+const ALL_SECTIONS = ["I-A", "I-B", "I-C", "I-D", "I-E", "I-F", "I-G", "I-H", "I-I", "I-J", "I-K"];
+
 interface SchoolHomework {
   id: string;
   title: string;
@@ -24,7 +26,7 @@ export default function HomeworkPage() {
   const [activeTab, setActiveTab] = useState<"class" | "school">("class");
   const [homeworkList, setHomeworkList] = useState<Homework[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showMySectionOnly, setShowMySectionOnly] = useState(true);
+  const [selectedSection, setSelectedSection] = useState<string>(MY_SECTION);
 
   const handleHomeworkScanned = (newHw: {
     subject: string;
@@ -203,9 +205,7 @@ export default function HomeworkPage() {
 
   // School homework logic
   const allSchoolHw = schoolHomeworkData as SchoolHomework[];
-  const filteredSchoolHw = showMySectionOnly
-    ? allSchoolHw.filter(hw => hw.sections.includes(MY_SECTION))
-    : allSchoolHw;
+  const filteredSchoolHw = allSchoolHw.filter(hw => hw.sections.includes(selectedSection));
 
   const schoolHwByDate = filteredSchoolHw.reduce((acc, hw) => {
     if (!acc[hw.sentDate]) acc[hw.sentDate] = [];
@@ -217,7 +217,10 @@ export default function HomeworkPage() {
     new Date(b).getTime() - new Date(a).getTime()
   );
 
-  const allSections = Array.from(new Set(allSchoolHw.flatMap(hw => hw.sections))).sort();
+  const sectionHomeworkCounts = ALL_SECTIONS.reduce((acc, sec) => {
+    acc[sec] = allSchoolHw.filter(hw => hw.sections.includes(sec)).length;
+    return acc;
+  }, {} as Record<string, number>);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
@@ -267,7 +270,7 @@ export default function HomeworkPage() {
           <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-black ${
             activeTab === "school" ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-500"
           }`}>
-            {allSchoolHw.filter(h => h.sections.includes(MY_SECTION)).length}
+            {filteredSchoolHw.length}
           </span>
         </button>
       </div>
@@ -359,46 +362,67 @@ export default function HomeworkPage() {
       {/* TAB 2: School Notice Homework */}
       {activeTab === "school" && (
         <div className="space-y-4">
-          {/* Section Filter */}
+          {/* Section Navigator */}
           <div className="bg-white rounded-2xl border border-gray-200 p-3 shadow-sm">
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Filter by Section</span>
-              <button
-                onClick={() => setShowMySectionOnly(!showMySectionOnly)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-                  showMySectionOnly
-                    ? "bg-orange-500 text-white border-orange-500"
-                    : "bg-gray-100 text-gray-600 border-gray-200"
-                }`}
-              >
-                {showMySectionOnly ? `My Section (${MY_SECTION})` : "All Sections"}
-              </button>
+              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Select Section</span>
+              <span className="text-[10px] font-medium text-gray-400">
+                {filteredSchoolHw.length} {filteredSchoolHw.length === 1 ? "notice" : "notices"}
+              </span>
             </div>
-            {!showMySectionOnly && (
-              <div className="flex flex-wrap gap-1.5">
-                {allSections.map(sec => (
-                  <span
+            <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+              {ALL_SECTIONS.map(sec => {
+                const count = sectionHomeworkCounts[sec];
+                const isSelected = sec === selectedSection;
+                const isMine = sec === MY_SECTION;
+                return (
+                  <button
                     key={sec}
-                    className={`px-2 py-1 rounded-md text-[10px] font-bold border ${
-                      sec === MY_SECTION
-                        ? "bg-orange-100 text-orange-800 border-orange-200 ring-1 ring-orange-300"
-                        : "bg-gray-50 text-gray-500 border-gray-200"
+                    onClick={() => setSelectedSection(sec)}
+                    className={`shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition-all border flex flex-col items-center gap-0.5 min-w-[44px] ${
+                      isSelected
+                        ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200"
+                        : isMine
+                        ? "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100"
+                        : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
                     }`}
                   >
-                    {sec}
-                    {sec === MY_SECTION && " ★"}
-                  </span>
-                ))}
-              </div>
-            )}
+                    <span>{sec.replace("I-", "")}</span>
+                    {count > 0 && (
+                      <span className={`text-[8px] font-black ${
+                        isSelected ? "text-blue-200" : isMine ? "text-orange-400" : "text-gray-300"
+                      }`}>
+                        {count}
+                      </span>
+                    )}
+                    {isMine && !isSelected && (
+                      <span className="text-[7px] text-orange-500 font-bold">★</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Currently Viewing Banner */}
+          <div className={`rounded-xl px-3 py-2 flex items-center gap-2 text-xs font-bold ${
+            selectedSection === MY_SECTION
+              ? "bg-orange-50 text-orange-700 border border-orange-200"
+              : "bg-blue-50 text-blue-700 border border-blue-200"
+          }`}>
+            <span>{selectedSection === MY_SECTION ? "🏠" : "👁️"}</span>
+            <span>
+              Viewing homework for Section {selectedSection}
+              {selectedSection === MY_SECTION && " (Your Section)"}
+            </span>
           </div>
 
           {/* School Homework Cards */}
           {filteredSchoolHw.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200 shadow-sm">
-              <div className="text-6xl mb-4 opacity-50">🏫</div>
-              <p className="text-xl text-gray-500 font-bold">No school notices found.</p>
-              <p className="text-sm text-gray-400 mt-2">School-level homework will appear here.</p>
+            <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200 shadow-sm">
+              <div className="text-5xl mb-3 opacity-50">📭</div>
+              <p className="text-base text-gray-500 font-bold">No homework for Section {selectedSection}</p>
+              <p className="text-xs text-gray-400 mt-1">No school-level notices sent to this section yet.</p>
             </div>
           ) : (
             schoolSortedDates.map(date => (
@@ -445,15 +469,17 @@ export default function HomeworkPage() {
                           <p className="text-sm text-gray-700 leading-relaxed">{hw.description}</p>
                         </div>
 
-                        {/* Section Badges */}
+                        {/* Section Badges — shows all sections this homework was sent to */}
                         <div className="px-4 py-2.5 bg-gray-50 border-t border-gray-100 flex items-center gap-2 flex-wrap">
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Sections:</span>
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Sent to:</span>
                           {hw.sections.map(sec => (
                             <span
                               key={sec}
                               className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
-                                sec === MY_SECTION
-                                  ? "bg-orange-100 text-orange-800 border-orange-300 ring-1 ring-orange-200"
+                                sec === selectedSection
+                                  ? "bg-blue-100 text-blue-800 border-blue-300 ring-1 ring-blue-200"
+                                  : sec === MY_SECTION
+                                  ? "bg-orange-100 text-orange-800 border-orange-300"
                                   : "bg-white text-gray-500 border-gray-200"
                               }`}
                             >
