@@ -2,8 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import timetableData from '@/data/timetable.json';
+import assemblyData from '@/data/assembly-topics.json';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as const;
+
+function getTodayAssemblyTopic(): string | null {
+  const today = new Date().toISOString().split('T')[0];
+  for (const entries of Object.values(assemblyData.months)) {
+    const match = entries.find((e: { date: string }) => e.date === today);
+    if (match && match.topic) return match.topic;
+  }
+  return null;
+}
 
 const SUBJECT_STYLES: Record<string, string> = {
   green:   'bg-green-100 text-green-800 border-green-200',
@@ -84,17 +94,29 @@ export default function TimetablePage() {
   const daySubjects = timetableData.days[selectedDayName as keyof typeof timetableData.days];
 
   let subjectIndex = 0;
+  const assemblyTopic = getTodayAssemblyTopic();
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       {/* Header */}
-      <div className="mb-5">
+      <div className="mb-4">
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <span className="text-2xl">🕐</span>
           Timetable
         </h1>
         <p className="text-xs text-gray-500 mt-0.5">{timetableData.class} &middot; {timetableData.school}</p>
       </div>
+
+      {/* Today's Assembly Topic */}
+      {assemblyTopic && (
+        <div className="mb-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3">
+          <span className="text-2xl shrink-0">🙏</span>
+          <div className="min-w-0">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Today&apos;s Assembly Topic</div>
+            <div className="font-bold text-sm text-amber-900 mt-0.5">{assemblyTopic}</div>
+          </div>
+        </div>
+      )}
 
       {/* Day Tabs */}
       <div className="flex gap-1.5 mb-5 overflow-x-auto pb-1 -mx-1 px-1">
