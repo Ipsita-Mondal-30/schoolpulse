@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { fetchSheetHomework, SheetHomework } from "../actions";
 import schoolHomeworkData from "@/data/school-homework.json";
 
 const DEFAULT_SECTION = "I-A";
 const ALL_SECTIONS = ["I-A", "I-B", "I-C", "I-D", "I-E", "I-F", "I-G", "I-H", "I-I", "I-J", "I-K"];
 const PINNED_SECTION_KEY = "schoolpulse_pinned_section";
 
-interface SchoolHomework {
+interface HomeworkItem {
   id: string;
   title: string;
   subject: string;
@@ -17,9 +18,37 @@ interface SchoolHomework {
   sentDate: string;
 }
 
+function sheetRowsToHomework(rows: SheetHomework[]): HomeworkItem[] {
+  const grouped: Record<string, HomeworkItem> = {};
+
+  for (const row of rows) {
+    const key = `${row.sentDate}|${row.subject}|${row.title}`;
+    if (grouped[key]) {
+      if (!grouped[key].sections.includes(row.section)) {
+        grouped[key].sections.push(row.section);
+      }
+    } else {
+      grouped[key] = {
+        id: row.id,
+        title: row.title,
+        subject: row.subject,
+        sections: [row.section],
+        description: row.description,
+        submissionDate: row.submissionDate || undefined,
+        sentDate: row.sentDate,
+      };
+    }
+  }
+
+  return Object.values(grouped);
+}
+
 export default function HomeworkPage() {
   const [selectedSection, setSelectedSection] = useState<string>(DEFAULT_SECTION);
   const [pinnedSection, setPinnedSection] = useState<string>(DEFAULT_SECTION);
+  const [sheetHomework, setSheetHomework] = useState<HomeworkItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(PINNED_SECTION_KEY);
@@ -30,6 +59,22 @@ export default function HomeworkPage() {
     }
   }, []);
 
+  useEffect(() => {
+    async function loadSheet() {
+      try {
+        const rows = await fetchSheetHomework();
+        if (rows.length > 0) {
+          setSheetHomework(sheetRowsToHomework(rows));
+        }
+      } catch (e) {
+        console.error("Failed to fetch sheet homework", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSheet();
+  }, []);
+
   const handlePinSection = (sec: string) => {
     setPinnedSection(sec);
     if (typeof window !== "undefined") {
@@ -37,7 +82,10 @@ export default function HomeworkPage() {
     }
   };
 
-  const allHomework = schoolHomeworkData as SchoolHomework[];
+  const localHomework = schoolHomeworkData as HomeworkItem[];
+
+  // Merge: sheet data takes priority, local JSON is fallback
+  const allHomework = sheetHomework.length > 0 ? sheetHomework : localHomework;
 
   const filteredList = allHomework.filter(hw => hw.sections.includes(selectedSection));
 
@@ -45,7 +93,7 @@ export default function HomeworkPage() {
     if (!acc[hw.sentDate]) acc[hw.sentDate] = [];
     acc[hw.sentDate].push(hw);
     return acc;
-  }, {} as Record<string, SchoolHomework[]>);
+  }, {} as Record<string, HomeworkItem[]>);
 
   const sortedDates = Object.keys(groupedByDate).sort((a, b) =>
     new Date(b).getTime() - new Date(a).getTime()
@@ -75,7 +123,7 @@ export default function HomeworkPage() {
       sortedDates.forEach((date, index) => { initial[date] = index < 3; });
       setExpandedDates(initial);
     }
-  }, [selectedSection]);
+  }, [selectedSection, sheetHomework]);
 
   const toggleDate = (date: string) => {
     setExpandedDates(prev => ({ ...prev, [date]: !prev[date] }));
@@ -99,6 +147,8 @@ export default function HomeworkPage() {
     return day.split("").map(c => digitMap[c] || c).join("");
   };
 
+  const isFromSheet = sheetHomework.length > 0;
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
       {/* Header */}
@@ -106,6 +156,9 @@ export default function HomeworkPage() {
         <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
           <span>📚</span> Homework
         </h2>
+        {isFromSheet && (
+          <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full border border-green-200">LIVE</span>
+        )}
       </div>
 
       {/* Section Navigator */}
@@ -174,7 +227,12 @@ export default function HomeworkPage() {
       </div>
 
       {/* Homework List */}
-      {filteredList.length === 0 ? (
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mb-4"></div>
+          <p className="text-gray-500 animate-pulse text-sm">Fetching homework...</p>
+        </div>
+      ) : filteredList.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200 shadow-sm">
           <div className="text-6xl mb-4 opacity-50">📭</div>
           <p className="text-xl text-gray-500 font-bold">No homework for Section {selectedSection}</p>
