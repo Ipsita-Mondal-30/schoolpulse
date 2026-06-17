@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import HomeworkScanner from "@/components/HomeworkScanner";
 import schoolHomeworkData from "@/data/school-homework.json";
 
 const DEFAULT_SECTION = "I-A";
@@ -21,8 +20,6 @@ interface SchoolHomework {
 export default function HomeworkPage() {
   const [selectedSection, setSelectedSection] = useState<string>(DEFAULT_SECTION);
   const [pinnedSection, setPinnedSection] = useState<string>(DEFAULT_SECTION);
-  const [scannedItems, setScannedItems] = useState<SchoolHomework[]>([]);
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(PINNED_SECTION_KEY);
@@ -40,29 +37,7 @@ export default function HomeworkPage() {
     }
   };
 
-  const handleHomeworkScanned = (newHw: {
-    subject: string;
-    chapter: string;
-    content: string;
-    submissionDate: string;
-    assignedDate?: string;
-  }) => {
-    const item: SchoolHomework = {
-      id: `hw-scanned-${Date.now()}`,
-      title: newHw.chapter,
-      subject: newHw.subject,
-      sections: [pinnedSection],
-      description: newHw.content,
-      submissionDate: newHw.submissionDate,
-      sentDate: newHw.assignedDate || new Date().toISOString().split("T")[0],
-    };
-    setScannedItems(prev => [item, ...prev]);
-  };
-
-  const allHomework: SchoolHomework[] = [
-    ...scannedItems,
-    ...(schoolHomeworkData as SchoolHomework[]),
-  ];
+  const allHomework = schoolHomeworkData as SchoolHomework[];
 
   const filteredList = allHomework.filter(hw => hw.sections.includes(selectedSection));
 
@@ -197,8 +172,6 @@ export default function HomeworkPage() {
           </button>
         )}
       </div>
-
-      <HomeworkScanner onHomeworkScanned={handleHomeworkScanned} />
 
       {/* Homework List */}
       {filteredList.length === 0 ? (
