@@ -335,3 +335,99 @@ export async function fetchEvents(): Promise<SchoolEvent[]> {
     }
 }
 
+// ----- Section-wise Homework (from Google Sheet) -----
+
+export interface SheetHomework {
+    id: string;
+    sentDate: string;
+    section: string;
+    subject: string;
+    title: string;
+    description: string;
+    submissionDate: string;
+}
+
+export async function fetchSheetHomework(): Promise<SheetHomework[]> {
+    const BASE_URL = process.env.NEXT_PUBLIC_UPDATES_SHEET_URL;
+
+    if (!BASE_URL) {
+        return [];
+    }
+
+    const sheetIdMatch = BASE_URL.match(/\/spreadsheets\/d\/([^/]+)\//);
+    if (!sheetIdMatch) return [];
+
+    const gid = process.env.NEXT_PUBLIC_HOMEWORK_SHEET_GID;
+    if (!gid) {
+        console.error('HOMEWORK_SHEET: NEXT_PUBLIC_HOMEWORK_SHEET_GID not set');
+        return [];
+    }
+
+    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${sheetIdMatch[1]}/export?format=csv&gid=${gid}`;
+
+    try {
+        const response = await fetch(SHEET_URL, {
+            next: { revalidate: 60 }
+        });
+
+        if (!response.ok) return [];
+
+        const csvData = await response.text();
+
+        const parseCSV = (text: string) => {
+            const rows: string[][] = [];
+            let currentRow: string[] = [];
+            let currentCell = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) { currentRow.push(currentCell.trim()); currentCell = ''; }
+                else if (char === '\n' && !inQuotes) { currentRow.push(currentCell.trim()); rows.push(currentRow); currentRow = []; currentCell = ''; }
+                else { currentCell += char; }
+            }
+            if (currentCell || currentRow.length > 0) { currentRow.push(currentCell.trim()); rows.push(currentRow); }
+            return rows;
+        };
+
+        const rows = parseCSV(csvData);
+        if (rows.length < 2) return [];
+
+        let headerIdx = -1;
+        for (let i = 0; i < rows.length; i++) {
+            const lower = rows[i].map(c => c.toLowerCase().trim());
+            if (lower.includes('section') && lower.includes('subject')) {
+                headerIdx = i;
+                break;
+            }
+        }
+        if (headerIdx === -1) return [];
+
+        const headers = rows[headerIdx].map(h => h.toLowerCase().trim());
+        const col = (name: string) => headers.findIndex(h => h.includes(name));
+
+        const idxDate = col('sent date');
+        const idxSection = col('section');
+        const idxSubject = col('subject');
+        const idxTitle = col('title');
+        const idxDesc = col('description');
+        const idxSubmit = col('submission date');
+
+        return rows.slice(headerIdx + 1)
+            .filter(row => row[idxSection] && row[idxSection].trim() !== '')
+            .map((row, i) => ({
+                id: `sheet-hw-${i + 1}`,
+                sentDate: row[idxDate] || '',
+                section: row[idxSection] || '',
+                subject: row[idxSubject] || '',
+                title: row[idxTitle] || '',
+                description: row[idxDesc] || '',
+                submissionDate: row[idxSubmit] || '',
+            }));
+
+    } catch (error) {
+        console.error('HOMEWORK_SHEET: Failed to fetch', error);
+        return [];
+    }
+}
+
