@@ -1,9 +1,66 @@
 [
   {
+    "id": "sh-36",
+    "title": "Cursive writing and Workbook",
+    "subject": "ENGLISH",
+    "sections": [
+      "I-A"
+    ],
+    "description": "English homework: Cursive writing book pg.no. 8 and 9. Workbook: To learn and complete Unit 1 Worksheet 2 pg.no. 5 and 6 (Answers are uploaded in the Content Library). Thank you",
+    "sentDate": "2026-06-25"
+  },
+  {
+    "id": "sh-35",
+    "title": "Chapter 3. My Sense Organs (Textbook)",
+    "subject": "ENVIRONMENTAL SCIENCE",
+    "sections": [
+      "I-A"
+    ],
+    "description": "Jai Shri Gurudev Namaste Dear Parents and Students. EVS Homework - Textbook - Read the chapter 3. My Sense Organs. Submit the textbook on Monday [29.06.26]. Thank You",
+    "submissionDate": "2026-06-29",
+    "sentDate": "2026-06-25"
+  },
+  {
+    "id": "sh-34",
+    "title": "Ch 3 My Sense Organs (Rough Notebook)",
+    "subject": "ENVIRONMENTAL SCIENCE",
+    "sections": [
+      "I-A"
+    ],
+    "description": "Jai Shri Gurudev Namaste Dear Parents and Students. EVS Homework Text Book - Read the chapter My Sense Organs. Write 5 sense organs in the rough notebook and submit both on Monday 29.06.26. Thank you.",
+    "submissionDate": "2026-06-29",
+    "sentDate": "2026-06-25"
+  },
+  {
+    "id": "sh-33",
+    "title": "Chapter 2 Playing with Numbers (0 to 20)",
+    "subject": "MATHEMATICS",
+    "sections": [
+      "I-A"
+    ],
+    "description": "Jai Shri Gurudev Namaste dear Parents. Today's Mathematics Homework. Chapter 2 Playing with Numbers (0 to 20). Workbook page number 7, 8 and 9. Kindly submit the workbook on Monday, 29.6.2026. Thank you",
+    "submissionDate": "2026-06-29",
+    "sentDate": "2026-06-25"
+  },
+  {
+    "id": "sh-32",
+    "title": "English homework",
+    "subject": "ENGLISH",
+    "sections": [
+      "I-D",
+      "I-J",
+      "I-K"
+    ],
+    "description": "English workbook - Complete Worksheet 1 (pg.no. 3 and 4). Please refer to the answers uploaded in the Content Library. Thank you",
+    "sentDate": "2026-06-19"
+  },
+  {
     "id": "sh-31",
     "title": "Varnamale (ವರ್ಣಮಾಲೆ)",
     "subject": "KANNADA",
-    "sections": ["I-F"],
+    "sections": [
+      "I-F"
+    ],
     "description": "Jai Sri Gurudev\nNamaste Dear Parents,\nKindly help our children to read, write and practice varnamale letters ಅ-ಳ.(Refer note book)\nKindly send the note book on Monday.\nThank you",
     "submissionDate": "2026-06-22",
     "sentDate": "2026-06-18"
@@ -12,7 +69,12 @@
     "id": "sh-30",
     "title": "Chapter 2 _ Playing with Numbers 0 to 20",
     "subject": "MATHEMATICS",
-    "sections": ["I-D", "I-F", "I-G", "I-I"],
+    "sections": [
+      "I-D",
+      "I-F",
+      "I-G",
+      "I-I"
+    ],
     "description": "Jai Shri Gurudev\nNamaste dear Parents\nToday's Mathematics Homework\nTextbook page number 33\nKindly submit the textbook tomorrow.\nThank you",
     "submissionDate": "2026-06-19",
     "sentDate": "2026-06-18"
@@ -21,7 +83,9 @@
     "id": "sh-29",
     "title": "Today's Hindi homework and activity",
     "subject": "HINDI",
-    "sections": ["I-F"],
+    "sections": [
+      "I-F"
+    ],
     "description": "Jai shree Gurudev\nNamaste dear Parents\nToday's Hindi homework and activity\nDraw the picture of vyanjan ka ped (vyanjan tree) on A4 sheet and colour it. submit it by 22/6/2026(Monday).\nNotebook submission -19/6/26\nThank you",
     "submissionDate": "2026-06-22",
     "sentDate": "2026-06-18"
@@ -30,7 +94,19 @@
     "id": "sh-28",
     "title": "Practice swar vyanjan",
     "subject": "HINDI",
-    "sections": ["I-A", "I-B", "I-C", "I-D", "I-E", "I-F", "I-G", "I-H", "I-I", "I-J", "I-K"],
+    "sections": [
+      "I-A",
+      "I-B",
+      "I-C",
+      "I-D",
+      "I-E",
+      "I-F",
+      "I-G",
+      "I-H",
+      "I-I",
+      "I-J",
+      "I-K"
+    ],
     "description": "Jai Shree Gurudev\nNamaste Dear parents\nKindly see the Hindi Notebook and Practice swar vyanjan in rough notebook\nTopic: swar vyanjan\nSubmission date of Notebook - 19/6/26\nThankyou.",
     "submissionDate": "2026-06-19",
     "sentDate": "2026-06-18"
@@ -39,7 +115,11 @@
     "id": "sh-27",
     "title": "Ch 2: My Body (Workbook)",
     "subject": "ENVIRONMENTAL SCIENCE",
-    "sections": ["I-C", "I-D", "I-G"],
+    "sections": [
+      "I-C",
+      "I-D",
+      "I-G"
+    ],
     "description": "Jai Sri Gurudev! Namaste,\n\nChapter 2: My Body\nWorkbook: Complete pg no 8, 9 & 10\nSubmission Date: 19/06/2026",
     "submissionDate": "2026-06-19",
     "sentDate": "2026-06-17"
@@ -48,7 +128,11 @@
     "id": "sh-26",
     "title": "Chapter 2. My Body",
     "subject": "ENVIRONMENTAL SCIENCE",
-    "sections": ["I-A", "I-B", "I-K"],
+    "sections": [
+      "I-A",
+      "I-B",
+      "I-K"
+    ],
     "description": "Jai Shri Gurudev Namaste Dear Parents and Students\n\nToday's EVS Textbook\n\nRead the chapter 2. My Body\nPg 18 and 19.",
     "sentDate": "2026-06-17"
   },
@@ -56,7 +140,19 @@
     "id": "sh-25",
     "title": "Module 3 - Parts of a Computer",
     "subject": "COMPUTER SCIENCE",
-    "sections": ["I-A", "I-B", "I-C", "I-D", "I-E", "I-F", "I-G", "I-H", "I-I", "I-J", "I-K"],
+    "sections": [
+      "I-A",
+      "I-B",
+      "I-C",
+      "I-D",
+      "I-E",
+      "I-F",
+      "I-G",
+      "I-H",
+      "I-I",
+      "I-J",
+      "I-K"
+    ],
     "description": "List of keywords to write and practice:\n1. Hardware\n2. Software\n3. Monitor\n4. Keyboard\n5. Mouse\n6. Speaker\n7. Printer\n8. Tux Paint\n9. Calculator\n10. Video Player",
     "submissionDate": "2026-06-18",
     "sentDate": "2026-06-17"
@@ -65,7 +161,11 @@
     "id": "sh-24",
     "title": "English HW",
     "subject": "ENGLISH",
-    "sections": ["I-D", "I-J", "I-K"],
+    "sections": [
+      "I-D",
+      "I-J",
+      "I-K"
+    ],
     "description": "Page 7 and 8 in cursive books",
     "sentDate": "2026-06-17"
   },
@@ -73,7 +173,14 @@
     "id": "sh-23",
     "title": "Cursive writing",
     "subject": "ENGLISH",
-    "sections": ["I-A", "I-B", "I-C", "I-F", "I-G", "I-I"],
+    "sections": [
+      "I-A",
+      "I-B",
+      "I-C",
+      "I-F",
+      "I-G",
+      "I-I"
+    ],
     "description": "Page no. 6 and 7 in Cursive writing book. Submit the book tomorrow.",
     "sentDate": "2026-06-17"
   },
@@ -81,7 +188,9 @@
     "id": "sh-22",
     "title": "Varnamale ಅ - ಅಃ",
     "subject": "KANNADA",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev! Namaste Dear Parents, Kindly help our children to practice Varnamale ಅ - ಅಃ in Kannada textbook. Thank you",
     "submissionDate": "2026-06-17",
     "sentDate": "2026-06-16"
@@ -90,7 +199,9 @@
     "id": "sh-21",
     "title": "Chapter 2 Playing with Numbers",
     "subject": "MATHEMATICS",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai shree Gurudev Namaste dear parents. Mathematics Homework - Chapter 2 Playing with Numbers. Kindly complete the given work and submit. Thank you",
     "submissionDate": "2026-06-17",
     "sentDate": "2026-06-15"
@@ -99,7 +210,9 @@
     "id": "sh-20",
     "title": "Chapter 2. My Body",
     "subject": "ENVIRONMENTAL SCIENCE",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev Namaste Dear Parents and Students. Today's EVS Homework - Chapter 2 My Body. Kindly complete the given work and submit. Thank You",
     "submissionDate": "2026-06-17",
     "sentDate": "2026-06-15"
@@ -108,7 +221,9 @@
     "id": "sh-19",
     "title": "Unit 1 - If you are happy",
     "subject": "ENGLISH",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Please revise unit 1 in English textbook. Thank you",
     "submissionDate": "2026-06-17",
     "sentDate": "2026-06-15"
@@ -117,7 +232,9 @@
     "id": "sh-18",
     "title": "Chapter-1 Pre number concept",
     "subject": "MATHEMATICS",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai shree Gurudev Namaste parents, Mathematics Homework. Art integration (collage activity) - Collect the pictures and paste it in A4 sheet. Kindly send it on Monday. Refer page 19 in T.B Kindly submit the activity along with the textbook on Monday. Thank you",
     "submissionDate": "2026-06-15",
     "sentDate": "2026-06-12"
@@ -126,7 +243,9 @@
     "id": "sh-17",
     "title": "Chapter 2. My Body",
     "subject": "ENVIRONMENTAL SCIENCE",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev Namaste Dear Parents and Students Today's EVS Homework EVS Textbook- Complete pg 17 and submit the book on Monday. Thank You",
     "submissionDate": "2026-06-15",
     "sentDate": "2026-06-12"
@@ -135,7 +254,9 @@
     "id": "sh-16",
     "title": "Unit - 1 Know your words",
     "subject": "ENGLISH",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Sri Gurudev Namaste Dear Parents and Students, English homework: To learn the new words of Unit 1 for Know Your Words (Dictation) on 15.6.2026. Please find the words for your reference. 1. Clap 2. Hands 3. Know 4. Your 5. Really 6. Want 7. Show 8. Pat 9. Knees 10. Blink Thank you",
     "submissionDate": "2026-06-15",
     "sentDate": "2026-06-12"
@@ -144,7 +265,9 @@
     "id": "sh-15",
     "title": "Chapter 1 Pre Number concept",
     "subject": "MATHEMATICS",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai shree Gurudev Namaste dear parents. Mathematics Homework Complete page 5 and 6 in Workbook. Kindly send it tomorrow. Thank you",
     "submissionDate": "2026-06-12",
     "sentDate": "2026-06-11"
@@ -153,7 +276,9 @@
     "id": "sh-14",
     "title": "Textbook",
     "subject": "KANNADA",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev ! Namaste Dear Parents, Kindly help our children to complete pg.30(೩೦) in kannada text book . Thank you",
     "submissionDate": "2026-06-12",
     "sentDate": "2026-06-11"
@@ -162,7 +287,9 @@
     "id": "sh-13",
     "title": "Let Us Revise",
     "subject": "ENGLISH",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Trace and write on page no. 5 in the cursive handwriting book.",
     "submissionDate": "2026-06-11",
     "sentDate": "2026-06-10"
@@ -171,7 +298,9 @@
     "id": "sh-12",
     "title": "Chapter 2. My Body",
     "subject": "ENVIRONMENTAL SCIENCE",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev Namaste Dear Parents and Students Today's EVS Homework Read the chapter 2. My Body - pg.15 Please bring the textbook tomorrow. Thank You",
     "submissionDate": "2026-06-11",
     "sentDate": "2026-06-10"
@@ -180,7 +309,9 @@
     "id": "sh-11",
     "title": "Strokes",
     "subject": "KANNADA",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev ! Namaste Dear Parents, Kindly help our children to complete the strokes in kannada text book pg.22-25(೨೨-೨೫) Thank you",
     "submissionDate": "2026-06-10",
     "sentDate": "2026-06-09"
@@ -189,7 +320,9 @@
     "id": "sh-10",
     "title": "Chapter-1 pre number concept",
     "subject": "MATHEMATICS",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev Namaste dear Parents Today's Mathematics Homework Practice Number names 1 _ 20. Thank you.",
     "submissionDate": "2026-06-09",
     "sentDate": "2026-06-08"
@@ -198,7 +331,9 @@
     "id": "sh-9",
     "title": "Celebrate Life",
     "subject": "ENGLISH",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Please do the 'A' section on page number 22 of the English textbook.",
     "submissionDate": "2026-06-09",
     "sentDate": "2026-06-08"
@@ -207,7 +342,9 @@
     "id": "sh-8",
     "title": "Chapter 1. Myself",
     "subject": "ENVIRONMENTAL SCIENCE",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev Namaste Dear Parents and Students, Today's EVS Homework – My Favourite Things **Activity:** Draw a caterpillar and paste pictures of your favourite things on the given chart paper with any of the following things: • Food • Sport • Toy • Colour • Cartoon Character Thank you.",
     "submissionDate": "2026-06-09",
     "sentDate": "2026-06-08"
@@ -216,7 +353,9 @@
     "id": "sh-7",
     "title": "Activity A on page 18",
     "subject": "ENGLISH",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Please complete Activity A on page 18 in English textbook",
     "submissionDate": "2026-06-08",
     "sentDate": "2026-06-05"
@@ -225,7 +364,9 @@
     "id": "sh-6",
     "title": "Kannada textbook term-1",
     "subject": "KANNADA",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev Namaste Dear Parents, Kannada textbook term -1 has been sent with the children .kindly wrap and label it and send it on monday. Thank you",
     "submissionDate": "2026-06-08",
     "sentDate": "2026-06-05"
@@ -234,7 +375,9 @@
     "id": "sh-5",
     "title": "Chapter-1 Pre number concept",
     "subject": "MATHEMATICS",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev Namaste dear Parents Today's Mathematics Homework Ch_1 Pre_ Number Concepts Workbook page number 3,4 Thank you",
     "submissionDate": "2026-06-08",
     "sentDate": "2026-06-05"
@@ -243,7 +386,9 @@
     "id": "sh-4",
     "title": "Chapter1. Myself",
     "subject": "ENVIRONMENTAL SCIENCE",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev Namaste Dear Parents, Subject: EVS Children to complete pg.no. 3 to 6 in the workbook (Framework 1 & 2) and submit the book on Monday (08.06.2026) Thank You",
     "submissionDate": "2026-06-08",
     "sentDate": "2026-06-04"
@@ -252,7 +397,9 @@
     "id": "sh-3",
     "title": "Trace and colour",
     "subject": "ENGLISH",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Trace and colour the picture in Cursive handwriting book, page no. 4",
     "submissionDate": "2026-06-04",
     "sentDate": "2026-06-03"
@@ -261,7 +408,9 @@
     "id": "sh-2",
     "title": "Chapter 1: Myself",
     "subject": "ENVIRONMENTAL SCIENCE",
-    "sections": ["I-A"],
+    "sections": [
+      "I-A"
+    ],
     "description": "Jai Shri Gurudev Namaste Dear Parents and Children Today's EVS Homework Chapter 1. Myself *Show and Tell Activity* Prepare children to talk for one minute about 'My Favourite Toy' for the Show and Tell activity on Thursday( 04.06.26) Thank You",
     "submissionDate": "2026-06-04",
     "sentDate": "2026-06-02"
