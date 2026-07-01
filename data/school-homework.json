@@ -1,5 +1,30 @@
 [
   {
+    "id": "sh-39",
+    "title": "Cursive writing",
+    "subject": "ENGLISH",
+    "sections": ["I-A"],
+    "description": "Cursive writing practice, page no. 9, 10",
+    "sentDate": "2026-07-01"
+  },
+  {
+    "id": "sh-38",
+    "title": "Module 2 - Operating a computer",
+    "subject": "COMPUTER SCIENCE",
+    "sections": ["I-A"],
+    "description": "Write and practice:\n- Desktop: The first screen appears on the monitor is called desktop.\n- Icons: Small pictures present on the desktop are called Icons.\n- Task bar: The thin bar present at the bottom of the screen is called Taskbar.",
+    "sentDate": "2026-07-01"
+  },
+  {
+    "id": "sh-37",
+    "title": "Music notebook",
+    "subject": "MUSIC",
+    "sections": ["I-A"],
+    "description": "Jai Sri Gurudev! Namaste Dear Parents, Please wrap and label the music notebook and send it tomorrow. Thank you",
+    "submissionDate": "2026-07-02",
+    "sentDate": "2026-07-01"
+  },
+  {
     "id": "sh-36",
     "title": "Cursive writing and Workbook",
     "subject": "ENGLISH",
