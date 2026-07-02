@@ -1,5 +1,14 @@
 [
   {
+    "id": "sh-40",
+    "title": "Hindi Textbook",
+    "subject": "HINDI",
+    "sections": ["I-A", "I-B", "I-D", "I-F", "I-G", "I-H", "I-I", "I-J", "I-K"],
+    "description": "Namaste dear parents and children. Jai shree Gurudev. Today's Hindi homework. Read Textbook page no 24. Submission of Textbook is on 3/7/26. Thankyou.",
+    "submissionDate": "2026-07-03",
+    "sentDate": "2026-07-02"
+  },
+  {
     "id": "sh-39",
     "title": "Cursive writing",
     "subject": "ENGLISH",
