@@ -5,6 +5,7 @@ import { MapPin, Pin, PinOff } from 'lucide-react';
 import generalInfoData from '@/data/info/general.json';
 import busesData from '@/data/info/buses.json';
 import evaluationData from '@/data/info/evaluation.json';
+import jolData from '@/data/info/joy-of-learning.json';
 import assemblyData from '@/data/assembly-topics.json';
 
 export default function GeneralInfo() {
@@ -378,7 +379,82 @@ export default function GeneralInfo() {
           )}
         </div>
 
-        {/* 5. Assembly Topics Section */}
+        {/* 5. Joy of Learning Section */}
+        <div>
+          <button
+            onClick={() => toggleSection('jol')}
+            className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"
+          >
+            <h3 className="text-lg font-bold text-gray-800">🎓 Joy of Learning - I</h3>
+            <span className="text-gray-500">{openSections['jol'] ? '▲' : '▼'}</span>
+          </button>
+          {openSections['jol'] && (
+            <div className="p-4 bg-white animate-in slide-in-from-top-2 duration-200 space-y-5">
+              {/* Timetable */}
+              <div>
+                <h4 className="font-bold text-gray-900 text-base flex items-center gap-2 mb-3">
+                  📅 {jolData.timetable.title}
+                  <span className="text-xs font-medium text-gray-400">({jolData.year})</span>
+                </h4>
+                <p className="text-xs text-gray-500 mb-2 font-medium">{jolData.timetable.classes}</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-indigo-50">
+                        <th className="text-left px-3 py-2 text-xs font-bold text-indigo-800 border border-indigo-100">Date</th>
+                        <th className="text-left px-3 py-2 text-xs font-bold text-indigo-800 border border-indigo-100">Class I</th>
+                        <th className="text-left px-3 py-2 text-xs font-bold text-indigo-800 border border-indigo-100">Class II</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {jolData.timetable.schedule.map((row) => {
+                        const today = new Date().toISOString().split('T')[0];
+                        const isToday = row.date === today;
+                        return (
+                          <tr key={row.date} className={isToday ? 'bg-amber-50 font-bold' : 'hover:bg-gray-50'}>
+                            <td className={`px-3 py-2 border border-gray-100 ${isToday ? 'text-amber-800' : 'text-gray-700'}`}>
+                              <div className="font-bold text-xs">{row.day}</div>
+                              <div className="text-[10px] text-gray-400">{new Date(row.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                            </td>
+                            <td className={`px-3 py-2 border border-gray-100 font-medium ${isToday ? 'text-amber-800' : 'text-gray-800'}`}>{row.classI}</td>
+                            <td className={`px-3 py-2 border border-gray-100 font-medium ${isToday ? 'text-amber-800' : 'text-gray-800'}`}>{row.classII}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Portions / Syllabus */}
+              <div>
+                <h4 className="font-bold text-gray-900 text-base flex items-center gap-2 mb-3">
+                  📖 {jolData.portions.title}
+                  <span className="text-xs font-medium text-gray-400">({jolData.year})</span>
+                </h4>
+                <div className="space-y-3">
+                  {jolData.portions.subjects.map((subj) => (
+                    <div key={subj.slNo} className="bg-gray-50 rounded-xl border border-gray-100 p-3">
+                      <h5 className="font-bold text-sm text-gray-800 mb-1.5 flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-black flex items-center justify-center">{subj.slNo}</span>
+                        {subj.subject}
+                      </h5>
+                      <ul className="space-y-0.5">
+                        {subj.portions.map((item, i) => (
+                          <li key={i} className={`text-xs text-gray-600 leading-relaxed ${item.startsWith('  ') ? 'pl-4' : ''}`}>
+                            {item.startsWith('  ') ? item.trim() : item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 6. Assembly Topics Section */}
         <div>
           <button
             onClick={() => toggleSection('assembly')}

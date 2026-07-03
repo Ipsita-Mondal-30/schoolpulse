@@ -1,0 +1,86 @@
+{
+  "title": "Joy of Learning - I",
+  "year": "2026-27",
+  "timetable": {
+    "title": "Joy of Learning - I Timetable",
+    "classes": "Classes I & II",
+    "schedule": [
+      { "date": "2026-07-20", "day": "Monday", "classI": "Hindi", "classII": "Mathematics" },
+      { "date": "2026-07-21", "day": "Tuesday", "classI": "EVS", "classII": "Hindi" },
+      { "date": "2026-07-22", "day": "Wednesday", "classI": "Computer Science", "classII": "EVS" },
+      { "date": "2026-07-23", "day": "Thursday", "classI": "Mathematics", "classII": "English" },
+      { "date": "2026-07-24", "day": "Friday", "classI": "Kannada", "classII": "Computer Science" },
+      { "date": "2026-07-25", "day": "Saturday", "classI": "English", "classII": "Kannada" }
+    ]
+  },
+  "portions": {
+    "title": "Joy of Learning I - Portions",
+    "subjects": [
+      {
+        "slNo": 1,
+        "subject": "English",
+        "portions": [
+          "Section A: Reading Comprehension",
+          "Section B: Grammar:",
+          "  Unit 1 - Why Flowers Are Colourful? Naming Words (Nouns)",
+          "  Unit 2 - Strange Friendship (Words used in place of Naming Words)",
+          "  Unit 3 - Yesterday And Today (Tenses)",
+          "Section C: Literature:",
+          "  Unit 1 - My Pets",
+          "  Unit 2 - My Trees Have No Leaves"
+        ]
+      },
+      {
+        "slNo": 2,
+        "subject": "Kannada",
+        "portions": [
+          "1. ಒತ್ತಕ್ಷರಗಳು",
+          "2. ಒತ್ತಕ್ಷರದ ವಿಧಗಳು",
+          "3. ಅಂಕಿಗಳು ಪದ ಸಹಿತ (೧-೯೦)",
+          "4. ಗುಣಿತಾಕ್ಷರಗಳು",
+          "5. ಪಾಠ- ೧ ಬಳ್ಳಿದ ಹಕ್ಕಿ [ಪದ್ಯ]"
+        ]
+      },
+      {
+        "slNo": 3,
+        "subject": "Hindi",
+        "portions": [
+          "1. मात्रा ज्ञान",
+          "2. बारहखड़ी",
+          "3. संयुक्ताक्षर",
+          "4. संयुक्त व्यंजन",
+          "5. र के रूप",
+          "पाठ 1 - नया सवेरा (कविता)",
+          "पाठ 2 - शीशा"
+        ]
+      },
+      {
+        "slNo": 4,
+        "subject": "Mathematics",
+        "portions": [
+          "Chapter 1: Numbers and Numeration",
+          "Chapter 2: Addition",
+          "Chapter 3: Subtraction (till pg. 53)"
+        ]
+      },
+      {
+        "slNo": 5,
+        "subject": "Environmental Science",
+        "portions": [
+          "Chapter 1: Knowing Myself",
+          "Chapter 2: Different Families",
+          "Chapter 3: Sweet Home",
+          "Chapter 4: Our Neighbourhood"
+        ]
+      },
+      {
+        "slNo": 6,
+        "subject": "Computer Science",
+        "portions": [
+          "Module 1: Types of Computers and IPO Cycle",
+          "Module 2: Input, Output and Storage Devices"
+        ]
+      }
+    ]
+  }
+}
