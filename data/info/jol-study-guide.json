@@ -1,0 +1,270 @@
+{
+  "title": "Parent Study & Practice Guide",
+  "subtitle": "Subject-wise help for parents to prepare kids for Joy of Learning - I",
+  "subjects": [
+    {
+      "subject": "Hindi",
+      "examDate": "2026-07-20",
+      "parentTips": [
+        "Practice 15-20 minutes daily — short sessions work best for Class 1.",
+        "Read each word aloud together, then let your child read it alone.",
+        "Give a small dictation (5 words) every day from the practice lists.",
+        "Ask your child to recite the poem नया सवेरा with actions — it helps memory."
+      ],
+      "topics": [
+        {
+          "name": "मात्रा ज्ञान (Matras)",
+          "whatToKnow": "Child should identify and use vowel signs: ा (आ), ि (इ), ी (ई), ु (उ), ू (ऊ) in words. Example: क + ा = का, क + ि = कि.",
+          "practiceAtHome": "Write 10 simple words (नाम, दिन, नानी, गुड़िया, फूल) and ask your child to circle the matra and say which vowel sound it makes."
+        },
+        {
+          "name": "बारहखड़ी (Barahkhadi)",
+          "whatToKnow": "The 12 forms of each consonant: क का कि की कु कू के कै को कौ कं कः. Child should say and write the barahkhadi of at least क, ख, ग, म, न.",
+          "practiceAtHome": "Make it a chant! Sing the barahkhadi of one letter each day while clapping. Then ask your child to write it from memory."
+        },
+        {
+          "name": "संयुक्ताक्षर और संयुक्त व्यंजन (Joint letters)",
+          "whatToKnow": "Two consonants joined together, e.g. क्ष, त्र, ज्ञ, श्र and words like बच्चा, सच्चा, पत्ता.",
+          "practiceAtHome": "Point at joint letters in a Hindi storybook or newspaper heading and ask your child to spot the two letters hiding inside."
+        },
+        {
+          "name": "र के रूप (Forms of Ra)",
+          "whatToKnow": "र changes shape when joined: र् + क = र्क (रेफ on top, e.g. सूर्य), क + र = क्र (below, e.g. क्रम).",
+          "practiceAtHome": "Write सूर्य, धर्म, क्रम, ट्रक on paper and ask your child to find where the र is hiding in each word."
+        },
+        {
+          "name": "पाठ 1 - नया सवेरा (कविता)",
+          "whatToKnow": "Child should recite the poem with correct pronunciation and know the meaning of simple words in it.",
+          "practiceAtHome": "Recite one stanza at a time. Record your child on your phone and play it back — kids love it and self-correct!"
+        },
+        {
+          "name": "पाठ 2 - शीशा",
+          "whatToKnow": "Child should read the lesson fluently and answer simple questions about the story.",
+          "practiceAtHome": "After reading, ask: कहानी में कौन था? क्या हुआ? Let your child answer in Hindi in full sentences."
+        }
+      ],
+      "quiz": [
+        { "q": "क + ि = ?", "a": "कि" },
+        { "q": "'नानी' में कौन सी मात्रा है?", "a": "ा (आ की मात्रा) और ी (ई की मात्रा)" },
+        { "q": "म की बारहखड़ी के पहले 4 रूप बोलो।", "a": "म मा मि मी" },
+        { "q": "'बच्चा' में संयुक्त अक्षर कौन सा है?", "a": "च्च" },
+        { "q": "'सूर्य' में र कहाँ छिपा है?", "a": "र्य में — रेफ (र्) ऊपर लगा है" }
+      ]
+    },
+    {
+      "subject": "Environmental Science",
+      "examDate": "2026-07-21",
+      "parentTips": [
+        "EVS is all around you — revise while walking, cooking, or driving!",
+        "Ask 'why' and 'where' questions in daily life to connect chapters to real things.",
+        "Use family photos to revise the Different Families chapter.",
+        "Do a house tour and name every room and its use for Sweet Home chapter."
+      ],
+      "topics": [
+        {
+          "name": "Chapter 1: Knowing Myself",
+          "whatToKnow": "My name, age, birthday, body parts and their uses, sense organs, things I like, what makes me special.",
+          "practiceAtHome": "Play 'Simon Says' with body parts. Ask: Which body part helps you see? Hear? Smell? Walk? Hold things?"
+        },
+        {
+          "name": "Chapter 2: Different Families",
+          "whatToKnow": "Small family (parents + children), big/joint family (with grandparents, uncles, aunts), family members' names and relations, how families care for each other.",
+          "practiceAtHome": "Open the family album and ask your child to point out and name relations: dadaji, dadiji, chacha, bua, mama, mausi. Ask: Is our family small or big?"
+        },
+        {
+          "name": "Chapter 3: Sweet Home",
+          "whatToKnow": "Rooms in a house (bedroom, kitchen, bathroom, living room) and their uses. Types of houses — kutcha and pucca house, and why we need a house.",
+          "practiceAtHome": "Do a 2-minute house tour: 'Which room do we cook in? Sleep in? Bathe in?' Draw a house together and label the rooms."
+        },
+        {
+          "name": "Chapter 4: Our Neighbourhood",
+          "whatToKnow": "Places around us — school, park, hospital, post office, market, bank, police station — and what each place is for. Community helpers we see there.",
+          "practiceAtHome": "On your next drive/walk, play 'spot the place': every time you pass a shop, hospital or park, ask what people do there."
+        }
+      ],
+      "quiz": [
+        { "q": "Which sense organ helps us smell?", "a": "Nose" },
+        { "q": "What do we call a family with grandparents, uncles and aunts living together?", "a": "A big / joint family" },
+        { "q": "In which room do we cook food?", "a": "Kitchen" },
+        { "q": "Which house is strong, made of bricks and cement?", "a": "Pucca house" },
+        { "q": "Where do we go when we are sick?", "a": "Hospital" },
+        { "q": "Where do we post letters?", "a": "Post office" }
+      ]
+    },
+    {
+      "subject": "Computer Science",
+      "examDate": "2026-07-22",
+      "parentTips": [
+        "Show the real devices at home — pointing at an actual keyboard beats any book!",
+        "Keep it playful: 'input' is what we GIVE the computer, 'output' is what it GIVES BACK.",
+        "Revise using your own laptop/phone: name each part together.",
+        "Draw the IPO cycle as three boxes with arrows — kids remember diagrams."
+      ],
+      "topics": [
+        {
+          "name": "Module 1: Types of Computers",
+          "whatToKnow": "Desktop (stays on a table), Laptop (can carry, folds), Tablet (touch screen), Smartphone (small computer in pocket). Where each one is used.",
+          "practiceAtHome": "Point at devices at home and ask: Is this a desktop, laptop, tablet or smartphone? Which one can we carry in a pocket?"
+        },
+        {
+          "name": "Module 1: IPO Cycle",
+          "whatToKnow": "IPO = Input → Process → Output. We give the computer instructions (Input), it thinks (Process), and shows the result (Output). Example: press 2 + 3 on calculator (input), it calculates (process), shows 5 (output).",
+          "practiceAtHome": "Use a calculator together. Say aloud: 'We typed — that's INPUT. It's thinking — PROCESS. It showed the answer — OUTPUT!'"
+        },
+        {
+          "name": "Module 2: Input Devices",
+          "whatToKnow": "Devices used to give data to the computer: Keyboard (typing), Mouse (clicking/pointing), Microphone (voice), Scanner (pictures into computer).",
+          "practiceAtHome": "Sit at your computer and let your child touch each input device and say its name and what it does."
+        },
+        {
+          "name": "Module 2: Output Devices",
+          "whatToKnow": "Devices that show results: Monitor (shows pictures/videos), Printer (prints on paper), Speaker (gives sound).",
+          "practiceAtHome": "Play a song and ask: which device is giving us the sound? Print or show a picture and ask which device did that."
+        },
+        {
+          "name": "Module 2: Storage Devices",
+          "whatToKnow": "Devices that store our data: Hard disk (inside computer), Pen drive/USB (small, portable), CD/DVD.",
+          "practiceAtHome": "Show a pen drive if you have one — 'this tiny box can carry your photos and songs!' Ask: where does the computer keep its memories?"
+        }
+      ],
+      "quiz": [
+        { "q": "What does IPO stand for?", "a": "Input → Process → Output" },
+        { "q": "Which computer can you fold and carry?", "a": "Laptop" },
+        { "q": "Which device do we use to type?", "a": "Keyboard (input device)" },
+        { "q": "Is a printer an input or output device?", "a": "Output device — it gives results out on paper" },
+        { "q": "Name one storage device.", "a": "Pen drive / Hard disk / CD" },
+        { "q": "Which device gives us sound from the computer?", "a": "Speaker" }
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "examDate": "2026-07-23",
+      "parentTips": [
+        "Do 10 minutes of oral math daily — while eating or in the car.",
+        "Use real objects for addition and subtraction: toys, spoons, biscuits.",
+        "Practice writing numbers neatly — marks are lost on unreadable digits.",
+        "Focus extra on subtraction with borrowing-free problems first, then harder ones."
+      ],
+      "topics": [
+        {
+          "name": "Chapter 1: Numbers and Numeration",
+          "whatToKnow": "Count, read and write numbers up to 100. Number names, before/after/between, greater (>) and smaller (<), ascending & descending order, tens and ones (e.g. 47 = 4 tens + 7 ones).",
+          "practiceAtHome": "Ask: what comes after 39? Before 70? Between 55 and 57? Which is bigger — 63 or 36? Break numbers: '25 is how many tens and ones?'"
+        },
+        {
+          "name": "Chapter 2: Addition",
+          "whatToKnow": "Add numbers up to 20 (and 2-digit without carrying), addition on the number line, adding zero, word problems ('in all', 'altogether', 'total' mean ADD).",
+          "practiceAtHome": "Use toys: 'You have 7 cars, I give you 6 more — count the total!' Practice 5 sums daily. Draw jumps on a number line for 8 + 5."
+        },
+        {
+          "name": "Chapter 3: Subtraction (till pg 53)",
+          "whatToKnow": "Take away/minus, subtraction on the number line, subtracting zero, subtracting the same number gives 0, word problems ('left', 'remaining' mean SUBTRACT).",
+          "practiceAtHome": "Use biscuits: '10 biscuits, you ate 4 — how many left?' Mix addition and subtraction so your child reads the sign carefully (+ or −)."
+        }
+      ],
+      "quiz": [
+        { "q": "What comes between 48 and 50?", "a": "49" },
+        { "q": "Which is greater: 72 or 27?", "a": "72" },
+        { "q": "36 = ___ tens and ___ ones", "a": "3 tens and 6 ones" },
+        { "q": "9 + 8 = ?", "a": "17" },
+        { "q": "15 − 6 = ?", "a": "9" },
+        { "q": "Ria had 12 balloons. 5 flew away. How many are left?", "a": "12 − 5 = 7 balloons" },
+        { "q": "Write 2, 9, 5, 7 in ascending order.", "a": "2, 5, 7, 9" }
+      ]
+    },
+    {
+      "subject": "Kannada",
+      "examDate": "2026-07-24",
+      "parentTips": [
+        "Read Kannada words aloud together daily — fluency comes from hearing + speaking.",
+        "Use flashcards (ಮಿಂಚು ಪಟ್ಟಿ) for ಒತ್ತಕ್ಷರ words — the school also practices this way.",
+        "Practice writing numbers ೧-೯೦ a few rows each day, not all at once.",
+        "Recite the poem ಬಳ್ಳಿದ ಹಕ್ಕಿ with rhythm and claps."
+      ],
+      "topics": [
+        {
+          "name": "ಒತ್ತಕ್ಷರಗಳು (Conjunct letters)",
+          "whatToKnow": "Letters with a small helper letter below (ಕ್ಕ, ಮ್ಮ, ಲ್ಲ, ಳ್ಳ). Child should read and write common ottakshara words like ಅಮ್ಮ, ಅಕ್ಕ, ಬೆಲ್ಲ, ಹಣ್ಣು.",
+          "practiceAtHome": "Write ಅಮ್ಮ, ಅಕ್ಕ, ಅಜ್ಜ, ಹಣ್ಣು, ಬೆಲ್ಲ on slips. Ask your child to read each and circle the ottakshara."
+        },
+        {
+          "name": "ಒತ್ತಕ್ಷರದ ವಿಧಗಳು (Types of conjuncts)",
+          "whatToKnow": "ಸಜಾತೀಯ ಒತ್ತಕ್ಷರ — same letter doubles (ಕ್ಕ in ಅಕ್ಕ). ವಿಜಾತೀಯ ಒತ್ತಕ್ಷರ — two different letters join (ಸ್ತ in ಪುಸ್ತಕ).",
+          "practiceAtHome": "Give word pairs (ಅಕ್ಕ vs ಪುಸ್ತಕ) and ask: same-letter ottakshara or different-letter? Make it a sorting game."
+        },
+        {
+          "name": "ಅಂಕಿಗಳು ಪದ ಸಹಿತ ೧-೯೦ (Numbers with words)",
+          "whatToKnow": "Read and write Kannada numerals ೧ to ೯೦ with their word forms (ಒಂದು, ಎರಡು, ಮೂರು...).",
+          "practiceAtHome": "Practice one decade a day (೧-೧೦, then ೧೧-೨೦...). Ask your child to write today's date in Kannada numerals!"
+        },
+        {
+          "name": "ಗುಣಿತಾಕ್ಷರಗಳು (Letter-vowel combinations)",
+          "whatToKnow": "Consonant + vowel forms: ಕ ಕಾ ಕಿ ಕೀ ಕು ಕೂ ಕೆ ಕೇ ಕೈ ಕೊ ಕೋ ಕೌ ಕಂ ಕಃ. Should be able to say and write for common letters.",
+          "practiceAtHome": "Chant the kagunita of one letter each day like a song. Then dictate 3 forms and let your child write them."
+        },
+        {
+          "name": "ಪಾಠ ೧ - ಬಳ್ಳಿದ ಹಕ್ಕಿ (ಪದ್ಯ)",
+          "whatToKnow": "Recite the poem with correct pronunciation, know meanings of key words, and answer simple questions.",
+          "practiceAtHome": "Recite together twice daily — morning and bedtime. Ask what the poem is about in your child's own words."
+        }
+      ],
+      "quiz": [
+        { "q": "'ಅಮ್ಮ' ದಲ್ಲಿರುವ ಒತ್ತಕ್ಷರ ಯಾವುದು?", "a": "ಮ್ಮ" },
+        { "q": "'ಅಕ್ಕ' — ಸಜಾತೀಯ ಅಥವಾ ವಿಜಾತೀಯ ಒತ್ತಕ್ಷರ?", "a": "ಸಜಾತೀಯ (ಕ್ + ಕ — ಒಂದೇ ಅಕ್ಷರ)" },
+        { "q": "೫ ಅನ್ನು ಪದದಲ್ಲಿ ಬರೆಯಿರಿ.", "a": "ಐದು" },
+        { "q": "ಕ + ಾ = ?", "a": "ಕಾ" },
+        { "q": "೧೦ ಅನ್ನು ಪದದಲ್ಲಿ ಬರೆಯಿರಿ.", "a": "ಹತ್ತು" }
+      ]
+    },
+    {
+      "subject": "English",
+      "examDate": "2026-07-25",
+      "parentTips": [
+        "Read one short English story or passage aloud daily — comprehension improves with listening + reading.",
+        "Turn grammar into games: 'spot the naming word' during dinner conversation.",
+        "For literature units, ask questions after reading: Who? What? Where? Why?",
+        "Practice writing 2-3 full sentences daily with capital letters and full stops."
+      ],
+      "topics": [
+        {
+          "name": "Section A: Reading Comprehension",
+          "whatToKnow": "Read a short unseen passage and answer simple questions from it. The answers are always inside the passage!",
+          "practiceAtHome": "Give a 4-5 line passage from any storybook. Ask 3 questions (who/what/where). Teach the trick: find the matching words in the passage to locate the answer."
+        },
+        {
+          "name": "Grammar Unit 1: Naming Words (Nouns)",
+          "whatToKnow": "Naming words name a person (teacher), place (park), animal (dog) or thing (ball). From 'Why Flowers Are Colourful?'",
+          "practiceAtHome": "Play I-Spy with nouns: 'I spy a naming word in this room!' Ask your child to sort words into person/place/animal/thing columns."
+        },
+        {
+          "name": "Grammar Unit 2: Words Used in Place of Naming Words (Pronouns)",
+          "whatToKnow": "He, She, It, They, We, I, You replace naming words. Example: 'Ravi is kind. HE helps everyone.' From 'Strange Friendship'.",
+          "practiceAtHome": "Say a sentence with a name and ask your child to repeat it using he/she/it: 'Mummy is cooking' → 'SHE is cooking.'"
+        },
+        {
+          "name": "Grammar Unit 3: Tenses (Yesterday And Today)",
+          "whatToKnow": "Action words change with time: Today I play → Yesterday I played. Now I am playing. Simple past vs present for common verbs.",
+          "practiceAtHome": "Every evening ask: 'What did you DO today?' — gently correct 'I goed' to 'I went'. Make pairs: play/played, jump/jumped, eat/ate, go/went."
+        },
+        {
+          "name": "Literature Unit 1: My Pets",
+          "whatToKnow": "Read the lesson fluently, know word meanings, and answer textbook questions about the pets in the story.",
+          "practiceAtHome": "After reading, ask your child to describe their favourite pet from the lesson in 2 sentences."
+        },
+        {
+          "name": "Literature Unit 2: My Trees Have No Leaves",
+          "whatToKnow": "Read fluently, understand the story/poem, know meanings of new words, answer simple questions.",
+          "practiceAtHome": "Discuss: why did the trees have no leaves? Relate it to trees your child sees outside — real connections stick!"
+        }
+      ],
+      "quiz": [
+        { "q": "Circle the naming word: 'The dog runs fast.'", "a": "dog" },
+        { "q": "'Sita is my friend. ___ is kind.' (He/She/It)", "a": "She" },
+        { "q": "Yesterday I ___ (play/played) cricket.", "a": "played" },
+        { "q": "Is 'school' a person, place, animal or thing?", "a": "Place" },
+        { "q": "'The ball is red. ___ is round.' (He/She/It)", "a": "It" },
+        { "q": "Today I eat. Yesterday I ___.", "a": "ate" }
+      ]
+    }
+  ]
+}

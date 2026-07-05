@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import jolData from "@/data/info/joy-of-learning.json";
+import studyGuide from "@/data/info/jol-study-guide.json";
 
 const getSubjectIcon = (subject: string) => {
   const s = subject.toLowerCase();
@@ -12,6 +14,173 @@ const getSubjectIcon = (subject: string) => {
   if (s.includes("computer")) return "💻";
   return "📝";
 };
+
+function StudyGuideCard({
+  subj,
+  today,
+}: {
+  subj: (typeof studyGuide.subjects)[number];
+  today: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [showAnswers, setShowAnswers] = useState(false);
+
+  const isPast = subj.examDate < today;
+  const isToday = subj.examDate === today;
+  const daysLeft = Math.ceil(
+    (new Date(subj.examDate + "T00:00:00").getTime() -
+      new Date(today + "T00:00:00").getTime()) /
+      (1000 * 60 * 60 * 24)
+  );
+  const examLabel = new Date(subj.examDate + "T00:00:00").toLocaleDateString(
+    "en-US",
+    { weekday: "short", month: "short", day: "numeric" }
+  );
+
+  return (
+    <div
+      className={`rounded-2xl border overflow-hidden transition-all ${
+        open
+          ? "border-indigo-200 shadow-md bg-white"
+          : "border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm"
+      } ${isPast ? "opacity-60" : ""}`}
+    >
+      {/* Accordion Header */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-3 px-4 py-3.5 text-left"
+      >
+        <div
+          className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
+            open ? "bg-indigo-100" : "bg-gray-50"
+          }`}
+        >
+          {getSubjectIcon(subj.subject)}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-extrabold text-gray-900 text-sm flex items-center gap-2 flex-wrap">
+            {subj.subject}
+            {isToday && (
+              <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-[8px] font-black rounded-full animate-pulse">
+                EXAM TODAY
+              </span>
+            )}
+            {isPast && (
+              <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-[8px] font-black rounded-full">
+                DONE ✓
+              </span>
+            )}
+          </div>
+          <div className="text-[11px] text-gray-400 font-medium mt-0.5">
+            📅 {examLabel}
+            {!isPast && !isToday && daysLeft > 0 && (
+              <span className="ml-1.5 text-indigo-500 font-bold">
+                · {daysLeft} day{daysLeft === 1 ? "" : "s"} left
+              </span>
+            )}
+          </div>
+        </div>
+        <span
+          className={`text-gray-400 transition-transform duration-200 text-sm flex-shrink-0 ${
+            open ? "rotate-180" : ""
+          }`}
+        >
+          ▼
+        </span>
+      </button>
+
+      {/* Accordion Body */}
+      {open && (
+        <div className="px-4 pb-4 space-y-4 border-t border-gray-100 pt-4">
+          {/* Parent Tips */}
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-amber-700 mb-2">
+              💡 How you can help
+            </p>
+            <ul className="space-y-1.5">
+              {subj.parentTips.map((tip, i) => (
+                <li
+                  key={i}
+                  className="text-xs text-amber-900 leading-relaxed flex gap-1.5"
+                >
+                  <span className="text-amber-400 flex-shrink-0">•</span>
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Topics */}
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 px-0.5">
+              📚 Topic-by-topic guide
+            </p>
+            <div className="space-y-2.5">
+              {subj.topics.map((topic, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-50/80 border border-gray-100 rounded-xl p-3.5"
+                >
+                  <p className="font-bold text-gray-800 text-[13px] mb-1.5">
+                    {i + 1}. {topic.name}
+                  </p>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    <span className="font-bold text-indigo-600">
+                      What to know:{" "}
+                    </span>
+                    {topic.whatToKnow}
+                  </p>
+                  <p className="text-xs text-gray-600 leading-relaxed mt-1.5">
+                    <span className="font-bold text-emerald-600">
+                      Practice at home:{" "}
+                    </span>
+                    {topic.practiceAtHome}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Quiz */}
+          <div className="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3.5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-indigo-700">
+                ✏️ Quick practice quiz
+              </p>
+              <button
+                onClick={() => setShowAnswers(!showAnswers)}
+                className={`text-[10px] font-bold px-2.5 py-1 rounded-full transition-colors ${
+                  showAnswers
+                    ? "bg-indigo-600 text-white"
+                    : "bg-white text-indigo-600 border border-indigo-200"
+                }`}
+              >
+                {showAnswers ? "Hide answers" : "Show answers"}
+              </button>
+            </div>
+            <ol className="space-y-2">
+              {subj.quiz.map((item, i) => (
+                <li key={i} className="text-xs leading-relaxed">
+                  <span className="font-bold text-gray-800">
+                    {i + 1}. {item.q}
+                  </span>
+                  {showAnswers && (
+                    <span className="block mt-0.5 pl-4 text-emerald-700 font-semibold">
+                      ✓ {item.a}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ol>
+            <p className="text-[10px] text-indigo-400 mt-2.5 italic">
+              Ask these orally — no writing needed. Praise every attempt! 🌟
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function JoyOfLearningPage() {
   const today = new Date().toISOString().split("T")[0];
@@ -196,6 +365,34 @@ export default function JoyOfLearningPage() {
                 })}
               </ul>
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Parent Study & Practice Guide */}
+      <div className="mt-6">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-600 p-5 mb-4 shadow-lg shadow-indigo-200">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute -top-4 -right-4 w-28 h-28 rounded-full bg-white" />
+            <div className="absolute bottom-0 left-6 w-16 h-16 rounded-full bg-white" />
+          </div>
+          <div className="relative z-10">
+            <p className="text-indigo-100 text-[10px] font-black uppercase tracking-widest mb-1">
+              👨‍👩‍👦 For Parents
+            </p>
+            <h3 className="text-white text-lg font-black leading-tight">
+              Study &amp; Practice Guide
+            </h3>
+            <p className="text-indigo-100 text-xs font-medium mt-1 leading-relaxed">
+              Tap a subject for topic-wise guidance, home practice ideas and a
+              quick quiz — arranged in exam order.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {studyGuide.subjects.map((subj) => (
+            <StudyGuideCard key={subj.subject} subj={subj} today={today} />
           ))}
         </div>
       </div>
