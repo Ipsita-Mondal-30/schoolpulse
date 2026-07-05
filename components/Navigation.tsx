@@ -17,7 +17,6 @@ export default function Navigation() {
     { href: '/joy-of-learning', label: 'JoL', shortLabel: 'JoL', icon: '🎓' },
     { href: '/info', label: 'Info', shortLabel: 'Info', icon: 'ℹ️' },
     { href: '/dates', label: 'Events', shortLabel: 'Events', icon: '🔔' },
-    { href: '/month', label: 'Revision', shortLabel: 'Revision', icon: '📝' },
   ];
 
   return (
@@ -66,20 +65,20 @@ export default function Navigation() {
       </div>
 
       {/* Mobile Tabs Bar (hidden on desktop, justify-around on mobile for premium look) */}
-      <div className="sm:hidden w-full border-t border-gray-100 bg-gray-50/50 py-2 px-3 flex gap-1 items-center justify-around">
+      <div className="sm:hidden w-full border-t border-gray-100 bg-gray-50/50 py-2 px-2 flex gap-0.5 items-center justify-around">
         {links.map((link) => {
           const isActive = pathname === link.href;
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`relative inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0 ${
+              className={`relative inline-flex items-center gap-0.5 px-2 py-1.5 rounded-full text-[11px] font-bold transition-all border shrink-0 ${
                 isActive
                   ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
                   : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-150'
               }`}
             >
-              <span className="text-sm">{link.icon}</span>
+              <span className="text-[13px]">{link.icon}</span>
               {isActive && <span>{link.shortLabel}</span>}
               {link.label === 'Homework' && homeworkCount > 0 && (
                 <span
