@@ -2,6 +2,7 @@ import monthsIndex from '@/data/months-index.json';
 
 import may2026 from '@/data/may-2026.json';
 import june2026 from '@/data/june-2026.json';
+import july2026 from '@/data/july-2026.json';
 
 export interface ScheduleItem {
   time: string;
@@ -113,6 +114,7 @@ export interface Announcement {
 const monthDataMap: Record<string, MonthData> = {
   'may-2026': may2026 as MonthData,
   'june-2026': june2026 as MonthData,
+  'july-2026': july2026 as MonthData,
 };
 
 export function getAvailableMonths(): MonthInfo[] {

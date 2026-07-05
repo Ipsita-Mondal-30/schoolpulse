@@ -1,0 +1,150 @@
+{
+  "month": "July",
+  "year": 2026,
+  "class": "Class 1",
+  "school": "BGS National Public School",
+  "newsletterPending": false,
+  "weeks": [],
+  "monthlyPlanner": [
+    {
+      "subject": "English",
+      "portions": [
+        "Literature: Unit 2 - Meet My Family (Continuation)",
+        "Literature: Unit 3 - Tracy's Shoes",
+        "Grammar: Unit 2 - Take care I am here (More about Naming words)"
+      ],
+      "activities": [
+        "Show and tell (Speak 2 to 3 sentences about any one family member showing their picture)",
+        "Reading of Unit 3 - Tracy's Shoes"
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "portions": [
+        "Chapter 3 - Addition and Subtraction (upto 20)"
+      ],
+      "activities": [
+        "Addition and subtraction on number line"
+      ]
+    },
+    {
+      "subject": "EVS",
+      "portions": [
+        "Continuation of Ch 3 - My Sense Organs",
+        "Ch 4 - I Keep My Body Clean",
+        "Revision for Joy of Learning",
+        "Ch 5 - My Family"
+      ],
+      "activities": [
+        "Smell, Touch and Hearing Game pg.no. 17, 18 (TB)",
+        "Hygiene Activity",
+        "Family Tree"
+      ]
+    },
+    {
+      "subject": "Hindi",
+      "portions": [
+        "शब्द रचना (continuation)",
+        "आ की मात्रा - Activity",
+        "Recitation - राजा (कविता)",
+        "इ की मात्रा",
+        "पुनरावर्तन"
+      ],
+      "activities": [
+        "आ की मात्रा"
+      ]
+    },
+    {
+      "subject": "Kannada",
+      "portions": [
+        "ಪಾರ-ಲ ಪದ ಓದು ಅಕ್ಷರ ಕಲಿ",
+        "ಅಕ್ಷರಾಭ್ಯಾಸ(೧-೯) TB pg.no.38-64 (ಮುಂದುವರಿಯುವುದು)",
+        "ಪದ್ಯ-೩ ಉಗಟದ ಆಟ TB pg.no.11-14",
+        "ವರ್ಣಗಳ ಪರಿಚಯ (ಅ-ಳ) WB pg.no.2-12",
+        "ಒತ್ತಕ್ಷರಗಳು (ಕ್ಕ- ಳ್ಳ) NB",
+        "ಒತ್ತಕ್ಷರ ವಿಧಗಳು (ಸಜಾತೀಯ ವಿಜಾತೀಯ)",
+        "ಪುನರಾವರ್ತನೆ NB"
+      ],
+      "activities": [
+        "ಮಿಂಚು ಪಟ್ಟಿಗಳ ಸಹಾಯದಿಂದ ಒತ್ತಕ್ಷರಗಳನ್ನು ಓದುವುದು."
+      ]
+    },
+    {
+      "subject": "Computer Science",
+      "portions": [
+        "Module 2 - Operating a Computer"
+      ],
+      "activities": [
+        "Lab Activity: Opening the notepad and usage of control buttons"
+      ]
+    }
+  ],
+  "importantDates": [
+    {
+      "date": "2026-07-04",
+      "event": "Brush Strokes Round 1",
+      "type": "event",
+      "description": "Art competition - Round 1"
+    },
+    {
+      "date": "2026-07-10",
+      "event": "Elocution Competition",
+      "type": "event",
+      "description": "Elocution competition for students"
+    },
+    {
+      "date": "2026-07-11",
+      "event": "Super Dancers Audition",
+      "type": "event",
+      "description": "Dance audition for students"
+    },
+    {
+      "date": "2026-07-15",
+      "event": "Math Quest Prelims",
+      "type": "event",
+      "description": "Mathematics quiz preliminary round"
+    },
+    {
+      "date": "2026-07-17",
+      "event": "Poem Writing Competition",
+      "type": "event",
+      "description": "Creative poem writing competition"
+    },
+    {
+      "date": "2026-07-20",
+      "event": "Joy of Learning - I Begins",
+      "type": "important",
+      "description": "First day of Joy of Learning assessments (Class I: Hindi)"
+    },
+    {
+      "date": "2026-07-25",
+      "event": "Joy of Learning - I Ends",
+      "type": "important",
+      "description": "Last day of Joy of Learning assessments (Class I: English)"
+    },
+    {
+      "date": "2026-07-29",
+      "event": "Brush Strokes Round 2",
+      "type": "event",
+      "description": "Art competition - Round 2"
+    },
+    {
+      "date": "2026-07-29",
+      "event": "Guru Poornima",
+      "type": "event",
+      "description": "Guru Poornima celebration"
+    },
+    {
+      "date": "2026-07-31",
+      "event": "Tarang (Day 1)",
+      "type": "event",
+      "description": "Tarang event - Friday"
+    },
+    {
+      "date": "2026-08-01",
+      "event": "Tarang (Day 2)",
+      "type": "event",
+      "description": "Tarang event - Saturday"
+    }
+  ]
+}
