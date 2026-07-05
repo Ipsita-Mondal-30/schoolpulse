@@ -4,7 +4,6 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import MonthlyPlanner from '@/components/MonthlyPlanner';
-import MorningAlarm from '@/components/MorningAlarm';
 import MonthSelector from '@/components/MonthSelector';
 import ImportantDates from '@/components/ImportantDates';
 import {
@@ -95,8 +94,6 @@ function HomeContent() {
         </div>
       </div>
       
-      {/* Morning Prep Digest Alarm Control */}
-      <MorningAlarm />
 
       {/* ── Monthly Planner ── */}
       {planner.length > 0 ? (

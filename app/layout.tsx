@@ -6,19 +6,11 @@ import HomeworkDuePopup from '@/components/HomeworkDuePopup';
 
 import "./globals.css";
 import Navigation from "@/components/Navigation";
-import InstallPrompt from "@/components/InstallPrompt";
 import ChatWidget from "@/components/ChatWidget";
-
 
 export const metadata: Metadata = {
   title: "SchoolPulse - Daily School Schedule",
   description: "Stay updated with your child's daily school activities, schedule, and important dates",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "SchoolPulse",
-  },
   formatDetection: {
     telephone: false,
   },
@@ -30,7 +22,6 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ea580c",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -43,9 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-      </head>
+      <head></head>
       <body className="font-sans antialiased bg-gray-50 overflow-x-hidden">
         <UpdatesProvider>
           <Navigation />
@@ -66,7 +55,6 @@ export default function RootLayout({
               </div>
             </div>
           </footer>
-          <InstallPrompt />
           <ChatWidget />
           <Analytics />
           <SpeedInsights />
