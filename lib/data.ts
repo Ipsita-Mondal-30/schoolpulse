@@ -55,7 +55,7 @@ export interface Rhyme {
 export interface ImportantDate {
   date: string;
   event: string;
-  type: 'holiday' | 'event' | 'activity';
+  type: 'holiday' | 'event' | 'activity' | 'important';
   description: string;
 }
 

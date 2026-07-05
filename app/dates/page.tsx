@@ -12,6 +12,7 @@ export default async function EventsPage() {
   ]);
 
   const holidays = allDates.filter(d => d.type === 'holiday');
+  const schoolEvents = allDates.filter(d => d.type === 'event' || d.type === 'important');
 
-  return <EventsView events={events} holidays={holidays} today={today} />;
+  return <EventsView events={events} holidays={holidays} schoolEvents={schoolEvents} today={today} />;
 }

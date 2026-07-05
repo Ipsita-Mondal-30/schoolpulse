@@ -192,7 +192,7 @@ function HolidayRow({ item, today }: { item: ImportantDate; today: string }) {
     >
       <div className="flex items-center gap-3">
         <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-xl flex-shrink-0 shadow-sm ${
-          isToday ? 'bg-orange-500 text-white' : isPast ? 'bg-gray-300 text-white' : 'bg-red-500 text-white'
+          isToday ? 'bg-orange-500 text-white' : isPast ? 'bg-gray-300 text-white' : item.type === 'holiday' ? 'bg-red-500 text-white' : item.type === 'important' ? 'bg-purple-500 text-white' : 'bg-blue-500 text-white'
         }`}>
           <span className="text-[8px] font-bold leading-none">{monthAbbr}</span>
           <span className="text-sm font-black leading-none mt-0.5">{dayNum}</span>
@@ -245,21 +245,28 @@ function HolidayRow({ item, today }: { item: ImportantDate; today: string }) {
 interface EventsViewProps {
   events: SchoolEvent[];
   holidays: ImportantDate[];
+  schoolEvents: ImportantDate[];
   today: string;
 }
 
-type Tab = 'events' | 'holidays';
+type Tab = 'events' | 'calendar' | 'holidays';
 
-export default function EventsView({ events, holidays, today }: EventsViewProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('events');
+export default function EventsView({ events, holidays, schoolEvents, today }: EventsViewProps) {
+  const [activeTab, setActiveTab] = useState<Tab>('calendar');
   const [showPastHolidays, setShowPastHolidays] = useState(false);
+  const [showPastEvents, setShowPastEvents] = useState(false);
 
   const upcomingHolidays = holidays.filter(h => h.date >= today);
   const pastHolidays = holidays.filter(h => h.date < today);
   const displayedHolidays = showPastHolidays ? holidays : upcomingHolidays;
 
+  const upcomingSchoolEvents = schoolEvents.filter(e => e.date >= today);
+  const pastSchoolEvents = schoolEvents.filter(e => e.date < today);
+  const displayedSchoolEvents = showPastEvents ? schoolEvents : upcomingSchoolEvents;
+
   const tabs: { id: Tab; label: string; icon: string; count: number | null }[] = [
-    { id: 'events', label: 'Events', icon: '🏆', count: events.length || null },
+    { id: 'calendar', label: 'Calendar', icon: '📅', count: upcomingSchoolEvents.length || null },
+    { id: 'events', label: 'Compete', icon: '🏆', count: events.length || null },
     { id: 'holidays', label: 'Holidays', icon: '🎉', count: upcomingHolidays.length || null },
   ];
 
@@ -291,7 +298,37 @@ export default function EventsView({ events, holidays, today }: EventsViewProps)
         ))}
       </div>
 
-      {/* ── Events Tab ── */}
+      {/* ── Calendar Tab (School Events & Important Dates) ── */}
+      {activeTab === 'calendar' && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs text-gray-400 font-medium">{upcomingSchoolEvents.length} upcoming · {pastSchoolEvents.length} past</p>
+            {pastSchoolEvents.length > 0 && (
+              <button
+                onClick={() => setShowPastEvents(!showPastEvents)}
+                className="text-xs font-bold text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full transition-colors"
+              >
+                {showPastEvents ? 'Hide past' : `Show ${pastSchoolEvents.length} past`}
+              </button>
+            )}
+          </div>
+
+          {displayedSchoolEvents.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-10 text-center">
+              <div className="text-5xl mb-3 opacity-40">📅</div>
+              <p className="text-gray-500 font-medium">No upcoming events</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {displayedSchoolEvents.map((item, i) => (
+                <HolidayRow key={i} item={item} today={today} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Events Tab (Competitions) ── */}
       {activeTab === 'events' && (
         <div>
           <p className="text-xs text-gray-400 font-medium mb-4">Competitions &amp; activities open for participation</p>
