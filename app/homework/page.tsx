@@ -16,6 +16,7 @@ interface HomeworkItem {
   description: string;
   submissionDate?: string;
   sentDate: string;
+  attachmentImage?: string;
 }
 
 function sheetRowsToHomework(rows: SheetHomework[]): HomeworkItem[] {
@@ -279,6 +280,22 @@ export default function HomeworkPage() {
                         <div className="text-gray-700 leading-relaxed text-sm md:text-base bg-gray-50/50 rounded-2xl p-4 border border-gray-100/80 mt-1 whitespace-pre-line">
                           {hw.description}
                         </div>
+                        {hw.attachmentImage && (
+                          <a
+                            href={hw.attachmentImage}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block mt-1"
+                            title="Open attachment"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={hw.attachmentImage}
+                              alt={`${hw.title} - attached picture`}
+                              className="rounded-2xl border border-gray-200 max-h-80 w-auto shadow-sm hover:shadow-md transition-shadow"
+                            />
+                          </a>
+                        )}
                         {/* Section badges */}
                         <div className="flex items-center gap-1.5 flex-wrap mt-1">
                           <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Sections:</span>
