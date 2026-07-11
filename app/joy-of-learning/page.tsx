@@ -392,6 +392,61 @@ export default function JoyOfLearningPage() {
         </div>
       </div>
 
+      {/* Study Resources */}
+      <div className="bg-white rounded-3xl border border-gray-150 overflow-hidden shadow-sm mt-6">
+        <div className="px-6 py-4 bg-gray-50 border-b border-gray-150">
+          <h3 className="font-bold text-gray-800 text-sm md:text-base flex items-center gap-2">
+            📂 Study Resources
+          </h3>
+          <p className="text-xs text-gray-500 font-medium mt-0.5">
+            Notes, worksheets &amp; practice material for every subject
+          </p>
+        </div>
+        <div className="p-4">
+          <div className="grid grid-cols-2 gap-3">
+            {studyGuide.subjects.map((subj) => (
+              <a
+                key={subj.subject}
+                href={subj.resourcesUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2.5 bg-blue-50/60 border border-blue-100 rounded-xl p-3 hover:bg-blue-100 hover:border-blue-300 transition-colors group"
+              >
+                <span className="text-xl flex-shrink-0">
+                  {getSubjectIcon(subj.subject)}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-blue-900 truncate">
+                    {subj.subject}
+                  </p>
+                  <p className="text-[10px] text-blue-400 font-medium">
+                    Open folder →
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            <a
+              href={studyGuide.resourcesFolderUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 bg-indigo-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors"
+            >
+              📂 All Resources
+            </a>
+            <a
+              href={studyGuide.trackerFolderUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 bg-emerald-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors"
+            >
+              ✅ Progress Tracker
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* Parent Study & Practice Guide */}
       <div className="mt-6">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-600 p-5 mb-4 shadow-lg shadow-indigo-200">
