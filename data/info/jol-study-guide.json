@@ -1,10 +1,13 @@
 {
   "title": "Parent Study & Practice Guide",
   "subtitle": "Subject-wise help for parents to prepare kids for Joy of Learning - I",
+  "resourcesFolderUrl": "https://drive.google.com/drive/folders/1KKEOv1DRwsmK5_oZevMeXTpD7-9_hX1E",
+  "trackerFolderUrl": "https://drive.google.com/drive/folders/1e9CPtPMEPeim8_sKmChhkOWx6PzsNiwK",
   "subjects": [
     {
       "subject": "Hindi",
       "examDate": "2026-07-20",
+      "resourcesUrl": "https://drive.google.com/drive/folders/1wb5FweOQRdJbp2SZHZTmtBpymia7O2FR",
       "parentTips": [
         "Practice 15-20 minutes daily — short sessions work best for Class 1.",
         "Read each word aloud together, then let your child read it alone.",
@@ -54,6 +57,7 @@
     {
       "subject": "Environmental Science",
       "examDate": "2026-07-21",
+      "resourcesUrl": "https://drive.google.com/drive/folders/1ffRJeDpUwSdRwpsxv6E8DXmFUN30q0nA",
       "parentTips": [
         "EVS is all around you — revise while walking, cooking, or driving!",
         "Ask 'why' and 'where' questions in daily life to connect chapters to real things.",
@@ -94,6 +98,7 @@
     {
       "subject": "Computer Science",
       "examDate": "2026-07-22",
+      "resourcesUrl": "https://drive.google.com/drive/folders/16ZAvrhPzNpj_0qi-JYjcXsxGbao4VY7j",
       "parentTips": [
         "Show the real devices at home — pointing at an actual keyboard beats any book!",
         "Keep it playful: 'input' is what we GIVE the computer, 'output' is what it GIVES BACK.",
@@ -139,6 +144,7 @@
     {
       "subject": "Mathematics",
       "examDate": "2026-07-23",
+      "resourcesUrl": "https://drive.google.com/drive/folders/1MtmNkyBclQEG09dE-lV7adUvTSQ423cM",
       "parentTips": [
         "Do 10 minutes of oral math daily — while eating or in the car.",
         "Use real objects for addition and subtraction: toys, spoons, biscuits.",
@@ -175,6 +181,7 @@
     {
       "subject": "Kannada",
       "examDate": "2026-07-24",
+      "resourcesUrl": "https://drive.google.com/drive/folders/1jQ_faji1LnO6RGgDqRIKn_lZ6C1pdbDd",
       "parentTips": [
         "Read Kannada words aloud together daily — fluency comes from hearing + speaking.",
         "Use flashcards (ಮಿಂಚು ಪಟ್ಟಿ) for ಒತ್ತಕ್ಷರ words — the school also practices this way.",
@@ -219,6 +226,7 @@
     {
       "subject": "English",
       "examDate": "2026-07-25",
+      "resourcesUrl": "https://drive.google.com/drive/folders/1ptpuZImsKpaw6Zx05MrI9QbX3tMXHNhy",
       "parentTips": [
         "Read one short English story or passage aloud daily — comprehension improves with listening + reading.",
         "Turn grammar into games: 'spot the naming word' during dinner conversation.",

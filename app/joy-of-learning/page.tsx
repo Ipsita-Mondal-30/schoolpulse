@@ -92,6 +92,29 @@ function StudyGuideCard({
       {/* Accordion Body */}
       {open && (
         <div className="px-4 pb-4 space-y-4 border-t border-gray-100 pt-4">
+          {/* Study Resources Link */}
+          {subj.resourcesUrl && (
+            <a
+              href={subj.resourcesUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl p-3.5 hover:bg-blue-100 hover:border-blue-300 transition-colors group"
+            >
+              <span className="text-2xl">📂</span>
+              <div className="flex-1">
+                <p className="text-xs font-black text-blue-800">
+                  {subj.subject} Study Resources
+                </p>
+                <p className="text-[11px] text-blue-500 font-medium">
+                  Notes, worksheets &amp; practice material on Google Drive
+                </p>
+              </div>
+              <span className="text-blue-400 group-hover:translate-x-0.5 transition-transform">
+                →
+              </span>
+            </a>
+          )}
+
           {/* Parent Tips */}
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
             <p className="text-[10px] font-black uppercase tracking-widest text-amber-700 mb-2">
@@ -387,6 +410,24 @@ export default function JoyOfLearningPage() {
               Tap a subject for topic-wise guidance, home practice ideas and a
               quick quiz — arranged in exam order.
             </p>
+            <div className="flex flex-wrap gap-2 mt-3">
+              <a
+                href={studyGuide.resourcesFolderUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/30 text-white text-[11px] font-bold px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
+              >
+                📂 All Resources
+              </a>
+              <a
+                href={studyGuide.trackerFolderUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/30 text-white text-[11px] font-bold px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
+              >
+                ✅ Progress Tracker
+              </a>
+            </div>
           </div>
         </div>
 
