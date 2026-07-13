@@ -32,7 +32,7 @@ const CARDS = [
     emoji: "🎉",
     word: "Elated",
     meaning: "Excited",
-    sentence: "Avyukt felt elated on his birthday!",
+    sentence: "I felt elated on my birthday!",
     semoji: "🥳🎈",
     frontClass: "front-excited",
     meanClass: "mean-excited",
@@ -115,7 +115,7 @@ export default function WordAdventurePage() {
 
       <header className="wa-header">
         <h1>
-          <span className="star">⭐</span> Avyukt&apos;s Word Adventure{" "}
+          <span className="star">⭐</span> Word Adventure{" "}
           <span className="star">⭐</span>
         </h1>
         <p>Learn 4 magic words with pictures &amp; games!</p>
@@ -192,7 +192,7 @@ export default function WordAdventurePage() {
           <div className="score">Stars: {score} / 4 ⭐</div>
         </div>
         <div className={`win ${score === 4 ? "show" : ""}`}>
-          🎊 You did it, Avyukt! 🎊
+          🎊 You did it! 🎊
         </div>
         <button className="btn" onClick={resetGame}>
           🔄 Play Again
@@ -200,7 +200,7 @@ export default function WordAdventurePage() {
       </div>
 
       <footer className="wa-footer">
-        Made with ❤️ for Avyukt • Class 1 Vocabulary
+        Made with ❤️ • Class 1 Vocabulary
       </footer>
     </div>
   );
