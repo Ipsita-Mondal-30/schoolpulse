@@ -3,6 +3,7 @@
 import { useState } from "react";
 import jolData from "@/data/info/joy-of-learning.json";
 import studyGuide from "@/data/info/jol-study-guide.json";
+import RevisionGames from "@/components/RevisionGames";
 
 const getSubjectIcon = (subject: string) => {
   const s = subject.toLowerCase();
@@ -492,6 +493,9 @@ export default function JoyOfLearningPage() {
           ))}
         </div>
       </div>
+
+      {/* Revision Games (gamified revision papers) */}
+      <RevisionGames />
     </div>
   );
 }

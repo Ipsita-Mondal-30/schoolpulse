@@ -1,0 +1,108 @@
+{
+  "title": "Revision Games",
+  "subtitle": "Turn revision papers into fun games! Tap, match and play together.",
+  "papers": [
+    {
+      "id": "eng-if-you-are-happy",
+      "subject": "English",
+      "title": "Revision Paper 2",
+      "chapter": "Literature Unit 1 — If You Are Happy",
+      "icon": "📖",
+      "howToHelp": "Sit beside your child and play each game together. Tap the 🔊 speaker to hear any word read aloud. Celebrate every correct tap — praise builds confidence more than correction!",
+      "activities": [
+        {
+          "type": "rhyme",
+          "title": "Rhyme Time",
+          "emoji": "🎵",
+          "instruction": "Rhyming words sound the same at the end, like cat and hat! Tap the word that rhymes.",
+          "items": [
+            {
+              "word": "Meet",
+              "emoji": "🤝",
+              "answer": "Feet",
+              "answerEmoji": "🦶",
+              "options": [
+                { "label": "Feet", "emoji": "🦶" },
+                { "label": "Book", "emoji": "📕" },
+                { "label": "Sun", "emoji": "☀️" }
+              ]
+            },
+            {
+              "word": "Foe",
+              "emoji": "😠",
+              "answer": "Toe",
+              "answerEmoji": "🦶",
+              "options": [
+                { "label": "Cat", "emoji": "🐱" },
+                { "label": "Toe", "emoji": "🦶" },
+                { "label": "Hat", "emoji": "🎩" }
+              ]
+            },
+            {
+              "word": "Tree",
+              "emoji": "🌳",
+              "answer": "Knee",
+              "answerEmoji": "🦵",
+              "options": [
+                { "label": "Dog", "emoji": "🐶" },
+                { "label": "Ball", "emoji": "⚽" },
+                { "label": "Knee", "emoji": "🦵" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "match",
+          "title": "What Does It Do?",
+          "emoji": "🧩",
+          "instruction": "Our body parts help us do things! Tap a body part, then tap what it does.",
+          "pairs": [
+            { "id": "legs", "item": "Legs", "itemEmoji": "🦵", "match": "Jump", "matchEmoji": "🤸" },
+            { "id": "tongue", "item": "Tongue", "itemEmoji": "👅", "match": "Taste", "matchEmoji": "🍦" },
+            { "id": "nose", "item": "Nose", "itemEmoji": "👃", "match": "Smell", "matchEmoji": "🌸" }
+          ]
+        },
+        {
+          "type": "fill",
+          "title": "Finish the Sentence",
+          "emoji": "✏️",
+          "instruction": "Tap the correct word to complete each sentence!",
+          "items": [
+            {
+              "before": "We have",
+              "after": "fingers in one hand.",
+              "emoji": "✋",
+              "answer": "five",
+              "options": ["five", "ten"]
+            },
+            {
+              "before": "We write with our",
+              "after": ".",
+              "emoji": "✍️",
+              "answer": "hand",
+              "options": ["ears", "hand"]
+            }
+          ]
+        },
+        {
+          "type": "speak",
+          "title": "Let's Talk!",
+          "emoji": "💬",
+          "instruction": "Read the question together, let your child think, then tap to see a good answer. Say it out loud!",
+          "items": [
+            {
+              "q": "What do you do with your eyes?",
+              "a": "I see with my eyes!",
+              "emoji": "👀"
+            },
+            {
+              "q": "How do you feel when your parents say you are a wonderful child?",
+              "a": "I feel happy and excited!",
+              "emoji": "😊"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
