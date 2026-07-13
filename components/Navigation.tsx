@@ -12,7 +12,7 @@ export default function Navigation() {
   const links = [
     { href: '/', label: 'Planner', shortLabel: 'Planner', icon: '📋' },
     { href: '/timetable', label: 'Timetable', shortLabel: 'Time', icon: '🕐' },
-    { href: '/week', label: 'Kids Quest', shortLabel: 'Quest', icon: '🎮' },
+    { href: '/week', label: 'Words', shortLabel: 'Words', icon: '🔤' },
     { href: '/homework', label: 'Homework', shortLabel: 'Homework', icon: '📚' },
     { href: '/joy-of-learning', label: 'JoL', shortLabel: 'JoL', icon: '🎓' },
     { href: '/info', label: 'Info', shortLabel: 'Info', icon: 'ℹ️' },

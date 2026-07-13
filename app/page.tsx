@@ -144,10 +144,10 @@ function HomeContent() {
           href="/week"
           className="flex items-center gap-3 bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:border-orange-300 hover:shadow-md transition-all group"
         >
-          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📆</div>
+          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🔤</div>
           <div>
-            <div className="font-bold text-sm text-gray-800">Weekly View</div>
-            <div className="text-xs text-gray-400">Full schedule</div>
+            <div className="font-bold text-sm text-gray-800">Word Adventure</div>
+            <div className="text-xs text-gray-400">Vocabulary games</div>
           </div>
         </Link>
         <Link
