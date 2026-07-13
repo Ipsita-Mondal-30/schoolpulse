@@ -105,10 +105,16 @@
       "description": "Mathematics quiz preliminary round"
     },
     {
+      "date": "2026-07-16",
+      "event": "Elocution Competition Finals",
+      "type": "event",
+      "description": "Finals for elocution competition finalists (Class I)"
+    },
+    {
       "date": "2026-07-17",
       "event": "Poem Writing Competition",
       "type": "event",
-      "description": "Creative poem writing competition"
+      "description": "Inter-House Poem Writing Competition - open to all interested students, no registration required"
     },
     {
       "date": "2026-07-20",

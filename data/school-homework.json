@@ -1,5 +1,38 @@
 [
   {
+    "id": "sh-53",
+    "title": "Grammar Book Sent Home (Keep till JoL)",
+    "subject": "ENGLISH",
+    "sections": ["I-A", "I-B", "I-G", "I-I"],
+    "description": "English Grammar book has been sent home today. Kindly retain the book at home and send on English Joy of Learning day (25.07.2026).",
+    "submissionDate": "2026-07-25",
+    "sentDate": "2026-07-13"
+  },
+  {
+    "id": "sh-52",
+    "title": "Revision Paper 1 with Answer Key",
+    "subject": "COMPUTER SCIENCE",
+    "sections": ["I-A", "I-K"],
+    "description": "Kindly note Grade 1 Revision paper - 1 with Answer key has been uploaded in Content Library.",
+    "sentDate": "2026-07-13"
+  },
+  {
+    "id": "sh-51",
+    "title": "Ch 1 Revision Paper & Ch 2 Revision",
+    "subject": "EVS",
+    "sections": ["I-A", "I-B", "I-K"],
+    "description": "EVS Revision paper along with answer key for Chapter 1. Myself has been uploaded in the Content Library. Revise Chapter 2. My Body. Please send the EVS notebook with the children to school every day for revision.",
+    "sentDate": "2026-07-13"
+  },
+  {
+    "id": "sh-50",
+    "title": "Hindi Notebook - Daily Revision",
+    "subject": "HINDI",
+    "sections": ["I-A", "I-B", "I-D", "I-F", "I-G", "I-H", "I-I", "I-J", "I-K"],
+    "description": "Hindi Notebook has been sent home today. Kindly send it back everyday for class revision.",
+    "sentDate": "2026-07-13"
+  },
+  {
     "id": "sh-49",
     "title": "Ch 3 SAS Link Shared",
     "subject": "EVS",
