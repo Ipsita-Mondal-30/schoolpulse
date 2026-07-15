@@ -16,6 +16,28 @@ const getSubjectIcon = (subject: string) => {
   return "📝";
 };
 
+// Map a timetable subject name to its study-resources Drive folder URL
+const getResourceUrl = (subject: string): string | undefined => {
+  const s = subject.toLowerCase();
+  const match = studyGuide.subjects.find((sub) => {
+    const g = sub.subject.toLowerCase();
+    if (s.includes("evs") || s.includes("environment"))
+      return g.includes("environment");
+    if (s.includes("math")) return g.includes("math");
+    if (s.includes("computer")) return g.includes("computer");
+    return g.includes(s) || s.includes(g);
+  });
+  return match?.resourcesUrl;
+};
+
+// Days left until an exam date, relative to today
+const getDaysLeft = (date: string, today: string): number =>
+  Math.ceil(
+    (new Date(date + "T00:00:00").getTime() -
+      new Date(today + "T00:00:00").getTime()) /
+      (1000 * 60 * 60 * 24)
+  );
+
 function StudyGuideCard({
   subj,
   today,
@@ -266,26 +288,39 @@ export default function JoyOfLearningPage() {
 
       {/* Timetable */}
       <div className="bg-white rounded-3xl border border-gray-150 overflow-hidden shadow-sm mb-6">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-150">
-          <h3 className="font-bold text-gray-800 text-sm md:text-base flex items-center gap-2">
-            📅 Exam Timetable
-          </h3>
-          <p className="text-xs text-gray-500 font-medium mt-0.5">
-            {jolData.timetable.classes} — July 20-25, 2026
-          </p>
+        <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-150 flex items-center justify-between gap-2">
+          <div>
+            <h3 className="font-bold text-gray-800 text-sm md:text-base flex items-center gap-2">
+              📅 Exam Timetable
+            </h3>
+            <p className="text-xs text-gray-500 font-medium mt-0.5">
+              Class I — July 20-25, 2026
+            </p>
+          </div>
+          <a
+            href={studyGuide.trackerFolderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors flex-shrink-0"
+          >
+            ✅ Tracker
+          </a>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-indigo-50/50">
-                <th className="text-left px-4 py-2.5 text-xs font-black uppercase tracking-wider text-indigo-700 border-b border-indigo-100">
+                <th className="text-left px-3 sm:px-4 py-2.5 text-[11px] font-black uppercase tracking-wider text-indigo-700 border-b border-indigo-100">
                   Date
                 </th>
-                <th className="text-left px-4 py-2.5 text-xs font-black uppercase tracking-wider text-indigo-700 border-b border-indigo-100">
-                  Class I
+                <th className="text-left px-3 sm:px-4 py-2.5 text-[11px] font-black uppercase tracking-wider text-indigo-700 border-b border-indigo-100">
+                  Subject
                 </th>
-                <th className="text-left px-4 py-2.5 text-xs font-black uppercase tracking-wider text-indigo-700 border-b border-indigo-100">
-                  Class II
+                <th className="text-center px-2 sm:px-4 py-2.5 text-[11px] font-black uppercase tracking-wider text-indigo-700 border-b border-indigo-100">
+                  Days Left
+                </th>
+                <th className="text-center px-2 sm:px-4 py-2.5 text-[11px] font-black uppercase tracking-wider text-indigo-700 border-b border-indigo-100">
+                  Study
                 </th>
               </tr>
             </thead>
@@ -293,6 +328,8 @@ export default function JoyOfLearningPage() {
               {jolData.timetable.schedule.map((row) => {
                 const isToday = row.date === today;
                 const isPast = row.date < today;
+                const daysLeft = getDaysLeft(row.date, today);
+                const resourceUrl = getResourceUrl(row.classI);
                 return (
                   <tr
                     key={row.date}
@@ -304,18 +341,13 @@ export default function JoyOfLearningPage() {
                         : "hover:bg-gray-50"
                     }
                   >
-                    <td className="px-4 py-3 border-b border-gray-100">
+                    <td className="px-3 sm:px-4 py-3 border-b border-gray-100">
                       <div
                         className={`font-bold text-sm ${
                           isToday ? "text-amber-800" : "text-gray-800"
                         }`}
                       >
                         {row.day}
-                        {isToday && (
-                          <span className="ml-2 px-1.5 py-0.5 bg-amber-200 text-amber-900 text-[8px] font-black rounded-full">
-                            TODAY
-                          </span>
-                        )}
                       </div>
                       <div className="text-[11px] text-gray-400 mt-0.5">
                         {new Date(row.date + "T00:00:00").toLocaleDateString(
@@ -325,20 +357,47 @@ export default function JoyOfLearningPage() {
                       </div>
                     </td>
                     <td
-                      className={`px-4 py-3 border-b border-gray-100 font-bold ${
+                      className={`px-3 sm:px-4 py-3 border-b border-gray-100 font-bold ${
                         isToday ? "text-amber-800" : "text-gray-800"
                       }`}
                     >
                       <span className="mr-1.5">{getSubjectIcon(row.classI)}</span>
                       {row.classI}
-                      {isPast && " ✓"}
                     </td>
-                    <td
-                      className={`px-4 py-3 border-b border-gray-100 font-medium ${
-                        isToday ? "text-amber-800" : "text-gray-600"
-                      }`}
-                    >
-                      {row.classII}
+                    <td className="px-2 sm:px-4 py-3 border-b border-gray-100 text-center">
+                      {isPast ? (
+                        <span className="inline-block px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-black rounded-full">
+                          Done ✓
+                        </span>
+                      ) : isToday ? (
+                        <span className="inline-block px-2 py-0.5 bg-amber-200 text-amber-900 text-[10px] font-black rounded-full animate-pulse">
+                          Today
+                        </span>
+                      ) : (
+                        <span className="inline-flex flex-col items-center leading-none">
+                          <span className="text-base font-black text-indigo-600">
+                            {daysLeft}
+                          </span>
+                          <span className="text-[9px] text-gray-400 font-bold uppercase">
+                            {daysLeft === 1 ? "day" : "days"}
+                          </span>
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-2 sm:px-4 py-3 border-b border-gray-100 text-center">
+                      {resourceUrl ? (
+                        <a
+                          href={resourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-base hover:bg-blue-100 hover:border-blue-300 transition-colors"
+                          title={`${row.classI} study resources`}
+                        >
+                          📂
+                        </a>
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
                     </td>
                   </tr>
                 );
@@ -346,105 +405,15 @@ export default function JoyOfLearningPage() {
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* Portions / Syllabus */}
-      <div className="bg-white rounded-3xl border border-gray-150 overflow-hidden shadow-sm">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-150">
-          <h3 className="font-bold text-gray-800 text-sm md:text-base flex items-center gap-2">
-            📖 Syllabus / Portions
-          </h3>
-          <p className="text-xs text-gray-500 font-medium mt-0.5">
-            What to study for each subject
-          </p>
-        </div>
-        <div className="p-4 space-y-4">
-          {jolData.portions.subjects.map((subj) => (
-            <div
-              key={subj.slNo}
-              className="bg-gray-50/80 rounded-2xl border border-gray-100 p-4"
-            >
-              <h4 className="font-extrabold text-gray-900 text-sm md:text-base flex items-center gap-2 mb-2">
-                <span className="text-base">{getSubjectIcon(subj.subject)}</span>
-                {subj.subject}
-              </h4>
-              <ul className="space-y-1">
-                {subj.portions.map((item, i) => {
-                  const isIndented = item.startsWith("  ");
-                  return (
-                    <li
-                      key={i}
-                      className={`text-sm text-gray-700 leading-relaxed ${
-                        isIndented ? "pl-5 text-gray-600" : ""
-                      }`}
-                    >
-                      {isIndented ? (
-                        <span className="text-gray-400 mr-1">›</span>
-                      ) : (
-                        ""
-                      )}
-                      {item.trim()}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Study Resources */}
-      <div className="bg-white rounded-3xl border border-gray-150 overflow-hidden shadow-sm mt-6">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-150">
-          <h3 className="font-bold text-gray-800 text-sm md:text-base flex items-center gap-2">
-            📂 Study Resources
-          </h3>
-          <p className="text-xs text-gray-500 font-medium mt-0.5">
-            Notes, worksheets &amp; practice material for every subject
-          </p>
-        </div>
-        <div className="p-4">
-          <div className="grid grid-cols-2 gap-3">
-            {studyGuide.subjects.map((subj) => (
-              <a
-                key={subj.subject}
-                href={subj.resourcesUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2.5 bg-blue-50/60 border border-blue-100 rounded-xl p-3 hover:bg-blue-100 hover:border-blue-300 transition-colors group"
-              >
-                <span className="text-xl flex-shrink-0">
-                  {getSubjectIcon(subj.subject)}
-                </span>
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-blue-900 truncate">
-                    {subj.subject}
-                  </p>
-                  <p className="text-[10px] text-blue-400 font-medium">
-                    Open folder →
-                  </p>
-                </div>
-              </a>
-            ))}
-          </div>
-          <div className="grid grid-cols-2 gap-3 mt-3">
-            <a
-              href={studyGuide.resourcesFolderUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 bg-indigo-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors"
-            >
-              📂 All Resources
-            </a>
-            <a
-              href={studyGuide.trackerFolderUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 bg-emerald-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors"
-            >
-              ✅ Progress Tracker
-            </a>
-          </div>
+        <div className="px-4 py-3 bg-gray-50/60 border-t border-gray-100">
+          <a
+            href={studyGuide.resourcesFolderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 bg-indigo-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors"
+          >
+            📂 Open All Study Resources
+          </a>
         </div>
       </div>
 
