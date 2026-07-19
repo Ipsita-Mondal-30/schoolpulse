@@ -1,0 +1,110 @@
+{
+  "source": "Neverskip Parent Portal — Content Library (BGS National Public School)",
+  "lastSynced": "2026-07-20",
+  "resources": [
+    {
+      "id": "cs-practice-jol-1",
+      "title": "Computer Science practice paper and answer key",
+      "subject": "Computer Science",
+      "date": "2026-07-17",
+      "description": "Computer Science practice paper and answer key for Joy of Learning preparation.",
+      "links": [
+        { "label": "Question Paper", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_ComputerScienceIJOLPPQP_20260717185359.pdf" },
+        { "label": "Answer Key", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_ComputerScienceIJOLPPAK_20260717185414.pdf" }
+      ]
+    },
+    {
+      "id": "hindi-revision-4",
+      "title": "Hindi revision paper - 4",
+      "subject": "Hindi",
+      "date": "2026-07-17",
+      "description": "Grade 1 Hindi revision paper 4 with answer key.",
+      "links": [
+        { "label": "Revision Paper", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Grade1-RevisionPaper-4_20260717174258.pdf" },
+        { "label": "Answer Key", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Grade1-Revpaper-4AK_20260717174259.pdf" }
+      ]
+    },
+    {
+      "id": "english-worksheet-2-meet-my-family",
+      "title": "Worksheet 2 - Unit 2 - Meet My Family",
+      "subject": "English",
+      "date": "2026-07-16",
+      "description": "English worksheet 2 for Unit 2 — Meet My Family.",
+      "links": [
+        { "label": "Worksheet", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_worksheet2MeetmyFamily_20260716185100.pdf" }
+      ]
+    },
+    {
+      "id": "hindi-revision-3",
+      "title": "Revision paper - 3",
+      "subject": "Hindi",
+      "date": "2026-07-16",
+      "description": "Grade 1 Hindi revision paper 3 with answer key.",
+      "links": [
+        { "label": "Revision Paper", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_grade1-REV31_20260716173224.pdf" },
+        { "label": "Answer Key", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_grade1-REV3AK_20260716173224.pdf" }
+      ]
+    },
+    {
+      "id": "maths-practice-jol-1",
+      "title": "Maths practice paper and answer key",
+      "subject": "Mathematics",
+      "date": "2026-07-16",
+      "description": "Class 1 Mathematics practice paper for Joy of Learning with answer key.",
+      "links": [
+        { "label": "Question Paper", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS1PRACTICEPAPERQPJOL12026_20260716171747.pdf" },
+        { "label": "Answer Key", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS1PRACTICEPAPERAKJOL12026_20260716171747.pdf" }
+      ]
+    },
+    {
+      "id": "maths-ch3-addition-subtraction",
+      "title": "Chapter 3 Addition and Subtraction",
+      "subject": "Mathematics",
+      "date": "2026-07-16",
+      "description": "Mathematics Chapter 3 — Addition and Subtraction revision notes.",
+      "links": [
+        { "label": "Open PDF", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDFReaderDocument31_20260716164522.pdf" }
+      ]
+    },
+    {
+      "id": "kannada-aksharabyasa-3",
+      "title": "Aksharabyasa 3",
+      "subject": "Kannada",
+      "date": "2026-07-16",
+      "description": "Kannada Aksharabyasa 3 practice material.",
+      "links": [
+        { "label": "Open PDF", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_-Aksharaabyaasa-3_20260716163507.pdf" }
+      ]
+    },
+    {
+      "id": "maths-ch3-revision-3",
+      "title": "Chapter-3 Revision-3",
+      "subject": "Mathematics",
+      "date": "2026-07-16",
+      "description": "Mathematics Chapter 3 revision paper 3.",
+      "links": [
+        { "label": "Open PDF", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF16-07-2026161838_20260716161838.pdf" }
+      ]
+    },
+    {
+      "id": "kannada-revision-3",
+      "title": "Revision 3",
+      "subject": "Kannada",
+      "date": "2026-07-16",
+      "description": "Class 1 Kannada revision 3 with answer key.",
+      "links": [
+        { "label": "Answer Key", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS1KannadaRevision3AKJuly20262_20260716160634.pdf" }
+      ]
+    },
+    {
+      "id": "evs-ch4-body-clean",
+      "title": "Revision - Ch 4. I Keep My Body Clean",
+      "subject": "EVS",
+      "date": "2026-07-16",
+      "description": "EVS Chapter 4 — I Keep My Body Clean revision material.",
+      "links": [
+        { "label": "Open PDF", "url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF16-07-2026152417_20260716152417.pdf" }
+      ]
+    }
+  ]
+}

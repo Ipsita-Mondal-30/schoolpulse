@@ -15,6 +15,7 @@ export default function Navigation() {
     { href: '/week', label: 'Words', shortLabel: 'Words', icon: '🔤' },
     { href: '/homework', label: 'Homework', shortLabel: 'Homework', icon: '📚' },
     { href: '/joy-of-learning', label: 'JoL', shortLabel: 'JoL', icon: '🎓' },
+    { href: '/class-diary', label: 'Diary', shortLabel: 'Diary', icon: '📔' },
     { href: '/info', label: 'Info', shortLabel: 'Info', icon: 'ℹ️' },
     { href: '/dates', label: 'Events', shortLabel: 'Events', icon: '🔔' },
   ];
