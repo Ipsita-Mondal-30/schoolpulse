@@ -33,6 +33,11 @@ const DEFAULT_STYLE: SubjectStyle = { icon: "📚", badge: "bg-gray-100 text-gra
 const styleFor = (s: string) => SUBJECTS[s.toUpperCase()] ?? DEFAULT_STYLE;
 const prettySubject = (s: string) => (s.toUpperCase() === "E.V.S" ? "EVS" : s.replace(/\b\w+/g, (w) => w[0] + w.slice(1).toLowerCase()));
 
+// Cross-cutting "Practice Paper" detection (spans every subject)
+const PRACTICE_KEY = "__practice__";
+const isPracticePaper = (r: Resource) =>
+  /practice\s*paper/i.test(r.title) || r.media.some((m) => /practicepaper/i.test(m.file));
+
 // ── Helpers ─────────────────────────────────────────────────────────────────────
 const monthKey = (iso: string) => iso.slice(0, 7);
 const monthLabel = (key: string) => {
@@ -163,6 +168,9 @@ export default function ContentLibraryPage() {
     return [...c.entries()].sort((a, b) => b[1] - a[1]);
   }, []);
 
+  // Practice-paper count (cross-subject filter)
+  const practiceCount = useMemo(() => resources.filter(isPracticePaper).length, []);
+
   // Months present (desc)
   const months = useMemo(() => Array.from(new Set(resources.map((r) => monthKey(r.date)))).sort((a, b) => b.localeCompare(a)), []);
 
@@ -174,7 +182,9 @@ export default function ContentLibraryPage() {
     const q = search.trim().toLowerCase();
     return resources
       .filter((r) => {
-        if (activeSubject !== "All" && r.subject !== activeSubject) return false;
+        if (activeSubject === PRACTICE_KEY) {
+          if (!isPracticePaper(r)) return false;
+        } else if (activeSubject !== "All" && r.subject !== activeSubject) return false;
         if (activeMonth !== "All" && monthKey(r.date) !== activeMonth) return false;
         if (!q) return true;
         return r.title.toLowerCase().includes(q) || r.description.toLowerCase().includes(q) || prettySubject(r.subject).toLowerCase().includes(q);
@@ -241,6 +251,14 @@ export default function ContentLibraryPage() {
           >
             🗂️ All · {resources.length}
           </button>
+          <button
+            onClick={() => setActiveSubject(PRACTICE_KEY)}
+            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${
+              activeSubject === PRACTICE_KEY ? "bg-rose-600 text-white border-rose-600 shadow-sm" : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+            }`}
+          >
+            🎯 Practice Papers · {practiceCount}
+          </button>
           {subjectCounts.map(([s, n]) => {
             const st = styleFor(s);
             const active = activeSubject === s;
@@ -305,7 +323,7 @@ export default function ContentLibraryPage() {
       {/* ── Result count ── */}
       <p className="mt-4 text-xs text-gray-400 font-medium px-1">
         {filtered.length} {filtered.length === 1 ? "resource" : "resources"}
-        {activeSubject !== "All" && ` · ${prettySubject(activeSubject)}`}
+        {activeSubject === PRACTICE_KEY ? " · Practice Papers" : activeSubject !== "All" && ` · ${prettySubject(activeSubject)}`}
         {activeMonth !== "All" && ` · ${monthLabel(activeMonth)}`}
       </p>
 
