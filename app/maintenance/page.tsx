@@ -10,16 +10,11 @@ export default function MaintenancePage() {
     <div className="max-w-lg mx-auto px-6 py-16 sm:py-24 text-center">
       <div className="text-6xl mb-6">💤</div>
 
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-        SchoolPulse is taking a short break
-      </h1>
-
-      <p className="mt-4 text-gray-600 leading-relaxed">
-        We&apos;re doing a bit of housekeeping and this app is temporarily
-        unavailable. Thanks for your patience — we&apos;ll be back soon! 🙏
+      <p className="text-xl font-semibold text-gray-800">
+        This app is temporarily unavailable.
       </p>
 
-      <p className="mt-4 text-sm text-gray-500">
+      <p className="mt-6 text-sm text-gray-500">
         In the meantime, these are still available:
       </p>
 
@@ -36,10 +31,6 @@ export default function MaintenancePage() {
         >
           <span className="text-lg">🔔</span> Events &amp; Holidays
         </Link>
-      </div>
-
-      <div className="mt-10 text-[11px] text-gray-400 uppercase tracking-wider font-semibold">
-        SchoolPulse · BGS National Public School
       </div>
     </div>
   );
