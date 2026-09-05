@@ -7,7 +7,6 @@ import HomeworkDuePopup from '@/components/HomeworkDuePopup';
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import ChatWidget from "@/components/ChatWidget";
-import { MAINTENANCE_MODE } from "@/lib/maintenance";
 
 export const metadata: Metadata = {
   title: "SchoolPulse - Daily School Schedule",
@@ -39,7 +38,7 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-gray-50 overflow-x-hidden">
         <UpdatesProvider>
           <Navigation />
-          {!MAINTENANCE_MODE && <HomeworkDuePopup />}
+          <HomeworkDuePopup />
 
           <main className="min-h-screen pb-20">
             {children}
@@ -56,7 +55,7 @@ export default function RootLayout({
               </div>
             </div>
           </footer>
-          {!MAINTENANCE_MODE && <ChatWidget />}
+          <ChatWidget />
           <Analytics />
           <SpeedInsights />
         </UpdatesProvider>

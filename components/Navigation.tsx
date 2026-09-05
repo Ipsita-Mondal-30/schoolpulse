@@ -4,13 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUpdates } from '@/context/UpdatesContext';
 import RecentUpdates from './RecentUpdates';
-import { MAINTENANCE_MODE } from '@/lib/maintenance';
 
 export default function Navigation() {
   const pathname = usePathname();
   const { homeworkCount } = useUpdates();
 
-  const allLinks = [
+  const links = [
     { href: '/', label: 'Planner', shortLabel: 'Planner', icon: '📋' },
     { href: '/timetable', label: 'Timetable', shortLabel: 'Time', icon: '🕐' },
     { href: '/week', label: 'Words', shortLabel: 'Words', icon: '🔤' },
@@ -21,11 +20,6 @@ export default function Navigation() {
     { href: '/info', label: 'Info', shortLabel: 'Info', icon: 'ℹ️' },
     { href: '/dates', label: 'Events', shortLabel: 'Events', icon: '🔔' },
   ];
-
-  // While the app is offline, only show the routes that stay accessible.
-  const links = MAINTENANCE_MODE
-    ? allLinks.filter((l) => l.href === '/info' || l.href === '/dates')
-    : allLinks;
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-40 flex flex-col">
