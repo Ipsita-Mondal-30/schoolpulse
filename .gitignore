@@ -37,6 +37,7 @@ yarn-error.log*
 # local sqlite
 prisma/*.db
 prisma/*.db-journal
+prisma/*.backup
 
 # NeverSkip Playwright authenticated browser profile (never commit)
 .playwright-profile/
@@ -54,7 +55,6 @@ security/zap_report.html
 
 # dynatrace
 *dynatrace*
-prisma/*.backup
 
 # Worker compose secrets (never commit)
 deploy/neverskip-worker/.env

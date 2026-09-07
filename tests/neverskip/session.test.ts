@@ -7,6 +7,7 @@ import {
   resolveNeverSkipProfileDir,
   DEFAULT_PROFILE_DIR,
   isNeverSkipFailureEnvelope,
+  safeUrlPath,
 } from '@/lib/neverskip/browser';
 import path from 'path';
 import fs from 'fs';
@@ -43,6 +44,12 @@ describe('NeverSkip session URL assessment', () => {
     expect(isNeverSkipFailureEnvelope({ S: false, M: 'x', F: 801 })).toBe(true);
     expect(isNeverSkipFailureEnvelope({ S: true, D: { item_list: [] }, F: 'S' })).toBe(false);
     expect(isNeverSkipFailureEnvelope(null)).toBe(false);
+  });
+
+  it('safeUrlPath strips query strings', () => {
+    expect(safeUrlPath('https://parent.neverskip.com/default/assignment?x=1')).toBe(
+      '/default/assignment',
+    );
   });
 });
 

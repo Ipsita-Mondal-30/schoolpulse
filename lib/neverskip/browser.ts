@@ -209,7 +209,17 @@ async function fetchViaSession(
   }
 }
 
-function throwSessionExpired(): never {
+/** Safe pathname for logs — never includes query strings (may contain tokens). */
+export function safeUrlPath(url: string): string {
+  try {
+    return new URL(url).pathname || '/';
+  } catch {
+    return '(unparseable)';
+  }
+}
+
+function throwSessionExpired(detail?: string): never {
+  if (detail) nsError(detail);
   logSessionExpired();
   throw new NeverSkipSessionExpiredError();
 }
@@ -248,25 +258,27 @@ export async function loginNeverSkipSession(
 
   try {
     const page = context.pages()[0] || (await context.newPage());
-    await page.goto(`${portalBaseUrl}/`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    const isAppAuthenticated = (url: string) =>
+      assessSessionUrl(url, { expectAppRoute: true }) === 'authenticated';
 
-    if (assessSessionUrl(page.url()) === 'login') {
-      await page.waitForURL((url) => assessSessionUrl(url.toString()) === 'authenticated', {
-        timeout: timeoutMs,
-      });
-    }
+    await page.goto(`${portalBaseUrl}/`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
 
     // Warm an authenticated app route so cookies/session stick in the profile.
+    // Wait for SPA redirects (expired profiles often briefly hit /default/* then bounce).
     await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    if (assessSessionUrl(page.url()) === 'login') {
-      nsWarn('Still on login after wait — finish login in the browser window…');
-      await page.waitForURL((url) => assessSessionUrl(url.toString()) === 'authenticated', {
+    await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
+
+    if (!isAppAuthenticated(page.url())) {
+      nsWarn('Login required — complete NeverSkip login (and CAPTCHA if shown) in the browser…');
+      await page.waitForURL((url) => isAppAuthenticated(url.toString()), {
         timeout: timeoutMs,
       });
       await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+      await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
     }
 
-    if (assessSessionUrl(page.url(), { expectAppRoute: true }) === 'login') {
+    if (!isAppAuthenticated(page.url())) {
       throwSessionExpired();
     }
 
@@ -357,6 +369,13 @@ export async function collectNeverSkipData(
     if (response.status() < 200 || response.status() >= 300) return;
     const body = await readJsonBody(response);
     if (body == null) return;
+    // Do not treat Access Denied / S:false envelopes as successful captures.
+    if (isNeverSkipFailureEnvelope(body)) {
+      nsWarn(
+        `${kind} API returned failure envelope (HTTP ${response.status()}) — session may be expired`,
+      );
+      return;
+    }
     if (kind === 'homework' && !homeworkRaw) {
       homeworkRaw = body as NeverSkipHomeworkResponse;
       homeworkMeta = { url: response.url(), status: response.status() };
@@ -381,7 +400,7 @@ export async function collectNeverSkipData(
     await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 15_000) }).catch(() => undefined);
 
     if (requireAuth && assessSessionUrl(page.url(), { expectAppRoute: true }) === 'login') {
-      throwSessionExpired();
+      throwSessionExpired(`Notices page not authenticated (path=${safeUrlPath(page.url())})`);
     }
 
     if (!skipLoginWait && assessSessionUrl(page.url()) === 'login') {
@@ -396,8 +415,8 @@ export async function collectNeverSkipData(
       await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
     }
 
-    if (requireAuth && assessSessionUrl(page.url()) === 'login') {
-      throwSessionExpired();
+    if (requireAuth && assessSessionUrl(page.url(), { expectAppRoute: true }) === 'login') {
+      throwSessionExpired(`Notices page still unauthenticated (path=${safeUrlPath(page.url())})`);
     }
 
     if (requireAuth) {
@@ -411,8 +430,26 @@ export async function collectNeverSkipData(
     await page.goto(homeworkPageUrl, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
     await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 15_000) }).catch(() => undefined);
 
+    // Incapsula / SPA may briefly leave /default/* after navigation; wait to settle.
     if (requireAuth && assessSessionUrl(page.url(), { expectAppRoute: true }) === 'login') {
-      throwSessionExpired();
+      nsWarn(
+        `Homework page not yet on app route (path=${safeUrlPath(page.url())}) — waiting for portal to settle…`,
+      );
+      await page
+        .waitForURL((url) => assessSessionUrl(url.toString(), { expectAppRoute: true }) === 'authenticated', {
+          timeout: Math.min(timeoutMs, 45_000),
+        })
+        .catch(() => undefined);
+      if (assessSessionUrl(page.url(), { expectAppRoute: true }) === 'login') {
+        // If notices already prove the session works, continue and fetch homework via session API.
+        if (noticesRaw) {
+          nsWarn(
+            `Homework page path=${safeUrlPath(page.url())} — continuing with session API for homework`,
+          );
+        } else {
+          throwSessionExpired(`Homework page unauthenticated (path=${safeUrlPath(page.url())})`);
+        }
+      }
     }
 
     await waitForCapture(() => homeworkRaw, Math.min(timeoutMs, 30_000));
