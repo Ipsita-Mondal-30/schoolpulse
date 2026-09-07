@@ -1,0 +1,49 @@
+{
+  "S": true,
+  "D": {
+    "item_list": [
+      {
+        "refid": "85705",
+        "assign_id": "1198",
+        "subject_id": "777",
+        "subject_name": "EVS",
+        "ass_dt": "2026-09-04",
+        "assign_dt": "4-Sep-2026",
+        "assign_title": "Chapter 9. Our School",
+        "assign_details": "Read Chapter 9 Our School and complete the workbook questions.",
+        "assign_typ": "Homework",
+        "download_url": "https://example.invalid/files/ch9.pdf",
+        "ass_files": null,
+        "class_sec": "I-A,I-B"
+      },
+      {
+        "refid": "85706",
+        "assign_id": "1201",
+        "subject_id": "101",
+        "subject_name": "MATHEMATICS",
+        "ass_dt": "2026-09-05",
+        "assign_dt": "5-Sep-2026",
+        "due_dt": "2026-09-08",
+        "assign_title": "Addition practice",
+        "assign_details": "Complete page 12 in the workbook.",
+        "assign_typ": "Homework",
+        "download_url": "",
+        "section": "I-A"
+      },
+      {
+        "refid": "90001",
+        "assign_id": "2000",
+        "subject_id": "50",
+        "assign_title": "Class photo day",
+        "assign_details": "Wear house T-shirt",
+        "assign_typ": "Notice",
+        "ass_dt": "2026-09-05"
+      }
+    ],
+    "page_count": 1,
+    "total_count": 3,
+    "sfile_limit": 5
+  },
+  "F": "S",
+  "data": []
+}

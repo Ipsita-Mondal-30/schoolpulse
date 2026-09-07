@@ -431,3 +431,170 @@ export async function fetchSheetHomework(): Promise<SheetHomework[]> {
     }
 }
 
+// ----- Imported NeverSkip data (Prisma) → UI -----
+
+export interface ImportedHomeworkItem {
+    id: string;
+    title: string;
+    subject: string;
+    sections: string[];
+    description: string;
+    submissionDate?: string;
+    sentDate: string;
+    attachmentImage?: string;
+}
+
+export interface ImportedNoticeItem {
+    id: string;
+    date: string;
+    time: string;
+    classes: string[];
+    summary: string;
+    message: string;
+}
+
+function sheetRowsToHomeworkItems(rows: SheetHomework[]): ImportedHomeworkItem[] {
+    const grouped: Record<string, ImportedHomeworkItem> = {};
+
+    for (const row of rows) {
+        const key = `${row.sentDate}|${row.subject}|${row.title}`;
+        if (grouped[key]) {
+            if (!grouped[key].sections.includes(row.section)) {
+                grouped[key].sections.push(row.section);
+            }
+        } else {
+            grouped[key] = {
+                id: row.id,
+                title: row.title,
+                subject: row.subject,
+                sections: [row.section],
+                description: row.description,
+                submissionDate: row.submissionDate || undefined,
+                sentDate: row.sentDate,
+            };
+        }
+    }
+
+    return Object.values(grouped);
+}
+
+export async function fetchImportedHomework(): Promise<ImportedHomeworkItem[]> {
+    try {
+        if (!process.env.DATABASE_URL) {
+            console.log('[SchoolPulse] UI DB homework count: 0 (DATABASE_URL missing)');
+            return [];
+        }
+        const { PrismaNeverSkipStore } = await import('@/lib/neverskip/prisma-store');
+        const { uiHomeworkId } = await import('@/lib/neverskip/ids');
+        const { toSortableDate } = await import('@/lib/ui-merge');
+        const store = new PrismaNeverSkipStore();
+        const rows = await store.listHomework();
+        return rows.map((h) => ({
+            id: uiHomeworkId(h.sourceId, h.source),
+            title: h.title,
+            subject: h.subjectName,
+            // Ensure section filter always has at least Class 1 default when API omitted targeting
+            sections: h.sections.length > 0 ? h.sections : ['I-A'],
+            description: h.description,
+            submissionDate: h.dueDate || undefined,
+            sentDate: toSortableDate(h.homeworkDate) || h.homeworkDate,
+            attachmentImage: h.attachmentUrl || undefined,
+        }));
+    } catch (error) {
+        console.error('Failed to fetch imported homework', error);
+        console.log('[SchoolPulse] UI DB homework count: 0 (error)');
+        return [];
+    }
+}
+
+export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
+    try {
+        if (!process.env.DATABASE_URL) {
+            console.log('[SchoolPulse] UI DB notice count: 0 (DATABASE_URL missing)');
+            return [];
+        }
+        const { getPrisma } = await import('@/lib/prisma');
+        const { uiNoticeId } = await import('@/lib/neverskip/ids');
+        const {
+            noticeSummaryForUi,
+            resolveNoticeClassesForUi,
+            resolveNoticeDateForUi,
+        } = await import('@/lib/ui-merge');
+
+        // Query Prisma directly so UI can use createdAt when publishedDate is blank.
+        // Does not change NeverSkip normalization / ingestion.
+        const rows = await getPrisma().importedNotice.findMany({
+            orderBy: [{ createdAt: 'desc' }],
+        });
+
+        return rows.map((n) => {
+            let classes: string[] = [];
+            try {
+                const parsed = JSON.parse(n.classesJson);
+                classes = Array.isArray(parsed) ? parsed.map(String) : [];
+            } catch {
+                classes = [];
+            }
+
+            return {
+                id: uiNoticeId(n.sourceId, n.source),
+                date: resolveNoticeDateForUi({
+                    publishedDate: n.publishedDate,
+                    title: n.title,
+                    summary: n.summary,
+                    content: n.content,
+                    createdAt: n.createdAt,
+                }),
+                time: n.publishedTime || '00:00',
+                classes: resolveNoticeClassesForUi(classes, n.title, n.summary, n.content),
+                summary: noticeSummaryForUi(n.title, n.summary, n.content),
+                message: n.content,
+            };
+        });
+    } catch (error) {
+        console.error('Failed to fetch imported notices', error);
+        console.log('[SchoolPulse] UI DB notice count: 0 (error)');
+        return [];
+    }
+}
+
+/** Server-side merge for Homework UI: Prisma ∪ sheet ∪ JSON. */
+export async function loadHomeworkForUi(): Promise<{
+    items: ImportedHomeworkItem[];
+    fromSheet: boolean;
+}> {
+    const { mergeHomeworkItems } = await import('@/lib/ui-merge');
+    const localMod = await import('@/data/school-homework.json');
+    const local = localMod.default as ImportedHomeworkItem[];
+
+    const [imported, sheetRows] = await Promise.all([
+        fetchImportedHomework(),
+        fetchSheetHomework(),
+    ]);
+    const sheet = sheetRowsToHomeworkItems(sheetRows);
+    const merged = mergeHomeworkItems(imported, sheet, local);
+
+    console.log(`[SchoolPulse] UI DB homework count: ${imported.length}`);
+    console.log(`[SchoolPulse] UI JSON/sheet homework count: ${local.length + sheet.length}`);
+    console.log(`[SchoolPulse] UI merged homework count: ${merged.length}`);
+
+    return { items: merged, fromSheet: sheet.length > 0 };
+}
+
+/** Server-side merge for Notices UI: Prisma ∪ JSON. */
+export async function loadNoticesForUi(): Promise<ImportedNoticeItem[]> {
+    const { mergeNoticeItems, sortNoticesNewestFirst } = await import('@/lib/ui-merge');
+    const localMod = await import('@/data/notices.json');
+    const local = (localMod.default as { notices: ImportedNoticeItem[] }).notices;
+
+    const imported = await fetchImportedNotices();
+    const merged = sortNoticesNewestFirst(mergeNoticeItems(imported, local));
+
+    console.log(`[SchoolPulse] UI DB notice count: ${imported.length}`);
+    console.log(`[SchoolPulse] UI JSON/sheet notice count: ${local.length}`);
+    console.log(`[SchoolPulse] UI merged notice count: ${merged.length}`);
+
+    return merged;
+}
+
+

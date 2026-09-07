@@ -1,0 +1,37 @@
+{
+  "D": {
+    "item_list": [
+      {
+        "id": "n-1001",
+        "date": "2026-09-04",
+        "time": "15:39",
+        "title": "Send English textbook",
+        "cont": "Please send the English textbook in the bag tomorrow. It will be sent back in the bag.",
+        "image": "https://example.invalid/notices/n1001.jpg",
+        "msg_src": "Teacher",
+        "msg_type": "Daily Notice",
+        "test_tar": {
+          "classes": ["I-A", "I-B", "I-G"]
+        }
+      },
+      {
+        "date": "2026-09-03",
+        "time": "18:00",
+        "title": "",
+        "cont": "Hindi revision paper uploaded to the content library.",
+        "image": "",
+        "test_tar": {
+          "section": "I-A,I-K"
+        }
+      },
+      {
+        "notice_id": "n-1003",
+        "date": "03-09-2026",
+        "time": "9:05",
+        "title": "Holiday reminder",
+        "cont": "School will remain closed on Saturday for the festival.",
+        "test_tar": null
+      }
+    ]
+  }
+}
