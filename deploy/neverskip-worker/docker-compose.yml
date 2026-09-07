@@ -1,0 +1,31 @@
+# NeverSkip Playwright worker — runs outside Vercel, every 4 hours by default.
+# Usage (from repo root):
+#   cd deploy/neverskip-worker
+#   # Put production secrets in a local .env (never commit it)
+#   docker compose up -d --build
+#
+# First-time login (headed) is easiest on the host, then copy the profile
+# into the named volume — see README.md.
+
+services:
+  neverskip-worker:
+    build:
+      context: ../..
+      dockerfile: deploy/neverskip-worker/Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL to your Neon connection string}
+      NEVERSKIP_BASE_URL: ${NEVERSKIP_BASE_URL:-https://nskapi.neverskip.com}
+      NEVERSKIP_PORTAL_URL: ${NEVERSKIP_PORTAL_URL:-https://parent.neverskip.com}
+      NEVERSKIP_NOTICES_PAGE_URL: ${NEVERSKIP_NOTICES_PAGE_URL:-https://parent.neverskip.com/default/dailynotice}
+      NEVERSKIP_HOMEWORK_PAGE_URL: ${NEVERSKIP_HOMEWORK_PAGE_URL:-https://parent.neverskip.com/default/assignment}
+      NEVERSKIP_PROFILE_DIR: /data/neverskip-profile
+      NEVERSKIP_HEADLESS: ${NEVERSKIP_HEADLESS:-true}
+      NEVERSKIP_SYNC_INTERVAL_HOURS: ${NEVERSKIP_SYNC_INTERVAL_HOURS:-4}
+      NEVERSKIP_WORKER_RUN_ON_START: ${NEVERSKIP_WORKER_RUN_ON_START:-true}
+      NEVERSKIP_DEBUG: ${NEVERSKIP_DEBUG:-1}
+    volumes:
+      - neverskip-profile:/data/neverskip-profile
+    restart: unless-stopped
+
+volumes:
+  neverskip-profile:

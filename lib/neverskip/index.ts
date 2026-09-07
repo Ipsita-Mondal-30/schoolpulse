@@ -12,3 +12,4 @@ export * from './prisma-store';
 export * from './sync';
 export * from './log';
 export * from './browser';
+export * from './worker-schedule';

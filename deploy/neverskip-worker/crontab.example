@@ -1,0 +1,8 @@
+# Install on the worker host (not on Vercel). Runs browser sync every 4 hours.
+# Replace /path/to/schoolpulse and load env vars as needed.
+#
+#   crontab -e
+#   # paste the line below
+#
+# Every 4 hours at minute 0:
+0 */4 * * * cd /path/to/schoolpulse && /usr/bin/env DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require" NEVERSKIP_HEADLESS=true NEVERSKIP_PROFILE_DIR="/path/to/schoolpulse/.playwright-profile" /usr/bin/npm run sync:neverskip:browser >> /var/log/neverskip-sync.log 2>&1

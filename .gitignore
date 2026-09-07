@@ -55,3 +55,6 @@ security/zap_report.html
 # dynatrace
 *dynatrace*
 prisma/*.backup
+
+# Worker compose secrets (never commit)
+deploy/neverskip-worker/.env
