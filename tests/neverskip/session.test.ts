@@ -6,6 +6,7 @@ import {
   neverSkipProfileExists,
   resolveNeverSkipProfileDir,
   DEFAULT_PROFILE_DIR,
+  isNeverSkipFailureEnvelope,
 } from '@/lib/neverskip/browser';
 import path from 'path';
 import fs from 'fs';
@@ -25,6 +26,23 @@ describe('NeverSkip session URL assessment', () => {
     expect(assessSessionUrl('https://parent.neverskip.com/default/dailynotice')).toBe(
       'authenticated',
     );
+  });
+
+  it('does not treat portal root as authenticated when an app route is required', () => {
+    expect(assessSessionUrl('https://parent.neverskip.com/', { expectAppRoute: true })).toBe(
+      'login',
+    );
+    expect(
+      assessSessionUrl('https://parent.neverskip.com/default/assignment', {
+        expectAppRoute: true,
+      }),
+    ).toBe('authenticated');
+  });
+
+  it('detects NeverSkip API failure envelopes without logging payload values', () => {
+    expect(isNeverSkipFailureEnvelope({ S: false, M: 'x', F: 801 })).toBe(true);
+    expect(isNeverSkipFailureEnvelope({ S: true, D: { item_list: [] }, F: 'S' })).toBe(false);
+    expect(isNeverSkipFailureEnvelope(null)).toBe(false);
   });
 });
 
