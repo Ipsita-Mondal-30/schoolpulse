@@ -31,7 +31,6 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
 !.env.example
 
 # local sqlite
@@ -58,3 +57,4 @@ prisma/*.backup
 
 # Worker compose secrets (never commit)
 deploy/neverskip-worker/.env
+config.bat
