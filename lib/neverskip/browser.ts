@@ -89,8 +89,35 @@ export function looksLikeLoginUrl(url: string): boolean {
 
 export type SessionUrlAssessment = 'login' | 'authenticated';
 
-export function assessSessionUrl(url: string): SessionUrlAssessment {
-  return looksLikeLoginUrl(url) ? 'login' : 'authenticated';
+export interface AssessSessionUrlOptions {
+  /**
+   * When true, only `/default/...` app routes count as authenticated.
+   * Portal root `/` alone is NOT proof of login (expired sessions often land there).
+   */
+  expectAppRoute?: boolean;
+}
+
+export function assessSessionUrl(
+  url: string,
+  options: AssessSessionUrlOptions = {},
+): SessionUrlAssessment {
+  if (looksLikeLoginUrl(url)) return 'login';
+  if (options.expectAppRoute) {
+    try {
+      const pathName = new URL(url).pathname.replace(/\/+$/, '') || '/';
+      if (!pathName.startsWith('/default')) return 'login';
+    } catch {
+      return 'login';
+    }
+  }
+  return 'authenticated';
+}
+
+/** NeverSkip API failure envelope: { S: false, M, F } with no data payload. */
+export function isNeverSkipFailureEnvelope(body: unknown): boolean {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return false;
+  const root = body as Record<string, unknown>;
+  return root.S === false;
 }
 
 export function resolveNeverSkipProfileDir(profileDir?: string): string {
@@ -239,7 +266,7 @@ export async function loginNeverSkipSession(
       await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     }
 
-    if (assessSessionUrl(page.url()) === 'login') {
+    if (assessSessionUrl(page.url(), { expectAppRoute: true }) === 'login') {
       throwSessionExpired();
     }
 
@@ -350,8 +377,10 @@ export async function collectNeverSkipData(
     // Notices first
     nsLog(`Opening notices page`);
     await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
+    // SPA may client-redirect to /auth/login after first paint
+    await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 15_000) }).catch(() => undefined);
 
-    if (requireAuth && assessSessionUrl(page.url()) === 'login') {
+    if (requireAuth && assessSessionUrl(page.url(), { expectAppRoute: true }) === 'login') {
       throwSessionExpired();
     }
 
@@ -380,8 +409,9 @@ export async function collectNeverSkipData(
     // Homework page
     nsLog(`Opening homework page`);
     await page.goto(homeworkPageUrl, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
+    await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 15_000) }).catch(() => undefined);
 
-    if (requireAuth && assessSessionUrl(page.url()) === 'login') {
+    if (requireAuth && assessSessionUrl(page.url(), { expectAppRoute: true }) === 'login') {
       throwSessionExpired();
     }
 
@@ -398,6 +428,9 @@ export async function collectNeverSkipData(
         sessionTokenHeader ? { Token: sessionTokenHeader } : undefined,
       );
       if (result?.body) {
+        if (requireAuth && isNeverSkipFailureEnvelope(result.body)) {
+          throwSessionExpired();
+        }
         noticesRaw = result.body as NeverSkipNoticesResponse;
         nsLog('Notices response captured');
       }
@@ -413,10 +446,20 @@ export async function collectNeverSkipData(
         sessionTokenHeader ? { Token: sessionTokenHeader } : undefined,
       );
       if (result?.body) {
+        if (requireAuth && isNeverSkipFailureEnvelope(result.body)) {
+          throwSessionExpired();
+        }
         homeworkRaw = result.body as NeverSkipHomeworkResponse;
         homeworkMeta = { url: result.url, status: result.status };
         nsLog('Homework response captured');
       }
+    }
+
+    if (requireAuth && homeworkRaw && isNeverSkipFailureEnvelope(homeworkRaw)) {
+      throwSessionExpired();
+    }
+    if (requireAuth && noticesRaw && isNeverSkipFailureEnvelope(noticesRaw)) {
+      throwSessionExpired();
     }
 
     if (!homeworkRaw && !noticesRaw) {
