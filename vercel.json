@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/neverskip-sync",
-      "schedule": "0 */4 * * *"
-    }
-  ]
-}

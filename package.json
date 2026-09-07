@@ -12,7 +12,8 @@
     "sync:neverskip": "tsx scripts/sync-neverskip.ts",
     "sync:neverskip:browser": "tsx scripts/sync-neverskip-browser.ts",
     "neverskip:login": "tsx scripts/neverskip-login.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "worker:neverskip": "tsx scripts/neverskip-worker.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.26",
