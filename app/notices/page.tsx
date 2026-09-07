@@ -2,17 +2,12 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import noticesData from "@/data/notices.json";
+import noticesMeta from "@/data/notices.json";
+import { loadNoticesForUi } from "@/app/actions";
+import { filterNoticesByClass, type UiNoticeItem } from "@/lib/ui-merge";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
-type Notice = {
-  id: string;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:MM (24h)
-  classes: string[];
-  summary: string;
-  message: string;
-};
+type Notice = UiNoticeItem;
 
 // ── Subject inference (from message keywords) ──────────────────────────────────
 type SubjectMeta = { label: string; icon: string; badge: string; ring: string; gradient: string };
@@ -58,6 +53,9 @@ function formatTime(hhmm: string): string {
   return `${h12}:${String(m).padStart(2, "0")} ${period}`;
 }
 function dateParts(iso: string) {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    return { day: "—", monthAbbr: "—", weekday: "—" };
+  }
   const [y, m, d] = iso.split("-").map(Number);
   const obj = new Date(y, m - 1, d);
   return {
@@ -67,6 +65,7 @@ function dateParts(iso: string) {
   };
 }
 function formatDateFull(iso: string): string {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "Undated";
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("en-IN", {
     weekday: "long",
@@ -179,13 +178,16 @@ function NoticeCard({ notice, today, activeClass }: { notice: Notice; today: str
 type Mode = "all" | "day";
 
 export default function NoticesPage() {
-  const notices = noticesData.notices as Notice[];
+  const [notices, setNotices] = useState<Notice[]>([]);
 
-  // Sorted newest-first
-  const sorted = useMemo(
-    () => [...notices].sort((a, b) => (a.date === b.date ? b.time.localeCompare(a.time) : b.date.localeCompare(a.date))),
-    [notices]
-  );
+  useEffect(() => {
+    loadNoticesForUi()
+      .then((rows) => setNotices(rows))
+      .catch((e) => console.error("Failed to fetch notices", e));
+  }, []);
+
+  // Server already returns newest-first; keep stable reference
+  const sorted = notices;
 
   // Unique notice dates, newest-first
   const availableDates = useMemo(() => Array.from(new Set(sorted.map((n) => n.date))), [sorted]);
@@ -197,10 +199,16 @@ export default function NoticesPage() {
   );
 
   const [mode, setMode] = useState<Mode>("all");
-  const [selectedDate, setSelectedDate] = useState<string>(availableDates[0] ?? "");
+  const [selectedDate, setSelectedDate] = useState<string>("");
   const [activeClass, setActiveClass] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [today, setToday] = useState("");
+
+  useEffect(() => {
+    if (!selectedDate && availableDates.length > 0) {
+      setSelectedDate(availableDates[0]);
+    }
+  }, [availableDates, selectedDate]);
 
   // Compute "today" client-side to avoid hydration mismatch
   useEffect(() => {
@@ -231,8 +239,7 @@ export default function NoticesPage() {
   const applyFilters = useMemo(() => {
     const q = search.trim().toLowerCase();
     return (list: Notice[]) =>
-      list.filter((n) => {
-        if (activeClass !== "All" && !n.classes.includes(activeClass)) return false;
+      filterNoticesByClass(list, activeClass).filter((n) => {
         if (!q) return true;
         return (
           n.summary.toLowerCase().includes(q) ||
@@ -252,7 +259,12 @@ export default function NoticesPage() {
       arr.push(n);
       map.set(n.date, arr);
     }
-    return [...map.entries()].sort(([a], [b]) => b.localeCompare(a));
+    return [...map.entries()].sort(([a], [b]) => {
+      if (!a && !b) return 0;
+      if (!a) return 1;
+      if (!b) return -1;
+      return b.localeCompare(a);
+    });
   }, [mode, selectedDate, sorted, applyFilters]);
 
   const totalShown = groups.reduce((a, [, items]) => a + items.length, 0);
@@ -435,7 +447,7 @@ export default function NoticesPage() {
 
       {/* ── Footer note ── */}
       <p className="mt-8 text-center text-[11px] text-gray-400">
-        Source: {noticesData.source} · Last synced {noticesData.lastSynced}
+        Source: {noticesMeta.source} · Last synced {noticesMeta.lastSynced} · {notices.length} notices (JSON + NeverSkip)
       </p>
     </main>
   );

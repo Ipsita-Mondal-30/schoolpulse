@@ -3,98 +3,135 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model School {
-  id        String   @id @default(uuid())
-  name      String
-  code      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  classes   Class[]
+  id            String         @id @default(uuid())
+  name          String
+  code          String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  announcements Announcement[]
+  classes       Class[]
 }
 
 model Class {
-  id        String   @id @default(uuid())
-  name      String   // e.g. "PP3", "Grade 1"
-  section   String?  // e.g. "A", "B"
-  schoolId  String
-  school    School   @relation(fields: [schoolId], references: [id])
-  months    Month[]
-  users     User[]
+  id            String         @id @default(uuid())
+  name          String
+  section       String?
+  schoolId      String
   announcements Announcement[]
-  
+  school        School         @relation(fields: [schoolId], references: [id])
+  months        Month[]
+  users         User[]
+
   @@unique([schoolId, name, section])
 }
 
 model Month {
-  id        String   @id @default(uuid())
-  name      String   // e.g. "February"
-  year      Int
-  classId   String
-  class     Class    @relation(fields: [classId], references: [id])
-  weeks     Week[]
-  
+  id      String @id @default(uuid())
+  name    String
+  year    Int
+  classId String
+  class   Class  @relation(fields: [classId], references: [id])
+  weeks   Week[]
+
   @@unique([classId, year, name])
 }
 
 model Week {
-  id         String   @id @default(uuid())
-  weekStart  DateTime
-  weekEnd    DateTime
-  dictationWords String? // JSON string or comma separated
-  monthId    String
-  month      Month    @relation(fields: [monthId], references: [id])
-  days       Day[]
+  id             String   @id @default(uuid())
+  weekStart      DateTime
+  weekEnd        DateTime
+  dictationWords String?
+  monthId        String
+  days           Day[]
+  month          Month    @relation(fields: [monthId], references: [id])
 }
 
 model Day {
-  id        String   @id @default(uuid())
-  date      DateTime
-  dayOfWeek String
-  isHoliday Boolean  @default(false)
+  id          String         @id @default(uuid())
+  date        DateTime
+  dayOfWeek   String
+  isHoliday   Boolean        @default(false)
   holidayName String?
-  schedule  ScheduleItem[]
-  weekId    String
-  week      Week     @relation(fields: [weekId], references: [id])
-  
+  weekId      String
+  week        Week           @relation(fields: [weekId], references: [id])
+  schedule    ScheduleItem[]
+
   @@unique([weekId, date])
 }
 
 model ScheduleItem {
-  id        String @id @default(uuid())
-  time      String
-  subject   String
-  activity  String
-  dayId     String
-  day       Day    @relation(fields: [dayId], references: [id])
+  id       String @id @default(uuid())
+  time     String
+  subject  String
+  activity String
+  dayId    String
+  day      Day    @relation(fields: [dayId], references: [id])
 }
 
 model Announcement {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   title     String
   message   String
-  type      String   // info, warning, holiday, important
+  type      String
   expiresAt DateTime?
-  createdAt DateTime @default(now())
-  
+  createdAt DateTime  @default(now())
   schoolId  String?
-  school    School?  @relation(fields: [schoolId], references: [id])
-  
   classId   String?
-  class     Class?   @relation(fields: [classId], references: [id])
+  class     Class?    @relation(fields: [classId], references: [id])
+  school    School?   @relation(fields: [schoolId], references: [id])
 }
 
 model User {
-  id       String @id @default(uuid())
-  email    String @unique
-  name     String?
-  role     String // ADMIN, TEACHER, PARENT
-  
-  classId  String?
-  class    Class? @relation(fields: [classId], references: [id])
-  
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  role      String
+  classId   String?
   createdAt DateTime @default(now())
+  class     Class?   @relation(fields: [classId], references: [id])
+}
+
+/// Automated NeverSkip homework (source of truth for sync; UI falls back to JSON/Sheets)
+model ImportedHomework {
+  id            String   @id @default(cuid())
+  source        String   @default("neverskip")
+  sourceId      String
+  refId         String?
+  subjectId     String?
+  subjectName   String
+  title         String
+  description   String
+  sectionsJson  String
+  homeworkDate  String
+  dueDate       String?
+  attachmentUrl String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([source, sourceId])
+  @@index([homeworkDate])
+}
+
+/// Automated NeverSkip daily notices
+model ImportedNotice {
+  id            String   @id @default(cuid())
+  source        String   @default("neverskip")
+  sourceId      String
+  title         String
+  summary       String
+  content       String
+  publishedDate String
+  publishedTime String
+  classesJson   String
+  imageUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([source, sourceId])
+  @@index([publishedDate])
 }

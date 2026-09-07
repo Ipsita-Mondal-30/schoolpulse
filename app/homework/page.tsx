@@ -1,53 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { fetchSheetHomework, SheetHomework } from "../actions";
-import schoolHomeworkData from "@/data/school-homework.json";
+import { loadHomeworkForUi } from "../actions";
+import {
+  filterHomeworkBySection,
+  sortHomeworkDatesNewestFirst,
+  type UiHomeworkItem,
+} from "@/lib/ui-merge";
 
 const DEFAULT_SECTION = "I-A";
 const ALL_SECTIONS = ["I-A", "I-B", "I-C", "I-D", "I-E", "I-F", "I-G", "I-H", "I-I", "I-J", "I-K"];
 const PINNED_SECTION_KEY = "schoolpulse_pinned_section";
 
-interface HomeworkItem {
-  id: string;
-  title: string;
-  subject: string;
-  sections: string[];
-  description: string;
-  submissionDate?: string;
-  sentDate: string;
-  attachmentImage?: string;
-}
-
-function sheetRowsToHomework(rows: SheetHomework[]): HomeworkItem[] {
-  const grouped: Record<string, HomeworkItem> = {};
-
-  for (const row of rows) {
-    const key = `${row.sentDate}|${row.subject}|${row.title}`;
-    if (grouped[key]) {
-      if (!grouped[key].sections.includes(row.section)) {
-        grouped[key].sections.push(row.section);
-      }
-    } else {
-      grouped[key] = {
-        id: row.id,
-        title: row.title,
-        subject: row.subject,
-        sections: [row.section],
-        description: row.description,
-        submissionDate: row.submissionDate || undefined,
-        sentDate: row.sentDate,
-      };
-    }
-  }
-
-  return Object.values(grouped);
-}
+type HomeworkItem = UiHomeworkItem;
 
 export default function HomeworkPage() {
   const [selectedSection, setSelectedSection] = useState<string>(DEFAULT_SECTION);
   const [pinnedSection, setPinnedSection] = useState<string>(DEFAULT_SECTION);
-  const [sheetHomework, setSheetHomework] = useState<HomeworkItem[]>([]);
+  const [allHomework, setAllHomework] = useState<HomeworkItem[]>([]);
+  const [fromSheet, setFromSheet] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -61,19 +32,18 @@ export default function HomeworkPage() {
   }, []);
 
   useEffect(() => {
-    async function loadSheet() {
+    async function loadData() {
       try {
-        const rows = await fetchSheetHomework();
-        if (rows.length > 0) {
-          setSheetHomework(sheetRowsToHomework(rows));
-        }
+        const { items, fromSheet: sheetLive } = await loadHomeworkForUi();
+        setAllHomework(items);
+        setFromSheet(sheetLive);
       } catch (e) {
-        console.error("Failed to fetch sheet homework", e);
+        console.error("Failed to fetch homework sources", e);
       } finally {
         setLoading(false);
       }
     }
-    loadSheet();
+    loadData();
   }, []);
 
   const handlePinSection = (sec: string) => {
@@ -83,12 +53,7 @@ export default function HomeworkPage() {
     }
   };
 
-  const localHomework = schoolHomeworkData as HomeworkItem[];
-
-  // Merge: sheet data takes priority, local JSON is fallback
-  const allHomework = sheetHomework.length > 0 ? sheetHomework : localHomework;
-
-  const filteredList = allHomework.filter(hw => hw.sections.includes(selectedSection));
+  const filteredList = filterHomeworkBySection(allHomework, selectedSection);
 
   const groupedByDate = filteredList.reduce((acc, hw) => {
     if (!acc[hw.sentDate]) acc[hw.sentDate] = [];
@@ -96,9 +61,7 @@ export default function HomeworkPage() {
     return acc;
   }, {} as Record<string, HomeworkItem[]>);
 
-  const sortedDates = Object.keys(groupedByDate).sort((a, b) =>
-    new Date(b).getTime() - new Date(a).getTime()
-  );
+  const sortedDates = sortHomeworkDatesNewestFirst(Object.keys(groupedByDate));
 
   const sectionCounts = ALL_SECTIONS.reduce((acc, sec) => {
     acc[sec] = allHomework.filter(hw => hw.sections.includes(sec)).length;
@@ -124,7 +87,7 @@ export default function HomeworkPage() {
       sortedDates.forEach((date, index) => { initial[date] = index < 3; });
       setExpandedDates(initial);
     }
-  }, [selectedSection, sheetHomework]);
+  }, [selectedSection, allHomework, sortedDates.join("|")]);
 
   const toggleDate = (date: string) => {
     setExpandedDates(prev => ({ ...prev, [date]: !prev[date] }));
@@ -148,7 +111,7 @@ export default function HomeworkPage() {
     return day.split("").map(c => digitMap[c] || c).join("");
   };
 
-  const isFromSheet = sheetHomework.length > 0;
+  const isFromSheet = fromSheet;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
