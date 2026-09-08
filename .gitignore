@@ -42,6 +42,11 @@ prisma/*.backup
 # NeverSkip Playwright authenticated browser profile (never commit)
 .playwright-profile/
 
+# NeverSkip profile export for GitHub Actions secret (never commit)
+.neverskip-profile.b64
+.neverskip-profile.tgz
+.neverskip-profile-export/
+
 # vercel
 .vercel
 

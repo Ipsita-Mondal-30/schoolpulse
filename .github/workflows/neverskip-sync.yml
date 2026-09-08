@@ -1,0 +1,102 @@
+name: NeverSkip Sync
+
+on:
+  schedule:
+    # Every 4 hours (UTC)
+    - cron: "0 */4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Browser sync → Neon
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Restore NeverSkip Playwright profile
+        env:
+          NEVERSKIP_PROFILE_B64: ${{ secrets.NEVERSKIP_PROFILE_B64 }}
+        run: |
+          set -euo pipefail
+          # Do not enable xtrace — never dump the secret to logs.
+          set +x
+
+          if [ -z "${NEVERSKIP_PROFILE_B64:-}" ]; then
+            echo "ERROR: NEVERSKIP_PROFILE_B64 secret is missing or empty."
+            echo "Package a local session with ./scripts/package-neverskip-profile.sh"
+            echo "and add it as a repository Actions secret."
+            exit 1
+          fi
+
+          PROFILE_DIR="${RUNNER_TEMP}/neverskip-profile"
+          B64_FILE="${RUNNER_TEMP}/neverskip-profile.b64"
+          TGZ_FILE="${RUNNER_TEMP}/neverskip-profile.tgz"
+
+          mkdir -p "$PROFILE_DIR"
+          # Write secret to a temp file (not echoed)
+          printf '%s' "$NEVERSKIP_PROFILE_B64" > "$B64_FILE"
+          base64 -d < "$B64_FILE" > "$TGZ_FILE"
+          tar -xzf "$TGZ_FILE" -C "$PROFILE_DIR"
+
+          # Drop encoded copies as soon as extract succeeds
+          rm -f "$B64_FILE" "$TGZ_FILE"
+
+          if [ -z "$(find "$PROFILE_DIR" -type f | head -n 1)" ]; then
+            echo "ERROR: Restored NeverSkip profile directory is empty."
+            exit 1
+          fi
+
+          echo "NeverSkip profile restored to temporary directory."
+          echo "PROFILE_DIR=$PROFILE_DIR" >> "$GITHUB_ENV"
+
+      - name: Sync NeverSkip → PostgreSQL
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEVERSKIP_PROFILE_DIR: ${{ env.PROFILE_DIR }}
+          NEVERSKIP_HEADLESS: "true"
+        run: |
+          set -euo pipefail
+          set +x
+
+          if [ -z "${DATABASE_URL:-}" ]; then
+            echo "ERROR: DATABASE_URL secret is missing or empty."
+            exit 1
+          fi
+
+          if [ -z "${NEVERSKIP_PROFILE_DIR:-}" ] || [ ! -d "$NEVERSKIP_PROFILE_DIR" ]; then
+            echo "ERROR: NEVERSKIP_PROFILE_DIR is not set or missing."
+            exit 1
+          fi
+
+          # Existing script exits 1 on session expiry / Access Denied /
+          # incomplete pagination / DB sync errors.
+          npm run sync:neverskip:browser
+
+      - name: Cleanup NeverSkip profile
+        if: always()
+        run: |
+          set +x
+          rm -rf "${RUNNER_TEMP}/neverskip-profile" \
+                 "${RUNNER_TEMP}/neverskip-profile.b64" \
+                 "${RUNNER_TEMP}/neverskip-profile.tgz" || true
+          echo "Temporary NeverSkip profile cleaned up."
