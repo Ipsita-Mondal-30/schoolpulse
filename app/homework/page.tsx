@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { loadHomeworkForUi } from "../actions";
 import {
   filterHomeworkBySection,
   sortHomeworkDatesNewestFirst,
   type UiHomeworkItem,
 } from "@/lib/ui-merge";
+import { useHomeworkQuery } from "@/lib/queries/homework";
 
 const DEFAULT_SECTION = "I-A";
 const ALL_SECTIONS = ["I-A", "I-B", "I-C", "I-D", "I-E", "I-F", "I-G", "I-H", "I-I", "I-J", "I-K"];
@@ -15,11 +15,12 @@ const PINNED_SECTION_KEY = "schoolpulse_pinned_section";
 type HomeworkItem = UiHomeworkItem;
 
 export default function HomeworkPage() {
+  const { data, isPending, isError, error } = useHomeworkQuery();
   const [selectedSection, setSelectedSection] = useState<string>(DEFAULT_SECTION);
   const [pinnedSection, setPinnedSection] = useState<string>(DEFAULT_SECTION);
-  const [allHomework, setAllHomework] = useState<HomeworkItem[]>([]);
-  const [fromSheet, setFromSheet] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const allHomework = data?.items ?? [];
+  const fromSheet = data?.fromSheet ?? false;
+  const loading = isPending;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -32,19 +33,10 @@ export default function HomeworkPage() {
   }, []);
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const { items, fromSheet: sheetLive } = await loadHomeworkForUi();
-        setAllHomework(items);
-        setFromSheet(sheetLive);
-      } catch (e) {
-        console.error("Failed to fetch homework sources", e);
-      } finally {
-        setLoading(false);
-      }
+    if (isError) {
+      console.error("Failed to fetch homework sources", error);
     }
-    loadData();
-  }, []);
+  }, [isError, error]);
 
   const handlePinSection = (sec: string) => {
     setPinnedSection(sec);

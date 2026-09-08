@@ -1,0 +1,197 @@
+{
+  "month": "September",
+  "year": 2026,
+  "class": "Class 1",
+  "school": "BGS National Public School",
+  "newsletterPending": false,
+  "weeks": [],
+  "monthlyPlanner": [
+    {
+      "subject": "English",
+      "portions": [
+        "Grammar: Unit 5 - This/That, These/Those",
+        "Grammar: Unit 6 - Describing Words",
+        "Literature: Unit 5 - The Hungry Caterpillar",
+        "Revision of Joy of Learning Worksheet II"
+      ],
+      "activities": [
+        "Make a Caterpillar",
+        "Making of a ‘Menu Card’"
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "portions": [
+        "Chapter 6 More about Number (51-100)",
+        "Chapter 10 Shapes and Patterns",
+        "Joy of Learning Worksheet 2 Revision"
+      ],
+      "activities": [
+        "Activity on Shapes and Patterns"
+      ]
+    },
+    {
+      "subject": "EVS",
+      "portions": [
+        "Ch 9. Our School",
+        "Revision - Joy of Learning Worksheet II",
+        "Revision - Ch 4: I Keep My Body Clean",
+        "Revision - Ch 5: My Family",
+        "Revision - Ch 6: My Home",
+        "Revision - Ch 7: My Food",
+        "Revision - Ch 8: Our Clothes",
+        "Revision - Ch 9: Our School",
+        "Practice paper"
+      ],
+      "activities": [
+        "Activity: Talk about My School"
+      ]
+    },
+    {
+      "subject": "Hindi",
+      "portions": [
+        "ऋ की मात्रा",
+        "ए की मात्रा",
+        "ऐ की मात्रा",
+        "पुनरावर्तन"
+      ],
+      "activities": [
+        "TB Pg no 53 - Q6: कृषक का चित्र चिपकाकर उसकी दो विशेषताएँ लिखिए"
+      ]
+    },
+    {
+      "subject": "Kannada",
+      "portions": [
+        "ಗುಣಿತಾಕ್ಷರಗಳು (ಮುಂದುವರೆಯುವುದು)",
+        "ಪಾಠ-೧ ಸರ (ಚ.ಕ)",
+        "ಪಾಠ-೨ ಗಜ (ಚ.ಕ)",
+        "ಪಾಠ-೪ ಓಟ (ಚ.ಕ)",
+        "ಪಾಠ-೫ ಹನುಮನ ಪಟ (ಚ.ಕ)",
+        "ಪಾಠ-೬ ಬೇಸಿಗೆ ರಜೆಯಲಿ (ಪದ್ಯ)",
+        "ಪಾಠ-೭ ಕೇತಿ ಮತ್ತು ಅಳಿಲು (ಸ.ಕ)"
+      ],
+      "activities": [
+        "ಮುಂಚು ಪಟ್ಟಿಗಳ ಸಹಾಯದಿಂದ ಗುಣಿತಾಕ್ಷರಗಳನ್ನು ಓದುವುದು"
+      ]
+    },
+    {
+      "subject": "Computer Science",
+      "portions": [
+        "Midterm JOL Computer practical — 01/09/26 to 09/09/26",
+        "Midterm Revision 1 *(07/09/26 to 11/09/26): Module 1 - Uses of a computer",
+        "Midterm Revision 2 *(14/09/26 to 18/09/26): Module 2 - Operating a computer",
+        "Midterm Revision 3 *(21/09/26 to 25/09/26): Module 3 - Parts of a computer",
+        "Practice Paper *(21/09/26 to 25/09/26)"
+      ],
+      "activities": [
+        "Robotics Activity: Sound of Fire Engine (21/09/26 to 25/09/26)"
+      ]
+    },
+    {
+      "subject": "Ulipsu",
+      "portions": [
+        "ILM 6 - Addition in Bloom",
+        "ILM 7 - Number Ninjas"
+      ],
+      "activities": []
+    },
+    {
+      "subject": "Skill Education",
+      "portions": [
+        "Chapter-7 Let us play",
+        "Chapter-8 How Do You Feel?",
+        "Chapter-9 Bedtime Stories"
+      ],
+      "activities": []
+    }
+  ],
+  "importantDates": [
+    {
+      "date": "2026-09-01",
+      "event": "Sanskrit Day",
+      "type": "event",
+      "description": "Sanskrit Day"
+    },
+    {
+      "date": "2026-09-04",
+      "event": "Krishna Janmashtami",
+      "type": "holiday",
+      "description": "School holiday — Krishna Janmashtami"
+    },
+    {
+      "date": "2026-09-05",
+      "event": "Teacher’s Day / Super Dancer Round 1",
+      "type": "event",
+      "description": "Teacher’s Day celebration and Super Dancer Round 1"
+    },
+    {
+      "date": "2026-09-10",
+      "event": "Carpediem Begins",
+      "type": "event",
+      "description": "CARPEDIEM inter-school sports — Thursday to Saturday (10/09/2026–12/09/2026)"
+    },
+    {
+      "date": "2026-09-11",
+      "event": "Carpediem",
+      "type": "event",
+      "description": "CARPEDIEM Day 2"
+    },
+    {
+      "date": "2026-09-12",
+      "event": "Carpediem Ends",
+      "type": "event",
+      "description": "CARPEDIEM Day 3"
+    },
+    {
+      "date": "2026-09-14",
+      "event": "Vinayaka Chaturthi",
+      "type": "holiday",
+      "description": "School holiday — Vinayaka Chaturthi / Ganesh Chaturthi"
+    },
+    {
+      "date": "2026-09-16",
+      "event": "Math Quest Finals",
+      "type": "event",
+      "description": "Math Quest Finals"
+    },
+    {
+      "date": "2026-09-30",
+      "event": "Joy of Learning Worksheet II Begins",
+      "type": "important",
+      "description": "Joy of Learning, Worksheet – II begins"
+    },
+    {
+      "date": "2026-10-12",
+      "event": "Joy of Learning Worksheet II Ends",
+      "type": "important",
+      "description": "Joy of Learning, Worksheet – II ends"
+    }
+  ],
+  "parentReminders": [
+    "School gates close sharply at 8:00 a.m.; late arrivals will not be permitted",
+    "Take care during viral flu season: hygiene, hydration, nutritious food, timely medical attention",
+    "Complete all notes, clarify doubts, revise regularly, and submit assignments on time for Mid-Term Assessments",
+    "High School/Senior Secondary: class tests are mandatory — attend and write all class tests",
+    "Use Subject Enrichment Classes to strengthen concepts and bridge learning gaps"
+  ],
+  "assessments": [
+    "Upcoming Mid-Term Assessments (academic session 2026–27 half-year mark)",
+    "Joy of Learning Worksheet – II: 30/09/2026 to 12/10/2026",
+    "Computer Midterm JOL practical and revision modules scheduled through September"
+  ],
+  "joyOfLearning": {
+    "title": "Joy of Learning, Worksheet – II",
+    "begins": "2026-09-30",
+    "ends": "2026-10-12",
+    "note": "Detailed subject-day timetable and portions appear as image pages in the newsletter PDF (pages titled JOY OF LEARNING, WORKSHEET – II TIMETABLE / PORTIONS)"
+  },
+  "extractionNotes": {
+    "sourcePdf": "public/newsletters/grade1-newsletter-september-2026.pdf",
+    "missingFromTextExtract": [
+      "Phonics, Art, Music, PE dedicated planner rows (not listed in Class 1 September planner text; Skill Education / Ulipsu present)",
+      "Daily class timetable grid (image-only)",
+      "Joy of Learning Worksheet II detailed day-wise timetable and portions (image-only pages)",
+      "Formal homework policy section (not found as dedicated text)"
+    ]
+  }
+}

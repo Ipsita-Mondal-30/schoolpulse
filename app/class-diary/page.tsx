@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from "react";
 import libraryData from "@/data/content-library.json";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
-type Media = { type: string; file: string };
+type Media = { type: string; file: string; url?: string };
 type Resource = {
   id: string;
   subject: string;
@@ -13,11 +13,19 @@ type Resource = {
   date: string; // YYYY-MM-DD
   time: string; // HH:MM
   section: string;
+  category?: string;
+  grade?: string;
+  monthLabel?: string;
   media: Media[];
 };
 
 const MEDIA_BASE = libraryData.mediaBase;
 const resources = libraryData.resources as Resource[];
+
+function mediaHref(m: Media): string {
+  if (m.url) return m.url;
+  return MEDIA_BASE + m.file;
+}
 
 // ── Subject styling ─────────────────────────────────────────────────────────────
 type SubjectStyle = { icon: string; badge: string; grad: string; dot: string; soft: string };
@@ -28,15 +36,23 @@ const SUBJECTS: Record<string, SubjectStyle> = {
   MATHEMATICS: { icon: "🔢", badge: "bg-violet-100 text-violet-700", grad: "from-violet-500 to-purple-600", dot: "bg-violet-500", soft: "bg-violet-50" },
   "E.V.S": { icon: "🌿", badge: "bg-emerald-100 text-emerald-700", grad: "from-emerald-500 to-teal-600", dot: "bg-emerald-500", soft: "bg-emerald-50" },
   "COMPUTER SCIENCE": { icon: "💻", badge: "bg-indigo-100 text-indigo-700", grad: "from-indigo-500 to-blue-600", dot: "bg-indigo-500", soft: "bg-indigo-50" },
+  NEWSLETTER: { icon: "📰", badge: "bg-orange-100 text-orange-700", grad: "from-orange-500 to-amber-600", dot: "bg-orange-500", soft: "bg-orange-50" },
 };
 const DEFAULT_STYLE: SubjectStyle = { icon: "📚", badge: "bg-gray-100 text-gray-700", grad: "from-slate-500 to-gray-600", dot: "bg-gray-400", soft: "bg-gray-50" };
 const styleFor = (s: string) => SUBJECTS[s.toUpperCase()] ?? DEFAULT_STYLE;
-const prettySubject = (s: string) => (s.toUpperCase() === "E.V.S" ? "EVS" : s.replace(/\b\w+/g, (w) => w[0] + w.slice(1).toLowerCase()));
+const prettySubject = (s: string) => {
+  if (s.toUpperCase() === "E.V.S") return "EVS";
+  if (s.toUpperCase() === "NEWSLETTER") return "Newsletter";
+  return s.replace(/\b\w+/g, (w) => w[0] + w.slice(1).toLowerCase());
+};
 
-// Cross-cutting "Practice Paper" detection (spans every subject)
+// Cross-cutting filters (span subjects)
 const PRACTICE_KEY = "__practice__";
+const NEWSLETTER_KEY = "__newsletter__";
 const isPracticePaper = (r: Resource) =>
   /practice\s*paper/i.test(r.title) || r.media.some((m) => /practicepaper/i.test(m.file));
+const isNewsletter = (r: Resource) =>
+  (r.category || "").toUpperCase() === "NEWSLETTER" || r.subject.toUpperCase() === "NEWSLETTER";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────────
 const monthKey = (iso: string) => iso.slice(0, 7);
@@ -59,8 +75,9 @@ const daysBetween = (a: string, b: string) => {
 };
 
 // Smart label for a media file
-function mediaLabel(file: string, type: string, idx: number, total: number): string {
+function mediaLabel(file: string, type: string, idx: number, total: number, isNl = false): string {
   if (type === "I") return "Image";
+  if (isNl || /newsletter/i.test(file)) return "View Newsletter";
   const f = file.toLowerCase();
   if (/answerkey|answer-key|ppak|paperak|papaerak|-ak|_ak|ak_|ak1|ak2|[0-9]ak|revpaper-\d+ak|revision\d*ak|rev\d*ak/.test(f)) return "Answer Key";
   if (/questionpaper|ppqp|paperqp|-qp|_qp|qp_|qp1|qp2/.test(f)) return "Question Paper";
@@ -87,6 +104,7 @@ function DocThumb({ isImage }: { isImage: boolean }) {
 function ResourceCard({ res, today }: { res: Resource; today: string }) {
   const [expanded, setExpanded] = useState(false);
   const st = styleFor(res.subject);
+  const nl = isNewsletter(res);
   const isNew = today !== "" && daysBetween(res.date, today) >= 0 && daysBetween(res.date, today) <= 3;
   const primaryIsImage = res.media[0]?.type === "I";
 
@@ -107,6 +125,16 @@ function ResourceCard({ res, today }: { res: Resource; today: string }) {
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${st.badge}`}>
               {st.icon} {prettySubject(res.subject)}
             </span>
+            {res.monthLabel && (
+              <span className="text-[10px] font-bold text-orange-700 bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded">
+                {res.monthLabel}
+              </span>
+            )}
+            {res.grade && (
+              <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
+                {res.grade}
+              </span>
+            )}
             <span className="text-[11px] text-gray-400 font-semibold">📅 {formatDateShort(res.date)}</span>
             {res.section && <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">{res.section}</span>}
           </div>
@@ -126,16 +154,19 @@ function ResourceCard({ res, today }: { res: Resource; today: string }) {
               return (
                 <a
                   key={i}
-                  href={MEDIA_BASE + m.file}
+                  href={mediaHref(m)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold transition-colors ${
                     isImg
                       ? "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-600 hover:text-white hover:border-blue-600"
-                      : "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-600 hover:text-white hover:border-purple-600"
+                      : nl
+                        ? "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-600 hover:text-white hover:border-orange-600"
+                        : "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-600 hover:text-white hover:border-purple-600"
                   }`}
                 >
-                  <span>{isImg ? "🖼️" : "📎"}</span> {mediaLabel(m.file, m.type, i, res.media.length)}
+                  <span>{isImg ? "🖼️" : nl ? "📰" : "📎"}</span>{" "}
+                  {mediaLabel(m.file, m.type, i, res.media.length, nl)}
                 </a>
               );
             })}
@@ -161,21 +192,23 @@ export default function ContentLibraryPage() {
     setToday(`${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`);
   }, []);
 
-  // Subject list with counts (sorted by count desc)
+  // Subject list with counts (sorted by count desc); exclude newsletter (own filter chip)
   const subjectCounts = useMemo(() => {
     const c = new Map<string, number>();
-    resources.forEach((r) => c.set(r.subject, (c.get(r.subject) ?? 0) + 1));
+    resources.forEach((r) => {
+      if (isNewsletter(r)) return;
+      c.set(r.subject, (c.get(r.subject) ?? 0) + 1);
+    });
     return [...c.entries()].sort((a, b) => b[1] - a[1]);
   }, []);
 
-  // Practice-paper count (cross-subject filter)
   const practiceCount = useMemo(() => resources.filter(isPracticePaper).length, []);
+  const newsletterCount = useMemo(() => resources.filter(isNewsletter).length, []);
 
   // Months present (desc)
   const months = useMemo(() => Array.from(new Set(resources.map((r) => monthKey(r.date)))).sort((a, b) => b.localeCompare(a)), []);
 
   const totalFiles = useMemo(() => resources.reduce((a, r) => a + r.media.length, 0), []);
-  const latestDate = useMemo(() => resources.map((r) => r.date).sort().slice(-1)[0], []);
 
   // Filtered set
   const filtered = useMemo(() => {
@@ -184,10 +217,18 @@ export default function ContentLibraryPage() {
       .filter((r) => {
         if (activeSubject === PRACTICE_KEY) {
           if (!isPracticePaper(r)) return false;
+        } else if (activeSubject === NEWSLETTER_KEY) {
+          if (!isNewsletter(r)) return false;
         } else if (activeSubject !== "All" && r.subject !== activeSubject) return false;
         if (activeMonth !== "All" && monthKey(r.date) !== activeMonth) return false;
         if (!q) return true;
-        return r.title.toLowerCase().includes(q) || r.description.toLowerCase().includes(q) || prettySubject(r.subject).toLowerCase().includes(q);
+        return (
+          r.title.toLowerCase().includes(q) ||
+          r.description.toLowerCase().includes(q) ||
+          prettySubject(r.subject).toLowerCase().includes(q) ||
+          (r.monthLabel || "").toLowerCase().includes(q) ||
+          (r.grade || "").toLowerCase().includes(q)
+        );
       })
       .sort((a, b) => (a.date === b.date ? b.time.localeCompare(a.time) : b.date.localeCompare(a.date)));
   }, [search, activeSubject, activeMonth]);
@@ -218,7 +259,7 @@ export default function ContentLibraryPage() {
             <h1 className="text-lg sm:text-xl font-bold tracking-wide uppercase">Content Library</h1>
           </div>
           <p className="mt-1 text-xs sm:text-sm text-purple-100">
-            Every worksheet, revision paper, answer key and note from the parent portal — grouped and searchable.
+            Worksheets, revision papers, answer keys, notes, and monthly newsletters — grouped and searchable.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">{resources.length} resources</span>
@@ -250,6 +291,16 @@ export default function ContentLibraryPage() {
             }`}
           >
             🗂️ All · {resources.length}
+          </button>
+          <button
+            onClick={() => setActiveSubject(NEWSLETTER_KEY)}
+            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${
+              activeSubject === NEWSLETTER_KEY
+                ? "bg-orange-600 text-white border-orange-600 shadow-sm"
+                : "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100"
+            }`}
+          >
+            📰 Newsletters · {newsletterCount}
           </button>
           <button
             onClick={() => setActiveSubject(PRACTICE_KEY)}
@@ -323,7 +374,11 @@ export default function ContentLibraryPage() {
       {/* ── Result count ── */}
       <p className="mt-4 text-xs text-gray-400 font-medium px-1">
         {filtered.length} {filtered.length === 1 ? "resource" : "resources"}
-        {activeSubject === PRACTICE_KEY ? " · Practice Papers" : activeSubject !== "All" && ` · ${prettySubject(activeSubject)}`}
+        {activeSubject === NEWSLETTER_KEY
+          ? " · Newsletters"
+          : activeSubject === PRACTICE_KEY
+            ? " · Practice Papers"
+            : activeSubject !== "All" && ` · ${prettySubject(activeSubject)}`}
         {activeMonth !== "All" && ` · ${monthLabel(activeMonth)}`}
       </p>
 

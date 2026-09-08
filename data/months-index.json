@@ -17,7 +17,19 @@
       "month": "July",
       "year": 2026,
       "file": "july-2026.json"
+    },
+    {
+      "id": "august-2026",
+      "month": "August",
+      "year": 2026,
+      "file": "august-2026.json"
+    },
+    {
+      "id": "september-2026",
+      "month": "September",
+      "year": 2026,
+      "file": "september-2026.json"
     }
   ],
-  "currentMonth": "july-2026"
+  "currentMonth": "september-2026"
 }

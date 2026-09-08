@@ -1,0 +1,184 @@
+{
+  "month": "August",
+  "year": 2026,
+  "class": "Class 1",
+  "school": "BGS National Public School",
+  "newsletterPending": false,
+  "weeks": [],
+  "monthlyPlanner": [
+    {
+      "subject": "English",
+      "portions": [
+        "Literature: Unit 3 - Tracy's Shoe (Continuation)",
+        "Literature: Unit 4 - The Colours of Nature",
+        "Grammar: Unit 3 - I am Chintu (Action words)",
+        "Grammar: Unit 4 - More about action words"
+      ],
+      "activities": [
+        "Let's play \"Enact and Freeze\"",
+        "Recite and Rejoice the song 'Our Friendly Helpers'",
+        "Make a 'Thank you' card for your Friendly Helpers"
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "portions": [
+        "Ch-3 Addition and Subtraction up to 20 (Continuation)",
+        "Ch-4 Playing with numbers 21 to 50",
+        "Ch-5 Addition and Subtraction 21 to 50"
+      ],
+      "activities": [
+        "Subtraction activity on the number line",
+        "Math in action (Comparing the numbers)",
+        "Activity - Find out your lucky number by adding the values (TB pg 76)"
+      ]
+    },
+    {
+      "subject": "EVS",
+      "portions": [
+        "Ch 6. My Home",
+        "Ch 7. My Food",
+        "Ch 8. Our Clothes",
+        "Ch 9. Our School"
+      ],
+      "activities": [
+        "Make a doll house/ pen stand",
+        "Draw any 5 fruits and vegetables on the chart paper and label it",
+        "Colour the pictures of winter dress (TB pg 48)",
+        "Introduction"
+      ]
+    },
+    {
+      "subject": "Hindi",
+      "portions": [
+        "उ की मात्रा",
+        "ऊ की मात्रा",
+        "ऋ की मात्रा",
+        "ए की मात्रा"
+      ],
+      "activities": [
+        "पाठ्यपुस्तक - बिंदुओं को मिलाकर चित्र को पूरा करके उसमें रंग भरो; श्रुतलेख",
+        "चित्र पूरा करो और उसमें रंग भरकर उसका नाम भी लिखो; श्रुतलेख",
+        "पाठ्यपुस्तक - कृषक का चित्र चिपकाकर उसकी दो विशेषताएँ लिखो",
+        "A4 शीट पर ए-मात्रा वाली दो-दो फल एवं सब्जियों के नाम लिखें"
+      ]
+    },
+    {
+      "subject": "Kannada",
+      "portions": [
+        "ಒತ್ತಕ್ಷರಗಳು (ಮುಂದುವರಿಯುವುದು) NB",
+        "ಒತ್ತಕ್ಷರದ ವಿಧಗಳು (ಸಜಾತೀಯ/ವಿಜಾತೀಯ)",
+        "ಅಂಕಿಗಳು ೧-೧೦ (ಪದ ಸಹಿತ) NB",
+        "ಗುಣಿತಾಕ್ಷರಗಳು (ಕ-ಣ) NB",
+        "ಪಾಠ_೨ ಸಹಕಾರ pg.6-10",
+        "ಪಾಠ_೪ ಹೂದೋಟ pg.15-20"
+      ],
+      "activities": [
+        "ಮುಂಚುಪಟ್ಟಿಗಳ ಸಹಾಯದಿಂದ ಒತ್ತಕ್ಷರಗಳನ್ನು, ಅಂಕಿಗಳನ್ನು ಓದುವುದು"
+      ]
+    },
+    {
+      "subject": "Computer Science",
+      "portions": [
+        "Module 1: Uses of a Computer"
+      ],
+      "activities": [
+        "Robotic Activity: CSPS Slow Flicker LED",
+        "Project: Stick pictures of places using computer",
+        "Lab Activity: Typing the keywords of Parts of computer in Notepad"
+      ]
+    }
+  ],
+  "importantDates": [
+    {
+      "date": "2026-08-04",
+      "event": "First PTI-2026 Begins",
+      "type": "important",
+      "description": "Parent-Teacher Interaction Day 1 (Tuesday–Thursday, 04/08/2026–06/08/2026)"
+    },
+    {
+      "date": "2026-08-05",
+      "event": "First PTI-2026",
+      "type": "important",
+      "description": "Parent-Teacher Interaction Day 2"
+    },
+    {
+      "date": "2026-08-06",
+      "event": "First PTI-2026 Ends",
+      "type": "important",
+      "description": "Parent-Teacher Interaction Day 3"
+    },
+    {
+      "date": "2026-08-07",
+      "event": "Tarang 2026 (Day 1)",
+      "type": "event",
+      "description": "Tarang 2026 — Friday"
+    },
+    {
+      "date": "2026-08-08",
+      "event": "Tarang 2026 (Day 2)",
+      "type": "event",
+      "description": "Tarang 2026 — Saturday"
+    },
+    {
+      "date": "2026-08-12",
+      "event": "Maths Quest Round-2",
+      "type": "event",
+      "description": "Mathematics quiz Round 2"
+    },
+    {
+      "date": "2026-08-14",
+      "event": "Inter-House Sports Competitions",
+      "type": "event",
+      "description": "Inter-House Sports Competitions (Class 1 to 5)"
+    },
+    {
+      "date": "2026-08-15",
+      "event": "Independence Day Celebration",
+      "type": "holiday",
+      "description": "Independence Day Celebration (79th / school celebration)"
+    },
+    {
+      "date": "2026-08-20",
+      "event": "Music Mania Season-17 Round-1",
+      "type": "event",
+      "description": "Music Mania Season-17 Round-1 (Grade 1 and 2)"
+    },
+    {
+      "date": "2026-08-25",
+      "event": "Literary Fiesta Fest",
+      "type": "event",
+      "description": "Literary Fiesta Fest"
+    },
+    {
+      "date": "2026-08-28",
+      "event": "Science Quest Round 1",
+      "type": "event",
+      "description": "Science Quest Round 1"
+    },
+    {
+      "date": "2026-08-29",
+      "event": "Brush Strokes (Semi-Final Round)",
+      "type": "event",
+      "description": "Brush Strokes art competition — Semi-Final Round"
+    }
+  ],
+  "parentReminders": [
+    "Attend Parent-Teacher Interaction (04–06 August 2026) to discuss academic progress and overall development",
+    "Encourage participation in Sports Day and other talent showcases",
+    "Students should follow teachers’ instructions sincerely inside and outside the classroom",
+    "Focus on good habits, strong values, character-building, and disciplined behaviour"
+  ],
+  "assessments": [
+    "Pre-Midterm Assessments concluded; teachers will address identified learning gaps with targeted support"
+  ],
+  "extractionNotes": {
+    "sourcePdf": "public/newsletters/grade1-newsletter-august-2026.pdf",
+    "missingFromTextExtract": [
+      "Phonics, Art, Music, PE, SEL subject planner rows (not present in extractable Class 1 planner pages)",
+      "Daily class timetable grid (image-only in PDF)",
+      "Joy of Learning detailed timetable/portions for August (not listed in Class 1 planner text)",
+      "Formal homework policy section (not found as dedicated text)"
+    ]
+  }
+}

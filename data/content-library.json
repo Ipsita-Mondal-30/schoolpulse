@@ -1,9 +1,55 @@
 {
   "source": "Neverskip Parent Portal — Content Library (BGS National Public School)",
   "sourceUrl": "https://parent.neverskip.com/default/content-library",
-  "lastSynced": "2026-07-21",
+  "lastSynced": "2026-09-08",
   "mediaBase": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/",
+  "categories": [
+    "NEWSLETTER",
+    "PRACTICE",
+    "REVISION",
+    "WORKSHEET",
+    "NOTES",
+    "ANSWER KEY"
+  ],
   "resources": [
+    {
+      "id": "cl-nl-sep-2026",
+      "subject": "NEWSLETTER",
+      "category": "NEWSLETTER",
+      "title": "Grade 1 Newsletter — September 2026",
+      "description": "Official Class I monthly newsletter for September 2026 (planner, important dates, Joy of Learning Worksheet II, parent reminders).",
+      "date": "2026-09-04",
+      "time": "16:40",
+      "section": "I-A",
+      "grade": "Grade 1",
+      "monthLabel": "September 2026",
+      "media": [
+        {
+          "type": "P",
+          "file": "grade1-newsletter-september-2026.pdf",
+          "url": "/newsletters/grade1-newsletter-september-2026.pdf"
+        }
+      ]
+    },
+    {
+      "id": "cl-nl-aug-2026",
+      "subject": "NEWSLETTER",
+      "category": "NEWSLETTER",
+      "title": "Grade 1 Newsletter — August 2026",
+      "description": "Official Class I monthly newsletter for August 2026 (planner, PTI, Tarang, Independence Day, competitions).",
+      "date": "2026-08-05",
+      "time": "10:02",
+      "section": "I-A",
+      "grade": "Grade 1",
+      "monthLabel": "August 2026",
+      "media": [
+        {
+          "type": "P",
+          "file": "grade1-newsletter-august-2026.pdf",
+          "url": "/newsletters/grade1-newsletter-august-2026.pdf"
+        }
+      ]
+    },
     {
       "id": "cl-001",
       "subject": "COMPUTER SCIENCE",

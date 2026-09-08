@@ -7,6 +7,7 @@ export default defineConfig({
     include: [
       'tests/neverskip/**/*.test.ts',
       'tests/ui-merge.test.ts',
+      'tests/ui-query-cache.test.ts',
     ],
   },
   resolve: {

@@ -4,6 +4,27 @@ import { useState } from "react";
 import jolData from "@/data/info/joy-of-learning.json";
 import studyGuide from "@/data/info/jol-study-guide.json";
 import RevisionGames from "@/components/RevisionGames";
+import { getMonthData } from "@/lib/data";
+
+function formatJoLWindowLabel(): string {
+  const jol = getMonthData().joyOfLearning;
+  const startRaw = jol?.begins ?? jol?.startDate;
+  const endRaw = jol?.ends ?? jol?.endDate;
+  if (startRaw && endRaw) {
+    const start = new Date(startRaw + "T00:00:00").toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    const end = new Date(endRaw + "T00:00:00").toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    const title = jol?.title ?? "Joy of Learning";
+    return `${title} · ${start} – ${end}`;
+  }
+  return "July 20-25, 2026";
+}
 
 const getSubjectIcon = (subject: string) => {
   const s = subject.toLowerCase();
@@ -294,7 +315,7 @@ export default function JoyOfLearningPage() {
               📅 Exam Timetable
             </h3>
             <p className="text-xs text-gray-500 font-medium mt-0.5">
-              Class I — July 20-25, 2026
+              Class I — {formatJoLWindowLabel()}
             </p>
           </div>
           <a

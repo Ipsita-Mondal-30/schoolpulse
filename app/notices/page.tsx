@@ -3,8 +3,8 @@
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import noticesMeta from "@/data/notices.json";
-import { loadNoticesForUi } from "@/app/actions";
 import { filterNoticesByClass, type UiNoticeItem } from "@/lib/ui-merge";
+import { useNoticesQuery } from "@/lib/queries/notices";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type Notice = UiNoticeItem;
@@ -178,13 +178,14 @@ function NoticeCard({ notice, today, activeClass }: { notice: Notice; today: str
 type Mode = "all" | "day";
 
 export default function NoticesPage() {
-  const [notices, setNotices] = useState<Notice[]>([]);
+  const { data, isError, error } = useNoticesQuery();
+  const notices = data ?? [];
 
   useEffect(() => {
-    loadNoticesForUi()
-      .then((rows) => setNotices(rows))
-      .catch((e) => console.error("Failed to fetch notices", e));
-  }, []);
+    if (isError) {
+      console.error("Failed to fetch notices", error);
+    }
+  }, [isError, error]);
 
   // Server already returns newest-first; keep stable reference
   const sorted = notices;

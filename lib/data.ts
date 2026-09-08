@@ -3,6 +3,8 @@ import monthsIndex from '@/data/months-index.json';
 import may2026 from '@/data/may-2026.json';
 import june2026 from '@/data/june-2026.json';
 import july2026 from '@/data/july-2026.json';
+import august2026 from '@/data/august-2026.json';
+import september2026 from '@/data/september-2026.json';
 
 export interface ScheduleItem {
   time: string;
@@ -81,6 +83,20 @@ export interface MonthData {
   };
   importantDates?: ImportantDate[];
   monthlyPlanner?: PlannerSubject[];
+  joyOfLearning?: {
+    title?: string;
+    begins?: string;
+    ends?: string;
+    startDate?: string;
+    endDate?: string;
+    note?: string;
+  };
+  parentReminders?: string[];
+  assessments?: string[];
+  extractionNotes?: {
+    sourcePdf?: string;
+    missingFromTextExtract?: string[];
+  };
 }
 
 export interface MonthInfo {
@@ -115,6 +131,8 @@ const monthDataMap: Record<string, MonthData> = {
   'may-2026': may2026 as MonthData,
   'june-2026': june2026 as MonthData,
   'july-2026': july2026 as MonthData,
+  'august-2026': august2026 as MonthData,
+  'september-2026': september2026 as MonthData,
 };
 
 export function getAvailableMonths(): MonthInfo[] {

@@ -3,6 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { UpdatesProvider } from "@/context/UpdatesContext";
 import HomeworkDuePopup from '@/components/HomeworkDuePopup';
+import { QueryProvider } from "@/components/providers/query-provider";
 
 import "./globals.css";
 import Navigation from "@/components/Navigation";
@@ -36,29 +37,31 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head></head>
       <body className="font-sans antialiased bg-gray-50 overflow-x-hidden">
-        <UpdatesProvider>
-          <Navigation />
-          <HomeworkDuePopup />
+        <QueryProvider>
+          <UpdatesProvider>
+            <Navigation />
+            <HomeworkDuePopup />
 
-          <main className="min-h-screen pb-20">
-            {children}
-          </main>
-          <footer className="bg-white border-t border-gray-200 py-4">
-            <div className="max-w-4xl mx-auto px-4 text-center text-sm text-gray-500">
-              <div className="font-semibold text-orange-600">SchoolPulse</div>
-              <div className="font-medium">BGS National Public School</div>
-              <div className="text-[10px] text-gray-400 mt-1 max-w-md mx-auto leading-relaxed">
-                Currently showing Class 1 planner only.
+            <main className="min-h-screen pb-20">
+              {children}
+            </main>
+            <footer className="bg-white border-t border-gray-200 py-4">
+              <div className="max-w-4xl mx-auto px-4 text-center text-sm text-gray-500">
+                <div className="font-semibold text-orange-600">SchoolPulse</div>
+                <div className="font-medium">BGS National Public School</div>
+                <div className="text-[10px] text-gray-400 mt-1 max-w-md mx-auto leading-relaxed">
+                  Currently showing Class 1 planner only.
+                </div>
+                <div className="text-[10px] text-orange-500/80 font-semibold mt-1.5 uppercase tracking-wider">
+                  Disclaimer: This app is not official from the school. It is built by parents, for parents.
+                </div>
               </div>
-              <div className="text-[10px] text-orange-500/80 font-semibold mt-1.5 uppercase tracking-wider">
-                Disclaimer: This app is not official from the school. It is built by parents, for parents.
-              </div>
-            </div>
-          </footer>
-          <ChatWidget />
-          <Analytics />
-          <SpeedInsights />
-        </UpdatesProvider>
+            </footer>
+            <ChatWidget />
+            <Analytics />
+            <SpeedInsights />
+          </UpdatesProvider>
+        </QueryProvider>
       </body>
     </html>
   );
