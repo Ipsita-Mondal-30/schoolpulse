@@ -63,18 +63,29 @@ jobs:
           TGZ_FILE="${RUNNER_TEMP}/neverskip-profile.tgz"
 
           mkdir -p "$PROFILE_DIR"
-          # Reconstruct full Base64 from two secrets (exact concatenation; not echoed)
-          printf '%s' "${NEVERSKIP_PROFILE_B64_1}${NEVERSKIP_PROFILE_B64_2}" > "$B64_FILE"
+          # GitHub secret UI often appends trailing newlines (and paste can add
+          # whitespace). Strip CR/LF/space/tab from each part before concat so
+          # part1+part2 matches the packaged unwrapped Base64 byte sequence.
+          # Never echo secret values.
+          PART1_CLEAN="$(printf '%s' "${NEVERSKIP_PROFILE_B64_1}" | tr -d '\r\n\t ')"
+          PART2_CLEAN="$(printf '%s' "${NEVERSKIP_PROFILE_B64_2}" | tr -d '\r\n\t ')"
+          printf '%s' "${PART1_CLEAN}${PART2_CLEAN}" > "$B64_FILE"
+          unset PART1_CLEAN PART2_CLEAN
           B64_SIZE="$(wc -c < "$B64_FILE" | tr -d ' ')"
           echo "PROFILE_ARCHIVE_B64_SIZE=${B64_SIZE}"
 
-          if ! base64 -d < "$B64_FILE" > "$TGZ_FILE" 2>/dev/null; then
+          # Prefer ignore-garbage when available (GNU coreutils on ubuntu-latest).
+          if ! base64 --help 2>&1 | grep -q -- '--ignore-garbage'; then
+            DECODE_CMD=(base64 -d)
+          else
+            DECODE_CMD=(base64 -d --ignore-garbage)
+          fi
+          if ! "${DECODE_CMD[@]}" < "$B64_FILE" > "$TGZ_FILE" 2>/dev/null; then
             echo "PROFILE_ARCHIVE_VALID=false"
             echo "ERROR: Reconstructed NEVERSKIP_PROFILE_B64 parts are not valid base64."
             rm -f "$B64_FILE" "$TGZ_FILE"
             exit 1
           fi
-
           TGZ_SIZE="$(wc -c < "$TGZ_FILE" | tr -d ' ')"
           echo "PROFILE_ARCHIVE_SIZE=${TGZ_SIZE}"
 
