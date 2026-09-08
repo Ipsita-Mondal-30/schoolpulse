@@ -323,6 +323,10 @@ export async function collectNeverSkipData(
 
   if (requireAuth) {
     nsLog('Using persisted NeverSkip session');
+    // Safe path diagnostic: basename + absolute flag only (no cookie/storage dump).
+    nsLog(
+      `Using NeverSkip profile directory: ${path.basename(profileDir)} (absolute=${path.isAbsolute(profileDir)})`,
+    );
     if (!options.page && !neverSkipProfileExists(profileDir)) {
       nsError('NeverSkip session expired');
       nsError('Manual re-authentication required');

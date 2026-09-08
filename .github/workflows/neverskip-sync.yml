@@ -35,40 +35,94 @@ jobs:
 
       - name: Restore NeverSkip Playwright profile
         env:
-          NEVERSKIP_PROFILE_B64: ${{ secrets.NEVERSKIP_PROFILE_B64 }}
+          NEVERSKIP_PROFILE_B64_1: ${{ secrets.NEVERSKIP_PROFILE_B64_1 }}
+          NEVERSKIP_PROFILE_B64_2: ${{ secrets.NEVERSKIP_PROFILE_B64_2 }}
         run: |
           set -euo pipefail
           # Do not enable xtrace — never dump the secret to logs.
           set +x
 
-          if [ -z "${NEVERSKIP_PROFILE_B64:-}" ]; then
-            echo "ERROR: NEVERSKIP_PROFILE_B64 secret is missing or empty."
-            echo "Package a local session with ./scripts/package-neverskip-profile.sh"
-            echo "and add it as a repository Actions secret."
+          if [ -z "${NEVERSKIP_PROFILE_B64_1:-}" ]; then
+            echo "PROFILE_PART1_PRESENT=false"
+            echo "ERROR: NEVERSKIP_PROFILE_B64_1 secret is missing or empty."
+            echo "Add repository secret NEVERSKIP_PROFILE_B64_1 from .neverskip-profile.b64.part1"
             exit 1
           fi
+          echo "PROFILE_PART1_PRESENT=true"
+
+          if [ -z "${NEVERSKIP_PROFILE_B64_2:-}" ]; then
+            echo "PROFILE_PART2_PRESENT=false"
+            echo "ERROR: NEVERSKIP_PROFILE_B64_2 secret is missing or empty."
+            echo "Add repository secret NEVERSKIP_PROFILE_B64_2 from .neverskip-profile.b64.part2"
+            exit 1
+          fi
+          echo "PROFILE_PART2_PRESENT=true"
 
           PROFILE_DIR="${RUNNER_TEMP}/neverskip-profile"
           B64_FILE="${RUNNER_TEMP}/neverskip-profile.b64"
           TGZ_FILE="${RUNNER_TEMP}/neverskip-profile.tgz"
 
           mkdir -p "$PROFILE_DIR"
-          # Write secret to a temp file (not echoed)
-          printf '%s' "$NEVERSKIP_PROFILE_B64" > "$B64_FILE"
-          base64 -d < "$B64_FILE" > "$TGZ_FILE"
+          # Reconstruct full Base64 from two secrets (exact concatenation; not echoed)
+          printf '%s' "${NEVERSKIP_PROFILE_B64_1}${NEVERSKIP_PROFILE_B64_2}" > "$B64_FILE"
+          B64_SIZE="$(wc -c < "$B64_FILE" | tr -d ' ')"
+          echo "PROFILE_ARCHIVE_B64_SIZE=${B64_SIZE}"
+
+          if ! base64 -d < "$B64_FILE" > "$TGZ_FILE" 2>/dev/null; then
+            echo "PROFILE_ARCHIVE_VALID=false"
+            echo "ERROR: Reconstructed NEVERSKIP_PROFILE_B64 parts are not valid base64."
+            rm -f "$B64_FILE" "$TGZ_FILE"
+            exit 1
+          fi
+
+          TGZ_SIZE="$(wc -c < "$TGZ_FILE" | tr -d ' ')"
+          echo "PROFILE_ARCHIVE_SIZE=${TGZ_SIZE}"
+
+          if [ "$TGZ_SIZE" -lt 100 ]; then
+            echo "PROFILE_ARCHIVE_VALID=false"
+            echo "ERROR: Decoded profile archive is too small to be valid."
+            rm -f "$B64_FILE" "$TGZ_FILE"
+            exit 1
+          fi
+
+          if ! tar -tzf "$TGZ_FILE" >/dev/null 2>&1; then
+            echo "PROFILE_ARCHIVE_VALID=false"
+            echo "ERROR: Decoded archive is not a valid gzip tar."
+            rm -f "$B64_FILE" "$TGZ_FILE"
+            exit 1
+          fi
+          echo "PROFILE_ARCHIVE_VALID=true"
+
           tar -xzf "$TGZ_FILE" -C "$PROFILE_DIR"
+          echo "PROFILE_EXTRACTION_SUCCESSFUL=true"
 
           # Drop encoded copies as soon as extract succeeds
           rm -f "$B64_FILE" "$TGZ_FILE"
 
-          if [ -z "$(find "$PROFILE_DIR" -type f | head -n 1)" ]; then
+          PROFILE_FILES="$(find "$PROFILE_DIR" -type f | wc -l | tr -d ' ')"
+          echo "PROFILE_FILES=${PROFILE_FILES}"
+
+          if [ "$PROFILE_FILES" -eq 0 ]; then
+            echo "PROFILE_DIR_EXISTS=true"
             echo "ERROR: Restored NeverSkip profile directory is empty."
             exit 1
           fi
 
-          echo "NeverSkip profile restored to temporary directory."
-          echo "PROFILE_DIR=$PROFILE_DIR" >> "$GITHUB_ENV"
+          # Reject accidental nesting (.playwright-profile wrapper inside PROFILE_DIR)
+          if [ -d "$PROFILE_DIR/.playwright-profile" ] && [ ! -d "$PROFILE_DIR/Default" ]; then
+            echo "ERROR: Extracted profile appears nested under .playwright-profile/."
+            echo "Repackage with ./scripts/package-neverskip-profile.sh (minimal export layout)."
+            exit 1
+          fi
 
+          if [ ! -d "$PROFILE_DIR/Default" ] && [ ! -f "$PROFILE_DIR/Local State" ]; then
+            echo "ERROR: Extracted profile missing expected Chromium layout (Default/ or Local State)."
+            exit 1
+          fi
+
+          echo "PROFILE_DIR_EXISTS=true"
+          echo "NeverSkip profile restored to runner temp directory."
+          echo "PROFILE_DIR=$PROFILE_DIR" >> "$GITHUB_ENV"
       - name: Sync NeverSkip → PostgreSQL
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -79,19 +133,23 @@ jobs:
           set +x
 
           if [ -z "${DATABASE_URL:-}" ]; then
+            echo "DATABASE_URL_PRESENT=false"
             echo "ERROR: DATABASE_URL secret is missing or empty."
             exit 1
           fi
+          echo "DATABASE_URL_PRESENT=true"
 
           if [ -z "${NEVERSKIP_PROFILE_DIR:-}" ] || [ ! -d "$NEVERSKIP_PROFILE_DIR" ]; then
+            echo "PROFILE_DIR_EXISTS=false"
             echo "ERROR: NEVERSKIP_PROFILE_DIR is not set or missing."
             exit 1
           fi
+          echo "PROFILE_DIR_EXISTS=true"
+          echo "Using NeverSkip profile directory: runner-temp/neverskip-profile"
 
           # Existing script exits 1 on session expiry / Access Denied /
           # incomplete pagination / DB sync errors.
           npm run sync:neverskip:browser
-
       - name: Cleanup NeverSkip profile
         if: always()
         run: |

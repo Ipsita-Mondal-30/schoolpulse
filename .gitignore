@@ -44,6 +44,8 @@ prisma/*.backup
 
 # NeverSkip profile export for GitHub Actions secret (never commit)
 .neverskip-profile.b64
+.neverskip-profile.b64.part1
+.neverskip-profile.b64.part2
 .neverskip-profile.tgz
 .neverskip-profile-export/
 
