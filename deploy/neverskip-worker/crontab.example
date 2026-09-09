@@ -1,8 +1,14 @@
-# Install on the worker host (not on Vercel). Runs browser sync every 4 hours.
-# Replace /path/to/schoolpulse and load env vars as needed.
+# NeverSkip production sync — host crontab (persistent Linux host).
 #
+# Install:
 #   crontab -e
-#   # paste the line below
+# Paste ONE of the blocks below (edit paths / env).
 #
-# Every 4 hours at minute 0:
-0 */4 * * * cd /path/to/schoolpulse && /usr/bin/env DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require" NEVERSKIP_HEADLESS=true NEVERSKIP_PROFILE_DIR="/path/to/schoolpulse/.playwright-profile" /usr/bin/npm run sync:neverskip:browser >> /var/log/neverskip-sync.log 2>&1
+# Schedule: every 4 hours at minute 0 (UTC of the host clock).
+# Command exits after each sync (no infinite loop).
+
+# --- Recommended: Docker one-shot ---
+# 0 */4 * * * cd /opt/schoolpulse/deploy/neverskip-worker && /usr/bin/docker compose run --rm neverskip-sync >> /var/log/neverskip-sync.log 2>&1
+
+# --- Bare metal / Node on the host ---
+# 0 */4 * * * cd /opt/schoolpulse && /usr/bin/env DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require" NEVERSKIP_HEADLESS=true NEVERSKIP_PROFILE_DIR="/var/lib/schoolpulse/data/neverskip-profile" /usr/bin/npm run sync:neverskip:browser >> /var/log/neverskip-sync.log 2>&1

@@ -160,7 +160,21 @@ jobs:
 
           # Existing script exits 1 on session expiry / Access Denied /
           # incomplete pagination / DB sync errors.
+          set +e
           npm run sync:neverskip:browser
+          SYNC_EXIT=$?
+          set -e
+
+          if [ "$SYNC_EXIT" -ne 0 ]; then
+            echo "NEVERSKIP_SYNC_FAILED=true"
+            echo "NEVERSKIP_SESSION_INVALID_OR_BLOCKED=possible"
+            echo "If logs show path=/auth/login or NeverSkip session expired:"
+            echo "  The restored Chromium profile is not authenticated on this GitHub-hosted Linux runner."
+            echo "  Mac-created Playwright profiles are not reliably portable here (cookie encryption / IP / bot checks)."
+            echo "  Do NOT bypass CAPTCHA or Incapsula."
+            echo "  Use a persistent Linux worker (deploy/neverskip-worker) and create the profile on that same host."
+            exit "$SYNC_EXIT"
+          fi
       - name: Cleanup NeverSkip profile
         if: always()
         run: |

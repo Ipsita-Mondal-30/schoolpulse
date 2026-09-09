@@ -1,14 +1,43 @@
-# NeverSkip Playwright worker — runs outside Vercel, every 4 hours by default.
-# Usage (from repo root):
-#   cd deploy/neverskip-worker
-#   # Put production secrets in a local .env (never commit it)
-#   docker compose up -d --build
+# NeverSkip Playwright sync — persistent Linux host (NOT Vercel, NOT GitHub Actions).
 #
-# First-time login (headed) is easiest on the host, then copy the profile
-# into the named volume — see README.md.
+# From repo root or this directory:
+#   cd deploy/neverskip-worker
+#   cp .env.example .env   # set DATABASE_URL (never commit .env)
+#   docker compose build
+#
+# One-time headed login must be done ON THIS LINUX HOST (not a Mac profile copy).
+# See README.md.
+#
+# Every 4 hours (host crontab):
+#   0 */4 * * * cd /path/to/schoolpulse/deploy/neverskip-worker && docker compose run --rm neverskip-sync >> /var/log/neverskip-sync.log 2>&1
 
 services:
-  neverskip-worker:
+  # One-shot sync: exits after normalize → Neon write. Used by host cron.
+  neverskip-sync:
+    build:
+      context: ../..
+      dockerfile: deploy/neverskip-worker/Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL to your Neon connection string}
+      NEVERSKIP_BASE_URL: ${NEVERSKIP_BASE_URL:-https://nskapi.neverskip.com}
+      NEVERSKIP_PORTAL_URL: ${NEVERSKIP_PORTAL_URL:-https://parent.neverskip.com}
+      NEVERSKIP_NOTICES_PAGE_URL: ${NEVERSKIP_NOTICES_PAGE_URL:-https://parent.neverskip.com/default/dailynotice}
+      NEVERSKIP_HOMEWORK_PAGE_URL: ${NEVERSKIP_HOMEWORK_PAGE_URL:-https://parent.neverskip.com/default/assignment}
+      NEVERSKIP_PROFILE_DIR: /data/neverskip-profile
+      NEVERSKIP_HEADLESS: ${NEVERSKIP_HEADLESS:-true}
+      NEVERSKIP_DEBUG: ${NEVERSKIP_DEBUG:-1}
+    volumes:
+      # Persist /data so /data/neverskip-profile survives container exits.
+      # Prefer a host bind mount for easy one-time login on the same machine:
+      #   NEVERSKIP_DATA_DIR=/var/lib/schoolpulse/data docker compose ...
+      - ${NEVERSKIP_DATA_DIR:-neverskip-data}:/data
+    restart: "no"
+    command: ["npm", "run", "sync:neverskip:browser"]
+
+  # Optional: long-running in-process loop (NOT the recommended production path).
+  # Enable with: docker compose --profile loop up -d neverskip-worker-loop
+  neverskip-worker-loop:
+    profiles: ["loop"]
     build:
       context: ../..
       dockerfile: deploy/neverskip-worker/Dockerfile
@@ -24,8 +53,9 @@ services:
       NEVERSKIP_WORKER_RUN_ON_START: ${NEVERSKIP_WORKER_RUN_ON_START:-true}
       NEVERSKIP_DEBUG: ${NEVERSKIP_DEBUG:-1}
     volumes:
-      - neverskip-profile:/data/neverskip-profile
+      - ${NEVERSKIP_DATA_DIR:-neverskip-data}:/data
     restart: unless-stopped
+    command: ["npm", "run", "worker:neverskip"]
 
 volumes:
-  neverskip-profile:
+  neverskip-data:

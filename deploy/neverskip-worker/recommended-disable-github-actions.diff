@@ -1,0 +1,17 @@
+--- a/.github/workflows/neverskip-sync.yml
++++ b/.github/workflows/neverskip-sync.yml
+@@ -1,10 +1,14 @@
+ name: NeverSkip Sync
+ 
+ on:
+-  schedule:
+-    # Every 4 hours (UTC)
+-    - cron: "0 */4 * * *"
++  # DISABLED for production: GitHub-hosted runners cannot keep a valid
++  # NeverSkip browser session (Mac/Linux profile portability + ephemeral IPs).
++  # Production sync: persistent Linux host — see deploy/neverskip-worker/README.md
++  #
++  # schedule:
++  #   - cron: "0 */4 * * *"
+   workflow_dispatch:
++    # Manual experimental runs only — not the production worker.
