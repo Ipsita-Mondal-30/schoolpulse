@@ -597,4 +597,38 @@ export async function loadNoticesForUi(): Promise<ImportedNoticeItem[]> {
     return merged;
 }
 
+/** Tonight Daily Brief: reuses homework/notices loaders; does not invent due dates. */
+export async function loadDailyBriefForUi(options?: {
+    today?: string;
+    section?: string;
+}): Promise<import('@/lib/daily-brief').DailyBrief> {
+    const { buildDailyBrief, getIndiaToday, addDaysYmd } = await import('@/lib/daily-brief');
+    const { getAllImportantDates } = await import('@/lib/data');
+
+    const today = options?.today || getIndiaToday();
+    const section = options?.section || 'I-A';
+    const tomorrow = addDaysYmd(today, 1);
+
+    const [homeworkResult, notices] = await Promise.all([
+        loadHomeworkForUi(),
+        loadNoticesForUi(),
+    ]);
+
+    const calendarItems = getAllImportantDates()
+        .filter((e) => e.date === today || e.date === tomorrow)
+        .map((e) => ({
+            date: e.date,
+            event: e.event,
+            description: e.description,
+        }));
+
+    return buildDailyBrief({
+        homework: homeworkResult.items,
+        notices,
+        today,
+        section,
+        calendarItems,
+    });
+}
+
 

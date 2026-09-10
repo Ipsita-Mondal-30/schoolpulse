@@ -6,6 +6,7 @@ import Link from 'next/link';
 import MonthlyPlanner from '@/components/MonthlyPlanner';
 import MonthSelector from '@/components/MonthSelector';
 import ImportantDates from '@/components/ImportantDates';
+import DailyBrief from '@/components/DailyBrief';
 import {
   getMonthData,
   getMonthlyPlanner,
@@ -56,6 +57,9 @@ function HomeContent() {
 
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-24">
+
+      {/* ── Tonight — Daily Brief ── */}
+      <DailyBrief />
 
       {/* ── Top Bar: Month Selector ── */}
       <div className="flex items-center justify-between mb-5">
