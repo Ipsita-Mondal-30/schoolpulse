@@ -39,6 +39,14 @@ test.describe('SchoolPulse Smoke Tests', () => {
         ).toBeVisible({ timeout: 15000 });
     });
 
+    test('changes page loads', async ({ page }) => {
+        await page.goto('/changes');
+        await expect(page).toHaveTitle(/SchoolPulse/);
+        await expect(
+            page.getByRole('heading', { name: /Something Changed/i }),
+        ).toBeVisible({ timeout: 15000 });
+    });
+
 
 
     // Test that checks navigation from home

@@ -135,3 +135,21 @@ model ImportedNotice {
   @@unique([source, sourceId])
   @@index([publishedDate])
 }
+
+/// Detected NeverSkip content updates (only when an existing sourceId changes)
+model ContentChangeEvent {
+  id                   String   @id @default(cuid())
+  entityType           String // "homework" | "notice"
+  source               String   @default("neverskip")
+  sourceId             String
+  entityId             String
+  changedFieldsJson    String
+  previousSnapshotJson String
+  currentSnapshotJson  String
+  detectedAt           DateTime @default(now())
+  createdAt            DateTime @default(now())
+
+  @@index([detectedAt])
+  @@index([entityType, detectedAt])
+  @@index([source, sourceId])
+}

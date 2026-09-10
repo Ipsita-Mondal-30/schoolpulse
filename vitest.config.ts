@@ -10,6 +10,7 @@ export default defineConfig({
       'tests/ui-query-cache.test.ts',
       'tests/daily-brief.test.ts',
       'tests/this-week.test.ts',
+      'tests/neverskip/changes.test.ts',
     ],
   },
   resolve: {

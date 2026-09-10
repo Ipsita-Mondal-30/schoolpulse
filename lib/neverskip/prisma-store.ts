@@ -1,5 +1,12 @@
 import { getPrisma } from '@/lib/prisma';
 import {
+  getMeaningfulHomeworkChanges,
+  getMeaningfulNoticeChanges,
+  homeworkSnapshot,
+  noticeSnapshot,
+  serializeFieldChanges,
+} from './changes';
+import {
   homeworkContentKey,
   noticeContentKey,
   type NeverSkipStore,
@@ -61,6 +68,21 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
 
     if (homeworkContentKey(existingNorm) === homeworkContentKey(item)) {
       return 'unchanged';
+    }
+
+    const diffs = getMeaningfulHomeworkChanges(existingNorm, item);
+    if (diffs.length > 0) {
+      await prisma.contentChangeEvent.create({
+        data: {
+          entityType: 'homework',
+          source: item.source,
+          sourceId: item.sourceId,
+          entityId: existing.id,
+          changedFieldsJson: serializeFieldChanges(diffs),
+          previousSnapshotJson: JSON.stringify(homeworkSnapshot(existingNorm)),
+          currentSnapshotJson: JSON.stringify(homeworkSnapshot(item)),
+        },
+      });
     }
 
     await prisma.importedHomework.update({
@@ -148,6 +170,21 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
 
     if (noticeContentKey(existingNorm) === noticeContentKey(item)) {
       return 'unchanged';
+    }
+
+    const diffs = getMeaningfulNoticeChanges(existingNorm, item);
+    if (diffs.length > 0) {
+      await prisma.contentChangeEvent.create({
+        data: {
+          entityType: 'notice',
+          source: item.source,
+          sourceId: item.sourceId,
+          entityId: existing.id,
+          changedFieldsJson: serializeFieldChanges(diffs),
+          previousSnapshotJson: JSON.stringify(noticeSnapshot(existingNorm)),
+          currentSnapshotJson: JSON.stringify(noticeSnapshot(item)),
+        },
+      });
     }
 
     await prisma.importedNotice.update({

@@ -631,4 +631,95 @@ export async function loadDailyBriefForUi(options?: {
     });
 }
 
+export interface UiChangeField {
+    field: string;
+    label: string;
+    previous: string | null;
+    current: string | null;
+    reliable: boolean;
+}
+
+export interface UiChangeItem {
+    id: string;
+    type: 'homework' | 'notice';
+    sourceId: string;
+    subject?: string;
+    title: string;
+    detectedAt: string; // ISO
+    changedFields: UiChangeField[];
+    hasReliablePreviousValue: boolean;
+}
+
+/** Recent NeverSkip content change events (last N days). Newest first. */
+export async function loadRecentChanges(options?: {
+    days?: number;
+}): Promise<UiChangeItem[]> {
+    try {
+        if (!process.env.DATABASE_URL) return [];
+
+        const { getPrisma } = await import('@/lib/prisma');
+        const {
+            parseFieldChanges,
+            hasReliablePreviousForType,
+            userVisibleChanges,
+        } = await import('@/lib/neverskip/changes');
+
+        const days = options?.days ?? 30;
+        const since = new Date();
+        since.setUTCDate(since.getUTCDate() - days);
+
+        const rows = await getPrisma().contentChangeEvent.findMany({
+            where: { detectedAt: { gte: since } },
+            orderBy: { detectedAt: 'desc' },
+            take: 200,
+        });
+
+        return rows.map((row) => {
+            const type = row.entityType === 'notice' ? 'notice' : 'homework';
+            const allFields = parseFieldChanges(row.changedFieldsJson);
+            const changedFields = userVisibleChanges(type, allFields).map((c) => ({
+                field: c.field,
+                label: c.label,
+                previous: c.previous,
+                current: c.current,
+                reliable: c.reliable,
+            }));
+
+            let subject: string | undefined;
+            let title = type === 'notice' ? 'School notice' : 'Homework';
+            try {
+                const snap = JSON.parse(row.currentSnapshotJson) as Record<string, unknown>;
+                if (type === 'homework') {
+                    subject = typeof snap.subjectName === 'string' ? snap.subjectName : undefined;
+                    title = typeof snap.title === 'string' && snap.title.trim() ? snap.title : title;
+                } else {
+                    title =
+                        (typeof snap.title === 'string' && snap.title.trim()
+                            ? snap.title
+                            : typeof snap.summary === 'string' && snap.summary.trim()
+                              ? snap.summary
+                              : title) as string;
+                }
+            } catch {
+                /* keep defaults */
+            }
+
+            return {
+                id: row.id,
+                type,
+                sourceId: row.sourceId,
+                subject,
+                title,
+                detectedAt: row.detectedAt.toISOString(),
+                changedFields,
+                hasReliablePreviousValue: hasReliablePreviousForType(type, allFields),
+            };
+        });
+    } catch (error) {
+        console.error('Failed to load recent changes', error);
+        return [];
+    }
+}
+
+
 
