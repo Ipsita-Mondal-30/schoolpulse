@@ -31,6 +31,14 @@ test.describe('SchoolPulse Smoke Tests', () => {
         await expect(page).toHaveTitle(/SchoolPulse/);
     });
 
+    test('this week deadlines page loads', async ({ page }) => {
+        await page.goto('/this-week');
+        await expect(page).toHaveTitle(/SchoolPulse/);
+        await expect(
+            page.getByRole('heading', { name: /Sep/i }).or(page.getByText('Date not specified')).or(page.getByText("You're all caught up")).or(page.getByText('Nothing with a deadline')).first()
+        ).toBeVisible({ timeout: 15000 });
+    });
+
 
 
     // Test that checks navigation from home

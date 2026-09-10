@@ -9,6 +9,7 @@ export default defineConfig({
       'tests/ui-merge.test.ts',
       'tests/ui-query-cache.test.ts',
       'tests/daily-brief.test.ts',
+      'tests/this-week.test.ts',
     ],
   },
   resolve: {
