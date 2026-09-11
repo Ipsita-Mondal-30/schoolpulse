@@ -1,10 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import MonthlyPlanner from '@/components/MonthlyPlanner';
-import MonthSelector from '@/components/MonthSelector';
-import ImportantDates from '@/components/ImportantDates';
-import { PageHeader } from '@/components/ui/PageHeader';
+import PlannerCalendar from '@/components/PlannerCalendar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
 import {
@@ -13,10 +11,24 @@ import {
   getAvailableMonths,
   getCurrentMonthId,
   getImportantDates,
+  getToday,
   MonthInfo,
   ImportantDate,
   PlannerSubject,
 } from '@/lib/data';
+
+function defaultSelectedDate(year: number, monthName: string, dates: ImportantDate[]) {
+  const today = getToday();
+  const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth();
+  const prefix = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+
+  if (today.startsWith(prefix)) return today;
+
+  const firstWithEvent = dates.find((d) => d.date.startsWith(prefix));
+  if (firstWithEvent) return firstWithEvent.date;
+
+  return `${prefix}-01`;
+}
 
 export default function PlannerPage() {
   const [selectedMonthId, setSelectedMonthId] = useState('');
@@ -28,6 +40,7 @@ export default function PlannerPage() {
   } | null>(null);
   const [importantDates, setImportantDates] = useState<ImportantDate[]>([]);
   const [planner, setPlanner] = useState<PlannerSubject[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   useEffect(() => {
     const months = getAvailableMonths();
@@ -38,10 +51,18 @@ export default function PlannerPage() {
   useEffect(() => {
     if (!selectedMonthId) return;
     const data = getMonthData(selectedMonthId);
-    setMonthData({ month: data.month, year: data.year, class: data.class });
-    setImportantDates(getImportantDates(selectedMonthId));
+    const nextMonth = { month: data.month, year: data.year, class: data.class };
+    const dates = getImportantDates(selectedMonthId);
+    setMonthData(nextMonth);
+    setImportantDates(dates);
     setPlanner(getMonthlyPlanner(selectedMonthId));
+    setSelectedDate(defaultSelectedDate(nextMonth.year, nextMonth.month, dates));
   }, [selectedMonthId]);
+
+  const monthIndex = useMemo(
+    () => availableMonths.findIndex((m) => m.id === selectedMonthId),
+    [availableMonths, selectedMonthId]
+  );
 
   if (!monthData) {
     return (
@@ -51,43 +72,41 @@ export default function PlannerPage() {
     );
   }
 
-  const upcomingDates = importantDates
-    .filter((d) => d.date >= new Date().toISOString().split('T')[0])
-    .slice(0, 6);
-
   return (
     <div className="sp-page">
-      <PageHeader
-        title="Planner"
-        subtitle={`${monthData.month} ${monthData.year} · ${monthData.class}`}
-        actions={
-          <MonthSelector
-            months={availableMonths}
-            selectedMonthId={selectedMonthId}
-            onMonthChange={setSelectedMonthId}
-          />
-        }
+      <PlannerCalendar
+        month={monthData.month}
+        year={monthData.year}
+        dates={importantDates}
+        selectedDate={selectedDate}
+        onSelectDate={setSelectedDate}
+        canGoPrev={monthIndex > 0}
+        canGoNext={monthIndex >= 0 && monthIndex < availableMonths.length - 1}
+        onPrevMonth={() => {
+          if (monthIndex > 0) setSelectedMonthId(availableMonths[monthIndex - 1].id);
+        }}
+        onNextMonth={() => {
+          if (monthIndex >= 0 && monthIndex < availableMonths.length - 1) {
+            setSelectedMonthId(availableMonths[monthIndex + 1].id);
+          }
+        }}
       />
 
-      {planner.length > 0 ? (
-        <MonthlyPlanner
-          subjects={planner}
-          month={monthData.month}
-          year={monthData.year}
-          className="mb-8"
-        />
-      ) : (
-        <EmptyState
-          title="Monthly planner coming soon"
-          description="Check back once the newsletter arrives."
-        />
-      )}
-
-      {upcomingDates.length > 0 ? (
-        <div className="mt-8">
-          <ImportantDates dates={upcomingDates} title="Important dates" />
-        </div>
-      ) : null}
+      <div className="mt-10">
+        <h2 className="sp-section tracking-[0.12em] mb-3">This month</h2>
+        {planner.length > 0 ? (
+          <MonthlyPlanner
+            subjects={planner}
+            month={monthData.month}
+            year={monthData.year}
+          />
+        ) : (
+          <EmptyState
+            title="Monthly planner coming soon"
+            description="Check back once the newsletter arrives."
+          />
+        )}
+      </div>
     </div>
   );
 }

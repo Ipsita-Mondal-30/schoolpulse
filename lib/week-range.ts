@@ -78,7 +78,21 @@ export function formatWeekdayHeading(ymd: string): string {
   return `${WEEKDAYS_SHORT[dow - 1]}, ${d} ${MONTHS_SHORT[m - 1]}`;
 }
 
+const MONTHS_LONG = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+] as const;
+
+/** e.g. "7–13 September" (same month) or "28 September – 4 October". */
 export function formatWeekRangeLabel(start: string, end: string): string {
-  if (!start || !end) return '';
-  return `${formatBriefDate(start)} – ${formatBriefDate(end)}`;
+  if (!YMD_RE.test(start) || !YMD_RE.test(end)) {
+    if (!start || !end) return '';
+    return `${formatBriefDate(start)} – ${formatBriefDate(end)}`;
+  }
+  const [, sm, sd] = start.split('-').map(Number);
+  const [, em, ed] = end.split('-').map(Number);
+  if (sm === em) {
+    return `${sd}–${ed} ${MONTHS_LONG[sm - 1]}`;
+  }
+  return `${sd} ${MONTHS_LONG[sm - 1]} – ${ed} ${MONTHS_LONG[em - 1]}`;
 }
