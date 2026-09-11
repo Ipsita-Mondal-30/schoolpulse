@@ -1,24 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { DesktopNavigation } from '@/components/nav/DesktopNavigation';
 import { BottomNavigation } from '@/components/nav/BottomNavigation';
-import { MoreSheet } from '@/components/nav/MoreSheet';
 import RecentUpdates from '@/components/RecentUpdates';
 
 export default function Navigation() {
-  const [moreOpen, setMoreOpen] = useState(false);
-
-  useEffect(() => {
-    if (!moreOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMoreOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [moreOpen]);
-
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-[var(--sp-border)] bg-white/95 backdrop-blur-md">
@@ -46,11 +33,7 @@ export default function Navigation() {
         </div>
       </header>
 
-      <BottomNavigation
-        moreOpen={moreOpen}
-        onMoreToggle={() => setMoreOpen((v) => !v)}
-      />
-      <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} />
+      <BottomNavigation />
     </>
   );
 }

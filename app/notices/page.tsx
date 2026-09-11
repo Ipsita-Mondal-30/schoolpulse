@@ -73,7 +73,7 @@ export default function NoticesPage() {
     <div className="sp-page">
       <PageHeader
         title="Notices"
-        subtitle="Updates from the parent portal"
+        subtitle="Your school inbox"
       />
 
       <div className="mb-5 overflow-x-auto scrollbar-none -mx-1 px-1">
@@ -150,7 +150,10 @@ export default function NoticesPage() {
                           {notice.message}
                         </p>
                       ) : null}
-                      <p className="sp-meta mt-1.5">{formatDateLabel(notice.date)}</p>
+                      <p className="sp-meta mt-1.5">
+                        {formatDateLabel(notice.date)}
+                        {notice.time ? ` · ${notice.time}` : ''}
+                      </p>
                     </div>
                   </div>
                 </button>

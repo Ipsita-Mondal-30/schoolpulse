@@ -19,7 +19,6 @@ import type { UiChangeItem } from '@/app/actions';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { HomeworkItem } from '@/components/ui/HomeworkItem';
-import { QuickAction } from '@/components/ui/QuickAction';
 import { LoadingState } from '@/components/ui/LoadingState';
 
 const DEFAULT_SECTION = 'I-A';
@@ -113,108 +112,87 @@ export default function DailyBrief() {
 
   const dueTodayCount = data.dueToday.length;
   const noticeCount = data.recentNotices.length;
+  const attention = [...data.overdue, ...data.dueToday].slice(0, 6);
   const upNext = [...data.dueTomorrow, ...data.comingUp].slice(0, 4);
   const recentChanges = (changesData ?? []).slice(0, 3);
-  const allCaughtUp =
-    data.nothingUrgent &&
-    data.dueToday.length === 0 &&
-    data.overdue.length === 0 &&
-    upNext.length === 0;
+
+  const classLabel = section.includes('-')
+    ? `Class ${section.split('-')[0]} · Section ${section.split('-')[1]}`
+    : `Section ${section}`;
 
   return (
-    <div className="sp-page space-y-8">
-      <header>
-        <p className="sp-meta mb-1">{todayYmd ? formatLongDate(todayYmd) : 'Today'}</p>
-        <h1 className="sp-title">
+    <div className="sp-page space-y-9">
+      <header className="space-y-2">
+        <p className="sp-meta">{todayYmd ? formatLongDate(todayYmd) : 'Today'}</p>
+        <h1 className="sp-title tracking-tight">
           {greeting}
           {firstName ? `, ${firstName}` : ''}
         </h1>
-        <p className="sp-subtitle">Here&apos;s what matters for your child today.</p>
+        <p className="text-sm font-medium text-[var(--sp-ink)]">{classLabel}</p>
+        <p className="sp-subtitle">Your child&apos;s school day, simplified.</p>
       </header>
 
       <section>
         <SectionHeader label="Today" />
-        {allCaughtUp ? (
-          <EmptyState title="You're all caught up" description="No homework due today." />
-        ) : (
-          <div className="sp-card divide-y divide-[var(--sp-border)]">
-            <Link
-              href="/homework"
-              className="flex items-center justify-between px-4 py-3.5 hover:bg-[var(--sp-primary-soft)]/50 transition-colors sp-focus rounded-t-2xl"
-            >
-              <div>
-                <p className="text-sm font-semibold text-[var(--sp-ink)]">Homework</p>
-                <p className="sp-meta mt-0.5">
-                  {dueTodayCount === 0
-                    ? data.overdue.length > 0
-                      ? `${data.overdue.length} overdue`
-                      : 'Nothing due today'
-                    : `${dueTodayCount} item${dueTodayCount === 1 ? '' : 's'} due today`}
-                </p>
-              </div>
-              <span className="text-[var(--sp-subtle)]" aria-hidden>
-                →
-              </span>
-            </Link>
-            <Link
-              href="/notices"
-              className="flex items-center justify-between px-4 py-3.5 hover:bg-[var(--sp-primary-soft)]/50 transition-colors sp-focus rounded-b-2xl"
-            >
-              <div>
-                <p className="text-sm font-semibold text-[var(--sp-ink)]">Notices</p>
-                <p className="sp-meta mt-0.5">
-                  {noticeCount === 0
-                    ? 'No recent notices'
-                    : `${noticeCount} recent notice${noticeCount === 1 ? '' : 's'}`}
-                </p>
-              </div>
-              <span className="text-[var(--sp-subtle)]" aria-hidden>
-                →
-              </span>
-            </Link>
-          </div>
-        )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Link
+            href="/homework"
+            className="rounded-2xl border border-[var(--sp-border)] bg-white px-4 py-3 transition-colors hover:border-[var(--sp-primary)]/40 sp-focus"
+          >
+            <p className="sp-meta">Homework</p>
+            <p className="mt-1 text-sm font-semibold text-[var(--sp-ink)]">
+              {dueTodayCount === 0
+                ? data.overdue.length > 0
+                  ? `${data.overdue.length} overdue`
+                  : 'Nothing due'
+                : `${dueTodayCount} task${dueTodayCount === 1 ? '' : 's'}`}
+            </p>
+          </Link>
+          <Link
+            href="/notices"
+            className="rounded-2xl border border-[var(--sp-border)] bg-white px-4 py-3 transition-colors hover:border-[var(--sp-primary)]/40 sp-focus"
+          >
+            <p className="sp-meta">Notices</p>
+            <p className="mt-1 text-sm font-semibold text-[var(--sp-ink)]">
+              {noticeCount === 0 ? 'No recent' : `${noticeCount} recent`}
+            </p>
+          </Link>
+        </div>
+      </section>
 
-        {data.dueToday.length > 0 ? (
-          <div className="mt-3 sp-card py-1">
-            {data.dueToday.map((item) => (
+      <section>
+        <SectionHeader label="Needs your attention" />
+        {attention.length === 0 ? (
+          <EmptyState
+            title="You're all caught up"
+            description="Nothing needs action right now."
+          />
+        ) : (
+          <div className="divide-y divide-[var(--sp-border)] border-y border-[var(--sp-border)]">
+            {attention.map((item) => (
               <HomeworkItem
                 key={item.id}
                 subject={item.subject}
                 title={item.title}
-                dueLabel="Due today"
-                status="today"
+                dueLabel={
+                  data.overdue.some((o) => o.id === item.id)
+                    ? item.submissionDate
+                      ? `Overdue · ${formatBriefDate(item.submissionDate)}`
+                      : 'Overdue'
+                    : 'Due today'
+                }
+                status={data.overdue.some((o) => o.id === item.id) ? 'overdue' : 'today'}
                 href="/homework"
               />
             ))}
           </div>
-        ) : null}
-
-        {data.overdue.length > 0 ? (
-          <div className="mt-3">
-            <SectionHeader label="Overdue" />
-            <div className="sp-card py-1">
-              {data.overdue.slice(0, 3).map((item) => (
-                <HomeworkItem
-                  key={item.id}
-                  subject={item.subject}
-                  title={item.title}
-                  dueLabel={
-                    item.submissionDate ? formatBriefDate(item.submissionDate) : 'Overdue'
-                  }
-                  status="overdue"
-                  href="/homework"
-                />
-              ))}
-            </div>
-          </div>
-        ) : null}
+        )}
       </section>
 
       {upNext.length > 0 ? (
         <section>
           <SectionHeader label="Up next" />
-          <div className="sp-card py-1">
+          <div className="divide-y divide-[var(--sp-border)] border-y border-[var(--sp-border)]">
             {upNext.map((item) => (
               <HomeworkItem
                 key={item.id}
@@ -245,11 +223,11 @@ export default function DailyBrief() {
         />
         {recentChanges.length === 0 ? (
           <EmptyState
-            title="No recent changes"
+            title="Nothing changed recently"
             description="When homework or notices are updated, they show up here."
           />
         ) : (
-          <div className="sp-card divide-y divide-[var(--sp-border)]">
+          <div className="divide-y divide-[var(--sp-border)] border-y border-[var(--sp-border)]">
             {recentChanges.map((item) => {
               const lines = presentChangeLines(item.type, toFieldChanges(item));
               const summary = lines[0]?.heading || item.title;
@@ -257,14 +235,14 @@ export default function DailyBrief() {
                 <Link
                   key={item.id}
                   href={item.type === 'homework' ? '/homework' : '/notices'}
-                  className="block px-4 py-3.5 hover:bg-[var(--sp-primary-soft)]/50 transition-colors sp-focus"
+                  className="block py-3.5 transition-colors hover:bg-[var(--sp-primary-soft)]/40 sp-focus"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--sp-subtle)]">
                         {item.type === 'homework' ? 'Homework updated' : 'Notice updated'}
                       </p>
-                      <p className="text-sm font-semibold text-[var(--sp-ink)] mt-0.5 line-clamp-2">
+                      <p className="mt-0.5 line-clamp-2 text-sm font-semibold text-[var(--sp-ink)]">
                         {item.subject ? `${item.subject} · ` : ''}
                         {summary}
                       </p>
@@ -278,16 +256,6 @@ export default function DailyBrief() {
             })}
           </div>
         )}
-      </section>
-
-      <section>
-        <SectionHeader label="Quick access" />
-        <div className="flex flex-wrap gap-2">
-          <QuickAction href="/homework">Homework</QuickAction>
-          <QuickAction href="/timetable">Timetable</QuickAction>
-          <QuickAction href="/planner">Planner</QuickAction>
-        </div>
-        <p className="sp-meta mt-3">Section focus: {section}</p>
       </section>
     </div>
   );

@@ -219,9 +219,9 @@ export default function HomeworkPage() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <FilterTabs
           tabs={[
-            { id: 'all', label: 'All', count: filterCounts.all },
             { id: 'today', label: 'Today', count: filterCounts.today },
             { id: 'upcoming', label: 'Upcoming', count: filterCounts.upcoming },
+            { id: 'all', label: 'All', count: filterCounts.all },
             { id: 'overdue', label: 'Overdue', count: filterCounts.overdue },
           ]}
           value={dueFilter}
