@@ -86,10 +86,8 @@ async function main() {
               title: normalized.title,
               homeworkDate: normalized.homeworkDate,
               dueDate: normalized.dueDate,
-              classes: normalized.classes,
-              attachmentCount: Array.isArray((normalized as { files?: unknown[] }).files)
-                ? (normalized as { files?: unknown[] }).files!.length
-                : 0,
+              sections: normalized.sections,
+              attachmentUrl: normalized.attachmentUrl ? 'yes' : 'no',
             }
           : null,
       }),
