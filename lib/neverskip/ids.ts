@@ -8,7 +8,7 @@ export function homeworkSourceId(assignId?: string | number | null, refId?: stri
   return ref;
 }
 
-/** Prefer explicit notice id; else stable hash of date|time|title|content. */
+/** Prefer explicit notice id; else stable hash of title|content (date/time excluded — live stamps change parsing). */
 export function noticeSourceId(input: {
   id?: string | number | null;
   noticeId?: string | number | null;
@@ -25,12 +25,7 @@ export function noticeSourceId(input: {
         : null;
   if (explicit) return explicit;
 
-  const payload = [
-    (input.date ?? '').trim(),
-    (input.time ?? '').trim(),
-    (input.title ?? '').trim(),
-    (input.content ?? '').trim(),
-  ].join('|');
+  const payload = [(input.title ?? '').trim(), (input.content ?? '').trim()].join('|');
 
   return createHash('sha256').update(payload).digest('hex').slice(0, 32);
 }

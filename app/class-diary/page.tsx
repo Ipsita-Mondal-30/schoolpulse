@@ -103,74 +103,58 @@ function DocThumb({ isImage }: { isImage: boolean }) {
 // ── Resource card ───────────────────────────────────────────────────────────────
 function ResourceCard({ res, today }: { res: Resource; today: string }) {
   const [expanded, setExpanded] = useState(false);
-  const st = styleFor(res.subject);
   const nl = isNewsletter(res);
-  const isNew = today !== "" && daysBetween(res.date, today) >= 0 && daysBetween(res.date, today) <= 3;
-  const primaryIsImage = res.media[0]?.type === "I";
+  const isNew = today !== '' && daysBetween(res.date, today) >= 0 && daysBetween(res.date, today) <= 3;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all overflow-hidden">
-      <div className={`h-1 w-full bg-gradient-to-r ${st.grad}`} />
-      <div className="p-4 flex gap-3.5">
-        <DocThumb isImage={primaryIsImage} />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="font-bold text-gray-800 text-sm sm:text-[15px] leading-snug">{res.title}</h3>
-            {isNew && (
-              <span className="shrink-0 text-[8px] font-black bg-red-500 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wide animate-pulse">New</span>
-            )}
-          </div>
-
-          <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${st.badge}`}>
-              {st.icon} {prettySubject(res.subject)}
+    <div className="bg-white rounded-2xl border border-[var(--sp-border)] overflow-hidden">
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold text-[var(--sp-ink)] text-sm leading-snug">{res.title}</h3>
+          {isNew ? (
+            <span className="shrink-0 text-[10px] font-semibold text-[var(--sp-primary)] bg-[var(--sp-primary-soft)] px-1.5 py-0.5 rounded">
+              New
             </span>
-            {res.monthLabel && (
-              <span className="text-[10px] font-bold text-orange-700 bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded">
-                {res.monthLabel}
-              </span>
-            )}
-            {res.grade && (
-              <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
-                {res.grade}
-              </span>
-            )}
-            <span className="text-[11px] text-gray-400 font-semibold">📅 {formatDateShort(res.date)}</span>
-            {res.section && <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">{res.section}</span>}
-          </div>
+          ) : null}
+        </div>
 
-          {res.description && (
-            <p
-              onClick={() => setExpanded((e) => !e)}
-              className={`mt-1.5 text-xs sm:text-[13px] text-gray-500 leading-relaxed cursor-pointer ${expanded ? "" : "line-clamp-2"}`}
-            >
-              {res.description}
-            </p>
-          )}
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-semibold text-[var(--sp-muted)]">
+            {prettySubject(res.subject)}
+          </span>
+          <span className="sp-meta">{formatDateShort(res.date)}</span>
+          {res.section ? <span className="sp-meta">{res.section}</span> : null}
+        </div>
 
-          <div className="mt-2.5 flex flex-wrap gap-2">
-            {res.media.map((m, i) => {
-              const isImg = m.type === "I";
-              return (
-                <a
-                  key={i}
-                  href={mediaHref(m)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold transition-colors ${
-                    isImg
-                      ? "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-600 hover:text-white hover:border-blue-600"
-                      : nl
-                        ? "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-600 hover:text-white hover:border-orange-600"
-                        : "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-600 hover:text-white hover:border-purple-600"
-                  }`}
-                >
-                  <span>{isImg ? "🖼️" : nl ? "📰" : "📎"}</span>{" "}
-                  {mediaLabel(m.file, m.type, i, res.media.length, nl)}
-                </a>
-              );
-            })}
-          </div>
+        {res.description ? (
+          <p
+            onClick={() => setExpanded((e) => !e)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') setExpanded((v) => !v);
+            }}
+            role="button"
+            tabIndex={0}
+            className={`mt-1.5 text-sm text-[var(--sp-muted)] leading-relaxed cursor-pointer ${expanded ? '' : 'line-clamp-2'}`}
+          >
+            {res.description}
+          </p>
+        ) : null}
+
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          {res.media.map((m, i) => {
+            const isImg = m.type === 'I';
+            return (
+              <a
+                key={i}
+                href={mediaHref(m)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--sp-border)] text-[11px] font-semibold text-[var(--sp-ink)] hover:border-orange-200 hover:bg-[var(--sp-primary-soft)] transition-colors"
+              >
+                {mediaLabel(m.file, m.type, i, res.media.length, nl || isImg)}
+              </a>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -249,41 +233,28 @@ export default function ContentLibraryPage() {
   }, [filtered, groupBy]);
 
   return (
-    <main className="max-w-4xl mx-auto px-3 sm:px-4 py-6 pb-24">
-      {/* ── Header ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-5 shadow-md shadow-purple-200">
-        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10" />
-        <div className="relative z-10">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🗂️</span>
-            <h1 className="text-lg sm:text-xl font-bold tracking-wide uppercase">Content Library</h1>
-          </div>
-          <p className="mt-1 text-xs sm:text-sm text-purple-100">
-            Worksheets, revision papers, answer keys, notes, and monthly newsletters — grouped and searchable.
-          </p>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">{resources.length} resources</span>
-            <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">{subjectCounts.length} subjects</span>
-            <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">{totalFiles} files</span>
-          </div>
-        </div>
-      </div>
+    <main className="sp-page">
+      <header className="mb-5">
+        <h1 className="sp-title">Library</h1>
+        <p className="sp-subtitle">
+          Worksheets, revision papers, and newsletters — {resources.length} resources.
+        </p>
+      </header>
 
-      {/* ── Search ── */}
-      <div className="mt-4">
+      <div className="mb-4">
         <input
-          type="text"
+          type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 Search by title, subject or keyword…"
-          className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          placeholder="Search by title, subject, or keyword"
+          className="w-full rounded-xl border border-[var(--sp-border)] bg-white px-3.5 py-2.5 text-sm text-[var(--sp-ink)] placeholder:text-[var(--sp-subtle)] sp-focus"
         />
       </div>
 
       {/* ── Subject filter ── */}
-      <div className="mt-3">
-        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 px-1">Subject</p>
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
+      <div className="mt-1">
+        <p className="sp-section mb-1.5 px-1">Subject</p>
+        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           <button
             onClick={() => setActiveSubject("All")}
             className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${

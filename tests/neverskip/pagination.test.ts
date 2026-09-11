@@ -119,6 +119,42 @@ describe('shouldFetchNextHomeworkPage', () => {
       ),
     ).toBe(false);
   });
+  it('uses totalCount even when page_count is present', () => {
+    expect(
+      shouldFetchNextHomeworkPage(
+        { pageCount: 2, totalCount: 25, sfileLimit: 10, itemListLength: 10 },
+        1,
+        20,
+      ),
+    ).toBe(true);
+    expect(
+      shouldFetchNextHomeworkPage(
+        { pageCount: 13, totalCount: 129, sfileLimit: 25, itemListLength: 4 },
+        12,
+        129,
+      ),
+    ).toBe(false);
+  });
+
+  it('stops after page_count when last page is short even if unique < totalCount', () => {
+    expect(
+      shouldFetchNextHomeworkPage(
+        { pageCount: 14, totalCount: 135, sfileLimit: 25, itemListLength: 5 },
+        13,
+        132,
+      ),
+    ).toBe(false);
+  });
+
+  it('continues past page_count only when last page looks full and unique < totalCount', () => {
+    expect(
+      shouldFetchNextHomeworkPage(
+        { pageCount: 13, totalCount: 129, sfileLimit: 25, itemListLength: 10 },
+        12,
+        125,
+      ),
+    ).toBe(true);
+  });
 });
 
 describe('fetchAllHomeworkPages', () => {
@@ -205,6 +241,46 @@ describe('fetchAllHomeworkPages', () => {
       });
     });
     expect(result.items.map((i) => String(i.assign_id))).toEqual(['1', '2', '3']);
+  });
+
+  it('marks incomplete when raw fetched is below total_count', async () => {
+    const result = await fetchAllHomeworkPages(async (page) => {
+      if (page < 2) {
+        return pageEnvelope(
+          Array.from({ length: 10 }, (_, i) => hwItem(String(page * 10 + i + 1))),
+          { page_count: 3, total_count: 30, sfile_limit: 10 },
+        );
+      }
+      // short last page — raw total 25 < total_count 30
+      return pageEnvelope(
+        Array.from({ length: 5 }, (_, i) => hwItem(String(20 + i + 1))),
+        { page_count: 3, total_count: 30, sfile_limit: 10 },
+      );
+    });
+    expect(result.incomplete).toBe(true);
+    expect(result.errors.some((e) => /total_count/i.test(e))).toBe(true);
+  });
+
+  it('accepts unique < total_count when raw page lengths cover total_count', async () => {
+    const result = await fetchAllHomeworkPages(async (page) => {
+      if (page === 0) {
+        return pageEnvelope(
+          Array.from({ length: 10 }, (_, i) => hwItem(String(i + 1))),
+          { page_count: 2, total_count: 12, sfile_limit: 10 },
+        );
+      }
+      // 2 overlaps + 2 new = 12 raw, 10 unique from page0 + 2 = 12 unique actually
+      // Make overlaps: return 2 dupes + 2 new = 12 raw total, 10 unique? 
+      // page0: 1-10, page1: 9,10,11,12 → raw 14? Let's do page1: 3 items with 1 overlap
+      return pageEnvelope([hwItem('10'), hwItem('11'), hwItem('12')], {
+        page_count: 2,
+        total_count: 13,
+        sfile_limit: 10,
+      });
+    });
+    // raw = 13, unique = 12, total_count = 13 → complete
+    expect(result.incomplete).toBe(false);
+    expect(result.items).toHaveLength(12);
   });
 
   it('preserves earlier pages when a later page fails', async () => {

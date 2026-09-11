@@ -1,76 +1,92 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Bell, X } from 'lucide-react';
 import { useUpdates } from '@/context/UpdatesContext';
 import {
   getUpcomingEvents,
   getTodayEvent,
   formatShortDate,
-  Announcement
+  Announcement,
 } from '@/lib/data';
 
 interface Update extends Announcement {
   isExternal?: boolean;
 }
 
+function toneClasses(type: string, priority?: number) {
+  if (priority === 1) {
+    return 'border-orange-200 bg-[var(--sp-primary-soft)] text-[var(--sp-ink)]';
+  }
+  switch (type) {
+    case 'urgent':
+      return 'border-red-100 bg-[var(--sp-error-soft)] text-[var(--sp-error)]';
+    case 'holiday':
+      return 'border-emerald-100 bg-[var(--sp-success-soft)] text-[var(--sp-success)]';
+    case 'notice':
+      return 'border-orange-100 bg-[var(--sp-primary-soft)] text-[var(--sp-primary)]';
+    default:
+      return 'border-[var(--sp-border)] bg-[var(--sp-bg)] text-[var(--sp-ink)]';
+  }
+}
+
 export default function RecentUpdates() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasNew, setHasNew] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  // Use Context
-  const { updates: externalUpdates, loading } = useUpdates();
+  const { updates: externalUpdates } = useUpdates();
 
   const updates = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
 
-
-
-    // 2. Get today's events from lib/data.ts (System events)
     const todayEvent = getTodayEvent();
-    const todayEventUpdate: Update[] = todayEvent ? [{
-      id: 9000,
-      createdAt: todayEvent.date,
-      title: 'EVENT TODAY',
-      message: `${todayEvent.event}: ${todayEvent.description}`,
-      type: 'urgent',
-      priority: 1,
-      category: 'EVENT',
-      expiresAt: todayEvent.date
-    }] : [];
+    const todayEventUpdate: Update[] = todayEvent
+      ? [
+          {
+            id: 9000,
+            createdAt: todayEvent.date,
+            title: 'Event today',
+            message: `${todayEvent.event}: ${todayEvent.description}`,
+            type: 'urgent',
+            priority: 1,
+            category: 'EVENT',
+            expiresAt: todayEvent.date,
+          },
+        ]
+      : [];
 
-    // 3. Get upcoming events from lib/data.ts (System events)
     const upcomingEvents = getUpcomingEvents(3);
     const eventUpdates: Update[] = upcomingEvents
-      .filter(e => e.date !== today)
+      .filter((e) => e.date !== today)
       .map((e, idx) => ({
         id: 7000 + idx,
         createdAt: e.date,
-        title: 'UPCOMING EVENT',
+        title: 'Upcoming event',
         message: `${formatShortDate(e.date)}: ${e.event}`,
         type: e.type === 'holiday' ? 'holiday' : 'info',
         priority: 2,
         category: 'EVENT',
         link: '',
         linkText: '',
-        expiresAt: e.date
+        expiresAt: e.date,
       }));
 
-    // Combine all updates
-    const allUpdates = [...todayEventUpdate, ...externalUpdates, ...eventUpdates]
-      .filter(u => !u.category?.toLowerCase().includes('homework') && !u.category?.toLowerCase().includes('home work') && u.type !== 'homework') // Exclude homework from notifications
+    return [...todayEventUpdate, ...externalUpdates, ...eventUpdates]
+      .filter(
+        (u) =>
+          !u.category?.toLowerCase().includes('homework') &&
+          !u.category?.toLowerCase().includes('home work') &&
+          u.type !== 'homework',
+      )
       .sort((a, b) => {
-        // Sort by priority (1 is highest)
         if (a.priority !== b.priority) return (a.priority || 3) - (b.priority || 3);
-        // Then by date (newest first)
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-
-    return allUpdates;
   }, [externalUpdates]);
 
   useEffect(() => {
-    // Check for new updates
     const lastSeen = localStorage.getItem('updates_last_seen');
     if (updates.length > 0) {
       const latestUpdate = updates[0];
@@ -80,155 +96,165 @@ export default function RecentUpdates() {
     }
   }, [updates]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onPointer = (e: MouseEvent) => {
+      if (!panelRef.current?.contains(e.target as Node)) setIsOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener('mousedown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [isOpen]);
+
   const handleOpen = () => {
-    setIsOpen(true);
+    setIsOpen((open) => !open);
     setHasNew(false);
-    localStorage.setItem('updates_last_seen', new Date().toISOString().split('T')[0]);
+    localStorage.setItem(
+      'updates_last_seen',
+      new Date().toISOString().split('T')[0],
+    );
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-    });
-  };
-
-  const getTypeStyle = (type: string, priority?: number) => {
-    if (priority === 1) return 'bg-white border-orange-500 shadow-lg border-2 ring-4 ring-orange-50';
-    switch (type) {
-      case 'urgent':
-        return 'bg-red-50 border-red-200 text-red-800';
-      case 'holiday':
-        return 'bg-green-50 border-green-200 text-green-800';
-      case 'notice':
-        return 'bg-orange-50 border-orange-200 text-orange-800';
-      case 'homework':
-        return 'bg-purple-50 border-purple-200 text-purple-800';
-      default:
-        return 'bg-blue-50 border-blue-200 text-blue-800';
-    }
-  };
+  const groups = [
+    {
+      title: 'Urgent',
+      items: updates.filter((u) => u.category?.toLowerCase().includes('urgent')),
+    },
+    {
+      title: 'School notices',
+      items: updates.filter((u) => u.category?.toLowerCase().includes('school')),
+    },
+    {
+      title: 'Holidays',
+      items: updates.filter((u) => u.category?.toLowerCase().includes('holiday')),
+    },
+    {
+      title: 'Upcoming events',
+      items: updates.filter((u) => u.category?.toLowerCase().includes('event')),
+    },
+    {
+      title: 'General',
+      items: updates.filter(
+        (u) =>
+          !['urgent', 'home', 'homework', 'school', 'holiday', 'event'].some((k) =>
+            u.category?.toLowerCase().includes(k),
+          ),
+      ),
+    },
+  ].filter((group) => group.items.length > 0);
 
   return (
-    <>
-      <div className="flex items-center gap-2">
-        {/* Updates Button */}
-        <button
-          onClick={handleOpen}
-          className="relative flex items-center justify-center w-[34px] h-[34px] bg-orange-100 text-orange-700 rounded-full hover:bg-orange-200 transition-all shadow-sm"
-          aria-label="Updates"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-          {updates.length > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white animate-pulse">
-              {updates.length}
-            </span>
-          )}
-        </button>
-      </div>
+    <div className="relative" ref={panelRef}>
+      <button
+        type="button"
+        onClick={handleOpen}
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
+        className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--sp-border)] bg-white text-[var(--sp-muted)] transition-colors hover:bg-[var(--sp-primary-soft)] hover:text-[var(--sp-primary)] sp-focus"
+        aria-label="Updates"
+      >
+        <Bell className="h-4 w-4" aria-hidden />
+        {updates.length > 0 ? (
+          <span
+            className={`absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white ${
+              hasNew ? 'bg-[var(--sp-error)]' : 'bg-[var(--sp-muted)]'
+            }`}
+          >
+            {updates.length}
+          </span>
+        ) : null}
+      </button>
 
-      {/* Modal */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-          {/* Backdrop */}
+      {isOpen ? (
+        <>
           <div
-            className="absolute inset-0 bg-black/50"
+            className="fixed inset-0 z-40 bg-black/20 sm:hidden"
+            aria-hidden
             onClick={() => setIsOpen(false)}
-          ></div>
-
-          {/* Content */}
-          <div className="relative bg-white w-full sm:w-96 max-h-[70vh] rounded-t-2xl sm:rounded-2xl overflow-hidden">
-            {/* Header */}
-            <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-orange-50/50">
-              <h2 className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
-                <svg className="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                Updates
-              </h2>
+          />
+          <div
+            role="dialog"
+            aria-label="Updates"
+            className="fixed inset-x-0 bottom-0 z-50 max-h-[75vh] overflow-hidden rounded-t-2xl border border-[var(--sp-border)] bg-white shadow-xl sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[22rem] sm:max-h-[min(70vh,28rem)] sm:rounded-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-[var(--sp-border)] px-4 py-3">
+              <div>
+                <h2 className="text-sm font-bold text-[var(--sp-ink)]">Updates</h2>
+                <p className="text-[11px] text-[var(--sp-subtle)]">
+                  {updates.length} item{updates.length === 1 ? '' : 's'}
+                </p>
+              </div>
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--sp-subtle)] hover:bg-[var(--sp-bg)] hover:text-[var(--sp-ink)] sp-focus"
+                aria-label="Close updates"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            {/* Updates List */}
-            <div className="p-2 sm:p-3 overflow-y-auto max-h-[65vh]">
+            <div className="overflow-y-auto p-3 max-h-[calc(75vh-3.5rem)] sm:max-h-[min(62vh,24rem)]">
               {updates.length === 0 ? (
-                <p className="text-center text-xs text-gray-500 py-6 font-medium">No updates at the moment</p>
+                <p className="px-2 py-8 text-center text-sm text-[var(--sp-muted)]">
+                  No updates right now
+                </p>
               ) : (
                 <div className="space-y-4">
-                  {/* Category Grouping Logic */}
-                  {[
-                    { title: 'Urgent Action / High Priority', items: updates.filter(u => u.category?.toLowerCase().includes('urgent')) },
-                    // { title: 'Home Work / Daily Tasks', items: updates.filter(u => u.category?.toLowerCase().includes('home') || u.category?.toLowerCase().includes('homework')) },
-                    { title: 'School Actions & Notices', items: updates.filter(u => u.category?.toLowerCase().includes('school')) },
-                    { title: 'Holidays & Closures', items: updates.filter(u => u.category?.toLowerCase().includes('holiday')) },
-                    { title: 'Upcoming Events', items: updates.filter(u => u.category?.toLowerCase().includes('event')) },
-                    { title: 'General Information', items: updates.filter(u => !['urgent', 'home', 'homework', 'school', 'holiday', 'event'].some(k => u.category?.toLowerCase().includes(k))) },
-                  ]
-                    .filter(group => group.items.length > 0)
-                    .map((group, gIdx) => (
-                      <div key={gIdx} className="space-y-2">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">
-                          {group.title}
-                        </h4>
-                        <div className="space-y-2">
-                          {group.items.map((update) => (
-                            <div
-                              key={update.id}
-                              className={`p-2.5 rounded-lg border transition-all duration-300 ${getTypeStyle(update.type, update.priority)}`}
-                            >
-                              <div className="flex items-start justify-between gap-1.5">
-                                <div className="flex flex-col min-w-0">
-                                  <h3 className="font-bold text-[13px] leading-snug">{update.title}</h3>
-                                </div>
-                              </div>
-                              <p className="text-[12px] mt-1 opacity-80 leading-relaxed font-medium">
-                                {update.message}
-                              </p>
-                              {update.link && (
-                                update.link.startsWith('/') ? (
-                                  <Link
-                                    href={update.link}
-                                    className="inline-flex items-center gap-1 mt-2 px-3 py-1.5 bg-orange-500 text-white text-[10px] font-bold rounded-md hover:bg-orange-600 transition-all shadow-sm shadow-orange-100 uppercase tracking-wide"
-                                  >
-                                    {update.linkText || 'View Details'}
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                    </svg>
-                                  </Link>
-                                ) : (
-                                  <a
-                                    href={update.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 mt-2 px-3 py-1.5 bg-orange-500 text-white text-[10px] font-bold rounded-md hover:bg-orange-600 transition-all shadow-sm shadow-orange-100 uppercase tracking-wide"
-                                  >
-                                    {update.linkText || 'Learn More'}
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                  </a>
-                                )
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                  {groups.map((group) => (
+                    <div key={group.title} className="space-y-2">
+                      <h3 className="px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--sp-subtle)]">
+                        {group.title}
+                      </h3>
+                      <div className="space-y-2">
+                        {group.items.map((update) => (
+                          <div
+                            key={update.id}
+                            className={`rounded-xl border px-3 py-2.5 ${toneClasses(update.type, update.priority)}`}
+                          >
+                            <h4 className="text-[13px] font-semibold leading-snug">
+                              {update.title}
+                            </h4>
+                            <p className="mt-1 text-xs leading-relaxed opacity-90">
+                              {update.message}
+                            </p>
+                            {update.link ? (
+                              update.link.startsWith('/') ? (
+                                <Link
+                                  href={update.link}
+                                  onClick={() => setIsOpen(false)}
+                                  className="mt-2 inline-flex text-[11px] font-semibold text-[var(--sp-primary)] hover:underline"
+                                >
+                                  {update.linkText || 'View details'}
+                                </Link>
+                              ) : (
+                                <a
+                                  href={update.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="mt-2 inline-flex text-[11px] font-semibold text-[var(--sp-primary)] hover:underline"
+                                >
+                                  {update.linkText || 'Learn more'}
+                                </a>
+                              )
+                            ) : null}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
           </div>
-        </div>
-      )}
-    </>
+        </>
+      ) : null}
+    </div>
   );
 }

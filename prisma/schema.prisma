@@ -26,6 +26,7 @@ model Class {
   school        School         @relation(fields: [schoolId], references: [id])
   months        Month[]
   users         User[]
+  students      Student[]
 
   @@unique([schoolId, name, section])
 }
@@ -87,13 +88,49 @@ model Announcement {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  role      String
-  classId   String?
-  createdAt DateTime @default(now())
-  class     Class?   @relation(fields: [classId], references: [id])
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String?
+  role         String
+  classId      String?
+  passwordHash String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  class        Class?   @relation(fields: [classId], references: [id])
+  homeworkAcknowledgements HomeworkAcknowledgement[]
+  noticeAcknowledgements   NoticeAcknowledgement[]
+  parentStudents           ParentStudent[]
+}
+
+/// Child/student roster entry linked to a Class (section)
+model Student {
+  id          String   @id @default(cuid())
+  displayName String
+  classId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  class       Class    @relation(fields: [classId], references: [id])
+  parents     ParentStudent[]
+
+  @@index([classId])
+}
+
+/// Parent ↔ Student link. New signups have no row until school approves a link.
+model ParentStudent {
+  id           String   @id @default(cuid())
+  parentUserId String
+  studentId    String
+  /// pending | approved | rejected
+  status       String   @default("pending")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  parent       User     @relation(fields: [parentUserId], references: [id], onDelete: Cascade)
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([parentUserId, studentId])
+  @@index([parentUserId])
+  @@index([studentId])
+  @@index([status])
 }
 
 /// Automated NeverSkip homework (source of truth for sync; UI falls back to JSON/Sheets)
@@ -112,6 +149,7 @@ model ImportedHomework {
   attachmentUrl String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  acknowledgements HomeworkAcknowledgement[]
 
   @@unique([source, sourceId])
   @@index([homeworkDate])
@@ -131,6 +169,7 @@ model ImportedNotice {
   imageUrl      String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  acknowledgements NoticeAcknowledgement[]
 
   @@unique([source, sourceId])
   @@index([publishedDate])
@@ -152,4 +191,38 @@ model ContentChangeEvent {
   @@index([detectedAt])
   @@index([entityType, detectedAt])
   @@index([source, sourceId])
+}
+
+/// Parent acknowledgement of a homework item (session user only)
+model HomeworkAcknowledgement {
+  id             String   @id @default(cuid())
+  userId         String
+  homeworkId     String
+  acknowledgedAt DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  homework       ImportedHomework @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, homeworkId])
+  @@index([userId])
+  @@index([homeworkId])
+  @@index([acknowledgedAt])
+}
+
+/// Parent acknowledgement of a notice (session user only)
+model NoticeAcknowledgement {
+  id             String   @id @default(cuid())
+  userId         String
+  noticeId       String
+  acknowledgedAt DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notice         ImportedNotice @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, noticeId])
+  @@index([userId])
+  @@index([noticeId])
+  @@index([acknowledgedAt])
 }

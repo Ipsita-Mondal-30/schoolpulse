@@ -131,11 +131,27 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
 
   async upsertNotice(item: NormalizedNotice): Promise<UpsertResult> {
     const prisma = getPrisma();
-    const existing = await prisma.importedNotice.findUnique({
+    let existing = await prisma.importedNotice.findUnique({
       where: {
         source_sourceId: { source: item.source, sourceId: item.sourceId },
       },
     });
+
+    // Legacy rows hashed date|time|title|content with blank dates — match by content to update in place.
+    if (!existing && item.content.trim()) {
+      const candidates = await prisma.importedNotice.findMany({
+        where: { source: item.source, content: item.content },
+        take: 5,
+      });
+      if (candidates.length === 1) {
+        existing = candidates[0];
+      } else if (candidates.length > 1) {
+        existing =
+          candidates.find((c) => !c.publishedDate?.trim()) ??
+          candidates.find((c) => c.title === item.title) ??
+          candidates[0];
+      }
+    }
 
     const classesJson = JSON.stringify(item.classes);
 
@@ -168,7 +184,10 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       imageUrl: existing.imageUrl,
     };
 
-    if (noticeContentKey(existingNorm) === noticeContentKey(item)) {
+    if (
+      noticeContentKey(existingNorm) === noticeContentKey(item) &&
+      existing.sourceId === item.sourceId
+    ) {
       return 'unchanged';
     }
 
@@ -190,6 +209,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
     await prisma.importedNotice.update({
       where: { id: existing.id },
       data: {
+        sourceId: item.sourceId,
         title: item.title,
         summary: item.summary,
         content: item.content,

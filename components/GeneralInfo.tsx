@@ -93,7 +93,7 @@ export default function GeneralInfo() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-200 overflow-hidden">
         
         {/* 1. School Bus Tracking Section */}
-        <div>
+        <div id="bus">
           <button 
             onClick={() => toggleSection('buses')}
             className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
@@ -202,7 +202,7 @@ export default function GeneralInfo() {
         </div>
 
         {/* 3. Teachers Section */}
-        <div>
+        <div id="teachers">
           <button 
             onClick={() => toggleSection('teachers')}
             className="w-full text-left px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-t border-gray-200"

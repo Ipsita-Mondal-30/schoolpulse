@@ -1,5 +1,5 @@
 import type { NeverSkipClient } from './client';
-import { nsLog, nsWarn } from './log';
+import { nsError, nsLog, nsWarn } from './log';
 import { extractAssignments } from './normalizers';
 import type { NeverSkipHomeworkResponse, NeverSkipRawAssignment } from './types';
 
@@ -122,7 +122,8 @@ export function mergeHomeworkPageItems(
 
 /**
  * Decide whether another page should be requested after successfully reading `pageIndex` (0-based).
- * Uses NeverSkip metadata when present; otherwise continues while the last page looks full.
+ * Continue while page_count has more pages OR unique collected is still below total_count
+ * (but never past a clearly short final page once page_count is exhausted).
  */
 export function shouldFetchNextHomeworkPage(
   meta: HomeworkPaginationMeta,
@@ -131,28 +132,41 @@ export function shouldFetchNextHomeworkPage(
 ): boolean {
   if (meta.itemListLength <= 0) return false;
 
-  if (meta.pageCount != null && meta.pageCount > 0) {
-    return pageIndex + 1 < meta.pageCount;
+  if (meta.totalCount != null && meta.totalCount > 0 && collectedCount >= meta.totalCount) {
+    return false;
   }
 
-  if (meta.totalCount != null && meta.totalCount > 0) {
-    if (collectedCount >= meta.totalCount) return false;
-    const pageSize =
-      meta.sfileLimit != null && meta.sfileLimit > 0
-        ? meta.sfileLimit
-        : meta.itemListLength > 0
-          ? meta.itemListLength
-          : null;
-    if (pageSize != null && meta.itemListLength < pageSize) return false;
+  if (meta.pageCount != null && meta.pageCount > 0 && pageIndex + 1 < meta.pageCount) {
     return true;
   }
 
-  // No usable totals: stop when a short page arrives; keep going while page looks "full".
-  const pageSize = meta.sfileLimit != null && meta.sfileLimit > 0 ? meta.sfileLimit : null;
-  if (pageSize != null) return meta.itemListLength >= pageSize;
-  // Fallback when limit metadata missing: treat a non-empty page as potentially having more
-  // only if length looks like a round default page size (observed live: 10).
-  return meta.itemListLength >= 10;
+  // page_count exhausted (or missing): only keep going when total_count says more remain
+  // and the last page still looks "full" (portal pages are typically ~10).
+  if (meta.totalCount != null && meta.totalCount > 0 && collectedCount < meta.totalCount) {
+    return meta.itemListLength >= 10;
+  }
+
+  if (meta.pageCount != null && meta.pageCount > 0) {
+    return false;
+  }
+
+  // No usable totals: stop when a short page arrives.
+  if (meta.sfileLimit != null && meta.sfileLimit > 0 && meta.itemListLength >= meta.sfileLimit) {
+    return true;
+  }
+  if (meta.itemListLength >= 10) return true;
+  return false;
+}
+
+/**
+ * Incomplete when the API's total_count exceeds the sum of raw page lengths
+ * (unique count may be lower due to cross-page overlaps — that is OK).
+ */
+export function homeworkTotalCountMismatch(
+  totalCount: number | null | undefined,
+  rawFetchedCount: number,
+): boolean {
+  return totalCount != null && totalCount > 0 && rawFetchedCount < totalCount;
 }
 
 const MAX_HOMEWORK_PAGES = 100;
@@ -171,6 +185,7 @@ export async function fetchAllHomeworkPages(
   let incomplete = false;
   let pageIndex = 0;
   let latestMeta: HomeworkPaginationMeta | null = null;
+  let rawFetchedCount = 0;
 
   while (pageIndex < MAX_HOMEWORK_PAGES) {
     const payload = buildHomeworkPayload(pageIndex, limit);
@@ -200,6 +215,13 @@ export async function fetchAllHomeworkPages(
     if (items.length === 0) {
       if (pageIndex === 0) {
         pages.push(items);
+      } else if (
+        latestMeta.pageCount != null &&
+        latestMeta.pageCount > 0 &&
+        pageIndex >= latestMeta.pageCount
+      ) {
+        // Requested past declared page_count (total_count chase) and got empty — stop cleanly.
+        nsWarn(`Homework page ${pageIndex} empty after page_count exhausted — stopping`);
       } else {
         incomplete = true;
         errors.push(`page ${pageIndex}: empty item_list while more pages were expected`);
@@ -209,13 +231,27 @@ export async function fetchAllHomeworkPages(
     }
 
     pages.push(items);
+    rawFetchedCount += items.length;
 
     const collected = mergeHomeworkPageItems(pages).length;
+    nsLog(
+      `Homework page progress: page=${pageIndex} received=${items.length} cumulativeUnique=${collected} cumulativeRaw=${rawFetchedCount}` +
+        (meta.totalCount != null ? ` totalCount=${meta.totalCount}` : ''),
+    );
+
     // Stop if a later page added no new unique records (bad/repeated pagination).
     if (pageIndex > 0) {
       const previous = mergeHomeworkPageItems(pages.slice(0, -1)).length;
       if (collected === previous) {
-        nsWarn(`Homework page ${pageIndex} added no new records — stopping pagination`);
+        incomplete = true;
+        errors.push(
+          `page ${pageIndex}: duplicate/empty unique page (cumulative=${collected}` +
+            (meta.totalCount != null ? `, total_count=${meta.totalCount}` : '') +
+            ')',
+        );
+        nsWarn(
+          `Homework page ${pageIndex} added no new records — stopping pagination (incomplete)`,
+        );
         break;
       }
     }
@@ -238,8 +274,19 @@ export async function fetchAllHomeworkPages(
   const items = mergeHomeworkPageItems(pages);
   const pagesFetched = pages.length;
 
+  if (homeworkTotalCountMismatch(latestMeta?.totalCount, rawFetchedCount)) {
+    incomplete = true;
+    const msg = `fetched ${rawFetchedCount} raw homework < total_count ${latestMeta!.totalCount} (unique=${items.length})`;
+    errors.push(msg);
+    nsError(`SYNC FAILED — INCOMPLETE SOURCE DATA (${msg})`);
+  }
+
   nsLog(`Homework pages fetched: ${pagesFetched}`);
   nsLog(`Homework records fetched: ${items.length}`);
+  nsLog(`Homework raw records fetched: ${rawFetchedCount}`);
+  if (latestMeta?.totalCount != null) {
+    nsLog(`Homework total_count (source): ${latestMeta.totalCount}`);
+  }
   if (incomplete) {
     nsWarn('Homework pagination incomplete — preserving records collected so far');
   }

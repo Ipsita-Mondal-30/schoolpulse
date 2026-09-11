@@ -85,73 +85,60 @@ export default function TimetablePage() {
 
   let subjectIndex = 0;
 
+  const headerDate = new Date().toLocaleDateString('en-IN', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <span className="text-2xl">🕐</span>
-          Timetable
-        </h1>
-        <p className="text-xs text-gray-500 mt-0.5">{timetableData.class} &middot; {timetableData.school}</p>
+    <div className="sp-page">
+      <div className="mb-5">
+        <p className="sp-meta mb-1">
+          {isToday(selectedDayName) ? headerDate.toUpperCase() : selectedDayName.toUpperCase()}
+        </p>
+        <h1 className="sp-title">Timetable</h1>
+        <p className="sp-subtitle">
+          {timetableData.class} · {timetableData.school}
+        </p>
       </div>
 
-      {/* Day Tabs */}
-      <div className="flex gap-1.5 mb-5 overflow-x-auto pb-1 -mx-1 px-1">
+      <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
         {DAYS.map((day, idx) => (
           <button
             key={day}
+            type="button"
             onClick={() => setSelectedDay(idx)}
-            className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
+            className={`shrink-0 min-h-9 px-3 rounded-lg text-xs font-semibold transition-colors border sp-focus ${
               idx === selectedDay
-                ? 'bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-200'
+                ? 'bg-[var(--sp-primary)] text-white border-[var(--sp-primary)]'
                 : isToday(day)
-                ? 'bg-orange-50 text-orange-700 border-orange-200'
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                  ? 'bg-[var(--sp-primary-soft)] text-[var(--sp-primary)] border-orange-200'
+                  : 'bg-white text-[var(--sp-muted)] border-[var(--sp-border)]'
             }`}
           >
             {day.slice(0, 3)}
-            {isToday(day) && idx !== selectedDay && (
-              <span className="ml-1 text-[8px] font-medium uppercase">today</span>
-            )}
           </button>
         ))}
       </div>
 
-      {/* Mobile: Vertical Timeline */}
-      <div className="sm:hidden space-y-2">
+      {/* Day timeline (all breakpoints — scannable list) */}
+      <div className="space-y-0 sp-card divide-y divide-[var(--sp-border)] mb-6">
         {periods.map((period, i) => {
           if (period.type === 'assembly') {
             const current = isCurrentPeriod(period) && isToday(selectedDayName);
             return (
               <div
                 key="assembly"
-                className={`flex items-stretch rounded-xl border transition-all ${
-                  current
-                    ? 'border-amber-400 ring-2 ring-amber-100 shadow-md'
-                    : 'border-amber-200 bg-amber-50/50'
-                }`}
+                className={`flex gap-4 px-4 py-3.5 ${current ? 'bg-[var(--sp-warn-soft)]' : ''}`}
               >
-                <div className={`w-16 shrink-0 flex flex-col items-center justify-center py-3 px-1 rounded-l-xl ${
-                  current ? 'bg-amber-100' : 'bg-amber-50'
-                }`}>
-                  <span className="text-sm">🙏</span>
-                  <span className="text-[9px] text-amber-600 mt-0.5 leading-tight text-center">
-                    {formatTime12(period.startTime)}
-                  </span>
-                </div>
-                <div className={`flex-1 flex items-center gap-2.5 px-3 py-3 rounded-r-xl ${
-                  current ? 'bg-amber-50/60' : 'bg-amber-50/30'
-                }`}>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-sm text-amber-800">Assembly</div>
-                    <div className="text-[10px] text-amber-600">{formatTime12(period.startTime)} – {formatTime12(period.endTime)}</div>
-                  </div>
-                  {current && (
-                    <span className="shrink-0 text-[9px] font-bold text-amber-700 bg-amber-200 px-2 py-0.5 rounded-full uppercase animate-pulse">
-                      Now
-                    </span>
-                  )}
+                <div className="w-16 shrink-0 sp-meta pt-0.5">{formatTime12(period.startTime)}</div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[var(--sp-ink)]">Assembly</p>
+                  <p className="sp-meta">
+                    {formatTime12(period.startTime)} – {formatTime12(period.endTime)}
+                    {current ? ' · Now' : ''}
+                  </p>
                 </div>
               </div>
             );
@@ -159,12 +146,10 @@ export default function TimetablePage() {
 
           if (period.type === 'break') {
             return (
-              <div key={`break-${i}`} className="flex items-center gap-3 py-2 px-1">
-                <div className="h-px flex-1 bg-gray-200" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 shrink-0">
-                  {period.label} ({formatTime12(period.startTime)} – {formatTime12(period.endTime)})
-                </span>
-                <div className="h-px flex-1 bg-gray-200" />
+              <div key={`break-${i}`} className="px-4 py-2 bg-[var(--sp-bg)]">
+                <p className="sp-meta text-center">
+                  {period.label} · {formatTime12(period.startTime)} – {formatTime12(period.endTime)}
+                </p>
               </div>
             );
           }
@@ -176,49 +161,28 @@ export default function TimetablePage() {
           return (
             <div
               key={`p-${period.number}`}
-              className={`flex items-stretch rounded-xl border transition-all ${
-                current
-                  ? 'border-orange-400 ring-2 ring-orange-100 shadow-md'
-                  : 'border-gray-100'
-              }`}
+              className={`flex gap-4 px-4 py-3.5 ${current ? 'bg-[var(--sp-primary-soft)]' : ''}`}
             >
-              {/* Time Column */}
-              <div className={`w-16 shrink-0 flex flex-col items-center justify-center py-3 px-1 rounded-l-xl ${
-                current ? 'bg-orange-50' : 'bg-gray-50'
-              }`}>
-                <span className={`text-[10px] font-bold ${current ? 'text-orange-600' : 'text-gray-400'}`}>
-                  P{period.number}
-                </span>
-                <span className="text-[9px] text-gray-400 mt-0.5 leading-tight text-center">
-                  {formatTime12(period.startTime)}
-                </span>
-              </div>
-
-              {/* Subject */}
-              <div className={`flex-1 flex items-center gap-2.5 px-3 py-3 rounded-r-xl ${
-                current ? 'bg-orange-50/40' : 'bg-white'
-              }`}>
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center border text-xs font-black ${getSubjectStyle(subjectCode)}`}>
-                  {subjectCode.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm text-gray-900">{subjectCode}</div>
-                  <div className="text-[10px] text-gray-400">{getSubjectFullName(subjectCode)}</div>
-                </div>
-                {current && (
-                  <span className="shrink-0 text-[9px] font-bold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full uppercase animate-pulse">
-                    Now
-                  </span>
-                )}
+              <div className="w-16 shrink-0 sp-meta pt-0.5">{formatTime12(period.startTime)}</div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-[var(--sp-ink)]">
+                  {getSubjectFullName(subjectCode)}
+                </p>
+                <p className="sp-meta">
+                  {subjectCode}
+                  {current ? ' · Now' : ''}
+                </p>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Desktop: Full Week Grid */}
-      <div className="hidden sm:block">
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+      {/* Desktop week overview (secondary) */}
+      <div className="hidden lg:block">
+
+        <p className="sp-section mb-3">Week overview</p>
+        <div className="bg-white rounded-2xl border border-[var(--sp-border)] overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">

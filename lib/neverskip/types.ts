@@ -126,6 +126,9 @@ export interface CollectedNeverSkipData {
   homeworkPagesFetched?: number;
   homeworkFetchIncomplete?: boolean;
   homeworkFetchErrors?: string[];
+  noticePagesFetched?: number;
+  noticeFetchIncomplete?: boolean;
+  noticeFetchErrors?: string[];
 }
 
 export interface SyncSummary {
@@ -140,6 +143,8 @@ export interface SyncSummary {
   noticesInserted: number;
   noticesUpdated: number;
   noticesSkipped: number;
+  noticePagesFetched?: number;
+  noticeFetchIncomplete?: boolean;
   errors: string[];
 }
 

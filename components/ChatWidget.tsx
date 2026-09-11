@@ -119,20 +119,20 @@ export default function ChatWidget() {
             {/* Floating Action Button */}
             <button
                 onClick={() => setIsOpen(true)}
-                className={`fixed bottom-6 right-6 p-4 rounded-full shadow-lg shadow-orange-200 z-50 transition-all duration-300 flex items-center justify-center transform hover:scale-105 active:scale-95 border-2 border-white
-        ${isOpen ? 'translate-y-20 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100 bg-gradient-to-r from-orange-500 to-rose-500 text-white'}`}
+                className={`fixed z-40 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] right-4 md:bottom-6 md:right-6 p-3.5 rounded-full shadow-md shadow-orange-200/60 transition-all duration-300 flex items-center justify-center transform hover:scale-105 active:scale-95 border border-white
+        ${isOpen ? 'translate-y-20 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100 bg-[var(--sp-primary)] text-white'}`}
                 aria-label="Open Chat"
             >
-                <MessageCircle size={28} className="drop-shadow-sm" />
-                <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                <MessageCircle size={24} className="drop-shadow-sm" />
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60"></span>
-                    <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-white shadow-sm"></span>
+                    <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white shadow-sm"></span>
                 </span>
             </button>
 
             {/* Chat Window */}
             <div
-                className={`fixed bottom-4 right-4 left-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[320px] h-[70vh] sm:h-[480px] max-h-[calc(100vh-96px)] sm:max-h-[calc(100vh-48px)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col transition-all duration-300 transform origin-bottom-right focus:outline-none overflow-hidden border border-gray-100
+                className={`fixed z-50 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] right-3 left-3 md:left-auto md:right-6 md:bottom-6 md:w-[320px] h-[65vh] md:h-[480px] max-h-[calc(100vh-8rem)] md:max-h-[calc(100vh-48px)] bg-white rounded-2xl shadow-2xl flex flex-col transition-all duration-300 transform origin-bottom-right focus:outline-none overflow-hidden border border-[var(--sp-border)]
         ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 pointer-events-none translate-y-10'}`}
             >
                 {/* Header */}

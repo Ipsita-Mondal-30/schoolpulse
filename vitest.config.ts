@@ -11,6 +11,8 @@ export default defineConfig({
       'tests/daily-brief.test.ts',
       'tests/this-week.test.ts',
       'tests/neverskip/changes.test.ts',
+      'tests/acknowledgements.test.ts',
+      'tests/parent-onboarding.test.ts',
     ],
   },
   resolve: {

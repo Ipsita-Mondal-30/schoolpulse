@@ -1,124 +1,56 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
-import { useUpdates } from '@/context/UpdatesContext';
-import RecentUpdates from './RecentUpdates';
+import { DesktopNavigation } from '@/components/nav/DesktopNavigation';
+import { BottomNavigation } from '@/components/nav/BottomNavigation';
+import { MoreSheet } from '@/components/nav/MoreSheet';
+import RecentUpdates from '@/components/RecentUpdates';
 
 export default function Navigation() {
-  const pathname = usePathname();
-  const { homeworkCount } = useUpdates();
-  const desktopActiveRef = useRef<HTMLAnchorElement | null>(null);
-  const mobileActiveRef = useRef<HTMLAnchorElement | null>(null);
-
-  const links = [
-    { href: '/', label: 'Planner', shortLabel: 'Planner', icon: '📋' },
-    { href: '/timetable', label: 'Timetable', shortLabel: 'Time', icon: '🕐' },
-    { href: '/week', label: 'Words', shortLabel: 'Words', icon: '🔤' },
-    { href: '/homework', label: 'Homework', shortLabel: 'Homework', icon: '📚' },
-    { href: '/this-week', label: 'This Week', shortLabel: 'Week', icon: '📅' },
-    { href: '/joy-of-learning', label: 'JoL', shortLabel: 'JoL', icon: '🎓' },
-    { href: '/class-diary', label: 'Library', shortLabel: 'Library', icon: '🗂️' },
-    { href: '/notices', label: 'Notices', shortLabel: 'Notice', icon: '📢' },
-    { href: '/changes', label: 'Changes', shortLabel: 'Changes', icon: '✨' },
-    { href: '/info', label: 'Info', shortLabel: 'Info', icon: 'ℹ️' },
-    { href: '/dates', label: 'Events', shortLabel: 'Events', icon: '🔔' },
-  ];
+  const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
-    desktopActiveRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      inline: 'center',
-      block: 'nearest',
-    });
-    mobileActiveRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      inline: 'center',
-      block: 'nearest',
-    });
-  }, [pathname]);
+    if (!moreOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMoreOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [moreOpen]);
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-40 flex flex-col">
-      {/* Header Row */}
-      <div className="max-w-4xl mx-auto w-full px-3 sm:px-4 h-14 flex items-center gap-2 sm:gap-3 min-w-0">
-        {/* Left: Brand */}
-        <div className="shrink-0 flex items-center">
-          <Link href="/" className="flex items-center gap-1">
-            <span className="text-xl sm:text-2xl">💓</span>
-            <span className="font-bold text-orange-600 text-sm sm:text-base">SchoolPuls</span>
+    <>
+      <header className="sticky top-0 z-40 border-b border-[var(--sp-border)] bg-white/95 backdrop-blur-md">
+        <div className="mx-auto flex h-14 w-full max-w-[1200px] min-w-0 items-center gap-3 px-4 sm:px-6">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg sp-focus"
+          >
+            <span
+              className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--sp-primary)] text-xs font-bold text-white"
+              aria-hidden
+            >
+              SP
+            </span>
+            <span className="text-sm font-bold tracking-tight text-[var(--sp-primary)] sm:text-base">
+              SchoolPulse
+            </span>
           </Link>
-        </div>
 
-        {/* Desktop Links — scroll when they don't fit */}
-        <div className="hidden sm:block flex-1 min-w-0 overflow-x-auto scrollbar-none overscroll-x-contain">
-          <div className="flex items-center gap-0.5 w-max pr-1">
-            {links.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  ref={isActive ? desktopActiveRef : undefined}
-                  className={`relative flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap shrink-0 transition-colors ${
-                    isActive
-                      ? 'bg-orange-100 text-orange-700 font-semibold'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                  }`}
-                >
-                  {link.label === 'Homework' && homeworkCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-pulse">
-                      {homeworkCount}
-                    </span>
-                  )}
-                  <span className="text-base leading-none">{link.icon}</span>
-                  <span className="lg:hidden">{link.shortLabel}</span>
-                  <span className="hidden lg:inline">{link.label}</span>
-                </Link>
-              );
-            })}
+          <DesktopNavigation />
+
+          <div className="ml-auto flex items-center gap-1 md:hidden">
+            <RecentUpdates />
           </div>
         </div>
+      </header>
 
-        {/* Right: RecentUpdates */}
-        <div className="shrink-0 flex items-center">
-          <RecentUpdates />
-        </div>
-      </div>
-
-      {/* Mobile Tabs Bar — horizontal scroll */}
-      <div className="sm:hidden w-full border-t border-gray-100 bg-gray-50/50 overflow-x-auto scrollbar-none overscroll-x-contain">
-        <div className="flex items-center gap-1.5 px-2 py-2 w-max">
-          {links.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                ref={isActive ? mobileActiveRef : undefined}
-                className={`relative inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold transition-all border shrink-0 whitespace-nowrap ${
-                  isActive
-                    ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                }`}
-              >
-                <span className="text-[13px] leading-none">{link.icon}</span>
-                {isActive && <span>{link.shortLabel}</span>}
-                {link.label === 'Homework' && homeworkCount > 0 && (
-                  <span
-                    className={`flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white shadow-sm ring-1 ring-white animate-pulse ${
-                      !isActive ? 'absolute -top-1.5 -right-1.5' : ''
-                    }`}
-                  >
-                    {homeworkCount}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </nav>
+      <BottomNavigation
+        moreOpen={moreOpen}
+        onMoreToggle={() => setMoreOpen((v) => !v)}
+      />
+      <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} />
+    </>
   );
 }

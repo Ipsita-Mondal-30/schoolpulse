@@ -57,9 +57,9 @@ async function runBrowserSync(): Promise<void> {
     `Summary: homeworkPages=${summary.homeworkPagesFetched ?? '?'} homeworkFetched=${summary.homeworkFetched} homeworkInserted=${summary.homeworkInserted} homeworkSkipped=${summary.homeworkSkipped} noticesFetched=${summary.noticesFetched} noticesInserted=${summary.noticesInserted} noticesSkipped=${summary.noticesSkipped}`,
   );
 
-  if (summary.errors.length > 0 || summary.homeworkFetchIncomplete) {
+  if (summary.errors.length > 0 || summary.homeworkFetchIncomplete || summary.noticeFetchIncomplete) {
     throw new Error(
-      `Worker sync completed with errors: ${summary.errors.join('; ') || 'homework pagination incomplete'}`,
+      `Worker sync completed with errors: ${summary.errors.join('; ') || 'incomplete source data'}`,
     );
   }
 }

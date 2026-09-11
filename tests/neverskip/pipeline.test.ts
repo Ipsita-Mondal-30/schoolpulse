@@ -12,6 +12,7 @@ import {
   normalizeDate,
   normalizeHomework,
   normalizeNotice,
+  normalizeTime,
 } from '@/lib/neverskip/normalizers';
 import { syncNeverSkip } from '@/lib/neverskip/sync';
 import {
@@ -109,6 +110,37 @@ describe('NeverSkip notice parsing & normalization', () => {
     expect(norm!.publishedDate).toBe('2026-09-04');
     expect(norm!.publishedTime).toBe('15:39');
     expect(norm!.content).toContain('English textbook');
+  });
+
+  it('parses audience title Classes: into classes and content-based display title', () => {
+    const norm = normalizeNotice({
+      title: 'Classes: I-A, I-B, I-G',
+      cont: 'Namaste Dear Parents, Today EVS homework is in the class diary.',
+      date: '10-09-2026',
+      time: '09:15',
+    });
+    expect(norm!.classes).toEqual(['I-A', 'I-B', 'I-G']);
+    expect(norm!.publishedDate).toBe('2026-09-10');
+    expect(norm!.title).not.toMatch(/^Classes:/i);
+    expect(norm!.title).toContain('EVS homework');
+  });
+
+  it('parses NeverSkip notice board stamps', () => {
+    expect(normalizeDate('03:51 PM | 11/09/2026')).toBe('2026-09-11');
+    expect(normalizeTime('03:51 PM | 11/09/2026')).toBe('15:51');
+    expect(normalizeDate('04:02 PM | 10/09/2026')).toBe('2026-09-10');
+    const norm = normalizeNotice({
+      title: 'Classes: I-A, I-B',
+      cont: 'Answer key uploaded to content library.',
+      date: '03:51 PM | 11/09/2026',
+    });
+    expect(norm!.publishedDate).toBe('2026-09-11');
+    expect(norm!.publishedTime).toBe('15:51');
+    expect(norm!.classes).toEqual(['I-A', 'I-B']);
+  });
+
+  it('rejects NeverSkip placeholder due dates', () => {
+    expect(normalizeDate('30-Nov--0001')).toBe('');
   });
 
   it('builds deterministic hash id when notice id missing', () => {

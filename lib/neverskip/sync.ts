@@ -3,7 +3,7 @@ import type { NeverSkipClient } from './client';
 import { fetchHomeworkAssignmentsDetailed } from './homework';
 import { nsError, nsLog } from './log';
 import { normalizeHomework, normalizeNotice } from './normalizers';
-import { fetchDailyNotices } from './notices';
+import { fetchDailyNoticesDetailed } from './notices';
 import type { NeverSkipStore } from './store';
 import type {
   CollectedNeverSkipData,
@@ -26,6 +26,9 @@ export interface SyncDataOptions {
   homeworkPagesFetched?: number;
   homeworkFetchIncomplete?: boolean;
   homeworkFetchErrors?: string[];
+  noticePagesFetched?: number;
+  noticeFetchIncomplete?: boolean;
+  noticeFetchErrors?: string[];
 }
 
 function emptySummary(): SyncSummary {
@@ -52,13 +55,20 @@ export async function syncNeverSkipData({
   homeworkPagesFetched,
   homeworkFetchIncomplete,
   homeworkFetchErrors = [],
+  noticePagesFetched,
+  noticeFetchIncomplete,
+  noticeFetchErrors = [],
 }: SyncDataOptions): Promise<SyncSummary> {
   const summary = emptySummary();
-  summary.errors.push(...homeworkFetchErrors);
+  summary.errors.push(...homeworkFetchErrors, ...noticeFetchErrors);
   if (homeworkPagesFetched != null) summary.homeworkPagesFetched = homeworkPagesFetched;
   if (homeworkFetchIncomplete) summary.homeworkFetchIncomplete = true;
+  if (noticePagesFetched != null) summary.noticePagesFetched = noticePagesFetched;
+  if (noticeFetchIncomplete) summary.noticeFetchIncomplete = true;
 
+  nsLog('SYNC START');
   nsLog(`NeverSkip ${label} started`);
+  nsLog('source connection successful');
 
   if (homeworkPagesFetched != null) {
     nsLog(`Homework pages fetched: ${homeworkPagesFetched}`);
@@ -95,7 +105,11 @@ export async function syncNeverSkipData({
   nsLog(`Updated homework: ${summary.homeworkUpdated}`);
   nsLog(`Duplicate homework skipped: ${summary.homeworkSkipped}`);
 
+  if (noticePagesFetched != null) {
+    nsLog(`Notice pages fetched: ${noticePagesFetched}`);
+  }
   summary.noticesFetched = notices.length;
+  nsLog(`Notice records fetched: ${notices.length}`);
   nsLog(`Notices fetched: ${notices.length}`);
 
   for (const raw of notices) {
@@ -117,12 +131,26 @@ export async function syncNeverSkipData({
   }
 
   nsLog(`New notices: ${summary.noticesInserted}`);
+  nsLog(`Updated notices: ${summary.noticesUpdated}`);
   nsLog(`Duplicate notices skipped: ${summary.noticesSkipped}`);
-  if (homeworkFetchIncomplete) {
-    nsError('Homework pagination incomplete — sync preserved partial homework results');
-    summary.errors.push('homework pagination incomplete');
+
+  const incomplete = Boolean(homeworkFetchIncomplete || noticeFetchIncomplete);
+  if (incomplete) {
+    nsLog('SYNC VALIDATION');
+    nsError('SYNC FAILED — INCOMPLETE SOURCE DATA');
+    if (homeworkFetchIncomplete) {
+      nsError('Homework pagination incomplete — sync preserved partial homework results');
+      summary.errors.push('homework pagination incomplete');
+    }
+    if (noticeFetchIncomplete) {
+      nsError('Notice pagination incomplete — sync preserved partial notice results');
+      summary.errors.push('notice pagination incomplete');
+    }
+  } else {
+    nsLog('SYNC VALIDATION');
+    nsLog('SYNC COMPLETE');
   }
-  nsLog(homeworkFetchIncomplete ? 'Sync completed with homework pagination errors' : 'Sync completed');
+  nsLog(incomplete ? 'Sync completed with source pagination errors' : 'Sync completed');
   return summary;
 }
 
@@ -134,6 +162,9 @@ export async function syncNeverSkip({ client, store }: SyncOptions): Promise<Syn
   let homeworkPagesFetched: number | undefined;
   let homeworkFetchIncomplete = false;
   let homeworkFetchErrors: string[] = [];
+  let noticePagesFetched: number | undefined;
+  let noticeFetchIncomplete = false;
+  let noticeFetchErrors: string[] = [];
 
   try {
     const hw = await fetchHomeworkAssignmentsDetailed(client);
@@ -148,7 +179,11 @@ export async function syncNeverSkip({ client, store }: SyncOptions): Promise<Syn
   }
 
   try {
-    notices = await fetchDailyNotices(client);
+    const nt = await fetchDailyNoticesDetailed(client);
+    notices = nt.items;
+    noticePagesFetched = nt.pagesFetched;
+    noticeFetchIncomplete = nt.incomplete;
+    noticeFetchErrors = nt.errors;
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'notices fetch failed';
     fetchErrors.push(msg);
@@ -163,6 +198,9 @@ export async function syncNeverSkip({ client, store }: SyncOptions): Promise<Syn
     homeworkPagesFetched,
     homeworkFetchIncomplete,
     homeworkFetchErrors,
+    noticePagesFetched,
+    noticeFetchIncomplete,
+    noticeFetchErrors,
   });
 
   return {
@@ -180,6 +218,9 @@ export function collectedToSyncInput(
   | 'homeworkPagesFetched'
   | 'homeworkFetchIncomplete'
   | 'homeworkFetchErrors'
+  | 'noticePagesFetched'
+  | 'noticeFetchIncomplete'
+  | 'noticeFetchErrors'
 > {
   return {
     homework: data.homework,
@@ -187,5 +228,8 @@ export function collectedToSyncInput(
     homeworkPagesFetched: data.homeworkPagesFetched,
     homeworkFetchIncomplete: data.homeworkFetchIncomplete,
     homeworkFetchErrors: data.homeworkFetchErrors,
+    noticePagesFetched: data.noticePagesFetched,
+    noticeFetchIncomplete: data.noticeFetchIncomplete,
+    noticeFetchErrors: data.noticeFetchErrors,
   };
 }
