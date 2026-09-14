@@ -9,6 +9,8 @@ export default defineConfig({
       'tests/ui-merge.test.ts',
       'tests/ui-query-cache.test.ts',
       'tests/daily-brief.test.ts',
+      'tests/daily-pulse.test.ts',
+      'tests/updates-unread.test.ts',
       'tests/this-week.test.ts',
       'tests/neverskip/changes.test.ts',
       'tests/acknowledgements.test.ts',

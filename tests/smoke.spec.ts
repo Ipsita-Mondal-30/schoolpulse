@@ -47,12 +47,20 @@ test.describe('SchoolPulse Smoke Tests', () => {
         });
     });
 
-    test('changes page loads', async ({ page }) => {
-        await page.goto('/changes');
+    test('updates page loads', async ({ page }) => {
+        await page.goto('/updates');
         await expect(page).toHaveTitle(/SchoolPulse/);
-        await expect(
-            page.getByRole('heading', { name: /Something Changed/i }),
-        ).toBeVisible({ timeout: 15000 });
+        await expect(page.getByRole('heading', { name: /^Updates$/i })).toBeVisible({
+            timeout: 15000,
+        });
+    });
+
+    test('changes page redirects to updates', async ({ page }) => {
+        await page.goto('/changes');
+        await expect(page).toHaveURL(/\/updates/);
+        await expect(page.getByRole('heading', { name: /^Updates$/i })).toBeVisible({
+            timeout: 15000,
+        });
     });
 
     test('login page loads', async ({ page }) => {
@@ -78,10 +86,10 @@ test.describe('SchoolPulse Smoke Tests', () => {
         await expect(page).toHaveURL(/\/login/);
     });
 
-    test('notices page loads', async ({ page }) => {
+    test('notices page redirects to updates', async ({ page }) => {
         await page.goto('/notices', { waitUntil: 'domcontentloaded', timeout: 60000 });
-        await expect(page).toHaveTitle(/SchoolPulse/);
-        await expect(page.getByRole('heading', { name: /^Notices$/i }).first()).toBeVisible({
+        await expect(page).toHaveURL(/\/updates/);
+        await expect(page.getByRole('heading', { name: /^Updates$/i }).first()).toBeVisible({
             timeout: 20000,
         });
     });

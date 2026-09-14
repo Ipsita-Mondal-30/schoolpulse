@@ -5,7 +5,7 @@ export function NoticeItem({
   title,
   preview,
   dateLabel,
-  href = '/notices',
+  href = '/updates',
   isNew,
   onClick,
 }: {

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useUpdates } from '@/context/UpdatesContext';
 import {
   getUpcomingEvents,
   getTodayEvent,
@@ -18,28 +17,15 @@ interface BannerItem {
 export default function NotificationBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Consume the context
-  const { updates: externalUpdates } = useUpdates();
-
-  // Re-calculate banner items whenever updates change
   const bannerItems = useMemo(() => {
     const items: BannerItem[] = [];
 
-    // Check for today's event first (highest priority)
     const todayEvent = getTodayEvent();
     if (todayEvent) {
       items.push({
         message: `TODAY: ${todayEvent.event} - ${todayEvent.description}`,
         type: todayEvent.type,
         isToday: true,
-      });
-    }
-
-    // Add external updates (from Context)
-    for (const a of externalUpdates) {
-      items.push({
-        message: a.message,
-        type: a.type as any,
       });
     }
 
@@ -69,7 +55,7 @@ export default function NotificationBanner() {
     }
 
     return items;
-  }, [externalUpdates]);
+  }, []);
 
   useEffect(() => {
     if (bannerItems.length <= 1) return;

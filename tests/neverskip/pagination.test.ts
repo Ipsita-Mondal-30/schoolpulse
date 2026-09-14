@@ -6,9 +6,18 @@ import {
   mergeHomeworkPageItems,
   shouldFetchNextHomeworkPage,
 } from '@/lib/neverskip/homework';
+import {
+  fetchAllNoticePages,
+  shouldFetchNextNoticePage,
+} from '@/lib/neverskip/notices';
 import { InMemoryNeverSkipStore } from '@/lib/neverskip/memory-store';
 import { syncNeverSkipData } from '@/lib/neverskip/sync';
-import type { NeverSkipHomeworkResponse, NeverSkipRawAssignment } from '@/lib/neverskip/types';
+import type {
+  NeverSkipHomeworkResponse,
+  NeverSkipNoticesResponse,
+  NeverSkipRawAssignment,
+  NeverSkipRawNotice,
+} from '@/lib/neverskip/types';
 
 function hwItem(id: string, title = `HW ${id}`): NeverSkipRawAssignment {
   return {
@@ -136,20 +145,27 @@ describe('shouldFetchNextHomeworkPage', () => {
     ).toBe(false);
   });
 
-  it('stops after page_count when last page is short even if unique < totalCount', () => {
+  it('continues after a short last page when unique is still below totalCount', () => {
     expect(
       shouldFetchNextHomeworkPage(
         { pageCount: 14, totalCount: 135, sfileLimit: 25, itemListLength: 5 },
         13,
         132,
       ),
-    ).toBe(false);
+    ).toBe(true);
   });
 
-  it('continues past page_count only when last page looks full and unique < totalCount', () => {
+  it('continues past page_count when unique < totalCount (125 vs 129 case)', () => {
     expect(
       shouldFetchNextHomeworkPage(
         { pageCount: 13, totalCount: 129, sfileLimit: 25, itemListLength: 10 },
+        12,
+        125,
+      ),
+    ).toBe(true);
+    expect(
+      shouldFetchNextHomeworkPage(
+        { pageCount: 13, totalCount: 129, sfileLimit: 25, itemListLength: 4 },
         12,
         125,
       ),
@@ -241,6 +257,51 @@ describe('fetchAllHomeworkPages', () => {
       });
     });
     expect(result.items.map((i) => String(i.assign_id))).toEqual(['1', '2', '3']);
+  });
+
+  it('chases past a short last page when unique < total_count and collects remaining rows', async () => {
+    const result = await fetchAllHomeworkPages(async (page) => {
+      if (page < 12) {
+        return pageEnvelope(
+          Array.from({ length: 10 }, (_, i) => hwItem(String(page * 10 + i + 1))),
+          { page_count: 13, total_count: 129, sfile_limit: 10 },
+        );
+      }
+      if (page === 12) {
+        return pageEnvelope(
+          Array.from({ length: 5 }, (_, i) => hwItem(String(120 + i + 1))),
+          { page_count: 13, total_count: 129, sfile_limit: 10 },
+        );
+      }
+      return pageEnvelope(
+        [hwItem('126'), hwItem('127'), hwItem('128'), hwItem('129')],
+        { page_count: 13, total_count: 129, sfile_limit: 10 },
+      );
+    });
+    expect(result.pagesFetched).toBe(14);
+    expect(result.items).toHaveLength(129);
+    expect(result.incomplete).toBe(false);
+  });
+
+  it('treats unique IDs as complete when chase page is empty and declared pages were fetched', async () => {
+    const result = await fetchAllHomeworkPages(async (page) => {
+      if (page < 12) {
+        return pageEnvelope(
+          Array.from({ length: 10 }, (_, i) => hwItem(String(page * 10 + i + 1))),
+          { page_count: 13, total_count: 129, sfile_limit: 10 },
+        );
+      }
+      if (page === 12) {
+        return pageEnvelope(
+          Array.from({ length: 5 }, (_, i) => hwItem(String(120 + i + 1))),
+          { page_count: 13, total_count: 129, sfile_limit: 10 },
+        );
+      }
+      return pageEnvelope([], { page_count: 13, total_count: 129, sfile_limit: 10 });
+    });
+    expect(result.pagesFetched).toBe(13);
+    expect(result.items).toHaveLength(125);
+    expect(result.incomplete).toBe(false);
   });
 
   it('marks incomplete when raw fetched is below total_count', async () => {
@@ -336,5 +397,69 @@ describe('paginated homework sync idempotency', () => {
     expect(second.homeworkInserted).toBe(0);
     expect(second.homeworkSkipped).toBe(3);
     expect((await store.listHomework()).length).toBe(3);
+    expect(first.homeworkMissing).toBe(0);
+    expect(second.homeworkInserted).toBe(0);
+    expect(second.homeworkMissing).toBe(0);
+  });
+});
+
+function noticeItem(id: string, title = `Notice ${id}`): NeverSkipRawNotice {
+  return { id, title, cont: `Body ${id}`, date: '03:51 PM | 11/09/2026' };
+}
+
+function noticeEnvelope(
+  items: NeverSkipRawNotice[],
+  meta: Partial<{ page_count: number; total_count: number; sfile_limit: number }> = {},
+): NeverSkipNoticesResponse {
+  return {
+    S: true,
+    D: {
+      item_list: items,
+      page_count: meta.page_count,
+      total_count: meta.total_count,
+      sfile_limit: meta.sfile_limit,
+    },
+  };
+}
+
+describe('notice pagination', () => {
+  it('probes page 1 when the first page looks full and no totals exist', () => {
+    expect(
+      shouldFetchNextNoticePage(
+        { pageCount: null, totalCount: null, sfileLimit: null, itemListLength: 12 },
+        0,
+        12,
+      ),
+    ).toBe(true);
+  });
+
+  it('stops after an empty probe page without marking incomplete', async () => {
+    const result = await fetchAllNoticePages(async (page) => {
+      if (page === 0) {
+        return noticeEnvelope(Array.from({ length: 12 }, (_, i) => noticeItem(String(i + 1))));
+      }
+      return noticeEnvelope([]);
+    });
+    expect(result.pagesFetched).toBe(1);
+    expect(result.items).toHaveLength(12);
+    expect(result.incomplete).toBe(false);
+  });
+
+  it('paginates notices when total_count is present', async () => {
+    const result = await fetchAllNoticePages(async (page) => {
+      if (page === 0) {
+        return noticeEnvelope(
+          Array.from({ length: 10 }, (_, i) => noticeItem(String(i + 1))),
+          { page_count: 2, total_count: 12 },
+        );
+      }
+      return noticeEnvelope([noticeItem('11'), noticeItem('12')], {
+        page_count: 2,
+        total_count: 12,
+      });
+    });
+    expect(result.pagesFetched).toBe(2);
+    expect(result.items).toHaveLength(12);
+    expect(result.incomplete).toBe(false);
   });
 });

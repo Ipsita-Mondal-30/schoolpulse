@@ -9,6 +9,7 @@ import {
   acknowledgeAccessError,
   classesFromNoticeJson,
   listApprovedStudentClasses,
+  PARENT_STUDENT_APPROVED,
   parentHasApprovedLink,
   sectionsFromHomeworkJson,
 } from '@/lib/parent-access';
@@ -127,20 +128,25 @@ export type AcknowledgeResult =
 export type ParentAccessSummary = {
   hasApprovedLink: boolean;
   approvedClassLabels: string[];
+  studentName: string | null;
 };
 
 export async function loadParentAccess(): Promise<ParentAccessSummary> {
   const parent = await getSessionParent();
   if (!parent) {
-    return { hasApprovedLink: false, approvedClassLabels: [] };
+    return { hasApprovedLink: false, approvedClassLabels: [], studentName: null };
   }
-  const approvedClassLabels = await listApprovedStudentClasses(
-    getPrisma(),
-    parent.id,
-  );
+  const prisma = getPrisma();
+  const approvedClassLabels = await listApprovedStudentClasses(prisma, parent.id);
+  const firstLink = await prisma.parentStudent.findFirst({
+    where: { parentUserId: parent.id, status: PARENT_STUDENT_APPROVED },
+    include: { student: { select: { displayName: true } } },
+    orderBy: { createdAt: 'asc' },
+  });
   return {
     hasApprovedLink: parentHasApprovedLink(approvedClassLabels),
     approvedClassLabels,
+    studentName: firstLink?.student.displayName?.trim() || null,
   };
 }
 

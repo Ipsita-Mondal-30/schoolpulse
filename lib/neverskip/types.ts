@@ -137,12 +137,18 @@ export interface SyncSummary {
   homeworkUpdated: number;
   homeworkSkipped: number;
   homeworkSkippedType: number;
+  homeworkNormalized?: number;
+  homeworkStored?: number;
+  homeworkMissing?: number;
   homeworkPagesFetched?: number;
   homeworkFetchIncomplete?: boolean;
   noticesFetched: number;
   noticesInserted: number;
   noticesUpdated: number;
   noticesSkipped: number;
+  noticesNormalized?: number;
+  noticesStored?: number;
+  noticesMissing?: number;
   noticePagesFetched?: number;
   noticeFetchIncomplete?: boolean;
   errors: string[];

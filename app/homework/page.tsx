@@ -31,12 +31,13 @@ const ALL_SECTIONS = [
 const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
 const LINK_BANNER_DISMISS_KEY = 'schoolpulse_dismiss_link_banner';
 
-type DueFilter = 'all' | 'today' | 'upcoming' | 'overdue';
+type DueFilter = 'all' | 'today' | 'upcoming';
+type DueBucket = DueFilter | 'passed' | 'none';
 
-function dueBucket(hw: UiHomeworkItem, today: string): DueFilter | 'none' {
+function dueBucket(hw: UiHomeworkItem, today: string): DueBucket {
   if (!hasReliableDueDate(hw.submissionDate)) return 'none';
   const due = toSortableDate(hw.submissionDate!);
-  if (due < today) return 'overdue';
+  if (due < today) return 'passed';
   if (due === today) return 'today';
   return 'upcoming';
 }
@@ -112,22 +113,19 @@ export default function HomeworkPage() {
 
   const filterCounts = useMemo(() => {
     if (!today) {
-      return { all: bySection.length, today: 0, upcoming: 0, overdue: 0 };
+      return { all: bySection.length, today: 0, upcoming: 0 };
     }
     let todayN = 0;
     let upcomingN = 0;
-    let overdueN = 0;
     for (const hw of bySection) {
       const b = dueBucket(hw, today);
       if (b === 'today') todayN += 1;
       else if (b === 'upcoming') upcomingN += 1;
-      else if (b === 'overdue') overdueN += 1;
     }
     return {
       all: bySection.length,
       today: todayN,
       upcoming: upcomingN,
-      overdue: overdueN,
     };
   }, [bySection, today]);
 
@@ -164,18 +162,18 @@ export default function HomeworkPage() {
     <div className="sp-page">
       <PageHeader
         title="Homework"
-        subtitle={`Class 1 · ${sectionLabel(selectedSection)}`}
+        subtitle="Everything assigned, with the school's due date"
         actions={
           <label className="block">
-            <span className="sp-section mb-1.5 block">Section</span>
+            <span className="sr-only">Section</span>
             <select
               value={selectedSection}
               onChange={(e) => onSectionChange(e.target.value)}
-              className="min-h-10 min-w-[7.5rem] rounded-xl border border-[var(--sp-border)] bg-white px-3 text-sm font-semibold text-[var(--sp-ink)] shadow-sm sp-focus"
+              className="min-h-10 rounded-xl border border-[var(--sp-border)] bg-white px-3 text-sm font-semibold text-[var(--sp-ink)] shadow-sm sp-focus"
             >
               {ALL_SECTIONS.map((sec) => (
                 <option key={sec} value={sec}>
-                  {sec}
+                  Class 1 · {sectionLabel(sec)}
                 </option>
               ))}
             </select>
@@ -222,7 +220,6 @@ export default function HomeworkPage() {
             { id: 'today', label: 'Today', count: filterCounts.today },
             { id: 'upcoming', label: 'Upcoming', count: filterCounts.upcoming },
             { id: 'all', label: 'All', count: filterCounts.all },
-            { id: 'overdue', label: 'Overdue', count: filterCounts.overdue },
           ]}
           value={dueFilter}
           onChange={setDueFilter}
@@ -244,9 +241,7 @@ export default function HomeworkPage() {
                 ? 'No homework due today'
                 : dueFilter === 'upcoming'
                   ? 'Nothing upcoming'
-                  : dueFilter === 'overdue'
-                    ? 'No overdue homework'
-                    : 'No homework here'
+                  : 'No homework here'
             }
             description={
               dueFilter === 'today'
@@ -291,8 +286,8 @@ export default function HomeworkPage() {
                   const dueLabel = hw.submissionDate
                     ? bucket === 'today'
                       ? 'Due today'
-                      : bucket === 'overdue'
-                        ? `Overdue · ${formatBriefDate(hw.submissionDate)}`
+                      : bucket === 'passed'
+                        ? `Due date passed · ${formatBriefDate(hw.submissionDate)}`
                         : `Due ${formatBriefDate(hw.submissionDate)}`
                     : undefined;
                   const preview = previewText(hw);
@@ -341,7 +336,7 @@ export default function HomeworkPage() {
                               {dueLabel ? (
                                 <StatusBadge
                                   tone={
-                                    bucket === 'overdue'
+                                    bucket === 'passed'
                                       ? 'error'
                                       : bucket === 'today'
                                         ? 'warn'

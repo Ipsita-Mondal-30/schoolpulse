@@ -104,6 +104,7 @@ export async function syncNeverSkipData({
   nsLog(`New homework: ${summary.homeworkInserted}`);
   nsLog(`Updated homework: ${summary.homeworkUpdated}`);
   nsLog(`Duplicate homework skipped: ${summary.homeworkSkipped}`);
+  nsLog(`Homework type skipped: ${summary.homeworkSkippedType}`);
 
   if (noticePagesFetched != null) {
     nsLog(`Notice pages fetched: ${noticePagesFetched}`);
@@ -134,9 +135,46 @@ export async function syncNeverSkipData({
   nsLog(`Updated notices: ${summary.noticesUpdated}`);
   nsLog(`Duplicate notices skipped: ${summary.noticesSkipped}`);
 
+  const storedHomework = await store.listHomework();
+  const storedNotices = await store.listNotices();
+  summary.homeworkStored = storedHomework.length;
+  summary.noticesStored = storedNotices.length;
+
+  const homeworkNormalizedIds: string[] = [];
+  for (const raw of homework) {
+    if (classifyAssignment(raw) !== 'homework') continue;
+    const normalized = normalizeHomework(raw);
+    if (normalized) homeworkNormalizedIds.push(normalized.sourceId);
+  }
+  summary.homeworkNormalized = homeworkNormalizedIds.length;
+
+  const noticeNormalizedIds: string[] = [];
+  for (const raw of notices) {
+    const normalized = normalizeNotice(raw);
+    if (normalized) noticeNormalizedIds.push(normalized.sourceId);
+  }
+  summary.noticesNormalized = noticeNormalizedIds.length;
+
+  const storedHwIds = new Set(storedHomework.map((h) => h.sourceId));
+  const storedNtIds = new Set(storedNotices.map((n) => n.sourceId));
+  summary.homeworkMissing = homeworkNormalizedIds.filter((id) => !storedHwIds.has(id)).length;
+  summary.noticesMissing = noticeNormalizedIds.filter((id) => !storedNtIds.has(id)).length;
+
+  nsLog('SYNC VALIDATION');
+  nsLog(`Homework source count: ${summary.homeworkFetched}`);
+  nsLog(`Homework normalized count: ${summary.homeworkNormalized}`);
+  nsLog(`Homework stored count: ${summary.homeworkStored}`);
+  nsLog(`Homework missing count: ${summary.homeworkMissing}`);
+  nsLog(`Notice source count: ${summary.noticesFetched}`);
+  nsLog(`Notice normalized count: ${summary.noticesNormalized}`);
+  nsLog(`Notice stored count: ${summary.noticesStored}`);
+  nsLog(`Notice missing count: ${summary.noticesMissing}`);
+
   const incomplete = Boolean(homeworkFetchIncomplete || noticeFetchIncomplete);
-  if (incomplete) {
-    nsLog('SYNC VALIDATION');
+  const countsMismatch =
+    (summary.homeworkMissing ?? 0) > 0 || (summary.noticesMissing ?? 0) > 0;
+
+  if (incomplete || countsMismatch) {
     nsError('SYNC FAILED — INCOMPLETE SOURCE DATA');
     if (homeworkFetchIncomplete) {
       nsError('Homework pagination incomplete — sync preserved partial homework results');
@@ -146,11 +184,15 @@ export async function syncNeverSkipData({
       nsError('Notice pagination incomplete — sync preserved partial notice results');
       summary.errors.push('notice pagination incomplete');
     }
+    if (countsMismatch) {
+      const msg = `stored counts do not match normalized (homework missing=${summary.homeworkMissing}, notices missing=${summary.noticesMissing})`;
+      nsError(msg);
+      summary.errors.push(msg);
+    }
   } else {
-    nsLog('SYNC VALIDATION');
     nsLog('SYNC COMPLETE');
   }
-  nsLog(incomplete ? 'Sync completed with source pagination errors' : 'Sync completed');
+  nsLog(incomplete || countsMismatch ? 'Sync completed with source pagination errors' : 'Sync completed');
   return summary;
 }
 

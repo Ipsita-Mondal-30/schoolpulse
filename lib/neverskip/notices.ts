@@ -92,7 +92,11 @@ export function extractNoticePagination(
   };
 }
 
-function shouldFetchNextNoticePage(
+/**
+ * Continue while totals say more remain, or the current page looks full enough
+ * that a hidden next page is possible. An empty follow-up page stops cleanly.
+ */
+export function shouldFetchNextNoticePage(
   meta: NoticePaginationMeta,
   pageIndex: number,
   collectedCount: number,
@@ -104,7 +108,11 @@ function shouldFetchNextNoticePage(
   if (meta.pageCount != null && meta.pageCount > 0) {
     return pageIndex + 1 < meta.pageCount;
   }
-  // Notices historically return a single unpaginated list — do not invent extra pages.
+  // No pagination meta: probe the next page when this one looks full.
+  if (meta.sfileLimit != null && meta.sfileLimit > 0 && meta.itemListLength >= meta.sfileLimit) {
+    return true;
+  }
+  if (meta.itemListLength >= 10) return true;
   return false;
 }
 
@@ -155,6 +163,11 @@ export async function fetchAllNoticePages(
       if (pageIndex === 0) {
         return { items: [], pagesFetched: 0, incomplete: true, errors: ['page 0: empty response'] };
       }
+      // Probe page with no declared totals: empty body means the first page was the full list.
+      if (latestMeta && latestMeta.totalCount == null && latestMeta.pageCount == null) {
+        nsLog(`Notice page ${pageIndex} empty after unpaginated first page — stopping`);
+        break;
+      }
       incomplete = true;
       errors.push(`page ${pageIndex}: empty response`);
       break;
@@ -171,7 +184,18 @@ export async function fetchAllNoticePages(
     );
 
     if (items.length === 0) {
-      if (pageIndex === 0) pages.push(items);
+      if (pageIndex === 0) {
+        pages.push(items);
+      } else if (
+        latestMeta.totalCount != null &&
+        latestMeta.totalCount > 0 &&
+        mergeNoticePages(pages).length < latestMeta.totalCount
+      ) {
+        incomplete = true;
+        errors.push(`page ${pageIndex}: empty item_list while total_count=${latestMeta.totalCount}`);
+      } else {
+        nsLog(`Notice page ${pageIndex} empty — stopping`);
+      }
       break;
     }
 

@@ -1,35 +1,42 @@
+'use client';
+
 import Link from 'next/link';
+import { signOut, useSession } from 'next-auth/react';
 import {
   Bus,
-  CalendarDays,
+  CalendarRange,
   ClipboardList,
   GraduationCap,
   Info,
   Library,
-  Sparkles,
+  Settings,
   Type,
+  UserRound,
   Users,
 } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 
 const MORE_LINKS = [
+  { href: '/this-week', label: 'This Week', description: 'How busy the week looks', icon: CalendarRange },
   { href: '/timetable', label: 'Timetable', description: 'Today’s class periods', icon: ClipboardList },
-  { href: '/week', label: 'Words', description: 'Weekly vocabulary', icon: Type },
-  { href: '/joy-of-learning', label: 'Joy of Learning', description: 'JoL activities', icon: GraduationCap },
   { href: '/class-diary', label: 'Library', description: 'Class diary & content', icon: Library },
-  { href: '/changes', label: 'Something changed', description: 'Recent homework & notice updates', icon: Sparkles },
-  { href: '/dates', label: 'Events', description: 'School calendar highlights', icon: CalendarDays },
-  { href: '/info', label: 'School information', description: 'About the school', icon: Info },
+  { href: '/joy-of-learning', label: 'JoL', description: 'Joy of Learning', icon: GraduationCap },
+  { href: '/week', label: 'Words', description: 'Weekly vocabulary', icon: Type },
   { href: '/info#teachers', label: 'Teacher contacts', description: 'Reach class teachers', icon: Users },
-  { href: '/info#bus', label: 'Bus information', description: 'Transport details', icon: Bus },
+  { href: '/info', label: 'School information', description: 'About the school', icon: Info },
+  { href: '/info#bus', label: 'Bus', description: 'Transport details', icon: Bus },
+  { href: '/profile', label: 'Profile', description: 'Your account', icon: UserRound },
+  { href: '/settings', label: 'Settings', description: 'Class and display preferences', icon: Settings },
 ] as const;
 
 export default function MorePage() {
+  const { data: session, status } = useSession();
+
   return (
     <div className="sp-page">
       <PageHeader
         title="More"
-        subtitle="Everything else, in one calm list."
+        subtitle="Secondary tools, in one list."
       />
 
       <ul className="divide-y divide-[var(--sp-border)] border-y border-[var(--sp-border)]">
@@ -60,6 +67,25 @@ export default function MorePage() {
           );
         })}
       </ul>
+
+      <div className="mt-6">
+        {status === 'authenticated' && session?.user?.email ? (
+          <button
+            type="button"
+            onClick={() => void signOut({ callbackUrl: '/' })}
+            className="min-h-11 w-full rounded-xl border border-[var(--sp-border)] text-sm font-semibold text-[var(--sp-ink)] hover:bg-[var(--sp-bg)] sp-focus"
+          >
+            Sign out
+          </button>
+        ) : status !== 'loading' ? (
+          <Link
+            href="/login"
+            className="flex min-h-11 w-full items-center justify-center rounded-xl bg-[var(--sp-primary)] text-sm font-semibold text-white hover:bg-orange-600 sp-focus"
+          >
+            Sign in
+          </Link>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -52,13 +52,26 @@ async function main() {
     requireAuthenticatedSession: true,
   });
 
+  const hwIds = collected.homework.map((raw) => {
+    const r = raw as Record<string, unknown>;
+    return String(r.assign_id ?? r.refid ?? '');
+  });
+  const uniqueHwIds = new Set(hwIds.filter(Boolean));
   const hwMeta = {
     pagesFetched: collected.homeworkPagesFetched,
     incomplete: collected.homeworkFetchIncomplete,
     records: collected.homework.length,
+    uniqueIds: uniqueHwIds.size,
     errors: collected.homeworkFetchErrors ?? [],
   };
   console.log('Homework fetch:', JSON.stringify(hwMeta));
+  const ntMeta = {
+    pagesFetched: collected.noticePagesFetched,
+    incomplete: collected.noticeFetchIncomplete,
+    records: collected.notices.length,
+    errors: collected.noticeFetchErrors ?? [],
+  };
+  console.log('Notice fetch:', JSON.stringify(ntMeta));
 
   const sepHwRaw = collected.homework.filter((raw) => {
     const r = raw as Record<string, unknown>;

@@ -122,17 +122,22 @@ export function mergeHomeworkPageItems(
 
 /**
  * Decide whether another page should be requested after successfully reading `pageIndex` (0-based).
- * Continue while page_count has more pages OR unique collected is still below total_count
- * (but never past a clearly short final page once page_count is exhausted).
+ * Continue while page_count has more pages, or unique collected is still below total_count.
+ * A short last page is NOT a stop signal — only an empty page (or unique >= total) stops.
  */
 export function shouldFetchNextHomeworkPage(
   meta: HomeworkPaginationMeta,
   pageIndex: number,
   collectedCount: number,
+  rawFetchedCount = collectedCount,
 ): boolean {
   if (meta.itemListLength <= 0) return false;
 
-  if (meta.totalCount != null && meta.totalCount > 0 && collectedCount >= meta.totalCount) {
+  if (
+    meta.totalCount != null &&
+    meta.totalCount > 0 &&
+    (collectedCount >= meta.totalCount || rawFetchedCount >= meta.totalCount)
+  ) {
     return false;
   }
 
@@ -140,10 +145,14 @@ export function shouldFetchNextHomeworkPage(
     return true;
   }
 
-  // page_count exhausted (or missing): only keep going when total_count says more remain
-  // and the last page still looks "full" (portal pages are typically ~10).
-  if (meta.totalCount != null && meta.totalCount > 0 && collectedCount < meta.totalCount) {
-    return meta.itemListLength >= 10;
+  // page_count exhausted (or missing): keep going while total_count says records remain.
+  if (
+    meta.totalCount != null &&
+    meta.totalCount > 0 &&
+    collectedCount < meta.totalCount &&
+    rawFetchedCount < meta.totalCount
+  ) {
+    return true;
   }
 
   if (meta.pageCount != null && meta.pageCount > 0) {
@@ -186,6 +195,7 @@ export async function fetchAllHomeworkPages(
   let pageIndex = 0;
   let latestMeta: HomeworkPaginationMeta | null = null;
   let rawFetchedCount = 0;
+  let stoppedOnEmptyAfterDeclaredPages = false;
 
   while (pageIndex < MAX_HOMEWORK_PAGES) {
     const payload = buildHomeworkPayload(pageIndex, limit);
@@ -221,6 +231,7 @@ export async function fetchAllHomeworkPages(
         pageIndex >= latestMeta.pageCount
       ) {
         // Requested past declared page_count (total_count chase) and got empty — stop cleanly.
+        stoppedOnEmptyAfterDeclaredPages = true;
         nsWarn(`Homework page ${pageIndex} empty after page_count exhausted — stopping`);
       } else {
         incomplete = true;
@@ -256,7 +267,7 @@ export async function fetchAllHomeworkPages(
       }
     }
 
-    if (!shouldFetchNextHomeworkPage(meta, pageIndex, collected)) {
+    if (!shouldFetchNextHomeworkPage(meta, pageIndex, collected, rawFetchedCount)) {
       break;
     }
     pageIndex += 1;
@@ -264,7 +275,7 @@ export async function fetchAllHomeworkPages(
 
   if (pageIndex >= MAX_HOMEWORK_PAGES - 1 && latestMeta) {
     const collected = mergeHomeworkPageItems(pages).length;
-    if (shouldFetchNextHomeworkPage(latestMeta, pageIndex, collected)) {
+    if (shouldFetchNextHomeworkPage(latestMeta, pageIndex, collected, rawFetchedCount)) {
       incomplete = true;
       errors.push(`stopped at max pages (${MAX_HOMEWORK_PAGES})`);
       nsWarn(`Homework pagination stopped at max pages (${MAX_HOMEWORK_PAGES})`);
@@ -274,11 +285,22 @@ export async function fetchAllHomeworkPages(
   const items = mergeHomeworkPageItems(pages);
   const pagesFetched = pages.length;
 
+  const fetchedAllDeclaredPages =
+    latestMeta?.pageCount == null ||
+    latestMeta.pageCount <= 0 ||
+    pagesFetched >= latestMeta.pageCount;
+
   if (homeworkTotalCountMismatch(latestMeta?.totalCount, rawFetchedCount)) {
-    incomplete = true;
-    const msg = `fetched ${rawFetchedCount} raw homework < total_count ${latestMeta!.totalCount} (unique=${items.length})`;
-    errors.push(msg);
-    nsError(`SYNC FAILED — INCOMPLETE SOURCE DATA (${msg})`);
+    if (fetchedAllDeclaredPages && stoppedOnEmptyAfterDeclaredPages) {
+      nsWarn(
+        `total_count ${latestMeta!.totalCount} exceeds unique ${items.length} after empty chase page — treating unique IDs as complete`,
+      );
+    } else {
+      incomplete = true;
+      const msg = `fetched ${rawFetchedCount} raw homework < total_count ${latestMeta!.totalCount} (unique=${items.length})`;
+      errors.push(msg);
+      nsError(`SYNC FAILED — INCOMPLETE SOURCE DATA (${msg})`);
+    }
   }
 
   nsLog(`Homework pages fetched: ${pagesFetched}`);

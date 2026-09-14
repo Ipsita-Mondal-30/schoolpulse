@@ -1,41 +1,36 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import {
-  formatBriefDate,
-  getBriefGreeting,
-  getIndiaHour,
-} from '@/lib/daily-brief';
-import {
-  formatRelativeTimeIndia,
-  presentChangeLines,
-  type FieldChange,
-} from '@/lib/neverskip/changes';
+  BarChart3,
+  BookOpen,
+  CalendarDays,
+  ChevronRight,
+  Clock,
+  FileText,
+  Library,
+} from 'lucide-react';
+import { buildAttentionItems, getBriefGreeting, getIndiaHour } from '@/lib/daily-brief';
+import { buildDailyPulse } from '@/lib/daily-pulse';
 import { useDailyBriefQuery } from '@/lib/queries/daily-brief';
 import { useChangesQuery } from '@/lib/queries/changes';
-import type { UiChangeItem } from '@/app/actions';
-import { SectionHeader } from '@/components/ui/SectionHeader';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { HomeworkItem } from '@/components/ui/HomeworkItem';
+import { useNoticesQuery } from '@/lib/queries/notices';
+import { useParentAccessQuery } from '@/lib/queries/acknowledgements';
 import { LoadingState } from '@/components/ui/LoadingState';
+import {
+  isNewerThan,
+  noticePublishedIso,
+  readLastSeenIso,
+  readNoticeIds,
+} from '@/lib/updates-unread';
 
 const DEFAULT_SECTION = 'I-A';
 const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
 const ALL_SECTIONS = [
   'I-A', 'I-B', 'I-C', 'I-D', 'I-E', 'I-F', 'I-G', 'I-H', 'I-I', 'I-J', 'I-K',
 ];
-
-function toFieldChanges(item: UiChangeItem): FieldChange[] {
-  return item.changedFields.map((c) => ({
-    field: c.field,
-    label: c.label,
-    previous: c.previous,
-    current: c.current,
-    reliable: c.reliable,
-  }));
-}
 
 function formatLongDate(ymd: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return ymd;
@@ -45,23 +40,32 @@ function formatLongDate(ymd: string): string {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
+    year: 'numeric',
   }).format(dt);
+}
+
+function classLine(section: string): string {
+  if (!section.includes('-')) return `Section ${section}`;
+  const [klass, letter] = section.split('-');
+  return `Class ${klass} ${letter}`;
 }
 
 export default function DailyBrief() {
   const { data: session } = useSession();
+  const isParent = session?.user?.role === 'parent';
+  const { data: access } = useParentAccessQuery(Boolean(isParent));
   const [section, setSection] = useState(DEFAULT_SECTION);
   const [greeting, setGreeting] = useState('Good evening');
   const [todayYmd, setTodayYmd] = useState('');
+  const [unreadUpdates, setUnreadUpdates] = useState(0);
+  const [pulse, setPulse] = useState(() => buildDailyPulse());
   const { data, isPending, isError, refetch } = useDailyBriefQuery({ section });
   const { data: changesData } = useChangesQuery();
+  const { data: noticesData } = useNoticesQuery();
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
     const saved = localStorage.getItem(PINNED_SECTION_KEY);
-    if (saved && ALL_SECTIONS.includes(saved)) {
-      setSection(saved);
-    }
+    if (saved && ALL_SECTIONS.includes(saved)) setSection(saved);
     setGreeting(getBriefGreeting(getIndiaHour()));
     setTodayYmd(
       new Intl.DateTimeFormat('en-CA', {
@@ -71,15 +75,41 @@ export default function DailyBrief() {
         day: '2-digit',
       }).format(new Date()),
     );
+    setPulse(buildDailyPulse());
+    const tick = setInterval(() => setPulse(buildDailyPulse()), 60_000);
+    return () => clearInterval(tick);
   }, []);
+
+  useEffect(() => {
+    const lastSeen = readLastSeenIso();
+    const readIds = readNoticeIds();
+    const changeCount = (changesData ?? []).filter((item) =>
+      isNewerThan(item.detectedAt, lastSeen),
+    ).length;
+    const noticeCount = (noticesData ?? []).filter((n) => {
+      if (readIds.includes(n.id)) return false;
+      const published = noticePublishedIso(n.date, n.time);
+      return published ? isNewerThan(published, lastSeen) : false;
+    }).length;
+    setUnreadUpdates(changeCount + noticeCount);
+  }, [changesData, noticesData]);
 
   const firstName =
     session?.user?.name?.trim().split(/\s+/)[0] ||
     (session?.user?.email ? session.user.email.split('@')[0] : '');
 
-  if (isPending) {
+  const childName = access?.studentName?.trim() || '';
+  const childLabel = childName || classLine(section);
+  const childInitial = (childName || classLine(section)).slice(0, 1).toUpperCase();
+
+  const attention = useMemo(() => {
+    if (!data) return [];
+    return buildAttentionItems(data, { unreadUpdates });
+  }, [data, unreadUpdates]);
+
+  if (isPending || !data) {
     return (
-      <div className="sp-page">
+      <div className="sp-page max-w-3xl">
         <LoadingState rows={5} />
       </div>
     );
@@ -87,14 +117,14 @@ export default function DailyBrief() {
 
   if (isError) {
     return (
-      <div className="sp-page">
+      <div className="sp-page max-w-3xl">
         <p className="text-sm font-semibold text-[var(--sp-ink)]">
           Couldn&apos;t load today&apos;s brief.
         </p>
         <button
           type="button"
           onClick={() => void refetch()}
-          className="mt-3 px-4 py-2 bg-[var(--sp-primary)] text-white text-sm font-semibold rounded-xl hover:bg-orange-600 sp-focus"
+          className="mt-3 rounded-xl bg-[var(--sp-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600 sp-focus"
         >
           Retry
         </button>
@@ -102,160 +132,220 @@ export default function DailyBrief() {
     );
   }
 
-  if (!data) {
-    return (
-      <div className="sp-page">
-        <LoadingState rows={5} />
-      </div>
-    );
-  }
-
-  const dueTodayCount = data.dueToday.length;
-  const noticeCount = data.recentNotices.length;
-  const attention = [...data.overdue, ...data.dueToday].slice(0, 6);
-  const upNext = [...data.dueTomorrow, ...data.comingUp].slice(0, 4);
-  const recentChanges = (changesData ?? []).slice(0, 3);
-
-  const classLabel = section.includes('-')
-    ? `Class ${section.split('-')[0]} · Section ${section.split('-')[1]}`
-    : `Section ${section}`;
+  const attentionCount = attention.length;
+  const pulseStart = pulse.markers[0]?.minutes ?? 0;
+  const pulseEnd = pulse.markers.at(-1)?.minutes ?? 1;
+  const pulseSpan = Math.max(pulseEnd - pulseStart, 1);
 
   return (
-    <div className="sp-page space-y-9">
-      <header className="space-y-2">
-        <p className="sp-meta">{todayYmd ? formatLongDate(todayYmd) : 'Today'}</p>
-        <h1 className="sp-title tracking-tight">
-          {greeting}
-          {firstName ? `, ${firstName}` : ''}
-        </h1>
-        <p className="text-sm font-medium text-[var(--sp-ink)]">{classLabel}</p>
-        <p className="sp-subtitle">Your child&apos;s school day, simplified.</p>
+    <div className="sp-page max-w-3xl space-y-8">
+      <header className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-sm text-[var(--sp-muted)]">
+            {todayYmd ? formatLongDate(todayYmd) : 'Today'}
+          </p>
+          <h1 className="mt-1 text-[2rem] font-semibold leading-tight tracking-tight text-[var(--sp-ink)] sm:text-[2.25rem]">
+            {greeting}
+            {firstName ? `, ${firstName}` : ''}
+            {firstName ? ' 👋' : ''}
+          </h1>
+        </div>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--sp-primary)] text-base font-semibold text-white">
+            {childInitial}
+          </span>
+          <p className="text-sm font-medium text-[var(--sp-ink)]">{childLabel}</p>
+          <p className="text-xs text-[var(--sp-muted)]">{classLine(section)}</p>
+        </div>
       </header>
 
-      <section>
-        <SectionHeader label="Today" />
-        <div className="grid gap-3 sm:grid-cols-2">
+      <section className="rounded-[28px] bg-white px-5 py-5 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
+        <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
+          Daily pulse
+        </p>
+        <div className="relative h-2 rounded-full bg-zinc-100">
+          <div
+            className="absolute inset-y-0 left-0 rounded-full bg-[var(--sp-primary)]"
+            style={{ width: `${Math.round(pulse.progress * 100)}%` }}
+          />
+        </div>
+        <div className="relative mt-4 min-h-[3.25rem]">
+          {pulse.markers.map((marker) => {
+            const left = ((marker.minutes - pulseStart) / pulseSpan) * 100;
+            return (
+              <div
+                key={`${marker.kind}-${marker.minutes}`}
+                className="absolute top-0 w-24 -translate-x-1/2 text-center"
+                style={{ left: `${left}%` }}
+              >
+                {marker.kind === 'now' ? (
+                  <span className="mx-auto mb-1 block h-2.5 w-2.5 rounded-full border-2 border-white bg-[var(--sp-primary)] shadow" />
+                ) : null}
+                <p className="text-[11px] font-semibold text-[var(--sp-ink)]">{marker.timeLabel}</p>
+                <p className="text-[10px] text-[var(--sp-muted)]">
+                  {marker.kind === 'now' ? 'Now' : marker.caption}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+        {pulse.isWeekend ? (
+          <p className="mt-2 text-xs text-[var(--sp-muted)]">School is off today.</p>
+        ) : null}
+      </section>
+
+      <section className="rounded-[28px] bg-[#141414] px-5 py-5 text-white">
+        {attentionCount === 0 ? (
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">
+              Today
+            </p>
+            <p className="mt-3 text-sm text-white/80">You&apos;re all caught up.</p>
+          </div>
+        ) : (
+          <>
+            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">
+              {attentionCount} thing{attentionCount === 1 ? '' : 's'} need your attention
+            </p>
+            <ul className="space-y-3.5">
+              {attention.map((item) => {
+                const urgent = item.kind === 'overdue';
+                return (
+                  <li key={item.id}>
+                    <Link href={item.href} className="flex items-center gap-3 rounded-xl sp-focus">
+                      <span
+                        className={`h-2 w-2 shrink-0 rounded-full ${
+                          urgent ? 'bg-red-400' : 'bg-[var(--sp-primary)]'
+                        }`}
+                      />
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                        {item.title}
+                      </span>
+                      {item.kind === 'notice' ? (
+                        <span className="flex shrink-0 items-center gap-1 text-sm text-[var(--sp-primary)]">
+                          {item.meta}
+                          <ChevronRight className="h-4 w-4 text-white/40" aria-hidden />
+                        </span>
+                      ) : (
+                        <span className="shrink-0 text-sm text-[var(--sp-primary)]">
+                          {item.meta}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+      </section>
+
+      <section className="space-y-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
+          Your school
+        </p>
+
+        <Link
+          href="/homework"
+          className="flex items-center justify-between rounded-[28px] bg-[#FFF6E8] px-5 py-5 sp-focus"
+        >
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
+              Homework
+            </p>
+            <p className="mt-1 text-xl font-semibold text-[var(--sp-ink)]">
+              {childName ? `See ${childName}’s schoolwork` : 'See schoolwork'}
+            </p>
+          </div>
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-[var(--sp-primary)]">
+            <FileText className="h-5 w-5" aria-hidden />
+          </span>
+        </Link>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Link
-            href="/homework"
-            className="rounded-2xl border border-[var(--sp-border)] bg-white px-4 py-3 transition-colors hover:border-[var(--sp-primary)]/40 sp-focus"
+            href="/this-week"
+            className="rounded-[28px] bg-[#EEF4FF] px-5 py-5 sp-focus"
           >
-            <p className="sp-meta">Homework</p>
-            <p className="mt-1 text-sm font-semibold text-[var(--sp-ink)]">
-              {dueTodayCount === 0
-                ? data.overdue.length > 0
-                  ? `${data.overdue.length} overdue`
-                  : 'Nothing due'
-                : `${dueTodayCount} task${dueTodayCount === 1 ? '' : 's'}`}
+            <div className="mb-6 flex justify-end text-sky-400">
+              <BarChart3 className="h-5 w-5" aria-hidden />
+            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
+              This week
+            </p>
+            <p className="mt-1 text-lg font-semibold text-[var(--sp-ink)]">
+              Workload at a glance
             </p>
           </Link>
           <Link
-            href="/notices"
-            className="rounded-2xl border border-[var(--sp-border)] bg-white px-4 py-3 transition-colors hover:border-[var(--sp-primary)]/40 sp-focus"
+            href="/planner"
+            className="rounded-[28px] bg-[#F3F0FF] px-5 py-5 sp-focus"
           >
-            <p className="sp-meta">Notices</p>
-            <p className="mt-1 text-sm font-semibold text-[var(--sp-ink)]">
-              {noticeCount === 0 ? 'No recent' : `${noticeCount} recent`}
+            <div className="mb-6 flex justify-end text-violet-400">
+              <CalendarDays className="h-5 w-5" aria-hidden />
+            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
+              Planner
+            </p>
+            <p className="mt-1 text-lg font-semibold text-[var(--sp-ink)]">
+              School dates & events
             </p>
           </Link>
         </div>
-      </section>
 
-      <section>
-        <SectionHeader label="Needs your attention" />
-        {attention.length === 0 ? (
-          <EmptyState
-            title="You're all caught up"
-            description="Nothing needs action right now."
-          />
-        ) : (
-          <div className="divide-y divide-[var(--sp-border)] border-y border-[var(--sp-border)]">
-            {attention.map((item) => (
-              <HomeworkItem
-                key={item.id}
-                subject={item.subject}
-                title={item.title}
-                dueLabel={
-                  data.overdue.some((o) => o.id === item.id)
-                    ? item.submissionDate
-                      ? `Overdue · ${formatBriefDate(item.submissionDate)}`
-                      : 'Overdue'
-                    : 'Due today'
-                }
-                status={data.overdue.some((o) => o.id === item.id) ? 'overdue' : 'today'}
-                href="/homework"
-              />
-            ))}
+        <Link
+          href="/updates"
+          className="flex items-center justify-between rounded-[28px] bg-[#FFF1F2] px-5 py-5 sp-focus"
+        >
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
+              Updates
+            </p>
+            <p className="mt-1 text-lg font-semibold text-[var(--sp-ink)]">
+              {unreadUpdates > 0
+                ? `${unreadUpdates} new update${unreadUpdates === 1 ? '' : 's'} since last visit`
+                : 'Nothing new since last visit'}
+            </p>
           </div>
-        )}
-      </section>
+          {unreadUpdates > 0 ? (
+            <span className="rounded-full bg-white px-3 py-1 text-sm font-medium text-[var(--sp-ink)]">
+              {unreadUpdates} new
+            </span>
+          ) : (
+            <BookOpen className="h-5 w-5 text-rose-300" aria-hidden />
+          )}
+        </Link>
 
-      {upNext.length > 0 ? (
-        <section>
-          <SectionHeader label="Up next" />
-          <div className="divide-y divide-[var(--sp-border)] border-y border-[var(--sp-border)]">
-            {upNext.map((item) => (
-              <HomeworkItem
-                key={item.id}
-                subject={item.subject}
-                title={item.title}
-                dueLabel={
-                  item.submissionDate ? formatBriefDate(item.submissionDate) : undefined
-                }
-                status="upcoming"
-                href="/homework"
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <section>
-        <SectionHeader
-          label="Recently changed"
-          action={
-            <Link
-              href="/changes"
-              className="text-xs font-semibold text-[var(--sp-primary)] hover:underline sp-focus rounded"
-            >
-              See all
-            </Link>
-          }
-        />
-        {recentChanges.length === 0 ? (
-          <EmptyState
-            title="Nothing changed recently"
-            description="When homework or notices are updated, they show up here."
-          />
-        ) : (
-          <div className="divide-y divide-[var(--sp-border)] border-y border-[var(--sp-border)]">
-            {recentChanges.map((item) => {
-              const lines = presentChangeLines(item.type, toFieldChanges(item));
-              const summary = lines[0]?.heading || item.title;
-              return (
-                <Link
-                  key={item.id}
-                  href={item.type === 'homework' ? '/homework' : '/notices'}
-                  className="block py-3.5 transition-colors hover:bg-[var(--sp-primary-soft)]/40 sp-focus"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--sp-subtle)]">
-                        {item.type === 'homework' ? 'Homework updated' : 'Notice updated'}
-                      </p>
-                      <p className="mt-0.5 line-clamp-2 text-sm font-semibold text-[var(--sp-ink)]">
-                        {item.subject ? `${item.subject} · ` : ''}
-                        {summary}
-                      </p>
-                    </div>
-                    <time className="sp-meta shrink-0" dateTime={item.detectedAt}>
-                      {formatRelativeTimeIndia(item.detectedAt)}
-                    </time>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Link
+            href="/timetable"
+            className="rounded-[28px] bg-[#ECFDF5] px-5 py-5 sp-focus"
+          >
+            <div className="mb-6 flex justify-end text-emerald-400">
+              <Clock className="h-5 w-5" aria-hidden />
+            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
+              Timetable
+            </p>
+            <p className="mt-1 text-lg font-semibold text-[var(--sp-ink)]">
+              Today’s schedule
+            </p>
+          </Link>
+          <Link
+            href="/class-diary"
+            className="rounded-[28px] bg-[#FFFBEB] px-5 py-5 sp-focus"
+          >
+            <div className="mb-6 flex justify-end text-amber-400">
+              <Library className="h-5 w-5" aria-hidden />
+            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
+              Library
+            </p>
+            <p className="mt-1 text-lg font-semibold text-[var(--sp-ink)]">
+              Learning resources
+            </p>
+          </Link>
+        </div>
       </section>
     </div>
   );

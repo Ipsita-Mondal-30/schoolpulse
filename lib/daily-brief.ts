@@ -43,6 +43,19 @@ export interface DailyBrief {
   nothingUrgent: boolean;
 }
 
+export const ATTENTION_OVERDUE_DAYS = 14;
+export const ATTENTION_LIMIT = 3;
+
+export type AttentionKind = 'notice' | 'due_today' | 'overdue' | 'due_tomorrow' | 'recent';
+
+export interface AttentionItem {
+  id: string;
+  kind: AttentionKind;
+  title: string;
+  meta: string;
+  href: '/homework' | '/updates';
+}
+
 export interface BuildDailyBriefInput {
   homework: UiHomeworkItem[];
   notices: UiNoticeItem[];
@@ -132,6 +145,18 @@ export function isDueTomorrow(submissionDate: string | undefined, today: string)
 export function isOverdue(submissionDate: string | undefined, today: string): boolean {
   const due = dueYmd(submissionDate);
   return Boolean(due && due < today);
+}
+
+/** Overdue, but only if the due date is still within the recent window. */
+export function isRecentlyOverdue(
+  submissionDate: string | undefined,
+  today: string,
+  windowDays = ATTENTION_OVERDUE_DAYS,
+): boolean {
+  if (!isOverdue(submissionDate, today)) return false;
+  const due = dueYmd(submissionDate);
+  const start = addDaysYmd(today, -windowDays);
+  return Boolean(due && start && due >= start);
 }
 
 export function isComingUp(
@@ -276,4 +301,106 @@ export function buildDailyBrief(input: BuildDailyBriefInput): DailyBrief {
     calendarItems: calendarItems.filter((c) => c.date === today || c.date === addDaysYmd(today, 1)),
     nothingUrgent,
   };
+}
+
+function homeworkTitle(hw: DailyBriefHomeworkItem): string {
+  return hw.title ? `${hw.subject} — ${hw.title}` : hw.subject;
+}
+
+/** Drop the school greeting so circulars don’t all look the same. */
+export function stripSchoolGreeting(text: string): string {
+  let out = text.trim();
+  out = out.replace(/^(jai\s+(sri|shri|shree|sree)\s+gurudev[!.]?\s*)+/gi, '');
+  out = out.replace(/^namaste\s+/i, '');
+  out = out.replace(
+    /^dear\s+(parents?|students?|children)(\s+and\s+(students?|parents?|children))?\s*,?\s*/i,
+    '',
+  );
+  return out.replace(/\s+/g, ' ').trim();
+}
+
+function noticeFingerprint(title: string): string {
+  const cleaned = stripSchoolGreeting(title).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return cleaned.slice(0, 48);
+}
+
+/**
+ * Home “needs attention” list: only things that need action.
+ * Circulars/notices collapse to one Updates row — never three copies of
+ * “Jai Sri Gurudev Namaste Dear Parents…”.
+ */
+export function buildAttentionItems(
+  brief: DailyBrief,
+  options?: { limit?: number; overdueDays?: number; unreadUpdates?: number },
+): AttentionItem[] {
+  const limit = options?.limit ?? ATTENTION_LIMIT;
+  const overdueDays = options?.overdueDays ?? ATTENTION_OVERDUE_DAYS;
+  const unreadUpdates = options?.unreadUpdates ?? 0;
+  const items: AttentionItem[] = [];
+
+  for (const hw of brief.dueToday) {
+    items.push({
+      id: `hw:${hw.id}`,
+      kind: 'due_today',
+      title: homeworkTitle(hw),
+      meta: 'Due today',
+      href: '/homework',
+    });
+  }
+
+  const recentOverdue = brief.overdue
+    .filter((hw) => isRecentlyOverdue(hw.submissionDate, brief.today, overdueDays))
+    .sort((a, b) => {
+      const da = dueYmd(a.submissionDate) || '';
+      const db = dueYmd(b.submissionDate) || '';
+      return db.localeCompare(da);
+    });
+
+  for (const hw of recentOverdue) {
+    items.push({
+      id: `hw:${hw.id}`,
+      kind: 'overdue',
+      title: homeworkTitle(hw),
+      meta: hw.submissionDate
+        ? `Due date passed · ${formatBriefDate(hw.submissionDate)}`
+        : 'Due date passed',
+      href: '/homework',
+    });
+  }
+
+  for (const hw of brief.dueTomorrow) {
+    items.push({
+      id: `hw:${hw.id}`,
+      kind: 'due_tomorrow',
+      title: homeworkTitle(hw),
+      meta: 'Due tomorrow',
+      href: '/homework',
+    });
+  }
+
+  const noticeCount = Math.max(unreadUpdates, brief.recentNotices.length);
+  const uniqueNotices: DailyBriefNoticeItem[] = [];
+  const seenPrints = new Set<string>();
+  for (const notice of brief.recentNotices) {
+    const print = noticeFingerprint(notice.summary || '');
+    if (!print || seenPrints.has(print)) continue;
+    seenPrints.add(print);
+    uniqueNotices.push(notice);
+  }
+  if (items.length < limit && noticeCount > 0) {
+    const first = uniqueNotices[0];
+    const cleaned = first ? stripSchoolGreeting(first.summary) : '';
+    const oneDistinct = uniqueNotices.length === 1 && cleaned;
+    items.push({
+      id: 'updates',
+      kind: 'notice',
+      title: oneDistinct
+        ? cleaned
+        : `${noticeCount} new school update${noticeCount === 1 ? '' : 's'}`,
+      meta: 'View',
+      href: '/updates',
+    });
+  }
+
+  return dedupeById(items).slice(0, limit);
 }

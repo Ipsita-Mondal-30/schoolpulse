@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  Bell,
   BookOpen,
   CalendarDays,
-  CalendarRange,
   Home,
   LayoutGrid,
 } from 'lucide-react';
@@ -20,16 +20,16 @@ const BOTTOM_LINKS = [
     match: (p: string) => p.startsWith('/homework'),
   },
   {
-    href: '/this-week',
-    label: 'This Week',
-    icon: CalendarRange,
-    match: (p: string) => p.startsWith('/this-week'),
-  },
-  {
     href: '/planner',
     label: 'Planner',
     icon: CalendarDays,
     match: (p: string) => p.startsWith('/planner'),
+  },
+  {
+    href: '/updates',
+    label: 'Updates',
+    icon: Bell,
+    match: (p: string) => p.startsWith('/updates'),
   },
   {
     href: '/more',
@@ -41,7 +41,7 @@ const BOTTOM_LINKS = [
 
 export function BottomNavigation() {
   const pathname = usePathname();
-  const { homeworkCount } = useUpdates();
+  const { homeworkCount, updatesCount } = useUpdates();
 
   return (
     <nav
@@ -52,6 +52,12 @@ export function BottomNavigation() {
         {BOTTOM_LINKS.map((link) => {
           const Icon = link.icon;
           const active = link.match(pathname);
+          const badge =
+            link.href === '/homework'
+              ? homeworkCount
+              : link.href === '/updates'
+                ? updatesCount
+                : 0;
           return (
             <Link
               key={link.href}
@@ -62,9 +68,9 @@ export function BottomNavigation() {
             >
               <Icon className="w-5 h-5" strokeWidth={active ? 2.25 : 1.75} aria-hidden />
               <span>{link.label}</span>
-              {link.href === '/homework' && homeworkCount > 0 ? (
+              {badge > 0 ? (
                 <span className="absolute top-1 right-[22%] flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-[var(--sp-error)] text-[8px] font-bold text-white">
-                  {homeworkCount}
+                  {badge}
                 </span>
               ) : null}
               {active ? (

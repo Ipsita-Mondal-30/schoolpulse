@@ -50,9 +50,9 @@ export default function RootLayout({
               <Navigation />
               <HomeworkDuePopup />
 
-              <main className="min-h-screen pb-24 sm:pb-16">{children}</main>
+              <main className="min-h-screen pb-24 md:pb-10 md:pl-[232px]">{children}</main>
 
-              <footer className="hidden sm:block bg-white border-t border-[var(--sp-border)] py-5 mb-0">
+              <footer className="hidden md:block bg-[var(--sp-bg)] py-5 md:pl-[232px]">
                 <div className="max-w-3xl mx-auto px-4 text-center text-sm text-[var(--sp-muted)]">
                   <div className="font-semibold text-[var(--sp-primary)]">SchoolPulse</div>
                   <div className="font-medium text-[var(--sp-ink)]/80">

@@ -151,6 +151,7 @@ describe('buildThisWeekView', () => {
     expect(view.overdue.map((i) => i.id)).toEqual(['od']);
     expect(view.overdueCount).toBe(1);
     expect(view.totalDatedThisWeek).toBe(0);
+    expect(dueLabelForItem(view.overdue[0], TODAY)).toMatch(/Due date passed/);
   });
 
   it('puts homework without due date in dateNotSpecified only', () => {

@@ -1,73 +1,85 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
-import { fetchExternalUpdates } from '@/app/actions';
-import { Announcement } from '@/lib/data';
+import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { filterHomeworkBySection } from '@/lib/ui-merge';
+import { getIndiaToday, hasReliableDueDate, isOverdue, isDueToday } from '@/lib/daily-brief';
+import { useHomeworkQuery } from '@/lib/queries/homework';
+import { useChangesQuery } from '@/lib/queries/changes';
+import { useNoticesQuery } from '@/lib/queries/notices';
+import {
+  isNewerThan,
+  noticePublishedIso,
+  readLastSeenIso,
+  readNoticeIds,
+} from '@/lib/updates-unread';
+
+const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
+const DEFAULT_SECTION = 'I-A';
 
 interface UpdatesContextType {
-    updates: Announcement[];
-    homeworkCount: number;
-    loading: boolean;
-    refreshUpdates: () => Promise<void>;
+  homeworkCount: number;
+  updatesCount: number;
+  loading: boolean;
+  updates: never[];
+  refreshUpdates: () => Promise<void>;
 }
 
 const UpdatesContext = createContext<UpdatesContextType | undefined>(undefined);
 
 export function UpdatesProvider({ children }: { children: ReactNode }) {
-    const [updates, setUpdates] = useState<Announcement[]>([]);
-    const [loading, setLoading] = useState(true);
+  const { data: homeworkData, isPending: hwPending } = useHomeworkQuery();
+  const { data: changesData, isPending: chPending } = useChangesQuery();
+  const { data: noticesData, isPending: ntPending } = useNoticesQuery();
+  const [section, setSection] = useState(DEFAULT_SECTION);
+  const [lastSeen, setLastSeen] = useState<string | null>(null);
+  const [readIds, setReadIds] = useState<string[]>([]);
+  const [today, setToday] = useState('');
 
-    // This function fetches the updates from the server action
-    // The server action itself handles the revalidation/caching strategy (e.g. 5-10 mins)
-    const loadUpdates = useCallback(async () => {
-        try {
-            const data = await fetchExternalUpdates();
-            // Only update state if data actually changed to verify fewer re-renders
-            setUpdates(data);
-        } catch (error) {
-            console.error('Context: Failed to load updates', error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+  useEffect(() => {
+    const saved = localStorage.getItem(PINNED_SECTION_KEY);
+    if (saved) setSection(saved);
+    setLastSeen(readLastSeenIso());
+    setReadIds(readNoticeIds());
+    setToday(getIndiaToday());
+  }, []);
 
-    useEffect(() => {
-        // Initial fetch
-        loadUpdates();
+  const homeworkCount = useMemo(() => {
+    if (!today) return 0;
+    const items = filterHomeworkBySection(homeworkData?.items ?? [], section);
+    return items.filter((hw) => {
+      if (!hasReliableDueDate(hw.submissionDate)) return false;
+      return isDueToday(hw.submissionDate, today) || isOverdue(hw.submissionDate, today);
+    }).length;
+  }, [homeworkData, section, today]);
 
-        // Auto-refresh every 5 minutes
-        const intervalId = setInterval(() => {
-            loadUpdates();
-        }, 5 * 60 * 1000);
+  const updatesCount = useMemo(() => {
+    const changes = (changesData ?? []).filter((item) => isNewerThan(item.detectedAt, lastSeen));
+    const notices = (noticesData ?? []).filter((n) => {
+      if (readIds.includes(n.id)) return false;
+      const published = noticePublishedIso(n.date, n.time);
+      return published ? isNewerThan(published, lastSeen) : false;
+    });
+    return changes.length + notices.length;
+  }, [changesData, noticesData, lastSeen, readIds]);
 
-        return () => clearInterval(intervalId);
-    }, [loadUpdates]);
+  const value = useMemo(
+    () => ({
+      homeworkCount,
+      updatesCount,
+      loading: hwPending || chPending || ntPending,
+      updates: [],
+      refreshUpdates: async () => undefined,
+    }),
+    [homeworkCount, updatesCount, hwPending, chPending, ntPending],
+  );
 
-    const homeworkCount = useMemo(() => {
-        return updates.filter(u =>
-            u.category?.toLowerCase().includes('homework') ||
-            u.type === 'homework'
-        ).length;
-    }, [updates]);
-
-    const value = useMemo(() => ({
-        updates,
-        homeworkCount,
-        loading,
-        refreshUpdates: loadUpdates
-    }), [updates, homeworkCount, loading, loadUpdates]);
-
-    return (
-        <UpdatesContext.Provider value={value}>
-            {children}
-        </UpdatesContext.Provider>
-    );
+  return <UpdatesContext.Provider value={value}>{children}</UpdatesContext.Provider>;
 }
 
 export function useUpdates() {
-    const context = useContext(UpdatesContext);
-    if (context === undefined) {
-        throw new Error('useUpdates must be used within an UpdatesProvider');
-    }
-    return context;
+  const ctx = useContext(UpdatesContext);
+  if (!ctx) {
+    throw new Error('useUpdates must be used within UpdatesProvider');
+  }
+  return ctx;
 }

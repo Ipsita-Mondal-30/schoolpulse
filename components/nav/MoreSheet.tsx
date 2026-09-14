@@ -4,30 +4,30 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import {
-  Bell,
   Bus,
-  CalendarDays,
+  CalendarRange,
   ClipboardList,
   GraduationCap,
   Info,
   Library,
-  Sparkles,
+  Settings,
   Type,
+  UserRound,
   Users,
   X,
 } from 'lucide-react';
 
 const MORE_LINKS = [
+  { href: '/this-week', label: 'This Week', icon: CalendarRange },
   { href: '/timetable', label: 'Timetable', icon: ClipboardList },
-  { href: '/notices', label: 'Notices', icon: Bell },
-  { href: '/week', label: 'Words', icon: Type },
-  { href: '/joy-of-learning', label: 'Joy of Learning', icon: GraduationCap },
   { href: '/class-diary', label: 'Library', icon: Library },
-  { href: '/changes', label: 'Something Changed', icon: Sparkles },
-  { href: '/dates', label: 'Events', icon: CalendarDays },
-  { href: '/info', label: 'School info', icon: Info },
+  { href: '/joy-of-learning', label: 'JoL', icon: GraduationCap },
+  { href: '/week', label: 'Words', icon: Type },
   { href: '/info#teachers', label: 'Teacher contacts', icon: Users },
-  { href: '/info#bus', label: 'Bus information', icon: Bus },
+  { href: '/info', label: 'School information', icon: Info },
+  { href: '/info#bus', label: 'Bus', icon: Bus },
+  { href: '/profile', label: 'Profile', icon: UserRound },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ] as const;
 
 export function MoreSheet({

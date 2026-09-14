@@ -137,17 +137,22 @@ function DayRow({
           </button>
           {expanded ? (
             <div className="px-2 pb-2 border-t border-[var(--sp-border)]/60 animate-[fadeIn_0.2s_ease-out]">
-              <div className="pt-1 space-y-0.5">
+              <div className="pt-1 space-y-1">
                 {day.items.map((item: ThisWeekHomeworkItem) => (
-                  <HomeworkItem
-                    key={item.id}
-                    subject={item.subject}
-                    title={item.title}
-                    dueLabel={dueLabelForItem(item, today)}
-                    href="/homework"
-                    status={day.isToday ? 'today' : 'upcoming'}
-                  />
+                  <div key={item.id} className="px-3 py-2">
+                    <p className="text-sm font-medium text-[var(--sp-ink)]">
+                      {item.subject}
+                      {item.title ? ` — ${item.title}` : ''}
+                    </p>
+                    <p className="text-xs text-[var(--sp-muted)]">{dueLabelForItem(item, today)}</p>
+                  </div>
                 ))}
+                <Link
+                  href="/homework"
+                  className="block px-3 pb-2 text-xs font-semibold text-[var(--sp-primary)] hover:underline"
+                >
+                  Open in Homework
+                </Link>
               </div>
             </div>
           ) : null}
@@ -157,7 +162,7 @@ function DayRow({
   );
 }
 
-function OverdueRow({
+function PassedDueRow({
   items,
   count,
   today,
@@ -179,7 +184,7 @@ function OverdueRow({
         className="w-full flex items-center gap-3 px-4 py-3 text-left sp-focus"
       >
         <span className="h-1.5 w-1.5 rounded-full bg-[var(--sp-error)] shrink-0" aria-hidden />
-        <span className="flex-1 text-sm font-semibold text-[var(--sp-error)]">Overdue</span>
+        <span className="flex-1 text-sm font-semibold text-[var(--sp-error)]">Due date passed</span>
         <span className="text-sm font-medium text-[var(--sp-error)]">
           {count} task{count === 1 ? '' : 's'}
         </span>
@@ -192,17 +197,22 @@ function OverdueRow({
       </button>
       {expanded ? (
         <div className="px-2 pb-2 border-t border-red-100/80 animate-[fadeIn_0.2s_ease-out]">
-          <div className="pt-1 space-y-0.5">
+          <div className="pt-1 space-y-1">
             {items.map((item) => (
-              <HomeworkItem
-                key={item.id}
-                subject={item.subject}
-                title={item.title}
-                dueLabel={dueLabelForItem(item, today)}
-                href="/homework"
-                status="overdue"
-              />
+              <div key={item.id} className="px-3 py-2">
+                <p className="text-sm font-medium text-[var(--sp-ink)]">
+                  {item.subject}
+                  {item.title ? ` — ${item.title}` : ''}
+                </p>
+                <p className="text-xs text-[var(--sp-muted)]">{dueLabelForItem(item, today)}</p>
+              </div>
             ))}
+            <Link
+              href="/homework"
+              className="block px-3 pb-2 text-xs font-semibold text-[var(--sp-primary)] hover:underline"
+            >
+              Open in Homework
+            </Link>
           </div>
         </div>
       ) : null}
@@ -277,7 +287,7 @@ export default function ThisWeekPage() {
     <div className="sp-page max-w-lg mx-auto">
       <PageHeader
         title="This Week"
-        subtitle={formatWeekRangeLabel(data.weekStart, data.weekEnd)}
+        subtitle={`${formatWeekRangeLabel(data.weekStart, data.weekEnd)} · workload, not the full homework list`}
       />
 
       {data.nothingDueThisWeek && data.overdueCount === 0 ? (
@@ -299,7 +309,7 @@ export default function ThisWeekPage() {
 
       <div className="space-y-2.5">
         {data.overdueCount > 0 ? (
-          <OverdueRow
+          <PassedDueRow
             items={data.overdue}
             count={data.overdueCount}
             today={data.today}

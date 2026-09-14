@@ -202,7 +202,7 @@ export function dueLabelForItem(
   if (isDueTomorrow(item.submissionDate, today)) return 'Due tomorrow';
   if (isOverdue(item.submissionDate, today)) {
     const due = dueYmd(item.submissionDate);
-    return due ? `Was due: ${formatBriefDate(due)}` : 'Overdue';
+    return due ? `Due date passed · ${formatBriefDate(due)}` : 'Due date passed';
   }
   const due = dueYmd(item.submissionDate);
   return due ? `Due ${formatBriefDate(due)}` : 'No deadline provided by school';

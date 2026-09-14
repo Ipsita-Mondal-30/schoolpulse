@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addDaysYmd,
+  buildAttentionItems,
   buildDailyBrief,
   formatBriefDate,
   getBriefGreeting,
@@ -10,6 +11,8 @@ import {
   isDueToday,
   isDueTomorrow,
   isOverdue,
+  isRecentlyOverdue,
+  stripSchoolGreeting,
 } from '@/lib/daily-brief';
 import type { UiHomeworkItem, UiNoticeItem } from '@/lib/ui-merge';
 import { dailyBriefQueryKey } from '@/lib/queries/daily-brief';
@@ -285,6 +288,63 @@ describe('buildDailyBrief', () => {
       notices: [],
     });
     expect(brief.dueToday.map((h) => h.id)).toEqual(['mine']);
+  });
+});
+
+describe('home attention items', () => {
+  it('ignores overdue homework from months ago', () => {
+    expect(isRecentlyOverdue('2026-06-04', TODAY, 14)).toBe(false);
+    expect(isRecentlyOverdue('2026-09-08', TODAY, 14)).toBe(true);
+
+    const brief = buildDailyBrief({
+      today: TODAY,
+      section: 'I-A',
+      homework: [
+        hw({
+          id: 'june',
+          title: 'Chapter 1: Myself',
+          subject: 'ENVIRONMENTAL SCIENCE',
+          submissionDate: '2026-06-04',
+        }),
+        hw({
+          id: 'recent-od',
+          title: 'Worksheet 2',
+          subject: 'English',
+          submissionDate: '2026-09-08',
+        }),
+      ],
+      notices: [nt({ id: 'n-new', summary: 'PTM this Friday', date: '2026-09-09' })],
+    });
+
+    const items = buildAttentionItems(brief);
+    expect(items.map((i) => i.id)).toEqual(['hw:recent-od', 'updates']);
+    expect(items.some((i) => i.id === 'hw:june')).toBe(false);
+    expect(items[0]).toMatchObject({
+      kind: 'overdue',
+      title: 'English — Worksheet 2',
+      href: '/homework',
+    });
+    expect(items[1]).toMatchObject({
+      kind: 'notice',
+      title: 'PTM this Friday',
+      href: '/updates',
+    });
+  });
+
+  it('collapses repetitive parent circulars into one updates row', () => {
+    const greeting = 'Jai Sri Gurudev Namaste Dear Parents,';
+    const brief = buildDailyBrief({
+      today: TODAY,
+      section: 'I-A',
+      homework: [],
+      notices: [
+        nt({ id: 'a', summary: `${greeting} Kannada Ch.1 and Ch.2 note.`, date: '2026-09-08' }),
+        nt({ id: 'b', summary: `${greeting} admissions for the upcoming year.`, date: '2026-09-08' }),
+        nt({ id: 'c', summary: `${greeting} our school is closed on Monday.`, date: '2026-09-08' }),
+      ],
+    });
+    expect(buildAttentionItems(brief).map((i) => i.title)).toEqual(['3 new school updates']);
+    expect(stripSchoolGreeting(`${greeting} Kannada Ch.1 note.`)).toBe('Kannada Ch.1 note.');
   });
 });
 
