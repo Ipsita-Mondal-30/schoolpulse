@@ -12,8 +12,14 @@ import {
   FileText,
   Library,
 } from 'lucide-react';
-import { buildAttentionItems, getBriefGreeting, getIndiaHour } from '@/lib/daily-brief';
+import { buildAttentionItems, formatBriefDate, getBriefGreeting, getIndiaHour } from '@/lib/daily-brief';
 import { buildDailyPulse } from '@/lib/daily-pulse';
+import { getDaySchedule } from '@/lib/data';
+import {
+  formatHolidayDateLine,
+  getConfirmedSchoolHoliday,
+  getUpcomingSchoolEvents,
+} from '@/lib/school-day';
 import { useDailyBriefQuery } from '@/lib/queries/daily-brief';
 import { useChangesQuery } from '@/lib/queries/changes';
 import { useNoticesQuery } from '@/lib/queries/notices';
@@ -133,6 +139,14 @@ export default function DailyBrief() {
   }
 
   const attentionCount = attention.length;
+  const holiday = getConfirmedSchoolHoliday(
+    data.today,
+    data.calendarItems,
+    getDaySchedule(data.today),
+  );
+  const upcomingEvents = holiday
+    ? getUpcomingSchoolEvents(data.today, data.calendarItems)
+    : [];
   const pulseStart = pulse.markers[0]?.minutes ?? 0;
   const pulseEnd = pulse.markers.at(-1)?.minutes ?? 1;
   const pulseSpan = Math.max(pulseEnd - pulseStart, 1);
@@ -159,40 +173,73 @@ export default function DailyBrief() {
         </div>
       </header>
 
-      <section className="rounded-[28px] bg-white px-5 py-5 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
-        <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
-          Daily pulse
-        </p>
-        <div className="relative h-2 rounded-full bg-zinc-100">
-          <div
-            className="absolute inset-y-0 left-0 rounded-full bg-[var(--sp-primary)]"
-            style={{ width: `${Math.round(pulse.progress * 100)}%` }}
-          />
-        </div>
-        <div className="relative mt-4 min-h-[3.25rem]">
-          {pulse.markers.map((marker) => {
-            const left = ((marker.minutes - pulseStart) / pulseSpan) * 100;
-            return (
-              <div
-                key={`${marker.kind}-${marker.minutes}`}
-                className="absolute top-0 w-24 -translate-x-1/2 text-center"
-                style={{ left: `${left}%` }}
-              >
-                {marker.kind === 'now' ? (
-                  <span className="mx-auto mb-1 block h-2.5 w-2.5 rounded-full border-2 border-white bg-[var(--sp-primary)] shadow" />
-                ) : null}
-                <p className="text-[11px] font-semibold text-[var(--sp-ink)]">{marker.timeLabel}</p>
-                <p className="text-[10px] text-[var(--sp-muted)]">
-                  {marker.kind === 'now' ? 'Now' : marker.caption}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-        {pulse.isWeekend ? (
-          <p className="mt-2 text-xs text-[var(--sp-muted)]">School is off today.</p>
-        ) : null}
-      </section>
+      {holiday ? (
+        <section className="rounded-[28px] bg-white px-5 py-5 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
+            Today
+          </p>
+          <p className="mt-2 text-sm text-[var(--sp-muted)]">
+            {formatHolidayDateLine(data.today)}
+          </p>
+          <p className="mt-4 text-lg font-semibold text-[var(--sp-ink)]">🎉 School holiday</p>
+          <p className="mt-1 text-base font-medium text-[var(--sp-ink)]">{holiday.name}</p>
+          <p className="mt-2 text-sm text-[var(--sp-muted)]">No classes today.</p>
+          {upcomingEvents.length > 0 ? (
+            <ul className="mt-4 space-y-2 border-t border-zinc-100 pt-4">
+              {upcomingEvents.map((item) => (
+                <li key={`${item.date}-${item.event}`}>
+                  <Link
+                    href="/planner"
+                    className="flex items-center justify-between gap-3 rounded-xl sp-focus"
+                  >
+                    <span className="min-w-0 truncate text-sm font-medium text-[var(--sp-ink)]">
+                      {item.event}
+                    </span>
+                    <span className="shrink-0 text-sm text-[var(--sp-muted)]">
+                      {formatBriefDate(item.date)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      ) : (
+        <section className="rounded-[28px] bg-white px-5 py-5 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
+          <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
+            Daily pulse
+          </p>
+          <div className="relative h-2 rounded-full bg-zinc-100">
+            <div
+              className="absolute inset-y-0 left-0 rounded-full bg-[var(--sp-primary)]"
+              style={{ width: `${Math.round(pulse.progress * 100)}%` }}
+            />
+          </div>
+          <div className="relative mt-4 min-h-[3.25rem]">
+            {pulse.markers.map((marker) => {
+              const left = ((marker.minutes - pulseStart) / pulseSpan) * 100;
+              return (
+                <div
+                  key={`${marker.kind}-${marker.minutes}`}
+                  className="absolute top-0 w-24 -translate-x-1/2 text-center"
+                  style={{ left: `${left}%` }}
+                >
+                  {marker.kind === 'now' ? (
+                    <span className="mx-auto mb-1 block h-2.5 w-2.5 rounded-full border-2 border-white bg-[var(--sp-primary)] shadow" />
+                  ) : null}
+                  <p className="text-[11px] font-semibold text-[var(--sp-ink)]">{marker.timeLabel}</p>
+                  <p className="text-[10px] text-[var(--sp-muted)]">
+                    {marker.kind === 'now' ? 'Now' : marker.caption}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+          {pulse.isWeekend ? (
+            <p className="mt-2 text-xs text-[var(--sp-muted)]">School is off today.</p>
+          ) : null}
+        </section>
+      )}
 
       <section className="rounded-[28px] bg-[#141414] px-5 py-5 text-white">
         {attentionCount === 0 ? (

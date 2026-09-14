@@ -1,5 +1,9 @@
 import { getPrisma } from '@/lib/prisma';
 import {
+  defaultClass1Audience,
+  isLegacyDefaultHomeworkAudience,
+} from '@/lib/class-sections';
+import {
   getMeaningfulHomeworkChanges,
   getMeaningfulNoticeChanges,
   homeworkSnapshot,
@@ -20,6 +24,13 @@ function parseJsonArray(raw: string): string[] {
   } catch {
     return [];
   }
+}
+
+function isLegacyHomeworkAudienceExpansion(previous: string[], next: string[]): boolean {
+  if (!isLegacyDefaultHomeworkAudience(previous)) return false;
+  const expected = defaultClass1Audience();
+  if (next.length !== expected.length) return false;
+  return next.every((sec, i) => sec === expected[i]);
 }
 
 export class PrismaNeverSkipStore implements NeverSkipStore {
@@ -71,7 +82,11 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
     }
 
     const diffs = getMeaningfulHomeworkChanges(existingNorm, item);
-    if (diffs.length > 0) {
+    const skipAudienceNoise =
+      diffs.length === 1 &&
+      diffs[0].field === 'sections' &&
+      isLegacyHomeworkAudienceExpansion(existingNorm.sections, item.sections);
+    if (diffs.length > 0 && !skipAudienceNoise) {
       await prisma.contentChangeEvent.create({
         data: {
           entityType: 'homework',

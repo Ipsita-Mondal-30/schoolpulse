@@ -1,3 +1,8 @@
+import {
+  defaultClass1Audience,
+  parseClass1SectionsFromText,
+  uniqueClass1Sections,
+} from '@/lib/class-sections';
 import { homeworkSourceId, noticeSourceId } from './ids';
 import {
   NEVERSKIP_SOURCE,
@@ -10,8 +15,6 @@ import {
   type NormalizedHomework,
   type NormalizedNotice,
 } from './types';
-
-const DEFAULT_SECTIONS = ['I-A'];
 
 function coerceItemList(raw: unknown): unknown[] | null {
   if (Array.isArray(raw)) return raw;
@@ -67,9 +70,14 @@ export function extractAssignments(response: NeverSkipHomeworkResponse | null | 
 
 export function extractNotices(response: NeverSkipNoticesResponse | null | undefined): NeverSkipRawNotice[] {
   if (!response || typeof response !== 'object') return [];
-  if (Array.isArray(response.D?.item_list)) return response.D!.item_list!.filter(isObject);
-  if (Array.isArray(response.item_list)) return response.item_list.filter(isObject);
-  if (Array.isArray(response.data)) return response.data.filter(isObject);
+  const r = response as Record<string, unknown>;
+  const D = r.D;
+  if (D && typeof D === 'object' && !Array.isArray(D)) {
+    const list = coerceItemList((D as Record<string, unknown>).item_list);
+    if (list) return list.filter(isObject);
+  }
+  const rootList = coerceItemList(r.item_list) || coerceItemList(r.data);
+  if (rootList) return rootList.filter(isObject);
   return [];
 }
 
@@ -168,16 +176,25 @@ function asStringList(value: unknown): string[] {
 }
 
 function extractSections(raw: NeverSkipRawAssignment): string[] {
-  const fromFields = [
+  const fromFields = uniqueClass1Sections([
     ...asStringList(raw.sections),
     ...asStringList(raw.section),
     ...asStringList(raw.class_sec),
     ...asStringList(raw.class_name),
-  ];
-  const unique = Array.from(new Set(fromFields));
-  if (unique.length > 0) return unique;
-  // Class-1 MVP default when API provides no targeting (not a content correction)
-  return [...DEFAULT_SECTIONS];
+    ...asStringList(raw.class),
+    ...asStringList(raw.classes),
+  ]);
+  if (fromFields.length > 0) return fromFields;
+
+  const fromText = parseClass1SectionsFromText(
+    String(raw.assign_title ?? ''),
+    String(raw.assign_details ?? ''),
+    String(raw.title ?? ''),
+  );
+  if (fromText.length > 0) return fromText;
+
+  // NeverSkip homework often omits targeting. Do not hide it behind I-A-only.
+  return defaultClass1Audience();
 }
 
 function extractAttachmentUrl(raw: NeverSkipRawAssignment): string | null {
@@ -315,7 +332,7 @@ export function normalizeNotice(raw: NeverSkipRawNotice): NormalizedNotice | nul
   const classesFromTargetList = classesFromTarget(raw.test_tar);
   const classes =
     classesFromTargetList.length > 0
-      ? classesFromTargetList
+      ? Array.from(new Set(classesFromTargetList))
       : classesFromAudienceTitle(rawTitle);
 
   const title = noticeDisplayTitle(rawTitle, content);

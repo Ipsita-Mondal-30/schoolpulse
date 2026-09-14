@@ -10,6 +10,7 @@ import {
   toSortableDate,
   type UiHomeworkItem,
 } from '@/lib/ui-merge';
+import { CLASS1_SECTIONS, isClass1Section } from '@/lib/class-sections';
 import {
   formatBriefDate,
   getIndiaToday,
@@ -25,9 +26,7 @@ import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
 
 const DEFAULT_SECTION = 'I-A';
-const ALL_SECTIONS = [
-  'I-A', 'I-B', 'I-C', 'I-D', 'I-E', 'I-F', 'I-G', 'I-H', 'I-I', 'I-J', 'I-K',
-];
+const ALL_SECTIONS = [...CLASS1_SECTIONS];
 const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
 const LINK_BANNER_DISMISS_KEY = 'schoolpulse_dismiss_link_banner';
 
@@ -96,7 +95,7 @@ export default function HomeworkPage() {
     setToday(getIndiaToday());
     if (typeof window === 'undefined') return;
     const saved = localStorage.getItem(PINNED_SECTION_KEY);
-    if (saved && ALL_SECTIONS.includes(saved)) {
+    if (saved && isClass1Section(saved)) {
       setSelectedSection(saved);
     }
     setBannerDismissed(localStorage.getItem(LINK_BANNER_DISMISS_KEY) === '1');
@@ -144,6 +143,28 @@ export default function HomeworkPage() {
     const dates = sortHomeworkDatesNewestFirst(Object.keys(groups));
     return dates.map((date) => ({ date, items: groups[date] }));
   }, [filteredList]);
+
+  const latestImportedDate = useMemo(() => {
+    let max = '';
+    for (const hw of allHomework) {
+      const d = toSortableDate(hw.sentDate);
+      if (d && d > max) max = d;
+    }
+    return max;
+  }, [allHomework]);
+
+  const latestSectionDate = useMemo(() => {
+    let max = '';
+    for (const hw of bySection) {
+      const d = toSortableDate(hw.sentDate);
+      if (d && d > max) max = d;
+    }
+    return max;
+  }, [bySection]);
+
+  const sectionHasOlderFeed =
+    Boolean(latestImportedDate) &&
+    (latestSectionDate === '' || latestSectionDate < latestImportedDate);
 
   const showLinkBanner =
     isParent && access && !access.hasApprovedLink && !bannerDismissed;
@@ -230,6 +251,14 @@ export default function HomeworkPage() {
           </p>
         ) : null}
       </div>
+
+      {!isPending && sectionHasOlderFeed ? (
+        <p className="mb-5 text-sm text-[var(--sp-muted)]">
+          {latestSectionDate
+            ? `No recent homework for ${sectionLabel(selectedSection)} since ${formatBriefDate(latestSectionDate)}. Newer school homework is dated ${formatBriefDate(latestImportedDate)}.`
+            : `No homework for ${sectionLabel(selectedSection)}. Newest school homework is dated ${formatBriefDate(latestImportedDate)}.`}
+        </p>
+      ) : null}
 
       {isPending ? (
         <LoadingState rows={5} />

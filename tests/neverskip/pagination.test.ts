@@ -283,7 +283,7 @@ describe('fetchAllHomeworkPages', () => {
     expect(result.incomplete).toBe(false);
   });
 
-  it('treats unique IDs as complete when chase page is empty and declared pages were fetched', async () => {
+  it('marks incomplete when chase page is empty and unique is still below total_count', async () => {
     const result = await fetchAllHomeworkPages(async (page) => {
       if (page < 12) {
         return pageEnvelope(
@@ -301,7 +301,10 @@ describe('fetchAllHomeworkPages', () => {
     });
     expect(result.pagesFetched).toBe(13);
     expect(result.items).toHaveLength(125);
-    expect(result.incomplete).toBe(false);
+    expect(result.incomplete).toBe(true);
+    expect(result.errors.some((e) => /INCOMPLETE HOMEWORK DATA|total_count 129/i.test(e))).toBe(
+      true,
+    );
   });
 
   it('marks incomplete when raw fetched is below total_count', async () => {
@@ -371,6 +374,23 @@ describe('fetchAllHomeworkPages', () => {
 });
 
 describe('paginated homework sync idempotency', () => {
+  it('persists partial homework and fails when pagination is incomplete', async () => {
+    const store = new InMemoryNeverSkipStore();
+    const homework = Array.from({ length: 5 }, (_, i) => hwItem(String(i + 1)));
+    const summary = await syncNeverSkipData({
+      homework,
+      notices: [],
+      store,
+      homeworkPagesFetched: 1,
+      homeworkFetchIncomplete: true,
+      homeworkFetchErrors: ['fetched 5 raw homework < total_count 129 (unique=5)'],
+    });
+    expect(summary.homeworkInserted).toBe(5);
+    expect(summary.newestHomeworkDate).toBe('2026-09-01');
+    expect(summary.errors.length).toBeGreaterThan(0);
+    expect(summary.errors.some((e) => /incomplete/i.test(e))).toBe(true);
+  });
+
   it('double sync remains idempotent across all pages', async () => {
     const homework = [
       hwItem('10'),

@@ -486,15 +486,14 @@ export async function fetchImportedHomework(): Promise<ImportedHomeworkItem[]> {
         }
         const { PrismaNeverSkipStore } = await import('@/lib/neverskip/prisma-store');
         const { uiHomeworkId } = await import('@/lib/neverskip/ids');
-        const { toSortableDate } = await import('@/lib/ui-merge');
+        const { homeworkSectionsForUi, toSortableDate } = await import('@/lib/ui-merge');
         const store = new PrismaNeverSkipStore();
         const rows = await store.listHomework();
         return rows.map((h) => ({
             id: uiHomeworkId(h.sourceId, h.source),
             title: h.title,
             subject: h.subjectName,
-            // Ensure section filter always has at least Class 1 default when API omitted targeting
-            sections: h.sections.length > 0 ? h.sections : ['I-A'],
+            sections: homeworkSectionsForUi(h.sections),
             description: h.description,
             submissionDate: h.dueDate || undefined,
             sentDate: toSortableDate(h.homeworkDate) || h.homeworkDate,
@@ -602,25 +601,19 @@ export async function loadDailyBriefForUi(options?: {
     today?: string;
     section?: string;
 }): Promise<import('@/lib/daily-brief').DailyBrief> {
-    const { buildDailyBrief, getIndiaToday, addDaysYmd } = await import('@/lib/daily-brief');
+    const { buildDailyBrief, getIndiaToday } = await import('@/lib/daily-brief');
     const { getAllImportantDates } = await import('@/lib/data');
+    const { selectCalendarWindow } = await import('@/lib/school-day');
 
     const today = options?.today || getIndiaToday();
     const section = options?.section || 'I-A';
-    const tomorrow = addDaysYmd(today, 1);
 
     const [homeworkResult, notices] = await Promise.all([
         loadHomeworkForUi(),
         loadNoticesForUi(),
     ]);
 
-    const calendarItems = getAllImportantDates()
-        .filter((e) => e.date === today || e.date === tomorrow)
-        .map((e) => ({
-            date: e.date,
-            event: e.event,
-            description: e.description,
-        }));
+    const calendarItems = selectCalendarWindow(getAllImportantDates(), today);
 
     return buildDailyBrief({
         homework: homeworkResult.items,

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   filterHomeworkBySection,
   filterNoticesByClass,
+  homeworkSectionsForUi,
   mergeHomeworkItems,
   mergeNoticeItems,
   resolveNoticeClassesForUi,
@@ -159,6 +160,13 @@ describe('class / section filters', () => {
       hw({ id: 'b', sections: ['I-B'] }),
     ];
     expect(filterHomeworkBySection(items, 'I-A').map((h) => h.id)).toEqual(['a']);
+  });
+
+  it('expands historical I-A-only imported homework to all Class 1 sections', () => {
+    expect(homeworkSectionsForUi(['I-A'])).toEqual(
+      expect.arrayContaining(['I-A', 'I-D', 'I-K']),
+    );
+    expect(homeworkSectionsForUi(['I-A', 'I-B'])).toEqual(['I-A', 'I-B']);
   });
 
   it('All sections includes imported I-A records', () => {

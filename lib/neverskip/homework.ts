@@ -195,7 +195,6 @@ export async function fetchAllHomeworkPages(
   let pageIndex = 0;
   let latestMeta: HomeworkPaginationMeta | null = null;
   let rawFetchedCount = 0;
-  let stoppedOnEmptyAfterDeclaredPages = false;
 
   while (pageIndex < MAX_HOMEWORK_PAGES) {
     const payload = buildHomeworkPayload(pageIndex, limit);
@@ -230,8 +229,7 @@ export async function fetchAllHomeworkPages(
         latestMeta.pageCount > 0 &&
         pageIndex >= latestMeta.pageCount
       ) {
-        // Requested past declared page_count (total_count chase) and got empty — stop cleanly.
-        stoppedOnEmptyAfterDeclaredPages = true;
+        // Chase past declared page_count returned empty. Stop, then validate total_count.
         nsWarn(`Homework page ${pageIndex} empty after page_count exhausted — stopping`);
       } else {
         incomplete = true;
@@ -285,22 +283,11 @@ export async function fetchAllHomeworkPages(
   const items = mergeHomeworkPageItems(pages);
   const pagesFetched = pages.length;
 
-  const fetchedAllDeclaredPages =
-    latestMeta?.pageCount == null ||
-    latestMeta.pageCount <= 0 ||
-    pagesFetched >= latestMeta.pageCount;
-
   if (homeworkTotalCountMismatch(latestMeta?.totalCount, rawFetchedCount)) {
-    if (fetchedAllDeclaredPages && stoppedOnEmptyAfterDeclaredPages) {
-      nsWarn(
-        `total_count ${latestMeta!.totalCount} exceeds unique ${items.length} after empty chase page — treating unique IDs as complete`,
-      );
-    } else {
-      incomplete = true;
-      const msg = `fetched ${rawFetchedCount} raw homework < total_count ${latestMeta!.totalCount} (unique=${items.length})`;
-      errors.push(msg);
-      nsError(`SYNC FAILED — INCOMPLETE SOURCE DATA (${msg})`);
-    }
+    incomplete = true;
+    const msg = `fetched ${rawFetchedCount} raw homework < total_count ${latestMeta!.totalCount} (unique=${items.length})`;
+    errors.push(msg);
+    nsError(`SYNC FAILED — INCOMPLETE HOMEWORK DATA (${msg})`);
   }
 
   nsLog(`Homework pages fetched: ${pagesFetched}`);

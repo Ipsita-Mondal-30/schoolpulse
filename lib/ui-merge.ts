@@ -3,6 +3,12 @@
  * Keeps Prisma imports + JSON/sheet sources combined and deduped.
  */
 
+import {
+  defaultClass1Audience,
+  isLegacyDefaultHomeworkAudience,
+  parseClass1SectionsFromText,
+} from '@/lib/class-sections';
+
 export interface UiHomeworkItem {
   id: string;
   title: string;
@@ -56,18 +62,25 @@ export function toSortableDate(raw?: string | null): string {
 
 /** Pull Class I section codes from free text (e.g. title "Classes: I-A, I-B"). */
 export function parseSectionsFromText(...parts: string[]): string[] {
+  const parsed = parseClass1SectionsFromText(...parts);
+  if (parsed.length > 0) return parsed;
   const hay = parts.join(' ');
-  const found = new Set<string>();
-  const re = /\bI-[A-K]\b/gi;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(hay)) !== null) {
-    found.add(m[0].toUpperCase());
+  // "Class: I" / "Class I" without section → Class 1 audience, not I-A-only
+  if (/\bclass(?:es)?\s*:?\s*I\b/i.test(hay)) {
+    return defaultClass1Audience();
   }
-  // "Class: I" / "Class I" without section → default I-A for Class 1 MVP visibility
-  if (found.size === 0 && /\bclass(?:es)?\s*:?\s*I\b/i.test(hay)) {
-    found.add('I-A');
+  return [];
+}
+
+/**
+ * Imported homework with no targeting (or the historical I-A-only default)
+ * is visible to every Class 1 section.
+ */
+export function homeworkSectionsForUi(sections: string[]): string[] {
+  if (sections.length === 0 || isLegacyDefaultHomeworkAudience(sections)) {
+    return defaultClass1Audience();
   }
-  return Array.from(found);
+  return sections;
 }
 
 /** Extract a YYYY-MM-DD from notice body text when publishedDate is missing. */
@@ -217,5 +230,5 @@ export function resolveNoticeClassesForUi(
 ): string[] {
   if (classes.length > 0) return classes;
   const parsed = parseSectionsFromText(...textParts);
-  return parsed.length > 0 ? parsed : ['I-A'];
+  return parsed.length > 0 ? parsed : defaultClass1Audience();
 }

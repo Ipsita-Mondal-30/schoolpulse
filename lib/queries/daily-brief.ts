@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import {
-  addDaysYmd,
   buildDailyBrief,
   getIndiaToday,
   type DailyBrief,
@@ -11,6 +10,7 @@ import { loadDailyBriefForUi } from '@/app/actions';
 import { useHomeworkQuery } from '@/lib/queries/homework';
 import { useNoticesQuery } from '@/lib/queries/notices';
 import { getAllImportantDates } from '@/lib/data';
+import { selectCalendarWindow } from '@/lib/school-day';
 
 /** Logical dashboard key (docs/tests). UI composes from homework + notices cache. */
 export const dailyBriefQueryKey = ['dashboard', 'today'] as const;
@@ -40,14 +40,7 @@ export function useDailyBriefQuery(options: UseDailyBriefQueryOptions = {}) {
   const data = useMemo(() => {
     if (!homeworkQuery.data || !noticesQuery.data) return undefined;
 
-    const tomorrow = addDaysYmd(today, 1);
-    const calendarItems = getAllImportantDates()
-      .filter((e) => e.date === today || e.date === tomorrow)
-      .map((e) => ({
-        date: e.date,
-        event: e.event,
-        description: e.description,
-      }));
+    const calendarItems = selectCalendarWindow(getAllImportantDates(), today);
 
     return buildDailyBrief({
       homework: homeworkQuery.data.items,

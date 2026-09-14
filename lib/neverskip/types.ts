@@ -151,6 +151,8 @@ export interface SyncSummary {
   noticesMissing?: number;
   noticePagesFetched?: number;
   noticeFetchIncomplete?: boolean;
+  newestHomeworkDate?: string;
+  newestNoticeDate?: string;
   errors: string[];
 }
 

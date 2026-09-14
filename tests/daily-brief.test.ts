@@ -18,6 +18,11 @@ import type { UiHomeworkItem, UiNoticeItem } from '@/lib/ui-merge';
 import { dailyBriefQueryKey } from '@/lib/queries/daily-brief';
 import { homeworkQueryKey } from '@/lib/queries/homework';
 import { noticesQueryKey } from '@/lib/queries/notices';
+import {
+  getConfirmedSchoolHoliday,
+  getUpcomingSchoolEvents,
+  shouldShowDailyPulse,
+} from '@/lib/school-day';
 
 const TODAY = '2026-09-10';
 
@@ -353,5 +358,67 @@ describe('daily brief query keys', () => {
     expect(dailyBriefQueryKey).toEqual(['dashboard', 'today']);
     expect(homeworkQueryKey).toEqual(['homework']);
     expect(noticesQueryKey).toEqual(['notices']);
+  });
+});
+
+describe('holiday home brief', () => {
+  it('keeps homework with a reliable due date when today is a confirmed holiday', () => {
+    const today = '2026-09-14';
+    const brief = buildDailyBrief({
+      today,
+      section: 'I-A',
+      homework: [
+        hw({
+          id: 'holiday-hw',
+          title: 'Revision worksheet',
+          submissionDate: today,
+          sentDate: '2026-09-11',
+        }),
+      ],
+      notices: [],
+      calendarItems: [
+        {
+          date: today,
+          event: 'Vinayaka Chaturthi',
+          type: 'holiday',
+          description: 'School holiday — Vinayaka Chaturthi / Ganesh Chaturthi',
+        },
+      ],
+    });
+
+    expect(shouldShowDailyPulse(today, brief.calendarItems)).toBe(false);
+    expect(getConfirmedSchoolHoliday(today, brief.calendarItems)?.name).toBe('Vinayaka Chaturthi');
+    const items = buildAttentionItems(brief);
+    expect(items.some((item) => item.kind === 'due_today' && item.href === '/homework')).toBe(true);
+  });
+
+  it('keeps a later planner event on a holiday brief', () => {
+    const today = '2026-09-14';
+    const brief = buildDailyBrief({
+      today,
+      section: 'I-A',
+      homework: [],
+      notices: [],
+      calendarItems: [
+        {
+          date: today,
+          event: 'Vinayaka Chaturthi',
+          type: 'holiday',
+          description: 'School holiday',
+        },
+        {
+          date: '2026-09-16',
+          event: 'Math Quest Finals',
+          type: 'event',
+          description: 'Math Quest Finals',
+        },
+      ],
+    });
+
+    expect(shouldShowDailyPulse(today, brief.calendarItems)).toBe(false);
+    expect(getUpcomingSchoolEvents(today, brief.calendarItems).map((row) => row.event)).toEqual([
+      'Math Quest Finals',
+    ]);
+    expect(brief.calendarItems.find((row) => row.date === '2026-09-16')?.type).toBe('event');
   });
 });

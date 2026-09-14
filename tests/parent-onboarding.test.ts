@@ -77,15 +77,17 @@ describe('parent access helpers', () => {
     expect(parentHasApprovedLink(['I-A'])).toBe(true);
   });
 
-  it('allows I-A homework for I-A parent only', () => {
+  it('allows I-A-only homework for any Class 1 section (historical default audience)', () => {
     expect(itemTargetsIntersect(['I-A'], ['I-A'])).toBe(true);
+    expect(itemTargetsIntersect(['I-A'], ['I-D'])).toBe(true);
     expect(itemTargetsIntersect(['I-B'], ['I-A'])).toBe(false);
     expect(itemTargetsIntersect(['I-A', 'I-B'], ['I-A'])).toBe(true);
   });
 
-  it('treats empty targets as I-A (product default)', () => {
+  it('treats empty targets as all Class 1 sections', () => {
     expect(itemTargetsIntersect([], ['I-A'])).toBe(true);
-    expect(itemTargetsIntersect([], ['I-B'])).toBe(false);
+    expect(itemTargetsIntersect([], ['I-B'])).toBe(true);
+    expect(itemTargetsIntersect([], ['I-D'])).toBe(true);
   });
 
   it('ALL targets require any approved link', () => {

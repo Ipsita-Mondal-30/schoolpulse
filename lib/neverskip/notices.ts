@@ -217,6 +217,15 @@ export async function fetchAllNoticePages(
     pageIndex += 1;
   }
 
+  if (pageIndex >= MAX_NOTICE_PAGES - 1 && latestMeta) {
+    const collected = mergeNoticePages(pages).length;
+    if (shouldFetchNextNoticePage(latestMeta, pageIndex, collected)) {
+      incomplete = true;
+      errors.push(`stopped at max pages (${MAX_NOTICE_PAGES})`);
+      nsWarn(`Notice pagination stopped at max pages (${MAX_NOTICE_PAGES})`);
+    }
+  }
+
   const items = mergeNoticePages(pages);
   if (
     latestMeta?.totalCount != null &&
@@ -227,10 +236,16 @@ export async function fetchAllNoticePages(
     errors.push(
       `fetched ${items.length} unique notices < total_count ${latestMeta.totalCount}`,
     );
+    nsWarn(
+      `SYNC FAILED — INCOMPLETE NOTICE DATA (unique=${items.length} < total_count=${latestMeta.totalCount})`,
+    );
   }
 
   nsLog(`Notice pages fetched: ${pages.length}`);
   nsLog(`Notice records fetched: ${items.length}`);
+  if (incomplete) {
+    nsWarn('Notice pagination incomplete — preserving records collected so far');
+  }
 
   return { items, pagesFetched: pages.length, incomplete, errors };
 }

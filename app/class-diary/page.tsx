@@ -1,7 +1,10 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { Suspense, useMemo, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import libraryData from "@/data/content-library.json";
+import { getLibraryResourceById } from "@/lib/notice-library-link";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type Media = { type: string; file: string; url?: string };
@@ -101,13 +104,28 @@ function DocThumb({ isImage }: { isImage: boolean }) {
 }
 
 // ── Resource card ───────────────────────────────────────────────────────────────
-function ResourceCard({ res, today }: { res: Resource; today: string }) {
+function ResourceCard({
+  res,
+  today,
+  highlighted,
+}: {
+  res: Resource;
+  today: string;
+  highlighted?: boolean;
+}) {
   const [expanded, setExpanded] = useState(false);
   const nl = isNewsletter(res);
   const isNew = today !== '' && daysBetween(res.date, today) >= 0 && daysBetween(res.date, today) <= 3;
 
   return (
-    <div className="bg-white rounded-2xl border border-[var(--sp-border)] overflow-hidden">
+    <div
+      id={res.id}
+      className={`bg-white rounded-2xl border overflow-hidden ${
+        highlighted
+          ? 'border-[var(--sp-primary)] ring-2 ring-[var(--sp-primary)]/30'
+          : 'border-[var(--sp-border)]'
+      }`}
+    >
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold text-[var(--sp-ink)] text-sm leading-snug">{res.title}</h3>
@@ -165,6 +183,22 @@ function ResourceCard({ res, today }: { res: Resource; today: string }) {
 type GroupBy = "subject" | "date";
 
 export default function ContentLibraryPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="sp-page">
+          <LoadingState rows={5} />
+        </div>
+      }
+    >
+      <ContentLibraryInner />
+    </Suspense>
+  );
+}
+
+function ContentLibraryInner() {
+  const searchParams = useSearchParams();
+  const focusedId = getLibraryResourceById(searchParams.get('resource'), resources)?.id ?? null;
   const [search, setSearch] = useState("");
   const [activeSubject, setActiveSubject] = useState("All");
   const [activeMonth, setActiveMonth] = useState("All");
@@ -175,6 +209,13 @@ export default function ContentLibraryPage() {
     const n = new Date();
     setToday(`${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`);
   }, []);
+
+  useEffect(() => {
+    if (!focusedId) return;
+    setSearch('');
+    setActiveSubject('All');
+    setActiveMonth('All');
+  }, [focusedId]);
 
   // Subject list with counts (sorted by count desc); exclude newsletter (own filter chip)
   const subjectCounts = useMemo(() => {
@@ -216,6 +257,12 @@ export default function ContentLibraryPage() {
       })
       .sort((a, b) => (a.date === b.date ? b.time.localeCompare(a.time) : b.date.localeCompare(a.date)));
   }, [search, activeSubject, activeMonth]);
+
+  useEffect(() => {
+    if (!focusedId) return;
+    const el = document.getElementById(focusedId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [focusedId, filtered]);
 
   // Grouping
   const groups = useMemo(() => {
@@ -384,7 +431,7 @@ export default function ContentLibraryPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {items.map((res) => (
-                  <ResourceCard key={res.id} res={res} today={today} />
+                  <ResourceCard key={res.id} res={res} today={today} highlighted={res.id === focusedId} />
                 ))}
               </div>
             </section>

@@ -27,6 +27,7 @@ export interface DailyBriefCalendarItem {
   date: string;
   event: string;
   description?: string;
+  type?: 'holiday' | 'event' | 'activity' | 'important';
 }
 
 export interface DailyBrief {
@@ -45,6 +46,8 @@ export interface DailyBrief {
 
 export const ATTENTION_OVERDUE_DAYS = 14;
 export const ATTENTION_LIMIT = 3;
+/** Planner rows kept on the brief: today through this many days ahead. */
+export const BRIEF_CALENDAR_AHEAD_DAYS = 7;
 
 export type AttentionKind = 'notice' | 'due_today' | 'overdue' | 'due_tomorrow' | 'recent';
 
@@ -65,7 +68,7 @@ export interface BuildDailyBriefInput {
   recentHomeworkDays?: number;
   recentNoticeDays?: number;
   recentNoticeLimit?: number;
-  /** Optional school calendar rows already known for today/tomorrow. */
+  /** Optional school calendar rows already known for today through the lookahead window. */
   calendarItems?: DailyBriefCalendarItem[];
 }
 
@@ -298,7 +301,10 @@ export function buildDailyBrief(input: BuildDailyBriefInput): DailyBrief {
     comingUp: sortByDueAsc(comingUp),
     recentHomework: sortBySentDesc(recentHomework),
     recentNotices,
-    calendarItems: calendarItems.filter((c) => c.date === today || c.date === addDaysYmd(today, 1)),
+    calendarItems: calendarItems.filter((c) => {
+      const end = addDaysYmd(today, BRIEF_CALENDAR_AHEAD_DAYS);
+      return !!c.date && c.date >= today && (!end || c.date <= end);
+    }),
     nothingUrgent,
   };
 }

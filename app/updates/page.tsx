@@ -7,7 +7,8 @@ import {
   presentChangeLines,
   type FieldChange,
 } from '@/lib/neverskip/changes';
-import { filterNoticesByClass, type UiNoticeItem } from '@/lib/ui-merge';
+import { filterNoticesByClass, toSortableDate, type UiNoticeItem } from '@/lib/ui-merge';
+import { CLASS1_SECTIONS, isClass1Section } from '@/lib/class-sections';
 import { useChangesQuery } from '@/lib/queries/changes';
 import { useNoticesQuery } from '@/lib/queries/notices';
 import { useMyAcknowledgementsQuery } from '@/lib/queries/acknowledgements';
@@ -26,12 +27,15 @@ import {
   readNoticeIds,
   writeLastSeenNow,
 } from '@/lib/updates-unread';
+import libraryData from '@/data/content-library.json';
+import { resolveNoticeLibraryLink } from '@/lib/notice-library-link';
 
 const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
 const DEFAULT_SECTION = 'I-A';
-const ALL_SECTIONS = [
-  'I-A', 'I-B', 'I-C', 'I-D', 'I-E', 'I-F', 'I-G', 'I-H', 'I-I', 'I-J', 'I-K',
-];
+const ALL_SECTIONS = [...CLASS1_SECTIONS];
+const LIBRARY_RESOURCES = (libraryData.resources as { id: string; title: string; date: string }[]).map(
+  (r) => ({ id: r.id, title: r.title, date: r.date }),
+);
 
 function toFieldChanges(item: UiChangeItem): FieldChange[] {
   return item.changedFields.map((c) => ({
@@ -72,7 +76,7 @@ export default function UpdatesPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem(PINNED_SECTION_KEY);
-    if (saved && ALL_SECTIONS.includes(saved)) setSection(saved);
+    if (saved && isClass1Section(saved)) setSection(saved);
     setLastSeen(readLastSeenIso());
     setReadIds(readNoticeIds());
     writeLastSeenNow();
@@ -101,6 +105,28 @@ export default function UpdatesPage() {
       }),
     [filteredNotices, ackedNotices, readIds, lastSeen],
   );
+
+  const latestNoticeDate = useMemo(() => {
+    let max = '';
+    for (const n of notices) {
+      const d = toSortableDate(n.date);
+      if (d && d > max) max = d;
+    }
+    return max;
+  }, [notices]);
+
+  const latestSectionNoticeDate = useMemo(() => {
+    let max = '';
+    for (const n of filteredNotices) {
+      const d = toSortableDate(n.date);
+      if (d && d > max) max = d;
+    }
+    return max;
+  }, [filteredNotices]);
+
+  const sectionHasOlderNotices =
+    Boolean(latestNoticeDate) &&
+    (latestSectionNoticeDate === '' || latestSectionNoticeDate < latestNoticeDate);
 
   const openNotice = (id: string) => {
     setExpandedId(id);
@@ -137,6 +163,14 @@ export default function UpdatesPage() {
           </label>
         }
       />
+
+      {!isPending && !isError && sectionHasOlderNotices ? (
+        <p className="mb-5 text-sm text-[var(--sp-muted)]">
+          {latestSectionNoticeDate
+            ? `No newer notices for ${sectionLabel(section)} since ${formatDateLabel(latestSectionNoticeDate)}. Latest school notice is ${formatDateLabel(latestNoticeDate)}.`
+            : `No notices for ${sectionLabel(section)}. Latest school notice is ${formatDateLabel(latestNoticeDate)}.`}
+        </p>
+      ) : null}
 
       {isPending ? (
         <LoadingState rows={5} />
@@ -237,6 +271,9 @@ export default function UpdatesPage() {
               <ul className="overflow-hidden rounded-2xl border border-[var(--sp-border)] bg-white">
                 {filteredNotices.map((notice: UiNoticeItem) => {
                   const open = expandedId === notice.id;
+                  const libraryLink = open
+                    ? resolveNoticeLibraryLink(notice, LIBRARY_RESOURCES)
+                    : null;
                   return (
                     <li
                       key={notice.id}
@@ -270,6 +307,14 @@ export default function UpdatesPage() {
                           <p className="whitespace-pre-line text-sm leading-relaxed text-[var(--sp-ink)]/90">
                             {notice.message}
                           </p>
+                          {libraryLink ? (
+                            <Link
+                              href={libraryLink.href}
+                              className="inline-flex items-center text-sm font-medium text-[var(--sp-primary)] hover:underline sp-focus"
+                            >
+                              View in Content Library →
+                            </Link>
+                          ) : null}
                           <div onClick={(e) => e.stopPropagation()}>
                             <AcknowledgeButton kind="notice" itemId={notice.id} />
                           </div>

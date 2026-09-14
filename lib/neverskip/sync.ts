@@ -31,6 +31,12 @@ export interface SyncDataOptions {
   noticeFetchErrors?: string[];
 }
 
+function newestIsoDate(dates: Array<string | null | undefined>): string {
+  const valid = dates.filter((d): d is string => Boolean(d && /^\d{4}-\d{2}-\d{2}$/.test(d)));
+  if (valid.length === 0) return '';
+  return valid.sort().reverse()[0];
+}
+
 function emptySummary(): SyncSummary {
   return {
     homeworkFetched: 0,
@@ -141,17 +147,27 @@ export async function syncNeverSkipData({
   summary.noticesStored = storedNotices.length;
 
   const homeworkNormalizedIds: string[] = [];
+  const homeworkNormalizedDates: string[] = [];
+  let classifiedHomework = 0;
   for (const raw of homework) {
     if (classifyAssignment(raw) !== 'homework') continue;
+    classifiedHomework += 1;
     const normalized = normalizeHomework(raw);
-    if (normalized) homeworkNormalizedIds.push(normalized.sourceId);
+    if (normalized) {
+      homeworkNormalizedIds.push(normalized.sourceId);
+      homeworkNormalizedDates.push(normalized.homeworkDate);
+    }
   }
   summary.homeworkNormalized = homeworkNormalizedIds.length;
 
   const noticeNormalizedIds: string[] = [];
+  const noticeNormalizedDates: string[] = [];
   for (const raw of notices) {
     const normalized = normalizeNotice(raw);
-    if (normalized) noticeNormalizedIds.push(normalized.sourceId);
+    if (normalized) {
+      noticeNormalizedIds.push(normalized.sourceId);
+      noticeNormalizedDates.push(normalized.publishedDate);
+    }
   }
   summary.noticesNormalized = noticeNormalizedIds.length;
 
@@ -160,21 +176,38 @@ export async function syncNeverSkipData({
   summary.homeworkMissing = homeworkNormalizedIds.filter((id) => !storedHwIds.has(id)).length;
   summary.noticesMissing = noticeNormalizedIds.filter((id) => !storedNtIds.has(id)).length;
 
+  const sourceNewestHomework = newestIsoDate(homeworkNormalizedDates);
+  const storedNewestHomework = newestIsoDate(storedHomework.map((h) => h.homeworkDate));
+  const sourceNewestNotice = newestIsoDate(noticeNormalizedDates);
+  const storedNewestNotice = newestIsoDate(storedNotices.map((n) => n.publishedDate));
+  summary.newestHomeworkDate = storedNewestHomework || sourceNewestHomework;
+  summary.newestNoticeDate = storedNewestNotice || sourceNewestNotice;
+
   nsLog('SYNC VALIDATION');
   nsLog(`Homework source count: ${summary.homeworkFetched}`);
   nsLog(`Homework normalized count: ${summary.homeworkNormalized}`);
   nsLog(`Homework stored count: ${summary.homeworkStored}`);
   nsLog(`Homework missing count: ${summary.homeworkMissing}`);
+  nsLog(`Newest homework date (source): ${sourceNewestHomework || '(none)'}`);
+  nsLog(`Newest homework date (stored): ${storedNewestHomework || '(none)'}`);
   nsLog(`Notice source count: ${summary.noticesFetched}`);
   nsLog(`Notice normalized count: ${summary.noticesNormalized}`);
   nsLog(`Notice stored count: ${summary.noticesStored}`);
   nsLog(`Notice missing count: ${summary.noticesMissing}`);
+  nsLog(`Newest notice date (source): ${sourceNewestNotice || '(none)'}`);
+  nsLog(`Newest notice date (stored): ${storedNewestNotice || '(none)'}`);
 
   const incomplete = Boolean(homeworkFetchIncomplete || noticeFetchIncomplete);
   const countsMismatch =
     (summary.homeworkMissing ?? 0) > 0 || (summary.noticesMissing ?? 0) > 0;
+  const normalizationLoss =
+    classifiedHomework > (summary.homeworkNormalized ?? 0) ||
+    (notices.length > 0 && (summary.noticesNormalized ?? 0) < notices.length);
+  const dataLoss =
+    (sourceNewestHomework && storedNewestHomework && sourceNewestHomework > storedNewestHomework) ||
+    (sourceNewestNotice && storedNewestNotice && sourceNewestNotice > storedNewestNotice);
 
-  if (incomplete || countsMismatch) {
+  if (incomplete || countsMismatch || normalizationLoss || dataLoss) {
     nsError('SYNC FAILED — INCOMPLETE SOURCE DATA');
     if (homeworkFetchIncomplete) {
       nsError('Homework pagination incomplete — sync preserved partial homework results');
@@ -186,13 +219,30 @@ export async function syncNeverSkipData({
     }
     if (countsMismatch) {
       const msg = `stored counts do not match normalized (homework missing=${summary.homeworkMissing}, notices missing=${summary.noticesMissing})`;
+      nsError('SYNC FAILED — DATA LOSS');
       nsError(msg);
       summary.errors.push(msg);
+    }
+    if (normalizationLoss) {
+      const msg = `normalized homework ${summary.homeworkNormalized}/${classifiedHomework}, notices ${summary.noticesNormalized}/${notices.length}`;
+      nsError('SYNC FAILED — NORMALIZATION LOSS');
+      nsError(msg);
+      summary.errors.push(msg);
+    }
+    if (dataLoss) {
+      nsError('SYNC FAILED — DATA LOSS');
+      summary.errors.push(
+        `newest source dates missing from store (homework ${sourceNewestHomework || 'n/a'} vs ${storedNewestHomework || 'n/a'}, notices ${sourceNewestNotice || 'n/a'} vs ${storedNewestNotice || 'n/a'})`,
+      );
     }
   } else {
     nsLog('SYNC COMPLETE');
   }
-  nsLog(incomplete || countsMismatch ? 'Sync completed with source pagination errors' : 'Sync completed');
+  nsLog(
+    incomplete || countsMismatch || normalizationLoss || dataLoss
+      ? 'Sync completed with source pagination errors'
+      : 'Sync completed',
+  );
   return summary;
 }
 

@@ -3,6 +3,7 @@ import path from 'path';
 import { describe, expect, it, vi } from 'vitest';
 import { StaticTokenAuth, MissingAuth } from '@/lib/neverskip/auth';
 import { NeverSkipClient } from '@/lib/neverskip/client';
+import { CLASS1_SECTIONS } from '@/lib/class-sections';
 import { classifyAssignment } from '@/lib/neverskip/classify';
 import { homeworkSourceId, noticeSourceId } from '@/lib/neverskip/ids';
 import { InMemoryNeverSkipStore } from '@/lib/neverskip/memory-store';
@@ -82,6 +83,34 @@ describe('NeverSkip homework parsing & normalization', () => {
     expect(homeworkSourceId('1198', '85705')).toBe('1198');
     expect(homeworkSourceId(null, '85705')).toBe('85705');
     expect(homeworkSourceId(null, null)).toBeNull();
+  });
+
+  it('defaults untargeted homework to every Class 1 section', () => {
+    const norm = normalizeHomework({
+      assign_id: 'untargeted-1',
+      assign_title: 'Notebook practice',
+      ass_dt: '2026-09-11',
+    });
+    expect(norm!.sections).toEqual([...CLASS1_SECTIONS]);
+  });
+
+  it('parses Classes: targeting from homework title', () => {
+    const norm = normalizeHomework({
+      assign_id: 't-1',
+      assign_title: 'Classes: I-A, I-D, I-K',
+      ass_dt: '2026-09-11',
+    });
+    expect(norm!.sections).toEqual(['I-A', 'I-D', 'I-K']);
+  });
+
+  it('ignores non-section class_name and still applies Class 1 audience', () => {
+    const norm = normalizeHomework({
+      assign_id: 't-2',
+      assign_title: 'EVS workbook',
+      class_name: 'Class 1',
+      ass_dt: '2026-09-11',
+    });
+    expect(norm!.sections).toEqual([...CLASS1_SECTIONS]);
   });
 
   it('skips homework without ids', () => {
@@ -196,6 +225,7 @@ describe('dedupe + idempotent sync', () => {
     expect(first.homeworkInserted).toBe(2); // Notice type skipped
     expect(first.homeworkSkippedType).toBe(1);
     expect(first.noticesInserted).toBe(3);
+    expect(first.newestHomeworkDate).toBe('2026-09-05');
 
     const second = await syncNeverSkip({ client, store });
     expect(second.homeworkInserted).toBe(0);

@@ -10,6 +10,8 @@ export default defineConfig({
       'tests/ui-query-cache.test.ts',
       'tests/daily-brief.test.ts',
       'tests/daily-pulse.test.ts',
+      'tests/school-day.test.ts',
+      'tests/notice-library-link.test.ts',
       'tests/updates-unread.test.ts',
       'tests/this-week.test.ts',
       'tests/neverskip/changes.test.ts',

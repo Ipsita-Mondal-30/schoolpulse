@@ -4,6 +4,10 @@
  */
 
 import type { PrismaClient } from '@prisma/client';
+import {
+  defaultClass1Audience,
+  isLegacyDefaultHomeworkAudience,
+} from '@/lib/class-sections';
 
 export const PARENT_STUDENT_APPROVED = 'approved';
 export const PARENT_STUDENT_PENDING = 'pending';
@@ -33,7 +37,7 @@ export function classLabelFromParts(name?: string | null, section?: string | nul
 
 /**
  * True if item targeting intersects parent's approved class labels.
- * Empty item targeting: treat as I-A only when product default does (match UI).
+ * Empty or historical I-A-only defaults match the Homework UI (all Class 1 sections).
  */
 export function itemTargetsIntersect(
   itemTargets: string[],
@@ -44,9 +48,8 @@ export function itemTargetsIntersect(
   const approved = new Set(approvedLabels.map(normalizeClassLabel).filter(Boolean));
   let targets = (itemTargets || []).map(normalizeClassLabel).filter(Boolean);
 
-  // Match existing UI: empty homework sections default toward I-A visibility
-  if (targets.length === 0) {
-    targets = ['I-A'];
+  if (targets.length === 0 || isLegacyDefaultHomeworkAudience(targets)) {
+    targets = defaultClass1Audience();
   }
 
   if (targets.includes('ALL') || targets.includes('ALLCLASSES')) {
