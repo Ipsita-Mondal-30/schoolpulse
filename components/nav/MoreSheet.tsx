@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import {
+  Bell,
   Bus,
   CalendarRange,
   ClipboardList,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 const MORE_LINKS = [
+  { href: '/notices', label: 'Notices', icon: Bell },
   { href: '/this-week', label: 'This Week', icon: CalendarRange },
   { href: '/timetable', label: 'Timetable', icon: ClipboardList },
   { href: '/class-diary', label: 'Library', icon: Library },

@@ -21,16 +21,12 @@ import {
   getUpcomingSchoolEvents,
 } from '@/lib/school-day';
 import { useDailyBriefQuery } from '@/lib/queries/daily-brief';
-import { useChangesQuery } from '@/lib/queries/changes';
-import { useNoticesQuery } from '@/lib/queries/notices';
+import { useUpdatesFeedQuery } from '@/lib/queries/updates';
 import { useParentAccessQuery } from '@/lib/queries/acknowledgements';
 import { LoadingState } from '@/components/ui/LoadingState';
-import {
-  isNewerThan,
-  noticePublishedIso,
-  readLastSeenIso,
-  readNoticeIds,
-} from '@/lib/updates-unread';
+import TodaysRecapHomeCard from '@/components/recap/TodaysRecapHomeCard';
+import { countUnreadUpdates, filterUpdatesBySection } from '@/lib/updates-feed';
+import { readLastSeenIso } from '@/lib/updates-unread';
 
 const DEFAULT_SECTION = 'I-A';
 const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
@@ -66,8 +62,7 @@ export default function DailyBrief() {
   const [unreadUpdates, setUnreadUpdates] = useState(0);
   const [pulse, setPulse] = useState(() => buildDailyPulse());
   const { data, isPending, isError, refetch } = useDailyBriefQuery({ section });
-  const { data: changesData } = useChangesQuery();
-  const { data: noticesData } = useNoticesQuery();
+  const { data: updatesFeed } = useUpdatesFeedQuery();
 
   useEffect(() => {
     const saved = localStorage.getItem(PINNED_SECTION_KEY);
@@ -88,17 +83,9 @@ export default function DailyBrief() {
 
   useEffect(() => {
     const lastSeen = readLastSeenIso();
-    const readIds = readNoticeIds();
-    const changeCount = (changesData ?? []).filter((item) =>
-      isNewerThan(item.detectedAt, lastSeen),
-    ).length;
-    const noticeCount = (noticesData ?? []).filter((n) => {
-      if (readIds.includes(n.id)) return false;
-      const published = noticePublishedIso(n.date, n.time);
-      return published ? isNewerThan(published, lastSeen) : false;
-    }).length;
-    setUnreadUpdates(changeCount + noticeCount);
-  }, [changesData, noticesData]);
+    const forSection = filterUpdatesBySection(updatesFeed ?? [], section);
+    setUnreadUpdates(countUnreadUpdates(forSection, lastSeen));
+  }, [updatesFeed, section]);
 
   const firstName =
     session?.user?.name?.trim().split(/\s+/)[0] ||
@@ -286,6 +273,8 @@ export default function DailyBrief() {
           </>
         )}
       </section>
+
+      <TodaysRecapHomeCard section={section} todayYmd={data.today || todayYmd} />
 
       <section className="space-y-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">

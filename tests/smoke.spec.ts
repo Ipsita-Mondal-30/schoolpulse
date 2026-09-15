@@ -86,10 +86,10 @@ test.describe('SchoolPulse Smoke Tests', () => {
         await expect(page).toHaveURL(/\/login/);
     });
 
-    test('notices page redirects to updates', async ({ page }) => {
+    test('notices page loads', async ({ page }) => {
         await page.goto('/notices', { waitUntil: 'domcontentloaded', timeout: 60000 });
-        await expect(page).toHaveURL(/\/updates/);
-        await expect(page.getByRole('heading', { name: /^Updates$/i }).first()).toBeVisible({
+        await expect(page).toHaveURL(/\/notices/);
+        await expect(page.getByRole('heading', { name: /^Notices$/i }).first()).toBeVisible({
             timeout: 20000,
         });
     });

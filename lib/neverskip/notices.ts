@@ -153,6 +153,19 @@ export async function fetchAllNoticePages(
           : await fetchPage(pageIndex, payload);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'notice page fetch failed';
+      // Probe without portal totals: NeverSkip often returns SQLSTATE / non-JSON for page>0.
+      // Treat as end-of-list, not INCOMPLETE (newest notices are usually on page 0).
+      if (
+        pageIndex > 0 &&
+        latestMeta &&
+        latestMeta.totalCount == null &&
+        latestMeta.pageCount == null
+      ) {
+        nsLog(
+          `Notice page ${pageIndex} probe failed without totals (${msg}) — treating first page as complete`,
+        );
+        break;
+      }
       errors.push(`page ${pageIndex}: ${msg}`);
       nsWarn(`Notice page ${pageIndex} failed: ${msg}`);
       incomplete = true;
@@ -182,6 +195,11 @@ export async function fetchAllNoticePages(
         (noticeMeta.totalCount != null ? ` totalCount=${noticeMeta.totalCount}` : '') +
         (noticeMeta.pageCount != null ? ` pageCount=${noticeMeta.pageCount}` : ''),
     );
+    if (items.length > 0) {
+      const firstDate = String(items[0].date ?? '(none)');
+      const lastDate = String(items[items.length - 1].date ?? '(none)');
+      nsLog(`Notice page ${pageIndex} dateRange: first=${firstDate} last=${lastDate}`);
+    }
 
     if (items.length === 0) {
       if (pageIndex === 0) {
@@ -244,6 +262,7 @@ export async function fetchAllNoticePages(
   nsLog(`Notice pages fetched: ${pages.length}`);
   nsLog(`Notice records fetched: ${items.length}`);
   if (incomplete) {
+    nsWarn('SYNC STATUS: INCOMPLETE — notice pagination did not fetch all source records');
     nsWarn('Notice pagination incomplete — preserving records collected so far');
   }
 

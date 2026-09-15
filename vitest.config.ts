@@ -13,10 +13,12 @@ export default defineConfig({
       'tests/school-day.test.ts',
       'tests/notice-library-link.test.ts',
       'tests/updates-unread.test.ts',
+      'tests/updates-feed.test.ts',
       'tests/this-week.test.ts',
       'tests/neverskip/changes.test.ts',
       'tests/acknowledgements.test.ts',
       'tests/parent-onboarding.test.ts',
+      'tests/recap/**/*.test.ts',
     ],
   },
   resolve: {

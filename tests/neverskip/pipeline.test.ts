@@ -77,6 +77,47 @@ describe('NeverSkip homework parsing & normalization', () => {
   it('parses assign_dt style dates', () => {
     expect(normalizeDate('4-Sep-2026')).toBe('2026-09-04');
     expect(normalizeDate('03-09-2026')).toBe('2026-09-03');
+    expect(normalizeDate('15-Sep-2026')).toBe('2026-09-15');
+    expect(normalizeDate('15/09/26')).toBe('2026-09-15');
+    expect(normalizeDate('15/09/2026')).toBe('2026-09-15');
+  });
+
+  it('normalizes Hindi sulekh pustika title and 15-Sep date', () => {
+    const norm = normalizeHomework({
+      assign_id: 'sep15-hindi',
+      subject_name: 'HINDI',
+      assign_title: 'उ की मात्रा sulekh pustika',
+      assign_details:
+        "Namaste Dear Parents and Children Jai Sri Gurudev Today's Hindi Homework (15/09/26) Do Page No 12 (उ की मात्रा) in Sulekh pustika. Submission of book -16/9/26 Thankyou.",
+      ass_dt: '15-Sep-2026',
+      due_dt: '16-Sep-2026',
+      assign_typ: 'Homework',
+      class_sec: 'I-A',
+    });
+    expect(norm).not.toBeNull();
+    expect(norm!.homeworkDate).toBe('2026-09-15');
+    expect(norm!.dueDate).toBe('2026-09-16');
+    expect(norm!.title).toContain('मात्रा');
+    expect(norm!.title.toLowerCase()).toContain('sulekh');
+  });
+
+  it('normalizes live 15-Sep portal title ए ki Matra sulekh pustika', () => {
+    const norm = normalizeHomework({
+      assign_id: '1325',
+      subject_name: 'HINDI',
+      assign_title: 'ए ki Matra sulekh pustika',
+      assign_details:
+        "Namaste Dear Parents and Children Today's Hindi Homework (15/09/26) Do Page No 12 in Sulekh pustika.",
+      ass_dt: '15-Sep-2026',
+      assign_typ: 'Homework',
+      class_sec: 'I-A',
+    });
+    expect(norm).not.toBeNull();
+    expect(norm!.sourceId).toBe('1325');
+    expect(norm!.homeworkDate).toBe('2026-09-15');
+    expect(norm!.title).toContain('Matra');
+    expect(norm!.title.toLowerCase()).toContain('sulekh');
+    expect(norm!.sections).toEqual(['I-A']);
   });
 
   it('uses assign_id as stable source id', () => {

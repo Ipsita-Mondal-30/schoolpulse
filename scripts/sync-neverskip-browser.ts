@@ -45,18 +45,23 @@ async function main() {
     label: 'browser sync',
   });
 
-  nsLog('Sync completed');
-  nsLog(
-    `Summary: homeworkPages=${summary.homeworkPagesFetched ?? '?'} homeworkFetched=${summary.homeworkFetched} homeworkInserted=${summary.homeworkInserted} homeworkSkipped=${summary.homeworkSkipped} noticesFetched=${summary.noticesFetched} noticesInserted=${summary.noticesInserted} noticesSkipped=${summary.noticesSkipped}`,
-  );
-
   if (summary.errors.length > 0 || summary.homeworkFetchIncomplete || summary.noticeFetchIncomplete) {
+    nsError('SYNC STATUS: INCOMPLETE');
+    nsLog(
+      `Summary: homeworkPages=${summary.homeworkPagesFetched ?? '?'} homeworkFetched=${summary.homeworkFetched} homeworkInserted=${summary.homeworkInserted} homeworkSkipped=${summary.homeworkSkipped} noticesFetched=${summary.noticesFetched} noticesInserted=${summary.noticesInserted} noticesSkipped=${summary.noticesSkipped}`,
+    );
     process.exitCode = 1;
+  } else {
+    nsLog('SYNC STATUS: COMPLETE');
+    nsLog(
+      `Summary: homeworkPages=${summary.homeworkPagesFetched ?? '?'} homeworkFetched=${summary.homeworkFetched} homeworkInserted=${summary.homeworkInserted} homeworkSkipped=${summary.homeworkSkipped} noticesFetched=${summary.noticesFetched} noticesInserted=${summary.noticesInserted} noticesSkipped=${summary.noticesSkipped}`,
+    );
   }
 }
 
 main().catch((err) => {
   if (err instanceof NeverSkipSessionExpiredError) {
+    // logSessionExpired already printed SYNC STATUS: SESSION_EXPIRED
     process.exit(1);
   }
   nsError(err instanceof Error ? err.message : String(err));

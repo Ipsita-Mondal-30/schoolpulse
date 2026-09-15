@@ -129,6 +129,32 @@ export function hasReliableDueDate(submissionDate?: string | null): boolean {
   return YMD_RE.test(toSortableDate(submissionDate));
 }
 
+export type HomeworkDayBucket = 'today' | 'upcoming' | 'passed' | 'none';
+
+/**
+ * Homework page Today / Upcoming filter.
+ *
+ * Prefer a reliable school due date (NeverSkip dueDate → UI submissionDate).
+ * When due is absent, use homework assignment date (homeworkDate → sentDate).
+ * Does not invent dues from free-text notes like "Submission of book -16/9/26".
+ */
+export function homeworkDayBucket(
+  hw: { submissionDate?: string | null; sentDate?: string | null },
+  today: string,
+): HomeworkDayBucket {
+  if (hasReliableDueDate(hw.submissionDate)) {
+    const due = toSortableDate(hw.submissionDate!);
+    if (due < today) return 'passed';
+    if (due === today) return 'today';
+    return 'upcoming';
+  }
+  const sent = toSortableDate(hw.sentDate || '');
+  if (!sent || !YMD_RE.test(sent)) return 'none';
+  if (sent < today) return 'passed';
+  if (sent === today) return 'today';
+  return 'upcoming';
+}
+
 function dueYmd(submissionDate?: string | null): string {
   if (!hasReliableDueDate(submissionDate)) return '';
   return toSortableDate(submissionDate!);

@@ -1,4 +1,5 @@
-export const UPDATES_LAST_SEEN_KEY = 'schoolpulse_changes_last_seen';
+/** Bumped so visits to the old change-only Updates page don't hide newly imported items. */
+export const UPDATES_LAST_SEEN_KEY = 'schoolpulse_updates_feed_last_seen';
 export const READ_NOTICES_KEY = 'schoolpulse_read_notices';
 
 export function readLastSeenIso(): string | null {

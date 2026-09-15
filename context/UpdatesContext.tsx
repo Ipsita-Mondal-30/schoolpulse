@@ -4,14 +4,9 @@ import React, { createContext, useContext, useEffect, useMemo, useState, type Re
 import { filterHomeworkBySection } from '@/lib/ui-merge';
 import { getIndiaToday, hasReliableDueDate, isOverdue, isDueToday } from '@/lib/daily-brief';
 import { useHomeworkQuery } from '@/lib/queries/homework';
-import { useChangesQuery } from '@/lib/queries/changes';
-import { useNoticesQuery } from '@/lib/queries/notices';
-import {
-  isNewerThan,
-  noticePublishedIso,
-  readLastSeenIso,
-  readNoticeIds,
-} from '@/lib/updates-unread';
+import { useUpdatesFeedQuery } from '@/lib/queries/updates';
+import { countUnreadUpdates, filterUpdatesBySection } from '@/lib/updates-feed';
+import { readLastSeenIso } from '@/lib/updates-unread';
 
 const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
 const DEFAULT_SECTION = 'I-A';
@@ -28,18 +23,15 @@ const UpdatesContext = createContext<UpdatesContextType | undefined>(undefined);
 
 export function UpdatesProvider({ children }: { children: ReactNode }) {
   const { data: homeworkData, isPending: hwPending } = useHomeworkQuery();
-  const { data: changesData, isPending: chPending } = useChangesQuery();
-  const { data: noticesData, isPending: ntPending } = useNoticesQuery();
+  const { data: updatesFeed, isPending: upPending } = useUpdatesFeedQuery();
   const [section, setSection] = useState(DEFAULT_SECTION);
   const [lastSeen, setLastSeen] = useState<string | null>(null);
-  const [readIds, setReadIds] = useState<string[]>([]);
   const [today, setToday] = useState('');
 
   useEffect(() => {
     const saved = localStorage.getItem(PINNED_SECTION_KEY);
     if (saved) setSection(saved);
     setLastSeen(readLastSeenIso());
-    setReadIds(readNoticeIds());
     setToday(getIndiaToday());
   }, []);
 
@@ -53,24 +45,19 @@ export function UpdatesProvider({ children }: { children: ReactNode }) {
   }, [homeworkData, section, today]);
 
   const updatesCount = useMemo(() => {
-    const changes = (changesData ?? []).filter((item) => isNewerThan(item.detectedAt, lastSeen));
-    const notices = (noticesData ?? []).filter((n) => {
-      if (readIds.includes(n.id)) return false;
-      const published = noticePublishedIso(n.date, n.time);
-      return published ? isNewerThan(published, lastSeen) : false;
-    });
-    return changes.length + notices.length;
-  }, [changesData, noticesData, lastSeen, readIds]);
+    const forSection = filterUpdatesBySection(updatesFeed ?? [], section);
+    return countUnreadUpdates(forSection, lastSeen);
+  }, [updatesFeed, section, lastSeen]);
 
   const value = useMemo(
     () => ({
       homeworkCount,
       updatesCount,
-      loading: hwPending || chPending || ntPending,
+      loading: hwPending || upPending,
       updates: [],
       refreshUpdates: async () => undefined,
     }),
-    [homeworkCount, updatesCount, hwPending, chPending, ntPending],
+    [homeworkCount, updatesCount, hwPending, upPending],
   );
 
   return <UpdatesContext.Provider value={value}>{children}</UpdatesContext.Provider>;

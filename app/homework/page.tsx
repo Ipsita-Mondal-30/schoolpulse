@@ -14,7 +14,7 @@ import { CLASS1_SECTIONS, isClass1Section } from '@/lib/class-sections';
 import {
   formatBriefDate,
   getIndiaToday,
-  hasReliableDueDate,
+  homeworkDayBucket,
 } from '@/lib/daily-brief';
 import { useHomeworkQuery } from '@/lib/queries/homework';
 import { useParentAccessQuery } from '@/lib/queries/acknowledgements';
@@ -31,15 +31,6 @@ const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
 const LINK_BANNER_DISMISS_KEY = 'schoolpulse_dismiss_link_banner';
 
 type DueFilter = 'all' | 'today' | 'upcoming';
-type DueBucket = DueFilter | 'passed' | 'none';
-
-function dueBucket(hw: UiHomeworkItem, today: string): DueBucket {
-  if (!hasReliableDueDate(hw.submissionDate)) return 'none';
-  const due = toSortableDate(hw.submissionDate!);
-  if (due < today) return 'passed';
-  if (due === today) return 'today';
-  return 'upcoming';
-}
 
 function sectionLabel(sec: string): string {
   const letter = sec.includes('-') ? sec.split('-')[1] : sec;
@@ -99,7 +90,17 @@ export default function HomeworkPage() {
       setSelectedSection(saved);
     }
     setBannerDismissed(localStorage.getItem(LINK_BANNER_DISMISS_KEY) === '1');
+    const item = new URLSearchParams(window.location.search).get('item');
+    if (item) setExpandedId(item);
   }, []);
+
+  useEffect(() => {
+    if (!expandedId || isPending) return;
+    document.getElementById(`homework-${expandedId}`)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, [expandedId, isPending]);
 
   useEffect(() => {
     if (isError) console.error('Failed to fetch homework sources', error);
@@ -117,7 +118,7 @@ export default function HomeworkPage() {
     let todayN = 0;
     let upcomingN = 0;
     for (const hw of bySection) {
-      const b = dueBucket(hw, today);
+      const b = homeworkDayBucket(hw, today);
       if (b === 'today') todayN += 1;
       else if (b === 'upcoming') upcomingN += 1;
     }
@@ -130,7 +131,7 @@ export default function HomeworkPage() {
 
   const filteredList = useMemo(() => {
     if (dueFilter === 'all' || !today) return bySection;
-    return bySection.filter((hw) => dueBucket(hw, today) === dueFilter);
+    return bySection.filter((hw) => homeworkDayBucket(hw, today) === dueFilter);
   }, [bySection, dueFilter, today]);
 
   const groupedByDate = useMemo(() => {
@@ -267,14 +268,14 @@ export default function HomeworkPage() {
           <EmptyState
             title={
               dueFilter === 'today'
-                ? 'No homework due today'
+                ? 'No homework for today'
                 : dueFilter === 'upcoming'
                   ? 'Nothing upcoming'
                   : 'No homework here'
             }
             description={
               dueFilter === 'today'
-                ? "You're all caught up."
+                ? 'Nothing assigned or due today for this section.'
                 : dueFilter !== 'all' && filterCounts.all > 0
                   ? `Try All to see ${filterCounts.all} assigned item${
                       filterCounts.all === 1 ? '' : 's'
@@ -311,7 +312,7 @@ export default function HomeworkPage() {
               <ul className="space-y-2.5">
                 {items.map((hw) => {
                   const open = expandedId === hw.id;
-                  const bucket = today ? dueBucket(hw, today) : 'none';
+                  const bucket = today ? homeworkDayBucket(hw, today) : 'none';
                   const dueLabel = hw.submissionDate
                     ? bucket === 'today'
                       ? 'Due today'
@@ -323,7 +324,7 @@ export default function HomeworkPage() {
                   const heading = hw.title?.trim() || preview || 'Homework';
 
                   return (
-                    <li key={hw.id}>
+                    <li key={hw.id} id={`homework-${hw.id}`}>
                       <article
                         className={`overflow-hidden rounded-2xl border bg-white transition-shadow ${
                           open

@@ -80,6 +80,87 @@ export function logHomeworkPagination(page: number | string, meta: HomeworkPagin
   nsLog(`limit=${meta.sfileLimit ?? 'null'}`);
 }
 
+/** Safe date string from a raw assignment (no secrets). */
+function rawAssignmentDateHint(item: NeverSkipRawAssignment): string {
+  const raw = item.ass_dt ?? item.assign_dt ?? item.due_dt ?? '';
+  const s = String(raw).trim();
+  return s || '(none)';
+}
+
+/** Log first/last dates on a page — metadata only. */
+export function logHomeworkPageDateRange(
+  pageIndex: number,
+  items: NeverSkipRawAssignment[],
+): void {
+  if (items.length === 0) {
+    nsLog(`Homework page ${pageIndex} dateRange: empty`);
+    return;
+  }
+  const first = rawAssignmentDateHint(items[0]);
+  const last = rawAssignmentDateHint(items[items.length - 1]);
+  nsLog(`Homework page ${pageIndex} dateRange: first=${first} last=${last}`);
+}
+
+/** Unique source-id count for progress logs (ids only, never tokens). */
+export function countUniqueHomeworkSourceIds(items: NeverSkipRawAssignment[]): number {
+  const seen = new Set<string>();
+  for (const item of items) {
+    const key = assignmentDedupeKey(item);
+    if (key) seen.add(key);
+  }
+  return seen.size;
+}
+
+/**
+ * Search raw homework for Sep-15 / Hindi sulekh markers (counts only — no full bodies).
+ */
+export function countHomeworkMarkerHits(items: NeverSkipRawAssignment[]): {
+  total: number;
+  hits: Record<string, number>;
+} {
+  const markers = [
+    'उ की मात्रा',
+    'ए ki matra',
+    'matra',
+    'sulekh',
+    'sulekha',
+    '2026-09-15',
+    '15-sep-2026',
+    '15/09/26',
+    '15/09/2026',
+    '15-09-2026',
+  ] as const;
+  const hits: Record<string, number> = {};
+  for (const m of markers) hits[m] = 0;
+
+  for (const item of items) {
+    const blob = [
+      item.assign_id,
+      item.refid,
+      item.subject_name,
+      item.assign_title,
+      item.assign_details,
+      item.ass_dt,
+      item.assign_dt,
+      item.due_dt,
+    ]
+      .map((v) => String(v ?? '').toLowerCase())
+      .join(' ');
+    for (const m of markers) {
+      if (blob.includes(m.toLowerCase())) hits[m] += 1;
+    }
+  }
+  return { total: items.length, hits };
+}
+
+export function logHomeworkMarkerSearch(items: NeverSkipRawAssignment[]): void {
+  const { total, hits } = countHomeworkMarkerHits(items);
+  nsLog(`Homework marker search (n=${total}):`);
+  for (const [marker, count] of Object.entries(hits)) {
+    nsLog(`  marker="${marker}" hits=${count}`);
+  }
+}
+
 /** Build the portal-shaped POST body for a zero-based page index. */
 export function buildHomeworkPayload(page: number | string, limit = 0): HomeworkPayload {
   return {
@@ -221,6 +302,7 @@ export async function fetchAllHomeworkPages(
     logHomeworkPagination(pageIndex, meta);
 
     const items = extractAssignments(response);
+    logHomeworkPageDateRange(pageIndex, items);
     if (items.length === 0) {
       if (pageIndex === 0) {
         pages.push(items);
@@ -243,8 +325,9 @@ export async function fetchAllHomeworkPages(
     rawFetchedCount += items.length;
 
     const collected = mergeHomeworkPageItems(pages).length;
+    const uniqueIds = countUniqueHomeworkSourceIds(mergeHomeworkPageItems(pages));
     nsLog(
-      `Homework page progress: page=${pageIndex} received=${items.length} cumulativeUnique=${collected} cumulativeRaw=${rawFetchedCount}` +
+      `Homework page progress: page=${pageIndex} received=${items.length} cumulativeUnique=${collected} uniqueSourceIds=${uniqueIds} cumulativeRaw=${rawFetchedCount}` +
         (meta.totalCount != null ? ` totalCount=${meta.totalCount}` : ''),
     );
 
@@ -293,11 +376,18 @@ export async function fetchAllHomeworkPages(
   nsLog(`Homework pages fetched: ${pagesFetched}`);
   nsLog(`Homework records fetched: ${items.length}`);
   nsLog(`Homework raw records fetched: ${rawFetchedCount}`);
+  nsLog(`Homework unique source IDs: ${countUniqueHomeworkSourceIds(items)}`);
   if (latestMeta?.totalCount != null) {
     nsLog(`Homework total_count (source): ${latestMeta.totalCount}`);
   }
+  logHomeworkMarkerSearch(items);
   if (incomplete) {
+    nsError('SYNC STATUS: INCOMPLETE — homework pagination did not fetch all source records');
     nsWarn('Homework pagination incomplete — preserving records collected so far');
+  } else if (latestMeta?.totalCount != null) {
+    nsLog(
+      `Homework pagination complete: raw=${rawFetchedCount} unique=${items.length} total_count=${latestMeta.totalCount}`,
+    );
   }
 
   return { items, pagesFetched, incomplete, errors };

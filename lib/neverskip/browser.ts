@@ -137,9 +137,11 @@ export function neverSkipProfileExists(profileDir: string): boolean {
 
 /** Safe log lines used when the persisted session is no longer valid. */
 export function logSessionExpired(): void {
+  nsError('SYNC STATUS: SESSION_EXPIRED');
   nsError('NeverSkip session expired');
   nsError('Manual re-authentication required');
-  nsLog('Run: npm run neverskip:login');
+  nsLog('Run: npm run neverskip:login (headed) on the same host that owns NEVERSKIP_PROFILE_DIR');
+  nsLog('Then re-run: npm run sync:neverskip:browser');
 }
 
 async function readJsonBody(response: Response): Promise<unknown | null> {
@@ -200,7 +202,24 @@ async function fetchViaSession(
     }
     const text = await res.text();
     if (!text.trim()) return { body: null, status, url };
-    return { body: JSON.parse(text) as unknown, status, url };
+    // NeverSkip sometimes returns SQLSTATE / HTML instead of JSON on bad page probes.
+    const trimmed = text.trim();
+    if (trimmed.startsWith('SQLSTATE') || (trimmed[0] !== '{' && trimmed[0] !== '[')) {
+      nsWarn(
+        `Session API POST returned non-JSON body for ${pathSuffix} (len=${trimmed.length} prefix=${trimmed.slice(0, 12).replace(/\s+/g, ' ')})`,
+      );
+      return { body: null, status, url };
+    }
+    try {
+      return { body: JSON.parse(text) as unknown, status, url };
+    } catch (parseErr) {
+      nsWarn(
+        `Session API POST JSON parse failed for ${pathSuffix}: ${
+          parseErr instanceof Error ? parseErr.message : 'unknown'
+        }`,
+      );
+      return { body: null, status, url };
+    }
   } catch (err) {
     nsWarn(
       `Session API POST failed for ${pathSuffix}: ${err instanceof Error ? err.message : 'unknown'}`,
@@ -328,9 +347,8 @@ export async function collectNeverSkipData(
       `Using NeverSkip profile directory: ${path.basename(profileDir)} (absolute=${path.isAbsolute(profileDir)})`,
     );
     if (!options.page && !neverSkipProfileExists(profileDir)) {
-      nsError('NeverSkip session expired');
-      nsError('Manual re-authentication required');
-      nsLog('No persisted Playwright profile found. Run: npm run neverskip:login');
+      logSessionExpired();
+      nsLog('No persisted Playwright profile found');
       throw new NeverSkipSessionExpiredError('NeverSkip session profile missing');
     }
   }

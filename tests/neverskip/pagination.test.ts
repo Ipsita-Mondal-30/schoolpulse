@@ -389,6 +389,37 @@ describe('paginated homework sync idempotency', () => {
     expect(summary.newestHomeworkDate).toBe('2026-09-01');
     expect(summary.errors.length).toBeGreaterThan(0);
     expect(summary.errors.some((e) => /incomplete/i.test(e))).toBe(true);
+    expect(summary.homeworkFetchIncomplete).toBe(true);
+  });
+
+  it('does not report SYNC STATUS COMPLETE when homework pagination is incomplete', async () => {
+    const logs: string[] = [];
+    const origLog = console.log;
+    const origError = console.error;
+    console.log = (...args: unknown[]) => {
+      logs.push(args.map(String).join(' '));
+    };
+    console.error = (...args: unknown[]) => {
+      logs.push(args.map(String).join(' '));
+    };
+    try {
+      const store = new InMemoryNeverSkipStore();
+      await syncNeverSkipData({
+        homework: [hwItem('1')],
+        notices: [],
+        store,
+        homeworkPagesFetched: 1,
+        homeworkFetchIncomplete: true,
+        homeworkFetchErrors: ['fetched 125 raw homework < total_count 129 (unique=125)'],
+      });
+    } finally {
+      console.log = origLog;
+      console.error = origError;
+    }
+    const joined = logs.join('\n');
+    expect(joined).toMatch(/SYNC STATUS: INCOMPLETE/);
+    expect(joined).not.toMatch(/SYNC STATUS: COMPLETE/);
+    expect(joined).not.toMatch(/Sync completed with source pagination errors/);
   });
 
   it('double sync remains idempotent across all pages', async () => {
@@ -463,6 +494,34 @@ describe('notice pagination', () => {
     expect(result.pagesFetched).toBe(1);
     expect(result.items).toHaveLength(12);
     expect(result.incomplete).toBe(false);
+  });
+
+  it('stops after a failed probe page without totals without marking incomplete', async () => {
+    const result = await fetchAllNoticePages(async (page) => {
+      if (page === 0) {
+        return noticeEnvelope(Array.from({ length: 10 }, (_, i) => noticeItem(String(i + 1))));
+      }
+      throw new Error('notice session page 1 failed (HTTP n/a)');
+    });
+    expect(result.pagesFetched).toBe(1);
+    expect(result.items).toHaveLength(10);
+    expect(result.incomplete).toBe(false);
+    expect(result.errors).toEqual([]);
+  });
+
+  it('marks incomplete when a mid-pagination page fails with known totals', async () => {
+    const result = await fetchAllNoticePages(async (page) => {
+      if (page === 0) {
+        return noticeEnvelope(
+          Array.from({ length: 10 }, (_, i) => noticeItem(String(i + 1))),
+          { page_count: 2, total_count: 12 },
+        );
+      }
+      throw new Error('notice session page 1 failed (HTTP n/a)');
+    });
+    expect(result.pagesFetched).toBe(1);
+    expect(result.incomplete).toBe(true);
+    expect(result.errors.some((e) => e.includes('page 1'))).toBe(true);
   });
 
   it('paginates notices when total_count is present', async () => {

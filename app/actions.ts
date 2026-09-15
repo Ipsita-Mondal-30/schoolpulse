@@ -714,5 +714,126 @@ export async function loadRecentChanges(options?: {
     }
 }
 
+/** New + changed homework/notices for Updates. Inserts use createdAt; re-fetches are ignored. */
+export async function loadRecentUpdates(options?: {
+    days?: number;
+}): Promise<import('@/lib/updates-feed').UpdateFeedItem[]> {
+    try {
+        if (!process.env.DATABASE_URL) return [];
+
+        const { getPrisma } = await import('@/lib/prisma');
+        const { parseFieldChanges, userVisibleChanges } = await import('@/lib/neverskip/changes');
+        const { buildUpdatesFeed } = await import('@/lib/updates-feed');
+
+        const days = options?.days ?? 7;
+        const since = new Date();
+        since.setUTCDate(since.getUTCDate() - days);
+
+        const prisma = getPrisma();
+        const changeRows = await prisma.contentChangeEvent.findMany({
+            where: { detectedAt: { gte: since } },
+            orderBy: { detectedAt: 'desc' },
+            take: 200,
+        });
+
+        const homeworkIdsFromChanges = changeRows
+            .filter((row) => row.entityType !== 'notice')
+            .map((row) => row.entityId);
+        const noticeIdsFromChanges = changeRows
+            .filter((row) => row.entityType === 'notice')
+            .map((row) => row.entityId);
+
+        const parseJsonArray = (raw: string): string[] => {
+            try {
+                const v = JSON.parse(raw);
+                return Array.isArray(v) ? v.map(String) : [];
+            } catch {
+                return [];
+            }
+        };
+
+        const snapshotTitle = (json: string, type: 'homework' | 'notice'): { title?: string; subject?: string } => {
+            try {
+                const snap = JSON.parse(json) as Record<string, unknown>;
+                if (type === 'homework') {
+                    return {
+                        subject: typeof snap.subjectName === 'string' ? snap.subjectName : undefined,
+                        title: typeof snap.title === 'string' ? snap.title : undefined,
+                    };
+                }
+                const title =
+                    (typeof snap.title === 'string' && snap.title.trim()
+                        ? snap.title
+                        : typeof snap.summary === 'string' && snap.summary.trim()
+                          ? snap.summary
+                          : undefined) as string | undefined;
+                return { title };
+            } catch {
+                return {};
+            }
+        };
+
+        const homeworkWhere =
+            homeworkIdsFromChanges.length > 0
+                ? { OR: [{ createdAt: { gte: since } }, { id: { in: homeworkIdsFromChanges } }] }
+                : { createdAt: { gte: since } };
+        const noticeWhere =
+            noticeIdsFromChanges.length > 0
+                ? { OR: [{ createdAt: { gte: since } }, { id: { in: noticeIdsFromChanges } }] }
+                : { createdAt: { gte: since } };
+
+        const [homeworkRows, noticeRows] = await Promise.all([
+            prisma.importedHomework.findMany({ where: homeworkWhere }),
+            prisma.importedNotice.findMany({ where: noticeWhere }),
+        ]);
+
+        const items = buildUpdatesFeed({
+            since,
+            homework: homeworkRows.map((row) => ({
+                id: row.id,
+                source: row.source,
+                sourceId: row.sourceId,
+                subjectName: row.subjectName,
+                title: row.title,
+                createdAt: row.createdAt,
+                homeworkDate: row.homeworkDate,
+                sections: parseJsonArray(row.sectionsJson),
+            })),
+            notices: noticeRows.map((row) => ({
+                id: row.id,
+                source: row.source,
+                sourceId: row.sourceId,
+                title: row.title,
+                summary: row.summary,
+                content: row.content,
+                createdAt: row.createdAt,
+                publishedDate: row.publishedDate,
+                classes: parseJsonArray(row.classesJson),
+            })),
+            changes: changeRows.map((row) => {
+                const type = row.entityType === 'notice' ? 'notice' : 'homework';
+                const meta = snapshotTitle(row.currentSnapshotJson, type);
+                return {
+                    id: row.id,
+                    entityType: type,
+                    source: row.source,
+                    sourceId: row.sourceId,
+                    entityId: row.entityId,
+                    detectedAt: row.detectedAt,
+                    changedFields: userVisibleChanges(type, parseFieldChanges(row.changedFieldsJson)),
+                    title: meta.title,
+                    subject: meta.subject,
+                };
+            }),
+        });
+
+        console.log(`[SchoolPulse] Updates feed count: ${items.length}`);
+        return items.slice(0, 80);
+    } catch (error) {
+        console.error('Failed to load recent updates', error);
+        return [];
+    }
+}
+
 
 

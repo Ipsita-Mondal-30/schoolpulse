@@ -12,12 +12,14 @@
     "sync:neverskip": "tsx scripts/sync-neverskip.ts",
     "sync:neverskip:browser": "tsx scripts/sync-neverskip-browser.ts",
     "neverskip:login": "tsx scripts/neverskip-login.ts",
+    "check:neverskip-ops": "tsx scripts/check-neverskip-ops.ts",
     "postinstall": "prisma generate",
     "worker:neverskip": "tsx scripts/neverskip-worker.ts",
     "seed:parent": "tsx scripts/seed-parent-user.ts",
     "link:parent-student": "tsx scripts/link-parent-student.ts"
   },
   "dependencies": {
+    "@ai-sdk/google": "^1.2.22",
     "@ai-sdk/openai": "^0.0.26",
     "@prisma/client": "^5.22.0",
     "@tailwindcss/typography": "^0.5.19",
@@ -33,7 +35,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-markdown": "^10.1.0",
-    "remark-breaks": "^4.0.0"
+    "remark-breaks": "^4.0.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

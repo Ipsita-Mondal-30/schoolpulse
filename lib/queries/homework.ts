@@ -23,5 +23,6 @@ export function useHomeworkQuery() {
   return useQuery({
     queryKey: homeworkQueryKey,
     queryFn: fetchHomeworkForUi,
+    refetchOnMount: 'always',
   });
 }

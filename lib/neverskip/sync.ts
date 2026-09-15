@@ -209,6 +209,7 @@ export async function syncNeverSkipData({
 
   if (incomplete || countsMismatch || normalizationLoss || dataLoss) {
     nsError('SYNC FAILED — INCOMPLETE SOURCE DATA');
+    nsError('SYNC STATUS: INCOMPLETE');
     if (homeworkFetchIncomplete) {
       nsError('Homework pagination incomplete — sync preserved partial homework results');
       summary.errors.push('homework pagination incomplete');
@@ -237,12 +238,8 @@ export async function syncNeverSkipData({
     }
   } else {
     nsLog('SYNC COMPLETE');
+    nsLog('SYNC STATUS: COMPLETE');
   }
-  nsLog(
-    incomplete || countsMismatch || normalizationLoss || dataLoss
-      ? 'Sync completed with source pagination errors'
-      : 'Sync completed',
-  );
   return summary;
 }
 

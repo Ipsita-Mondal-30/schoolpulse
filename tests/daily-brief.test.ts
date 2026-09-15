@@ -7,6 +7,7 @@ import {
   getBriefGreeting,
   getIndiaToday,
   hasReliableDueDate,
+  homeworkDayBucket,
   isComingUp,
   isDueToday,
   isDueTomorrow,
@@ -63,6 +64,34 @@ describe('daily brief date helpers', () => {
     expect(isOverdue('', TODAY)).toBe(false);
     expect(hasReliableDueDate(undefined)).toBe(false);
     expect(hasReliableDueDate('2026-09-11')).toBe(true);
+  });
+
+  it('homeworkDayBucket prefers due date, else assignment date', () => {
+    expect(
+      homeworkDayBucket({ submissionDate: '2026-09-10', sentDate: '2026-09-09' }, TODAY),
+    ).toBe('today');
+    expect(
+      homeworkDayBucket({ submissionDate: '2026-09-12', sentDate: '2026-09-10' }, TODAY),
+    ).toBe('upcoming');
+    expect(
+      homeworkDayBucket(
+        {
+          submissionDate: undefined,
+          sentDate: '2026-09-15',
+        },
+        '2026-09-15',
+      ),
+    ).toBe('today');
+    expect(
+      homeworkDayBucket(
+        {
+          submissionDate: undefined,
+          sentDate: '2026-09-11',
+        },
+        '2026-09-15',
+      ),
+    ).toBe('passed');
+    expect(homeworkDayBucket({ submissionDate: undefined, sentDate: '' }, TODAY)).toBe('none');
   });
 
   it('formats brief dates without inventing values', () => {

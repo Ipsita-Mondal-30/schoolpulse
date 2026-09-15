@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 /**
- * Temporary diagnostic: NeverSkip live source vs PostgreSQL for Sep 10–14.
+ * Temporary diagnostic: NeverSkip live source vs PostgreSQL for Sep 10–15.
  * Does NOT print tokens, cookies, passwords, or DATABASE_URL.
  *
  * Usage: npx tsx scripts/diagnose-neverskip-sep.ts
@@ -19,6 +19,7 @@ const TARGET_DATES = new Set([
   '2026-09-12',
   '2026-09-13',
   '2026-09-14',
+  '2026-09-15',
 ]);
 
 const TARGETING_KEYS = [

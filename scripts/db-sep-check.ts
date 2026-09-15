@@ -7,7 +7,14 @@ import { config } from 'dotenv';
 config();
 import { PrismaClient } from '@prisma/client';
 
-const SEP_DATES = ['2026-09-10', '2026-09-11', '2026-09-12', '2026-09-13', '2026-09-14'];
+const SEP_DATES = [
+  '2026-09-10',
+  '2026-09-11',
+  '2026-09-12',
+  '2026-09-13',
+  '2026-09-14',
+  '2026-09-15',
+];
 const CLASS1_SECTIONS = ['I-A', 'I-B', 'I-C', 'I-D', 'I-E', 'I-F', 'I-G', 'I-H', 'I-I', 'I-J', 'I-K'];
 
 function parseSections(json: string | null | undefined): string[] {

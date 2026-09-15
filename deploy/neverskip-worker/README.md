@@ -132,10 +132,14 @@ SchoolPulse on Vercel uses the same `DATABASE_URL`. TanStack Query staleTime
 
 | Condition | Behavior |
 | --- | --- |
-| Session expired / login redirect | Non-zero exit; log manual re-auth; **no** auto-login |
+| Session expired / login redirect | Non-zero exit; `SYNC STATUS: SESSION_EXPIRED`; log manual re-auth; **no** auto-login |
 | Access Denied / Incapsula | Treated as unauthenticated; fail clearly |
-| Incomplete homework pagination | Non-zero exit |
+| Incomplete homework pagination (`total_count` > fetched) | Non-zero exit; `SYNC STATUS: INCOMPLETE` (not “completed with errors”) |
+| Notice page probe fails without totals | Treated as end-of-list (not incomplete); newest notices usually on page 0 |
 | DB / Prisma errors | Non-zero exit |
+
+Expect safe logs: `SYNC STATUS: COMPLETE` or explicit `INCOMPLETE` / `SESSION_EXPIRED`.
+Ops check from a laptop (no SSH secrets): `npm run check:neverskip-ops`.
 
 Re-auth: on the **same Linux host**, run `npm run neverskip:login` again with
 `NEVERSKIP_PROFILE_DIR` pointing at the persistent profile path.

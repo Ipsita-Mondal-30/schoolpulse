@@ -150,6 +150,7 @@ model ImportedHomework {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   acknowledgements HomeworkAcknowledgement[]
+  microLesson   MicroLesson?
 
   @@unique([source, sourceId])
   @@index([homeworkDate])
@@ -225,4 +226,36 @@ model NoticeAcknowledgement {
   @@index([userId])
   @@index([noticeId])
   @@index([acknowledgedAt])
+}
+
+/// AI-generated micro-lesson grounded in school homework (not school source data)
+model MicroLesson {
+  id         String   @id @default(cuid())
+  homeworkId String   @unique
+  topic      String
+  subject    String
+  grade      String
+  title      String
+  summary    String
+  slides     String
+  quiz       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  homework   ImportedHomework @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+  attempts   QuizAttempt[]
+
+  @@index([createdAt])
+}
+
+/// Child completed a recap quiz — independent of homework acknowledgement/completion
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  lessonId    String
+  score       Int
+  total       Int
+  completedAt DateTime @default(now())
+  lesson      MicroLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([completedAt])
 }
