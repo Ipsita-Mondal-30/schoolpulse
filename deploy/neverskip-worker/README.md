@@ -13,17 +13,20 @@ production sync. See [recommended-disable-github-actions.diff](./recommended-dis
 ## Architecture
 
 ```text
-Persistent Linux host
-  → NEVERSKIP_PROFILE_DIR=/data/neverskip-profile  (disk/volume, never git)
-  → npm run sync:neverskip:browser  (headless, exits when done)
+Oracle / persistent Linux host (/home/ubuntu/schoolpulse)
+  → NEVERSKIP_PROFILE_DIR=.../deploy/neverskip-worker/neverskip-data/neverskip-profile
+  → cron → deploy/neverskip-worker/run-sync.sh
+  → xvfb-run -a + NEVERSKIP_HEADLESS=false  (Incapsula often blocks true headless)
   → normalize / classify / dedupe
   → Neon PostgreSQL (ImportedHomework / ImportedNotice)
   → Vercel SchoolPulse UI (same DATABASE_URL)
 ```
 
-Cron: `0 */4 * * *` — laptop does **not** need to be on.
+Cron: `0 */4 * * *` via [run-sync.sh](./run-sync.sh) — see [crontab.example](./crontab.example).
+Laptop does **not** need to be on.
 
 Manual NeverSkip login is only required again if the **host** session expires.
+
 
 ## NeverSkip production worker — setup
 
@@ -88,35 +91,36 @@ to that directory and must never be committed.
 
 Automated sync **never** attempts login or CAPTCHA bypass.
 
-### 7. Verify one sync
+### 7. Verify one sync (Oracle / xvfb — preferred on this host)
 
 ```bash
-cd deploy/neverskip-worker
-# with NEVERSKIP_DATA_DIR and .env set:
-docker compose run --rm neverskip-sync
+cd /home/ubuntu/schoolpulse
+chmod +x deploy/neverskip-worker/run-sync.sh
+# .env must contain DATABASE_URL (same Neon as Vercel)
+./deploy/neverskip-worker/run-sync.sh
 ```
 
-Or on the host:
+Equivalent one-liner:
 
 ```bash
-export DATABASE_URL="..."   # Neon
-export NEVERSKIP_HEADLESS=true
-export NEVERSKIP_PROFILE_DIR=/var/lib/schoolpulse/data/neverskip-profile
-npm run sync:neverskip:browser
+NEVERSKIP_PROFILE_DIR=/home/ubuntu/schoolpulse/deploy/neverskip-worker/neverskip-data/neverskip-profile \
+NEVERSKIP_HEADLESS=false xvfb-run -a npm run sync:neverskip:browser
 ```
 
-Expect safe logs such as: sync started, homework/notices fetched, sync completed.
-On expiry: `NeverSkip session expired` / `Manual re-authentication required` (exit non-zero).
+Expect: `SYNC STATUS: COMPLETE` (or explicit `INCOMPLETE` / `SESSION_EXPIRED`).
+On expiry: headed login **on this host** with the same profile path, then re-run.
+
+Docker one-shot remains available (`docker compose run --rm neverskip-sync`) but is secondary on Oracle when xvfb headed sync is the proven path.
 
 ### 8. Configure cron (`0 */4 * * *`)
 
-See [crontab.example](./crontab.example). Example:
+See [crontab.example](./crontab.example). Preferred:
 
 ```cron
-0 */4 * * * cd /opt/schoolpulse/deploy/neverskip-worker && /usr/bin/docker compose run --rm neverskip-sync >> /var/log/neverskip-sync.log 2>&1
+0 */4 * * * /home/ubuntu/schoolpulse/deploy/neverskip-worker/run-sync.sh >> /home/ubuntu/neverskip-sync.log 2>&1
 ```
 
-Each run **exits** when finished (no infinite loop).
+Each run **exits** when finished (no infinite loop). Secrets stay in `deploy/neverskip-worker/.env`.
 
 ### 9. Verify Neon rows
 

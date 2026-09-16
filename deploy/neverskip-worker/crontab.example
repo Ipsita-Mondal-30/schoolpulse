@@ -1,14 +1,16 @@
-# NeverSkip production sync — host crontab (persistent Linux host).
+# NeverSkip production sync — host crontab (Oracle / persistent Linux host).
 #
 # Install:
+#   chmod +x /home/ubuntu/schoolpulse/deploy/neverskip-worker/run-sync.sh
 #   crontab -e
-# Paste ONE of the blocks below (edit paths / env).
+# Paste the block below (adjust paths only if your clone is elsewhere).
 #
-# Schedule: every 4 hours at minute 0 (UTC of the host clock).
-# Command exits after each sync (no infinite loop).
+# Schedule: every 4 hours at minute 0 (host clock).
+# Secrets live in deploy/neverskip-worker/.env — never put DATABASE_URL in crontab.
+#
+# Working production path uses headed Playwright via xvfb (Incapsula often blocks true headless).
 
-# --- Recommended: Docker one-shot ---
-# 0 */4 * * * cd /opt/schoolpulse/deploy/neverskip-worker && /usr/bin/docker compose run --rm neverskip-sync >> /var/log/neverskip-sync.log 2>&1
+0 */4 * * * /home/ubuntu/schoolpulse/deploy/neverskip-worker/run-sync.sh >> /home/ubuntu/neverskip-sync.log 2>&1
 
-# --- Bare metal / Node on the host ---
-# 0 */4 * * * cd /opt/schoolpulse && /usr/bin/env DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require" NEVERSKIP_HEADLESS=true NEVERSKIP_PROFILE_DIR="/var/lib/schoolpulse/data/neverskip-profile" /usr/bin/npm run sync:neverskip:browser >> /var/log/neverskip-sync.log 2>&1
+# --- Legacy Docker one-shot (optional; prefer run-sync.sh + xvfb on this host) ---
+# 0 */4 * * * cd /home/ubuntu/schoolpulse/deploy/neverskip-worker && /usr/bin/docker compose run --rm neverskip-sync >> /home/ubuntu/neverskip-sync.log 2>&1

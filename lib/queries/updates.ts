@@ -9,7 +9,7 @@ export const updatesFeedQueryKey = ['updates-feed'] as const;
 export type UpdatesFeedQueryData = UpdateFeedItem[];
 
 export async function fetchRecentUpdates(): Promise<UpdatesFeedQueryData> {
-  return loadRecentUpdates({ days: 7 });
+  return loadRecentUpdates({ days: 30 });
 }
 
 export function useUpdatesFeedQuery() {

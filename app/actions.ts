@@ -714,7 +714,7 @@ export async function loadRecentChanges(options?: {
     }
 }
 
-/** New + changed homework/notices for Updates. Inserts use createdAt; re-fetches are ignored. */
+/** New + changed homework/notices for Updates, plus RECENT notices by publication date. */
 export async function loadRecentUpdates(options?: {
     days?: number;
 }): Promise<import('@/lib/updates-feed').UpdateFeedItem[]> {
@@ -724,14 +724,19 @@ export async function loadRecentUpdates(options?: {
         const { getPrisma } = await import('@/lib/prisma');
         const { parseFieldChanges, userVisibleChanges } = await import('@/lib/neverskip/changes');
         const { buildUpdatesFeed } = await import('@/lib/updates-feed');
+        const { addDaysYmd, getIndiaToday } = await import('@/lib/daily-brief');
 
-        const days = options?.days ?? 7;
-        const since = new Date();
-        since.setUTCDate(since.getUTCDate() - days);
+        const days = options?.days ?? 30;
+        // NEW/CHANGED: India today + yesterday only (bulk historical imports fall into RECENT).
+        const newSinceYmd = addDaysYmd(getIndiaToday(), -1) || getIndiaToday();
+        const since = new Date(`${newSinceYmd}T00:00:00+05:30`);
+        // RECENT notices: publication-date window (longer).
+        const publishedSinceYmd = addDaysYmd(getIndiaToday(), -(days - 1)) || '';
+        const changeSince = since;
 
         const prisma = getPrisma();
         const changeRows = await prisma.contentChangeEvent.findMany({
-            where: { detectedAt: { gte: since } },
+            where: { detectedAt: { gte: changeSince } },
             orderBy: { detectedAt: 'desc' },
             take: 200,
         });
@@ -777,18 +782,25 @@ export async function loadRecentUpdates(options?: {
             homeworkIdsFromChanges.length > 0
                 ? { OR: [{ createdAt: { gte: since } }, { id: { in: homeworkIdsFromChanges } }] }
                 : { createdAt: { gte: since } };
-        const noticeWhere =
-            noticeIdsFromChanges.length > 0
-                ? { OR: [{ createdAt: { gte: since } }, { id: { in: noticeIdsFromChanges } }] }
-                : { createdAt: { gte: since } };
+
+        const noticeOr: object[] = [
+            { createdAt: { gte: since } },
+            ...(publishedSinceYmd ? [{ publishedDate: { gte: publishedSinceYmd } }] : []),
+            ...(noticeIdsFromChanges.length > 0 ? [{ id: { in: noticeIdsFromChanges } }] : []),
+        ];
 
         const [homeworkRows, noticeRows] = await Promise.all([
             prisma.importedHomework.findMany({ where: homeworkWhere }),
-            prisma.importedNotice.findMany({ where: noticeWhere }),
+            prisma.importedNotice.findMany({
+                where: { OR: noticeOr },
+                orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
+                take: 200,
+            }),
         ]);
 
         const items = buildUpdatesFeed({
             since,
+            publishedSinceYmd,
             homework: homeworkRows.map((row) => ({
                 id: row.id,
                 source: row.source,
@@ -808,6 +820,7 @@ export async function loadRecentUpdates(options?: {
                 content: row.content,
                 createdAt: row.createdAt,
                 publishedDate: row.publishedDate,
+                publishedTime: row.publishedTime,
                 classes: parseJsonArray(row.classesJson),
             })),
             changes: changeRows.map((row) => {
@@ -827,8 +840,12 @@ export async function loadRecentUpdates(options?: {
             }),
         });
 
-        console.log(`[SchoolPulse] Updates feed count: ${items.length}`);
-        return items.slice(0, 80);
+        // Prefer NEW/CHANGED first (already ordered), then RECENT; cap total.
+        const newPart = items.filter((i) => i.section === 'new');
+        const recentPart = items.filter((i) => i.section === 'recent');
+        const capped = [...newPart, ...recentPart.slice(0, Math.max(0, 80 - newPart.length))];
+        console.log(`[SchoolPulse] Updates feed count: ${capped.length} (new=${newPart.length} recent=${recentPart.length})`);
+        return capped;
     } catch (error) {
         console.error('Failed to load recent updates', error);
         return [];

@@ -137,6 +137,7 @@ export function neverSkipProfileExists(profileDir: string): boolean {
 
 /** Safe log lines used when the persisted session is no longer valid. */
 export function logSessionExpired(): void {
+  nsError('SYNC STATUS: AUTHENTICATION_REQUIRED');
   nsError('SYNC STATUS: SESSION_EXPIRED');
   nsError('NeverSkip session expired');
   nsError('Manual re-authentication required');
