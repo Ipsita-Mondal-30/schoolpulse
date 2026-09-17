@@ -95,13 +95,21 @@ function UpdateCard({
               .filter(Boolean)
               .join(' · ')}
       </p>
-      <div className="mt-2">
+      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
         <Link
           href={item.href}
           className="text-xs font-semibold text-[var(--sp-primary)] hover:underline"
         >
           {isHw ? 'View homework →' : 'View notice →'}
         </Link>
+        {!isHw && item.libraryHref ? (
+          <Link
+            href={item.libraryHref}
+            className="text-xs font-semibold text-[var(--sp-primary)] hover:underline"
+          >
+            View in Content Library →
+          </Link>
+        ) : null}
       </div>
     </article>
   );

@@ -82,6 +82,42 @@ export function nsDebugApiEnvelope(
   nsLog(`itemListLength=${itemListLength}`);
   if (firstItemKeys) nsLog(`firstItemKeys=${firstItemKeys}`);
 
+  // Safe first/latest notice dates only (never content/tokens)
+  if (body && typeof body === 'object' && !Array.isArray(body)) {
+    const root = body as Record<string, unknown>;
+    const D =
+      root.D && typeof root.D === 'object' && !Array.isArray(root.D)
+        ? (root.D as Record<string, unknown>)
+        : null;
+    const list = D?.item_list;
+    const rows = Array.isArray(list)
+      ? list
+      : typeof list === 'string'
+        ? (() => {
+            try {
+              const parsed = JSON.parse(list) as unknown;
+              return Array.isArray(parsed) ? parsed : [];
+            } catch {
+              return [];
+            }
+          })()
+        : [];
+    if (rows.length > 0) {
+      const first = rows[0];
+      const last = rows[rows.length - 1];
+      const firstDate =
+        first && typeof first === 'object' && !Array.isArray(first)
+          ? String((first as { date?: unknown }).date ?? '')
+          : '';
+      const lastDate =
+        last && typeof last === 'object' && !Array.isArray(last)
+          ? String((last as { date?: unknown }).date ?? '')
+          : '';
+      if (firstDate) nsLog(`firstNoticeDate=${firstDate.slice(0, 40)}`);
+      if (lastDate) nsLog(`latestNoticeDate=${lastDate.slice(0, 40)}`);
+    }
+  }
+
   // Safe pagination numbers (NeverSkip homework D fields)
   if (body && typeof body === 'object' && !Array.isArray(body)) {
     const root = body as Record<string, unknown>;

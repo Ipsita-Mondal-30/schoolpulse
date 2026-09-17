@@ -34,6 +34,12 @@ export interface HomeworkFetchResult {
   pagesFetched: number;
   incomplete: boolean;
   errors: string[];
+  /** API total_count when present. */
+  sourceTotal: number | null;
+  /** Sum of raw item_list lengths across pages (before dedupe). */
+  rawFetched: number;
+  /** Unique records after cross-page dedupe. */
+  uniqueFetched: number;
 }
 
 function toFiniteInt(raw: unknown): number | null {
@@ -124,11 +130,22 @@ export function countHomeworkMarkerHits(items: NeverSkipRawAssignment[]): {
     'matra',
     'sulekh',
     'sulekha',
+    'bitiya',
+    'bitiya aayi',
+    'hungry caterpillar',
+    'shapes and patterns',
+    'workbook completion',
+    '2026-09-17',
+    '17-sep-2026',
+    '17/09/26',
+    '17/09/2026',
     '2026-09-15',
     '15-sep-2026',
     '15/09/26',
     '15/09/2026',
     '15-09-2026',
+    '2026-09-11',
+    '11-sep-2026',
   ] as const;
   const hits: Record<string, number> = {};
   for (const m of markers) hits[m] = 0;
@@ -203,36 +220,26 @@ export function mergeHomeworkPageItems(
 
 /**
  * Decide whether another page should be requested after successfully reading `pageIndex` (0-based).
- * Continue while page_count has more pages, or unique collected is still below total_count.
+ * Continue while unique collected is still below total_count, or page_count has more pages.
+ * Raw page-length sums must NOT stop early when unique is still short (cross-page overlaps).
  * A short last page is NOT a stop signal — only an empty page (or unique >= total) stops.
  */
 export function shouldFetchNextHomeworkPage(
   meta: HomeworkPaginationMeta,
   pageIndex: number,
   collectedCount: number,
-  rawFetchedCount = collectedCount,
+  _rawFetchedCount = collectedCount,
 ): boolean {
   if (meta.itemListLength <= 0) return false;
 
-  if (
-    meta.totalCount != null &&
-    meta.totalCount > 0 &&
-    (collectedCount >= meta.totalCount || rawFetchedCount >= meta.totalCount)
-  ) {
-    return false;
-  }
-
-  if (meta.pageCount != null && meta.pageCount > 0 && pageIndex + 1 < meta.pageCount) {
+  // Prefer unique reconciliation against total_count.
+  if (meta.totalCount != null && meta.totalCount > 0) {
+    if (collectedCount >= meta.totalCount) return false;
+    // Unique still short — keep going even past declared page_count / raw sums.
     return true;
   }
 
-  // page_count exhausted (or missing): keep going while total_count says records remain.
-  if (
-    meta.totalCount != null &&
-    meta.totalCount > 0 &&
-    collectedCount < meta.totalCount &&
-    rawFetchedCount < meta.totalCount
-  ) {
+  if (meta.pageCount != null && meta.pageCount > 0 && pageIndex + 1 < meta.pageCount) {
     return true;
   }
 
@@ -249,17 +256,19 @@ export function shouldFetchNextHomeworkPage(
 }
 
 /**
- * Incomplete when the API's total_count exceeds the sum of raw page lengths
- * (unique count may be lower due to cross-page overlaps — that is OK).
+ * Incomplete when the API's total_count exceeds unique fetched records.
+ * Overlaps may make raw >= total while unique is still short — that is still incomplete.
  */
 export function homeworkTotalCountMismatch(
   totalCount: number | null | undefined,
-  rawFetchedCount: number,
+  uniqueFetched: number,
 ): boolean {
-  return totalCount != null && totalCount > 0 && rawFetchedCount < totalCount;
+  return totalCount != null && totalCount > 0 && uniqueFetched < totalCount;
 }
 
 const MAX_HOMEWORK_PAGES = 100;
+/** Extra chase pages allowed when a page adds no new uniques but total_count is unmet. */
+const MAX_EMPTY_UNIQUE_CHASE = 5;
 
 /**
  * Fetch all homework pages via a page callback (token client or browser session).
@@ -269,13 +278,14 @@ export async function fetchAllHomeworkPages(
   fetchPage: (page: number, payload: HomeworkPayload) => Promise<NeverSkipHomeworkResponse | null>,
   options: { limit?: number } = {},
 ): Promise<HomeworkFetchResult> {
-  const limit = options.limit ?? 0;
+  let limit = options.limit ?? 0;
   const pages: NeverSkipRawAssignment[][] = [];
   const errors: string[] = [];
   let incomplete = false;
   let pageIndex = 0;
   let latestMeta: HomeworkPaginationMeta | null = null;
   let rawFetchedCount = 0;
+  let emptyUniqueStreak = 0;
 
   while (pageIndex < MAX_HOMEWORK_PAGES) {
     const payload = buildHomeworkPayload(pageIndex, limit);
@@ -299,7 +309,12 @@ export async function fetchAllHomeworkPages(
 
     const meta = extractHomeworkPagination(response);
     latestMeta = meta;
+    // Prefer portal page size for subsequent requests when caller left limit=0.
+    if (limit === 0 && meta.sfileLimit != null && meta.sfileLimit > 0) {
+      limit = meta.sfileLimit;
+    }
     logHomeworkPagination(pageIndex, meta);
+    nsLog(`HOMEWORK page ${pageIndex + 1}: ${meta.itemListLength}`);
 
     const items = extractAssignments(response);
     logHomeworkPageDateRange(pageIndex, items);
@@ -307,11 +322,22 @@ export async function fetchAllHomeworkPages(
       if (pageIndex === 0) {
         pages.push(items);
       } else if (
+        latestMeta.totalCount != null &&
+        latestMeta.totalCount > 0 &&
+        mergeHomeworkPageItems(pages).length < latestMeta.totalCount &&
+        emptyUniqueStreak < MAX_EMPTY_UNIQUE_CHASE
+      ) {
+        emptyUniqueStreak += 1;
+        nsWarn(
+          `Homework page ${pageIndex} empty while unique < total_count — chase ${emptyUniqueStreak}/${MAX_EMPTY_UNIQUE_CHASE}`,
+        );
+        pageIndex += 1;
+        continue;
+      } else if (
         latestMeta.pageCount != null &&
         latestMeta.pageCount > 0 &&
         pageIndex >= latestMeta.pageCount
       ) {
-        // Chase past declared page_count returned empty. Stop, then validate total_count.
         nsWarn(`Homework page ${pageIndex} empty after page_count exhausted — stopping`);
       } else {
         incomplete = true;
@@ -331,10 +357,23 @@ export async function fetchAllHomeworkPages(
         (meta.totalCount != null ? ` totalCount=${meta.totalCount}` : ''),
     );
 
-    // Stop if a later page added no new unique records (bad/repeated pagination).
+    // Later page with no new uniques: chase while total_count unmet, else stop incomplete.
     if (pageIndex > 0) {
       const previous = mergeHomeworkPageItems(pages.slice(0, -1)).length;
       if (collected === previous) {
+        if (
+          meta.totalCount != null &&
+          meta.totalCount > 0 &&
+          collected < meta.totalCount &&
+          emptyUniqueStreak < MAX_EMPTY_UNIQUE_CHASE
+        ) {
+          emptyUniqueStreak += 1;
+          nsWarn(
+            `Homework page ${pageIndex} added no new uniques (${collected}/${meta.totalCount}) — chase ${emptyUniqueStreak}/${MAX_EMPTY_UNIQUE_CHASE}`,
+          );
+          pageIndex += 1;
+          continue;
+        }
         incomplete = true;
         errors.push(
           `page ${pageIndex}: duplicate/empty unique page (cumulative=${collected}` +
@@ -346,6 +385,7 @@ export async function fetchAllHomeworkPages(
         );
         break;
       }
+      emptyUniqueStreak = 0;
     }
 
     if (!shouldFetchNextHomeworkPage(meta, pageIndex, collected, rawFetchedCount)) {
@@ -365,32 +405,45 @@ export async function fetchAllHomeworkPages(
 
   const items = mergeHomeworkPageItems(pages);
   const pagesFetched = pages.length;
+  const uniqueFetched = items.length;
+  const sourceTotal = latestMeta?.totalCount ?? null;
 
-  if (homeworkTotalCountMismatch(latestMeta?.totalCount, rawFetchedCount)) {
+  if (homeworkTotalCountMismatch(sourceTotal, uniqueFetched)) {
     incomplete = true;
-    const msg = `fetched ${rawFetchedCount} raw homework < total_count ${latestMeta!.totalCount} (unique=${items.length})`;
+    const msg = `unique homework ${uniqueFetched} < total_count ${sourceTotal} (raw=${rawFetchedCount})`;
     errors.push(msg);
     nsError(`SYNC FAILED — INCOMPLETE HOMEWORK DATA (${msg})`);
   }
 
+  nsLog(`HOMEWORK total source: ${sourceTotal ?? '(none)'}`);
+  nsLog(`HOMEWORK total fetched (raw): ${rawFetchedCount}`);
+  nsLog(`HOMEWORK unique: ${uniqueFetched}`);
   nsLog(`Homework pages fetched: ${pagesFetched}`);
-  nsLog(`Homework records fetched: ${items.length}`);
+  nsLog(`Homework records fetched: ${uniqueFetched}`);
   nsLog(`Homework raw records fetched: ${rawFetchedCount}`);
   nsLog(`Homework unique source IDs: ${countUniqueHomeworkSourceIds(items)}`);
-  if (latestMeta?.totalCount != null) {
-    nsLog(`Homework total_count (source): ${latestMeta.totalCount}`);
+  if (sourceTotal != null) {
+    nsLog(`Homework total_count (source): ${sourceTotal}`);
   }
   logHomeworkMarkerSearch(items);
   if (incomplete) {
     nsError('SYNC STATUS: INCOMPLETE — homework pagination did not fetch all source records');
     nsWarn('Homework pagination incomplete — preserving records collected so far');
-  } else if (latestMeta?.totalCount != null) {
+  } else if (sourceTotal != null) {
     nsLog(
-      `Homework pagination complete: raw=${rawFetchedCount} unique=${items.length} total_count=${latestMeta.totalCount}`,
+      `Homework pagination complete: raw=${rawFetchedCount} unique=${uniqueFetched} total_count=${sourceTotal}`,
     );
   }
 
-  return { items, pagesFetched, incomplete, errors };
+  return {
+    items,
+    pagesFetched,
+    incomplete,
+    errors,
+    sourceTotal,
+    rawFetched: rawFetchedCount,
+    uniqueFetched,
+  };
 }
 
 /** Token/API client path: paginate getassignmentsapi until all pages are collected. */

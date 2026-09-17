@@ -17,25 +17,56 @@ function samplePayload(overrides: Partial<MicroLessonAiPayload> = {}): MicroLess
     topic: 'Opposite Words',
     title: "Let's learn Opposite Words!",
     summary: 'Hot and cold are opposites.',
-    slides: [
-      { type: 'intro', title: "Let's learn Opposite Words!", text: 'Words that mean the opposite.' },
-      { type: 'example', title: 'Hot and cold', text: 'Hot is the opposite of cold.', word: 'hot', opposite: 'cold' },
-      { type: 'practice', title: 'Your turn!', text: 'Think of an opposite for big.' },
+    celebrationMessage: "You're a star!",
+    scenes: [
+      {
+        type: 'intro',
+        message: "Hey! Let's learn something fun!",
+        visualHint: 'star',
+        durationMs: 3000,
+      },
+      {
+        type: 'visual_teach',
+        headline: 'Opposites mean different!',
+        bits: ['hot', 'cold', 'big', 'small'],
+        visualHint: 'abc',
+      },
+      {
+        type: 'examples',
+        items: [
+          { label: 'hot ↔ cold', visualHint: 'sun' },
+          { label: 'big ↔ small', visualHint: 'star' },
+          { label: 'happy ↔ sad', visualHint: 'heart' },
+        ],
+      },
+      {
+        type: 'choice',
+        prompt: 'Which is the opposite of hot?',
+        options: ['cold', 'warm', 'sun'],
+        answerIndex: 0,
+        optionHints: ['moon', 'sun', 'star'],
+      },
+      {
+        type: 'find',
+        prompt: 'Find the opposite of big',
+        options: ['tall', 'small', 'wide'],
+        answerIndex: 1,
+      },
     ],
     quiz: [
       {
-        question: 'What is the opposite of hot?',
-        options: ['cold', 'warm', 'sunny', 'fire'],
+        question: 'Opposite of hot?',
+        options: ['cold', 'warm', 'sun'],
         answerIndex: 0,
       },
       {
-        question: 'What is the opposite of big?',
-        options: ['tall', 'small', 'wide', 'long'],
+        question: 'Opposite of big?',
+        options: ['tall', 'small', 'wide'],
         answerIndex: 1,
       },
       {
         question: 'Happy is the opposite of…',
-        options: ['glad', 'sad', 'smile', 'fun'],
+        options: ['glad', 'sad', 'fun'],
         answerIndex: 1,
       },
     ],
@@ -224,10 +255,48 @@ describe('micro-lesson schema validation', () => {
         topic: 'X',
         title: 'Y',
         summary: 'Z',
-        slides: [{ type: 'intro', title: 'a', text: 'b' }],
+        scenes: [{ type: 'intro', message: 'hi' }],
         quiz: [{ question: 'q', options: ['a'], answerIndex: 0 }],
       }),
     ).toThrow(/Invalid micro-lesson/);
+  });
+
+  it('accepts interactive scene payload for a मात्रा-shaped topic', () => {
+    const payload = samplePayload({
+      topic: 'ए की मात्रा',
+      title: 'ए की मात्रा Practice',
+      summary: 'Learn ए की मात्रा with short examples.',
+      scenes: [
+        { type: 'intro', message: 'Hey! Let’s learn ए की मात्रा!', visualHint: 'letter' },
+        {
+          type: 'visual_teach',
+          headline: 'ए की मात्रा makes a sound!',
+          bits: ['ए', 'के', 'से'],
+          visualHint: 'letter',
+        },
+        {
+          type: 'examples',
+          items: [
+            { label: 'के', visualHint: 'letter' },
+            { label: 'से', visualHint: 'letter' },
+            { label: 'ने', visualHint: 'letter' },
+          ],
+        },
+        {
+          type: 'choice',
+          prompt: 'Which word has ए की मात्रा?',
+          options: ['के', 'क', 'कि'],
+          answerIndex: 0,
+        },
+        {
+          type: 'find',
+          prompt: 'Find ए की मात्रा',
+          options: ['का', 'के', 'कि'],
+          answerIndex: 1,
+        },
+      ],
+    });
+    expect(validateMicroLessonPayload(payload).topic).toContain('मात्रा');
   });
 
   it('calculates quiz score correctly', () => {
@@ -390,7 +459,7 @@ describe('generateMicroLessonForHomework', () => {
             topic: 'X',
             title: 'Y',
             summary: 'Z',
-            slides: [],
+            scenes: [],
             quiz: [],
           }) as never,
       },

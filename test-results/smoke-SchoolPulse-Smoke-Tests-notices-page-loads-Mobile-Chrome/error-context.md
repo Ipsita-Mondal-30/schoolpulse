@@ -1,0 +1,416 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e4]:
+      - button "Change delivery location" [ref=e6] [cursor=pointer]:
+        - img [ref=e8]
+        - generic [ref=e11]: Instant delivery
+        - generic [ref=e13]: Satna · Rewa Rd, in front of gold palace jewellers, Railway Colony, Satna, Madhya Pradesh 485001
+        - img [ref=e15]
+      - button "Login" [ref=e18] [cursor=pointer]:
+        - img [ref=e20]
+  - generic [ref=e23]:
+    - main [ref=e24]:
+      - paragraph [ref=e28]: Improving your experience
+      - paragraph [ref=e30]:
+        - generic [ref=e31]: Disclaimer
+        - text: Creative Visualizations are for representative purposes only. Actual Product appearance may vary.
+        - text: All prices are exclusive of taxes. Applicable Taxes are added at Checkout.
+    - complementary "Menu searches and categories" [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - heading "Trending Searches" [level=2] [ref=e35]
+          - generic [ref=e36]:
+            - paragraph [ref=e37]:
+              - generic [ref=e38]: "Categories:"
+              - link "Burgers" [ref=e40] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542961
+              - generic [ref=e41]:
+                - text: "|"
+                - link "Naan & Wraps" [ref=e42] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_2430322
+              - generic [ref=e43]:
+                - text: "|"
+                - link "Sides" [ref=e44] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542967
+              - generic [ref=e45]:
+                - text: "|"
+                - link "Pizza" [ref=e46] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542962
+              - generic [ref=e47]:
+                - text: "|"
+                - link "Beverages" [ref=e48] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542968
+              - generic [ref=e49]:
+                - text: "|"
+                - link "Garlic Bread" [ref=e50] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542966
+              - generic [ref=e51]:
+                - text: "|"
+                - link "Taste Maker Dips" [ref=e52] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_1262830
+              - generic [ref=e53]:
+                - text: "|"
+                - link "Desserts" [ref=e54] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_543664
+              - generic [ref=e55]:
+                - text: "|"
+                - link "Party Combos" [ref=e56] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_5354101
+            - paragraph [ref=e57]:
+              - generic [ref=e58]: "Products:"
+              - link "All In One (medium 21 Cm)" [ref=e60] [cursor=pointer]:
+                - /url: /menu?q=All+In+One+%28Medium+21+Cm%29
+              - generic [ref=e61]:
+                - text: "|"
+                - link "Aloo Tikki" [ref=e62] [cursor=pointer]:
+                  - /url: /menu?q=Aloo+Tikki
+              - generic [ref=e63]:
+                - text: "|"
+                - link "Banarasi Paan Fusion" [ref=e64] [cursor=pointer]:
+                  - /url: /menu?q=Banarasi+Paan+Fusion
+              - generic [ref=e65]:
+                - text: "|"
+                - link "Burger Sause" [ref=e66] [cursor=pointer]:
+                  - /url: /menu?q=Burger+Sause
+              - generic [ref=e67]:
+                - text: "|"
+                - link "Chatpata Cheese" [ref=e68] [cursor=pointer]:
+                  - /url: /menu?q=Chatpata+Cheese
+              - generic [ref=e69]:
+                - text: "|"
+                - link "Chatpata Tikki" [ref=e70] [cursor=pointer]:
+                  - /url: /menu?q=Chatpata+Tikki
+              - generic [ref=e71]:
+                - text: "|"
+                - link "Cheese Slice" [ref=e72] [cursor=pointer]:
+                  - /url: /menu?q=Cheese+Slice
+              - generic [ref=e73]:
+                - text: "|"
+                - link "Cheesy Rounders 8pc" [ref=e74] [cursor=pointer]:
+                  - /url: /menu?q=Cheesy+Rounders+8pc
+              - generic [ref=e75]:
+                - text: "|"
+                - link "Chilli Avocado" [ref=e76] [cursor=pointer]:
+                  - /url: /menu?q=Chilli+Avocado
+              - generic [ref=e77]:
+                - text: "|"
+                - link "Chilli Garlic" [ref=e78] [cursor=pointer]:
+                  - /url: /menu?q=Chilli+Garlic
+            - paragraph [ref=e79]:
+              - generic [ref=e80]: "Favourites:"
+              - link "Chatpata Cheese" [ref=e82] [cursor=pointer]:
+                - /url: /menu?q=Chatpata+Cheese
+              - generic [ref=e83]:
+                - text: "|"
+                - link "Chatpata Tikki" [ref=e84] [cursor=pointer]:
+                  - /url: /menu?q=Chatpata+Tikki
+              - generic [ref=e85]:
+                - text: "|"
+                - link "Cheese Slice" [ref=e86] [cursor=pointer]:
+                  - /url: /menu?q=Cheese+Slice
+              - generic [ref=e87]:
+                - text: "|"
+                - link "Cheesy Rounders 8pc" [ref=e88] [cursor=pointer]:
+                  - /url: /menu?q=Cheesy+Rounders+8pc
+              - generic [ref=e89]:
+                - text: "|"
+                - link "Chilli Avocado" [ref=e90] [cursor=pointer]:
+                  - /url: /menu?q=Chilli+Avocado
+              - generic [ref=e91]:
+                - text: "|"
+                - link "Chilli Garlic" [ref=e92] [cursor=pointer]:
+                  - /url: /menu?q=Chilli+Garlic
+              - generic [ref=e93]:
+                - text: "|"
+                - link "Chilli Lava" [ref=e94] [cursor=pointer]:
+                  - /url: /menu?q=Chilli+Lava
+              - generic [ref=e95]:
+                - text: "|"
+                - link "Chinese Pops" [ref=e96] [cursor=pointer]:
+                  - /url: /menu?q=Chinese+Pops
+        - generic [ref=e97]:
+          - heading "Popular Searches" [level=2] [ref=e98]
+          - generic [ref=e99]:
+            - paragraph [ref=e100]:
+              - generic [ref=e101]: "Products:"
+              - link "Wraproll + Beverage" [ref=e103] [cursor=pointer]:
+                - /url: /menu?q=Wraproll+%2B+Beverage
+              - generic [ref=e104]:
+                - text: "|"
+                - link "Water Bottle" [ref=e105] [cursor=pointer]:
+                  - /url: /menu?q=Water+Bottle
+              - generic [ref=e106]:
+                - text: "|"
+                - link "Virgin Mojito" [ref=e107] [cursor=pointer]:
+                  - /url: /menu?q=Virgin+Mojito
+              - generic [ref=e108]:
+                - text: "|"
+                - link "Veggie Sticks 10pc" [ref=e109] [cursor=pointer]:
+                  - /url: /menu?q=Veggie+Sticks+10pc
+              - generic [ref=e110]:
+                - text: "|"
+                - link "Veggie Loaded (medium 21 Cm)" [ref=e111] [cursor=pointer]:
+                  - /url: /menu?q=Veggie+Loaded+%28Medium+21+Cm%29
+              - generic [ref=e112]:
+                - text: "|"
+                - link "Vadapav" [ref=e113] [cursor=pointer]:
+                  - /url: /menu?q=Vadapav
+              - generic [ref=e114]:
+                - text: "|"
+                - link "Supreme" [ref=e115] [cursor=pointer]:
+                  - /url: /menu?q=Supreme
+              - generic [ref=e116]:
+                - text: "|"
+                - link "Stuffed Supreme" [ref=e117] [cursor=pointer]:
+                  - /url: /menu?q=Stuffed+Supreme
+              - generic [ref=e118]:
+                - text: "|"
+                - link "Stuffed Cheese & Corn" [ref=e119] [cursor=pointer]:
+                  - /url: /menu?q=Stuffed+Cheese+%26+Corn
+              - generic [ref=e120]:
+                - text: "|"
+                - link "Stuffed Cheese" [ref=e121] [cursor=pointer]:
+                  - /url: /menu?q=Stuffed+Cheese
+              - generic [ref=e122]:
+                - text: "|"
+                - link "Strawberry Swirl" [ref=e123] [cursor=pointer]:
+                  - /url: /menu?q=Strawberry+Swirl
+              - generic [ref=e124]:
+                - text: "|"
+                - link "Strawberry Sensation" [ref=e125] [cursor=pointer]:
+                  - /url: /menu?q=Strawberry+Sensation
+              - generic [ref=e126]:
+                - text: "|"
+                - link "Spring Rolls 5pc" [ref=e127] [cursor=pointer]:
+                  - /url: /menu?q=Spring+Rolls+5pc
+              - generic [ref=e128]:
+                - text: "|"
+                - link "Spicy Lemonade" [ref=e129] [cursor=pointer]:
+                  - /url: /menu?q=Spicy+Lemonade
+              - generic [ref=e130]:
+                - text: "|"
+                - link "Salted" [ref=e131] [cursor=pointer]:
+                  - /url: /menu?q=Salted
+              - generic [ref=e132]:
+                - text: "|"
+                - link "Raw Banana Samosa 5pc ( Without Onion & Garlic )" [ref=e133] [cursor=pointer]:
+                  - /url: /menu?q=Raw+Banana+Samosa+5pc+%28+Without+Onion+%26+Garlic+%29
+              - generic [ref=e134]:
+                - text: "|"
+                - link "Ras Malai Retreat" [ref=e135] [cursor=pointer]:
+                  - /url: /menu?q=Ras+Malai+Retreat
+              - generic [ref=e136]:
+                - text: "|"
+                - link "Peri Peri" [ref=e137] [cursor=pointer]:
+                  - /url: /menu?q=Peri+Peri
+              - generic [ref=e138]:
+                - text: "|"
+                - link "Pepe Paneer (medium 21 Cm)" [ref=e139] [cursor=pointer]:
+                  - /url: /menu?q=Pepe+Paneer+%28Medium+21+Cm%29
+              - generic [ref=e140]:
+                - text: "|"
+                - link "Paneer Patola" [ref=e141] [cursor=pointer]:
+                  - /url: /menu?q=Paneer+Patola
+            - paragraph [ref=e142]:
+              - generic [ref=e143]: "Favourites:"
+              - link "All In One (medium 21 Cm)" [ref=e145] [cursor=pointer]:
+                - /url: /menu?q=All+In+One+%28Medium+21+Cm%29
+              - generic [ref=e146]:
+                - text: "|"
+                - link "Aloo Tikki" [ref=e147] [cursor=pointer]:
+                  - /url: /menu?q=Aloo+Tikki
+              - generic [ref=e148]:
+                - text: "|"
+                - link "Banarasi Paan Fusion" [ref=e149] [cursor=pointer]:
+                  - /url: /menu?q=Banarasi+Paan+Fusion
+              - generic [ref=e150]:
+                - text: "|"
+                - link "Burger Sause" [ref=e151] [cursor=pointer]:
+                  - /url: /menu?q=Burger+Sause
+              - generic [ref=e152]:
+                - text: "|"
+                - link "Chatpata Cheese" [ref=e153] [cursor=pointer]:
+                  - /url: /menu?q=Chatpata+Cheese
+              - generic [ref=e154]:
+                - text: "|"
+                - link "Chatpata Tikki" [ref=e155] [cursor=pointer]:
+                  - /url: /menu?q=Chatpata+Tikki
+              - generic [ref=e156]:
+                - text: "|"
+                - link "Cheese Slice" [ref=e157] [cursor=pointer]:
+                  - /url: /menu?q=Cheese+Slice
+              - generic [ref=e158]:
+                - text: "|"
+                - link "Cheesy Rounders 8pc" [ref=e159] [cursor=pointer]:
+                  - /url: /menu?q=Cheesy+Rounders+8pc
+            - paragraph [ref=e160]:
+              - generic [ref=e161]: "Categories:"
+              - link "Burgers" [ref=e163] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542961
+              - generic [ref=e164]:
+                - text: "|"
+                - link "Naan & Wraps" [ref=e165] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_2430322
+              - generic [ref=e166]:
+                - text: "|"
+                - link "Sides" [ref=e167] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542967
+              - generic [ref=e168]:
+                - text: "|"
+                - link "Pizza" [ref=e169] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542962
+              - generic [ref=e170]:
+                - text: "|"
+                - link "Beverages" [ref=e171] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542968
+              - generic [ref=e172]:
+                - text: "|"
+                - link "Garlic Bread" [ref=e173] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542966
+              - generic [ref=e174]:
+                - text: "|"
+                - link "Taste Maker Dips" [ref=e175] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_1262830
+              - generic [ref=e176]:
+                - text: "|"
+                - link "Desserts" [ref=e177] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_543664
+              - generic [ref=e178]:
+                - text: "|"
+                - link "Party Combos" [ref=e179] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_5354101
+        - generic [ref=e180]:
+          - heading "Categories" [level=2] [ref=e181]
+          - list [ref=e182]:
+            - listitem [ref=e183]:
+              - link "Burgers" [ref=e184] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542961
+            - listitem [ref=e185]:
+              - link "Naan & Wraps" [ref=e186] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_2430322
+            - listitem [ref=e187]:
+              - link "Sides" [ref=e188] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542967
+            - listitem [ref=e189]:
+              - link "Pizza" [ref=e190] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542962
+            - listitem [ref=e191]:
+              - link "Beverages" [ref=e192] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542968
+            - listitem [ref=e193]:
+              - link "Garlic Bread" [ref=e194] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542966
+            - listitem [ref=e195]:
+              - link "Taste Maker Dips" [ref=e196] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_1262830
+            - listitem [ref=e197]:
+              - link "Desserts" [ref=e198] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_543664
+            - listitem [ref=e199]:
+              - link "Party Combos" [ref=e200] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_5354101
+    - contentinfo [ref=e201]:
+      - generic [ref=e202]:
+        - generic [ref=e203]:
+          - generic [ref=e204]:
+            - link "SVS Food home" [ref=e205] [cursor=pointer]:
+              - /url: /
+              - img "SVS Food" [ref=e206]
+            - paragraph [ref=e207]: SVS FOOD Private Limited
+            - generic [ref=e208]:
+              - paragraph [ref=e209]: Corporate Address
+              - generic [ref=e210]:
+                - text: Shop No. 200, Mezanine Floor,
+                - text: Ojas Imperia, Bandariya Tiraha,
+                - text: Narmada Road, Jabalpur,
+                - text: Madhya Pradesh 482001
+          - generic [ref=e211]:
+            - heading "Useful Links" [level=4] [ref=e212]
+            - generic [ref=e213]:
+              - link "Our delivery fleet" [ref=e214] [cursor=pointer]:
+                - /url: /delivery
+              - link "Blog" [ref=e215] [cursor=pointer]:
+                - /url: /blog
+              - link "News" [ref=e216] [cursor=pointer]:
+                - /url: /news
+              - link "SVS TECH" [ref=e217] [cursor=pointer]:
+                - /url: https://svstech.svsfood.com/
+              - link "SVS Locater" [ref=e218] [cursor=pointer]:
+                - /url: /locations
+              - link "SVS Cash" [ref=e219] [cursor=pointer]:
+                - /url: /account?tab=svs-cash
+              - link "Helpdesk" [ref=e220] [cursor=pointer]:
+                - /url: /account?tab=help
+          - generic [ref=e221]:
+            - heading "Legal" [level=4] [ref=e222]
+            - generic [ref=e223]:
+              - link "Refund Policy" [ref=e224] [cursor=pointer]:
+                - /url: /refund-policy
+              - link "Shipping Policy" [ref=e225] [cursor=pointer]:
+                - /url: /shipping-policy
+              - link "Privacy Policy" [ref=e226] [cursor=pointer]:
+                - /url: /privacy-policy
+              - link "Terms & Conditions" [ref=e227] [cursor=pointer]:
+                - /url: /terms-and-conditions
+          - generic [ref=e228]:
+            - heading "Company" [level=4] [ref=e229]
+            - generic [ref=e230]:
+              - link "Careers" [ref=e231] [cursor=pointer]:
+                - /url: https://careers.svsfood.com
+              - link "Become an SVS HERO" [ref=e232] [cursor=pointer]:
+                - /url: /riders
+              - link "Partner" [ref=e233] [cursor=pointer]:
+                - /url: https://connect.svsfood.com
+              - link "About us" [ref=e234] [cursor=pointer]:
+                - /url: /aboutus
+          - generic [ref=e235]:
+            - heading "Contact & Connect" [level=4] [ref=e236]
+            - generic [ref=e237]:
+              - link "helpdesk@svsfood.com" [ref=e238] [cursor=pointer]:
+                - /url: mailto:helpdesk@svsfood.com
+              - link "info@svsfood.com" [ref=e239] [cursor=pointer]:
+                - /url: mailto:info@svsfood.com
+              - link "career@svsfood.com" [ref=e240] [cursor=pointer]:
+                - /url: mailto:career@svsfood.com
+              - link "(+91) 7869717041" [ref=e241] [cursor=pointer]:
+                - /url: tel:+917869717041
+            - generic [ref=e242]:
+              - link "Facebook" [ref=e243] [cursor=pointer]:
+                - /url: https://www.facebook.com/svsfoodveg/
+                - img [ref=e244]
+              - link "Instagram" [ref=e246] [cursor=pointer]:
+                - /url: https://www.instagram.com/svs_food/
+                - img [ref=e247]
+              - link "YouTube" [ref=e249] [cursor=pointer]:
+                - /url: https://www.youtube.com/@svsfood
+                - img [ref=e250]
+              - link "X" [ref=e252] [cursor=pointer]:
+                - /url: https://x.com/svs_food
+                - img [ref=e253]
+              - link "LinkedIn" [ref=e255] [cursor=pointer]:
+                - /url: https://linkedin.com/company/svsfood
+                - img [ref=e256]
+          - generic [ref=e260]:
+            - generic [ref=e261]:
+              - generic:
+                - img
+            - generic [ref=e262]:
+              - generic:
+                - img
+        - generic [ref=e266]:
+          - paragraph [ref=e267]: © 2026 SVS FOOD Private Limited. All Rights Reserved.
+          - link "Download App" [ref=e268] [cursor=pointer]:
+            - /url: https://app.svsfood.com
+            - img [ref=e269]
+            - text: Download App
+  - generic [ref=e272]:
+    - generic [ref=e273]: Powered by
+    - link "SVS Food home" [ref=e274] [cursor=pointer]:
+      - /url: /
+      - img "SVS" [ref=e275]
+      - generic [ref=e276]: .
+  - region "Notifications alt+T"
+```

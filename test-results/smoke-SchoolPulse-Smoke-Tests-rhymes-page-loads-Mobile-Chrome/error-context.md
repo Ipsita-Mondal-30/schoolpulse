@@ -2,8 +2,982 @@
 
 ```yaml
 - generic [active] [ref=e1]:
-  - heading "Not Found" [level=1] [ref=e2]
-  - button "Open Next.js Dev Tools" [ref=e8] [cursor=pointer]:
-    - img [ref=e9]
-  - alert [ref=e12]
+  - navigation [ref=e2]:
+    - generic [ref=e4]:
+      - button "Change delivery location" [ref=e6] [cursor=pointer]:
+        - img [ref=e8]
+        - generic [ref=e11]: Instant delivery
+        - generic [ref=e13]: Satna · Rewa Rd, in front of gold palace jewellers, Railway Colony, Satna, Madhya Pradesh 485001
+        - img [ref=e15]
+      - button "Login" [ref=e18] [cursor=pointer]:
+        - img [ref=e20]
+  - generic [ref=e23]:
+    - main [ref=e24]:
+      - generic [ref=e26]:
+        - generic [ref=e28]:
+          - generic [ref=e30]:
+            - img [ref=e32]
+            - generic [ref=e35]:
+              - generic:
+                - text: Search for “
+                - generic: NAAN & WRAPS
+                - text: ”
+              - textbox "Search menu items" [ref=e36]:
+                - /placeholder: ""
+            - button:
+              - img
+          - generic [ref=e37]:
+            - button "Burgers" [ref=e38] [cursor=pointer]:
+              - generic [ref=e42]: Burgers
+            - button "Naan & Wraps" [ref=e43] [cursor=pointer]:
+              - generic [ref=e47]: Naan & Wraps
+            - button "Sides" [ref=e48] [cursor=pointer]:
+              - generic [ref=e52]: Sides
+            - button "Pizza" [ref=e53] [cursor=pointer]:
+              - generic [ref=e57]: Pizza
+            - button "Beverages" [ref=e58] [cursor=pointer]:
+              - generic [ref=e62]: Beverages
+            - button "Garlic Bread" [ref=e63] [cursor=pointer]:
+              - generic [ref=e67]: Garlic Bread
+            - button "Taste Maker Dips" [ref=e68] [cursor=pointer]:
+              - generic [ref=e72]: Taste Maker Dips
+            - button "Desserts" [ref=e73] [cursor=pointer]:
+              - generic [ref=e77]: Desserts
+            - button "Party Combos" [ref=e78] [cursor=pointer]:
+              - generic [ref=e82]: Party Combos
+            - button "Enter bulk order mode" [ref=e84] [cursor=pointer]:
+              - generic [ref=e86]: Bulk order
+              - generic [ref=e87]: Bulk order
+        - generic [ref=e89]:
+          - generic [ref=e90]:
+            - heading "Burgers" [level=2] [ref=e92]
+            - list [ref=e93]:
+              - listitem [ref=e94]:
+                - button "Aloo Tikki ADD ₹57.15 Aloo Tikki" [ref=e95] [cursor=pointer]:
+                  - button "Aloo Tikki ADD" [ref=e96]:
+                    - generic [ref=e97]:
+                      - img "Aloo Tikki"
+                    - button "ADD" [ref=e99]
+                  - generic [ref=e100]:
+                    - paragraph [ref=e101]: ₹57.15
+                    - heading "Aloo Tikki" [level=3] [ref=e102]
+              - listitem [ref=e103]:
+                - button "Chilli Avocado ADD ₹133.34 Chilli Avocado" [ref=e104] [cursor=pointer]:
+                  - button "Chilli Avocado ADD" [ref=e105]:
+                    - generic [ref=e106]:
+                      - img "Chilli Avocado"
+                    - button "ADD" [ref=e108]
+                  - generic [ref=e109]:
+                    - paragraph [ref=e110]: ₹133.34
+                    - heading "Chilli Avocado" [level=3] [ref=e111]
+              - listitem [ref=e112]:
+                - button "Chilli Lava ADD ₹95.25 Chilli Lava" [ref=e113] [cursor=pointer]:
+                  - button "Chilli Lava ADD" [ref=e114]:
+                    - generic [ref=e115]:
+                      - img "Chilli Lava"
+                    - button "ADD" [ref=e117]
+                  - generic [ref=e118]:
+                    - paragraph [ref=e119]: ₹95.25
+                    - heading "Chilli Lava" [level=3] [ref=e120]
+              - listitem [ref=e121]:
+                - button "Dairy Free Burger ADD ₹66.68 Dairy Free Burger" [ref=e122] [cursor=pointer]:
+                  - button "Dairy Free Burger ADD" [ref=e123]:
+                    - generic [ref=e124]:
+                      - img "Dairy Free Burger"
+                    - button "ADD" [ref=e126]
+                  - generic [ref=e127]:
+                    - paragraph [ref=e128]: ₹66.68
+                    - heading "Dairy Free Burger" [level=3] [ref=e129]
+              - listitem [ref=e130]:
+                - button "Jumbo Paneer ADD ₹114.29 Jumbo Paneer" [ref=e131] [cursor=pointer]:
+                  - button "Jumbo Paneer ADD" [ref=e132]:
+                    - generic [ref=e133]:
+                      - img "Jumbo Paneer"
+                    - button "ADD" [ref=e135]
+                  - generic [ref=e136]:
+                    - paragraph [ref=e137]: ₹114.29
+                    - heading "Jumbo Paneer" [level=3] [ref=e138]
+              - listitem [ref=e139]:
+                - button "Maharaja ADD ₹133.34 Maharaja" [ref=e140] [cursor=pointer]:
+                  - button "Maharaja ADD" [ref=e141]:
+                    - generic [ref=e142]:
+                      - img "Maharaja"
+                    - button "ADD" [ref=e144]
+                  - generic [ref=e145]:
+                    - paragraph [ref=e146]: ₹133.34
+                    - heading "Maharaja" [level=3] [ref=e147]
+              - listitem [ref=e148]:
+                - article [ref=e149]:
+                  - button "Munch Masala ADD" [ref=e150] [cursor=pointer]:
+                    - generic [ref=e151]:
+                      - img "Munch Masala"
+                    - button "ADD" [ref=e153]
+                  - generic [ref=e154]:
+                    - paragraph [ref=e155]: ₹66.67
+                    - heading "Munch Masala" [level=3] [ref=e156]
+              - listitem [ref=e157]:
+                - button "NONG Burger ADD ₹85.72 NONG Burger" [ref=e158] [cursor=pointer]:
+                  - button "NONG Burger ADD" [ref=e159]:
+                    - generic [ref=e160]:
+                      - img "NONG Burger"
+                    - button "ADD" [ref=e162]
+                  - generic [ref=e163]:
+                    - paragraph [ref=e164]: ₹85.72
+                    - heading "NONG Burger" [level=3] [ref=e165]
+              - listitem [ref=e166]:
+                - button "Paneer Herbinaro ADD ₹123.81 Paneer Herbinaro" [ref=e167] [cursor=pointer]:
+                  - button "Paneer Herbinaro ADD" [ref=e168]:
+                    - generic [ref=e169]:
+                      - img "Paneer Herbinaro"
+                    - button "ADD" [ref=e171]
+                  - generic [ref=e172]:
+                    - paragraph [ref=e173]: ₹123.81
+                    - heading "Paneer Herbinaro" [level=3] [ref=e174]
+              - listitem [ref=e175]:
+                - button "Supreme ADD ₹85.72 Supreme" [ref=e176] [cursor=pointer]:
+                  - button "Supreme ADD" [ref=e177]:
+                    - generic [ref=e178]:
+                      - img "Supreme"
+                    - button "ADD" [ref=e180]
+                  - generic [ref=e181]:
+                    - paragraph [ref=e182]: ₹85.72
+                    - heading "Supreme" [level=3] [ref=e183]
+              - listitem [ref=e184]:
+                - button "Vadapav ADD ₹66.68 Vadapav" [ref=e185] [cursor=pointer]:
+                  - button "Vadapav ADD" [ref=e186]:
+                    - generic [ref=e187]:
+                      - img "Vadapav"
+                    - button "ADD" [ref=e189]
+                  - generic [ref=e190]:
+                    - paragraph [ref=e191]: ₹66.68
+                    - heading "Vadapav" [level=3] [ref=e192]
+          - generic [ref=e193]:
+            - heading "Naan & Wraps" [level=2] [ref=e195]
+            - list [ref=e196]:
+              - listitem [ref=e197]:
+                - article [ref=e198]:
+                  - button "Chatpata Cheese ADD" [ref=e199] [cursor=pointer]:
+                    - generic [ref=e200]:
+                      - img "Chatpata Cheese"
+                    - button "ADD" [ref=e202]
+                  - generic [ref=e203]:
+                    - paragraph [ref=e204]: ₹76.20
+                    - heading "Chatpata Cheese" [level=3] [ref=e205]
+              - listitem [ref=e206]:
+                - article [ref=e207]:
+                  - button "Chatpata Tikki ADD" [ref=e208] [cursor=pointer]:
+                    - generic [ref=e209]:
+                      - img "Chatpata Tikki"
+                    - button "ADD" [ref=e211]
+                  - generic [ref=e212]:
+                    - paragraph [ref=e213]: ₹57.15
+                    - heading "Chatpata Tikki" [level=3] [ref=e214]
+              - listitem [ref=e215]:
+                - article [ref=e216]:
+                  - button "Crispy Veg ADD" [ref=e217] [cursor=pointer]:
+                    - generic [ref=e218]:
+                      - img "Crispy Veg"
+                    - button "ADD" [ref=e220]
+                  - generic [ref=e221]:
+                    - paragraph [ref=e222]: ₹76.20
+                    - heading "Crispy Veg" [level=3] [ref=e223]
+              - listitem [ref=e224]:
+                - article [ref=e225]:
+                  - button "NONG Wraproll ADD" [ref=e226] [cursor=pointer]:
+                    - generic [ref=e227]:
+                      - img "NONG Wraproll"
+                    - button "ADD" [ref=e229]
+                  - generic [ref=e230]:
+                    - paragraph [ref=e231]: ₹114.29
+                    - heading "NONG Wraproll" [level=3] [ref=e232]
+              - listitem [ref=e233]:
+                - article [ref=e234]:
+                  - button "Paneer Patola ADD" [ref=e235] [cursor=pointer]:
+                    - generic [ref=e236]:
+                      - img "Paneer Patola"
+                    - button "ADD" [ref=e238]
+                  - generic [ref=e239]:
+                    - paragraph [ref=e240]: ₹95.25
+                    - heading "Paneer Patola" [level=3] [ref=e241]
+          - generic [ref=e242]:
+            - heading "Sides" [level=2] [ref=e244]
+            - list [ref=e245]:
+              - listitem [ref=e246]:
+                - article [ref=e247]:
+                  - button "Cheesy Rounders 8pc ADD" [ref=e248] [cursor=pointer]:
+                    - generic [ref=e249]:
+                      - img "Cheesy Rounders 8pc"
+                    - button "ADD" [ref=e251]
+                  - generic [ref=e252]:
+                    - paragraph [ref=e253]: ₹114.29
+                    - heading "Cheesy Rounders 8pc" [level=3] [ref=e254]
+              - listitem [ref=e255]:
+                - article [ref=e256]:
+                  - button "Chinese Pops ADD" [ref=e257] [cursor=pointer]:
+                    - generic [ref=e258]:
+                      - img "Chinese Pops"
+                    - button "ADD" [ref=e260]
+                  - generic [ref=e261]:
+                    - paragraph [ref=e262]: ₹76.20
+                    - heading "Chinese Pops" [level=3] [ref=e263]
+              - listitem [ref=e264]:
+                - button "Dressing ADD ₹133.34 Dressing" [ref=e265] [cursor=pointer]:
+                  - button "Dressing ADD" [ref=e266]:
+                    - generic [ref=e267]:
+                      - img "Dressing"
+                    - button "ADD" [ref=e269]
+                  - generic [ref=e270]:
+                    - paragraph [ref=e271]: ₹133.34
+                    - heading "Dressing" [level=3] [ref=e272]
+              - listitem [ref=e273]:
+                - article [ref=e274]:
+                  - button "NONG Peri Peri ADD" [ref=e275] [cursor=pointer]:
+                    - generic [ref=e276]:
+                      - img "NONG Peri Peri"
+                    - button "ADD" [ref=e278]
+                  - generic [ref=e279]:
+                    - paragraph [ref=e280]: ₹114.29
+                    - heading "NONG Peri Peri" [level=3] [ref=e281]
+              - listitem [ref=e282]:
+                - article [ref=e283]:
+                  - button "NONG Spring Rolls ADD" [ref=e284] [cursor=pointer]:
+                    - generic [ref=e285]:
+                      - img "NONG Spring Rolls"
+                    - button "ADD" [ref=e287]
+                  - generic [ref=e288]:
+                    - paragraph [ref=e289]: ₹114.29
+                    - heading "NONG Spring Rolls" [level=3] [ref=e290]
+              - listitem [ref=e291]:
+                - article [ref=e292]:
+                  - button "Peri Peri ADD" [ref=e293] [cursor=pointer]:
+                    - generic [ref=e294]:
+                      - img "Peri Peri"
+                    - button "ADD" [ref=e296]
+                  - generic [ref=e297]:
+                    - paragraph [ref=e298]: ₹95.25
+                    - heading "Peri Peri" [level=3] [ref=e299]
+              - listitem [ref=e300]:
+                - article [ref=e301]:
+                  - button "Raw Banana Samosa 5pc ( Without Onion & Garlic ) ADD" [ref=e302] [cursor=pointer]:
+                    - generic [ref=e303]:
+                      - img "Raw Banana Samosa 5pc ( Without Onion & Garlic )"
+                    - button "ADD" [ref=e305]
+                  - generic [ref=e306]:
+                    - paragraph [ref=e307]: ₹114.29
+                    - heading "Raw Banana Samosa 5pc ( Without Onion & Garlic )" [level=3] [ref=e308]
+              - listitem [ref=e309]:
+                - article [ref=e310]:
+                  - button "Salted ADD" [ref=e311] [cursor=pointer]:
+                    - generic [ref=e312]:
+                      - img "Salted"
+                    - button "ADD" [ref=e314]
+                  - generic [ref=e315]:
+                    - paragraph [ref=e316]: ₹85.72
+                    - heading "Salted" [level=3] [ref=e317]
+              - listitem [ref=e318]:
+                - article [ref=e319]:
+                  - button "Spring Rolls 5pc ADD" [ref=e320] [cursor=pointer]:
+                    - generic [ref=e321]:
+                      - img "Spring Rolls 5pc"
+                    - button "ADD" [ref=e323]
+                  - generic [ref=e324]:
+                    - paragraph [ref=e325]: ₹114.29
+                    - heading "Spring Rolls 5pc" [level=3] [ref=e326]
+              - listitem [ref=e327]:
+                - article [ref=e328]:
+                  - button "Veggie Sticks 10pc ADD" [ref=e329] [cursor=pointer]:
+                    - generic [ref=e330]:
+                      - img "Veggie Sticks 10pc"
+                    - button "ADD" [ref=e332]
+                  - generic [ref=e333]:
+                    - paragraph [ref=e334]: ₹114.29
+                    - heading "Veggie Sticks 10pc" [level=3] [ref=e335]
+          - generic [ref=e336]:
+            - heading "Pizza" [level=2] [ref=e338]
+            - list [ref=e339]:
+              - listitem [ref=e340]:
+                - button "All In One (Medium 21 Cm) ADD ₹295.25 All In One (Medium 21 Cm)" [ref=e341] [cursor=pointer]:
+                  - button "All In One (Medium 21 Cm) ADD" [ref=e342]:
+                    - generic [ref=e343]:
+                      - img "All In One (Medium 21 Cm)"
+                    - button "ADD" [ref=e345]
+                  - generic [ref=e346]:
+                    - paragraph [ref=e347]: ₹295.25
+                    - heading "All In One (Medium 21 Cm)" [level=3] [ref=e348]
+              - listitem [ref=e349]:
+                - button "Golden Corn (Medium 21 Cm) ADD ₹209.54 Golden Corn (Medium 21 Cm)" [ref=e350] [cursor=pointer]:
+                  - button "Golden Corn (Medium 21 Cm) ADD" [ref=e351]:
+                    - generic [ref=e352]:
+                      - img "Golden Corn (Medium 21 Cm)"
+                    - button "ADD" [ref=e354]
+                  - generic [ref=e355]:
+                    - paragraph [ref=e356]: ₹209.54
+                    - heading "Golden Corn (Medium 21 Cm)" [level=3] [ref=e357]
+              - listitem [ref=e358]:
+                - button "Margherita (Medium 21 Cm) ADD ₹171.44 Margherita (Medium 21 Cm)" [ref=e359] [cursor=pointer]:
+                  - button "Margherita (Medium 21 Cm) ADD" [ref=e360]:
+                    - generic [ref=e361]:
+                      - img "Margherita (Medium 21 Cm)"
+                    - button "ADD" [ref=e363]
+                  - generic [ref=e364]:
+                    - paragraph [ref=e365]: ₹171.44
+                    - heading "Margherita (Medium 21 Cm)" [level=3] [ref=e366]
+              - listitem [ref=e367]:
+                - button "NONG Pizza (Medium 21 Cm) ADD ₹266.68 NONG Pizza (Medium 21 Cm)" [ref=e368] [cursor=pointer]:
+                  - button "NONG Pizza (Medium 21 Cm) ADD" [ref=e369]:
+                    - generic [ref=e370]:
+                      - img "NONG Pizza (Medium 21 Cm)"
+                    - button "ADD" [ref=e372]
+                  - generic [ref=e373]:
+                    - paragraph [ref=e374]: ₹266.68
+                    - heading "NONG Pizza (Medium 21 Cm)" [level=3] [ref=e375]
+              - listitem [ref=e376]:
+                - button "Pepe Paneer (Medium 21 Cm) ADD ₹266.68 Pepe Paneer (Medium 21 Cm)" [ref=e377] [cursor=pointer]:
+                  - button "Pepe Paneer (Medium 21 Cm) ADD" [ref=e378]:
+                    - generic [ref=e379]:
+                      - img "Pepe Paneer (Medium 21 Cm)"
+                    - button "ADD" [ref=e381]
+                  - generic [ref=e382]:
+                    - paragraph [ref=e383]: ₹266.68
+                    - heading "Pepe Paneer (Medium 21 Cm)" [level=3] [ref=e384]
+              - listitem [ref=e385]:
+                - button "Veggie Loaded (Medium 21 Cm) ADD ₹200 Veggie Loaded (Medium 21 Cm)" [ref=e386] [cursor=pointer]:
+                  - button "Veggie Loaded (Medium 21 Cm) ADD" [ref=e387]:
+                    - generic [ref=e388]:
+                      - img "Veggie Loaded (Medium 21 Cm)"
+                    - button "ADD" [ref=e390]
+                  - generic [ref=e391]:
+                    - paragraph [ref=e392]: ₹200
+                    - heading "Veggie Loaded (Medium 21 Cm)" [level=3] [ref=e393]
+          - generic [ref=e394]:
+            - heading "Beverages" [level=2] [ref=e396]
+            - list [ref=e397]:
+              - listitem [ref=e398]:
+                - button "Banarasi Paan Fusion ADD ₹133.34 Banarasi Paan Fusion" [ref=e399] [cursor=pointer]:
+                  - button "Banarasi Paan Fusion ADD" [ref=e400]:
+                    - generic [ref=e401]:
+                      - img "Banarasi Paan Fusion"
+                    - button "ADD" [ref=e403]
+                  - generic [ref=e404]:
+                    - paragraph [ref=e405]: ₹133.34
+                    - heading "Banarasi Paan Fusion" [level=3] [ref=e406]
+              - listitem [ref=e407]:
+                - button "Cold Coffee Craze ADD ₹133.34 Cold Coffee Craze" [ref=e408] [cursor=pointer]:
+                  - button "Cold Coffee Craze ADD" [ref=e409]:
+                    - generic [ref=e410]:
+                      - img "Cold Coffee Craze"
+                    - button "ADD" [ref=e412]
+                  - generic [ref=e413]:
+                    - paragraph [ref=e414]: ₹133.34
+                    - heading "Cold Coffee Craze" [level=3] [ref=e415]
+              - listitem [ref=e416]:
+                - article [ref=e417]:
+                  - button "Oat Chocolate ADD" [ref=e418] [cursor=pointer]:
+                    - generic [ref=e419]:
+                      - img "Oat Chocolate"
+                    - button "ADD" [ref=e421]
+                  - generic [ref=e422]:
+                    - paragraph [ref=e423]: ₹133.34
+                    - heading "Oat Chocolate" [level=3] [ref=e424]
+              - listitem [ref=e425]:
+                - button "Oreo Obsession ADD ₹133.34 Oreo Obsession" [ref=e426] [cursor=pointer]:
+                  - button "Oreo Obsession ADD" [ref=e427]:
+                    - generic [ref=e428]:
+                      - img "Oreo Obsession"
+                    - button "ADD" [ref=e430]
+                  - generic [ref=e431]:
+                    - paragraph [ref=e432]: ₹133.34
+                    - heading "Oreo Obsession" [level=3] [ref=e433]
+              - listitem [ref=e434]:
+                - button "Ras Malai Retreat ADD ₹133.34 Ras Malai Retreat" [ref=e435] [cursor=pointer]:
+                  - button "Ras Malai Retreat ADD" [ref=e436]:
+                    - generic [ref=e437]:
+                      - img "Ras Malai Retreat"
+                    - button "ADD" [ref=e439]
+                  - generic [ref=e440]:
+                    - paragraph [ref=e441]: ₹133.34
+                    - heading "Ras Malai Retreat" [level=3] [ref=e442]
+              - listitem [ref=e443]:
+                - article [ref=e444]:
+                  - button "Spicy Lemonade ADD" [ref=e445] [cursor=pointer]:
+                    - generic [ref=e446]:
+                      - img "Spicy Lemonade"
+                    - button "ADD" [ref=e448]
+                  - generic [ref=e449]:
+                    - paragraph [ref=e450]: ₹133.34
+                    - heading "Spicy Lemonade" [level=3] [ref=e451]
+              - listitem [ref=e452]:
+                - button "Strawberry Sensation ADD ₹133.34 Strawberry Sensation" [ref=e453] [cursor=pointer]:
+                  - button "Strawberry Sensation ADD" [ref=e454]:
+                    - generic [ref=e455]:
+                      - img "Strawberry Sensation"
+                    - button "ADD" [ref=e457]
+                  - generic [ref=e458]:
+                    - paragraph [ref=e459]: ₹133.34
+                    - heading "Strawberry Sensation" [level=3] [ref=e460]
+              - listitem [ref=e461]:
+                - article [ref=e462]:
+                  - button "Virgin Mojito ADD" [ref=e463] [cursor=pointer]:
+                    - generic [ref=e464]:
+                      - img "Virgin Mojito"
+                    - button "ADD" [ref=e466]
+                  - generic [ref=e467]:
+                    - paragraph [ref=e468]: ₹133.34
+                    - heading "Virgin Mojito" [level=3] [ref=e469]
+              - listitem [ref=e470]:
+                - button "Water Bottle ADD ₹19.05 Water Bottle" [ref=e471] [cursor=pointer]:
+                  - button "Water Bottle ADD" [ref=e472]:
+                    - generic [ref=e473]:
+                      - img "Water Bottle"
+                    - button "ADD" [ref=e475]
+                  - generic [ref=e476]:
+                    - paragraph [ref=e477]: ₹19.05
+                    - heading "Water Bottle" [level=3] [ref=e478]
+          - generic [ref=e479]:
+            - heading "Garlic Bread" [level=2] [ref=e481]
+            - list [ref=e482]:
+              - listitem [ref=e483]:
+                - article [ref=e484]:
+                  - button "Loaf Cheese ADD" [ref=e485] [cursor=pointer]:
+                    - generic [ref=e486]:
+                      - img "Loaf Cheese"
+                    - button "ADD" [ref=e488]
+                  - generic [ref=e489]:
+                    - paragraph [ref=e490]: ₹171.44
+                    - heading "Loaf Cheese" [level=3] [ref=e491]
+              - listitem [ref=e492]:
+                - article [ref=e493]:
+                  - button "Stuffed Cheese ADD" [ref=e494] [cursor=pointer]:
+                    - generic [ref=e495]:
+                      - img "Stuffed Cheese"
+                    - button "ADD" [ref=e497]
+                  - generic [ref=e498]:
+                    - paragraph [ref=e499]: ₹142.87
+                    - heading "Stuffed Cheese" [level=3] [ref=e500]
+              - listitem [ref=e501]:
+                - article [ref=e502]:
+                  - button "Stuffed Cheese & Corn ADD" [ref=e503] [cursor=pointer]:
+                    - generic [ref=e504]:
+                      - img "Stuffed Cheese & Corn"
+                    - button "ADD" [ref=e506]
+                  - generic [ref=e507]:
+                    - paragraph [ref=e508]: ₹171.44
+                    - heading "Stuffed Cheese & Corn" [level=3] [ref=e509]
+              - listitem [ref=e510]:
+                - article [ref=e511]:
+                  - button "Stuffed Supreme ADD" [ref=e512] [cursor=pointer]:
+                    - generic [ref=e513]:
+                      - img "Stuffed Supreme"
+                    - button "ADD" [ref=e515]
+                  - generic [ref=e516]:
+                    - paragraph [ref=e517]: ₹190.49
+                    - heading "Stuffed Supreme" [level=3] [ref=e518]
+          - generic [ref=e519]:
+            - heading "Taste Maker Dips" [level=2] [ref=e521]
+            - list [ref=e522]:
+              - listitem [ref=e523]:
+                - article [ref=e524]:
+                  - button "Burger Sause ADD" [ref=e525] [cursor=pointer]:
+                    - generic [ref=e526]:
+                      - img "Burger Sause"
+                    - button "ADD" [ref=e528]
+                  - generic [ref=e529]:
+                    - paragraph [ref=e530]: ₹19.05
+                    - heading "Burger Sause" [level=3] [ref=e531]
+              - listitem [ref=e532]:
+                - article [ref=e533]:
+                  - button "Cheese Slice ADD" [ref=e534] [cursor=pointer]:
+                    - generic [ref=e535]:
+                      - img "Cheese Slice"
+                    - button "ADD" [ref=e537]
+                  - generic [ref=e538]:
+                    - paragraph [ref=e539]: ₹19.05
+                    - heading "Cheese Slice" [level=3] [ref=e540]
+              - listitem [ref=e541]:
+                - article [ref=e542]:
+                  - button "Chilli Garlic ADD" [ref=e543] [cursor=pointer]:
+                    - generic [ref=e544]:
+                      - img "Chilli Garlic"
+                    - button "ADD" [ref=e546]
+                  - generic [ref=e547]:
+                    - paragraph [ref=e548]: ₹19.05
+                    - heading "Chilli Garlic" [level=3] [ref=e549]
+              - listitem [ref=e550]:
+                - article [ref=e551]:
+                  - button "Liquid Cheese ADD" [ref=e552] [cursor=pointer]:
+                    - generic [ref=e553]:
+                      - img "Liquid Cheese"
+                    - button "ADD" [ref=e555]
+                  - generic [ref=e556]:
+                    - paragraph [ref=e557]: ₹19.05
+                    - heading "Liquid Cheese" [level=3] [ref=e558]
+              - listitem [ref=e559]:
+                - article [ref=e560]:
+                  - button "Mayo ADD" [ref=e561] [cursor=pointer]:
+                    - generic [ref=e562]:
+                      - img "Mayo"
+                    - button "ADD" [ref=e564]
+                  - generic [ref=e565]:
+                    - paragraph [ref=e566]: ₹19.05
+                    - heading "Mayo" [level=3] [ref=e567]
+          - generic [ref=e568]:
+            - heading "Desserts" [level=2] [ref=e570]
+            - list [ref=e571]:
+              - listitem [ref=e572]:
+                - article [ref=e573]:
+                  - button "Choco Lava ADD" [ref=e574] [cursor=pointer]:
+                    - generic [ref=e575]:
+                      - img "Choco Lava"
+                    - button "ADD" [ref=e577]
+                  - generic [ref=e578]:
+                    - paragraph [ref=e579]: ₹95.25
+                    - heading "Choco Lava" [level=3] [ref=e580]
+              - listitem [ref=e581]:
+                - article [ref=e582]:
+                  - button "Mango Melt ADD" [ref=e583] [cursor=pointer]:
+                    - generic [ref=e584]:
+                      - img "Mango Melt"
+                    - button "ADD" [ref=e586]
+                  - generic [ref=e587]:
+                    - paragraph [ref=e588]: ₹56.20
+                    - heading "Mango Melt" [level=3] [ref=e589]
+              - listitem [ref=e590]:
+                - article [ref=e591]:
+                  - button "Strawberry Swirl ADD" [ref=e592] [cursor=pointer]:
+                    - generic [ref=e593]:
+                      - img "Strawberry Swirl"
+                    - button "ADD" [ref=e595]
+                  - generic [ref=e596]:
+                    - paragraph [ref=e597]: ₹56.20
+                    - heading "Strawberry Swirl" [level=3] [ref=e598]
+          - generic [ref=e599]:
+            - heading "Party Combos" [level=2] [ref=e601]
+            - list [ref=e602]:
+              - listitem [ref=e603]:
+                - button "Naan + Beverage ADD ₹160.97 Naan + Beverage" [ref=e604] [cursor=pointer]:
+                  - button "Naan + Beverage ADD" [ref=e605]:
+                    - generic [ref=e606]:
+                      - img "Naan + Beverage"
+                    - button "ADD" [ref=e608]
+                  - generic [ref=e609]:
+                    - paragraph [ref=e610]: ₹160.97
+                    - heading "Naan + Beverage" [level=3] [ref=e611]
+              - listitem [ref=e612]:
+                - button "Wraproll + Beverage ADD ₹170.49 Wraproll + Beverage" [ref=e613] [cursor=pointer]:
+                  - button "Wraproll + Beverage ADD" [ref=e614]:
+                    - generic [ref=e615]:
+                      - img "Wraproll + Beverage"
+                    - button "ADD" [ref=e617]
+                  - generic [ref=e618]:
+                    - paragraph [ref=e619]: ₹170.49
+                    - heading "Wraproll + Beverage" [level=3] [ref=e620]
+      - paragraph [ref=e622]:
+        - generic [ref=e623]: Disclaimer
+        - text: Creative Visualizations are for representative purposes only. Actual Product appearance may vary.
+        - text: All prices are exclusive of taxes. Applicable Taxes are added at Checkout.
+    - complementary "Menu searches and categories" [ref=e624]:
+      - generic [ref=e625]:
+        - generic [ref=e626]:
+          - heading "Trending Searches" [level=2] [ref=e627]
+          - generic [ref=e628]:
+            - paragraph [ref=e629]:
+              - generic [ref=e630]: "Categories:"
+              - link "Burgers" [ref=e632] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542961
+              - generic [ref=e633]:
+                - text: "|"
+                - link "Naan & Wraps" [ref=e634] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_2430322
+              - generic [ref=e635]:
+                - text: "|"
+                - link "Sides" [ref=e636] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542967
+              - generic [ref=e637]:
+                - text: "|"
+                - link "Pizza" [ref=e638] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542962
+              - generic [ref=e639]:
+                - text: "|"
+                - link "Beverages" [ref=e640] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542968
+              - generic [ref=e641]:
+                - text: "|"
+                - link "Garlic Bread" [ref=e642] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542966
+              - generic [ref=e643]:
+                - text: "|"
+                - link "Taste Maker Dips" [ref=e644] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_1262830
+              - generic [ref=e645]:
+                - text: "|"
+                - link "Desserts" [ref=e646] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_543664
+              - generic [ref=e647]:
+                - text: "|"
+                - link "Party Combos" [ref=e648] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_5354101
+            - paragraph [ref=e649]:
+              - generic [ref=e650]: "Products:"
+              - link "All In One (medium 21 Cm)" [ref=e652] [cursor=pointer]:
+                - /url: /menu?q=All+In+One+%28Medium+21+Cm%29
+              - generic [ref=e653]:
+                - text: "|"
+                - link "Aloo Tikki" [ref=e654] [cursor=pointer]:
+                  - /url: /menu?q=Aloo+Tikki
+              - generic [ref=e655]:
+                - text: "|"
+                - link "Banarasi Paan Fusion" [ref=e656] [cursor=pointer]:
+                  - /url: /menu?q=Banarasi+Paan+Fusion
+              - generic [ref=e657]:
+                - text: "|"
+                - link "Burger Sause" [ref=e658] [cursor=pointer]:
+                  - /url: /menu?q=Burger+Sause
+              - generic [ref=e659]:
+                - text: "|"
+                - link "Chatpata Cheese" [ref=e660] [cursor=pointer]:
+                  - /url: /menu?q=Chatpata+Cheese
+              - generic [ref=e661]:
+                - text: "|"
+                - link "Chatpata Tikki" [ref=e662] [cursor=pointer]:
+                  - /url: /menu?q=Chatpata+Tikki
+              - generic [ref=e663]:
+                - text: "|"
+                - link "Cheese Slice" [ref=e664] [cursor=pointer]:
+                  - /url: /menu?q=Cheese+Slice
+              - generic [ref=e665]:
+                - text: "|"
+                - link "Cheesy Rounders 8pc" [ref=e666] [cursor=pointer]:
+                  - /url: /menu?q=Cheesy+Rounders+8pc
+              - generic [ref=e667]:
+                - text: "|"
+                - link "Chilli Avocado" [ref=e668] [cursor=pointer]:
+                  - /url: /menu?q=Chilli+Avocado
+              - generic [ref=e669]:
+                - text: "|"
+                - link "Chilli Garlic" [ref=e670] [cursor=pointer]:
+                  - /url: /menu?q=Chilli+Garlic
+            - paragraph [ref=e671]:
+              - generic [ref=e672]: "Favourites:"
+              - link "Chatpata Cheese" [ref=e674] [cursor=pointer]:
+                - /url: /menu?q=Chatpata+Cheese
+              - generic [ref=e675]:
+                - text: "|"
+                - link "Chatpata Tikki" [ref=e676] [cursor=pointer]:
+                  - /url: /menu?q=Chatpata+Tikki
+              - generic [ref=e677]:
+                - text: "|"
+                - link "Cheese Slice" [ref=e678] [cursor=pointer]:
+                  - /url: /menu?q=Cheese+Slice
+              - generic [ref=e679]:
+                - text: "|"
+                - link "Cheesy Rounders 8pc" [ref=e680] [cursor=pointer]:
+                  - /url: /menu?q=Cheesy+Rounders+8pc
+              - generic [ref=e681]:
+                - text: "|"
+                - link "Chilli Avocado" [ref=e682] [cursor=pointer]:
+                  - /url: /menu?q=Chilli+Avocado
+              - generic [ref=e683]:
+                - text: "|"
+                - link "Chilli Garlic" [ref=e684] [cursor=pointer]:
+                  - /url: /menu?q=Chilli+Garlic
+              - generic [ref=e685]:
+                - text: "|"
+                - link "Chilli Lava" [ref=e686] [cursor=pointer]:
+                  - /url: /menu?q=Chilli+Lava
+              - generic [ref=e687]:
+                - text: "|"
+                - link "Chinese Pops" [ref=e688] [cursor=pointer]:
+                  - /url: /menu?q=Chinese+Pops
+        - generic [ref=e689]:
+          - heading "Popular Searches" [level=2] [ref=e690]
+          - generic [ref=e691]:
+            - paragraph [ref=e692]:
+              - generic [ref=e693]: "Products:"
+              - link "Wraproll + Beverage" [ref=e695] [cursor=pointer]:
+                - /url: /menu?q=Wraproll+%2B+Beverage
+              - generic [ref=e696]:
+                - text: "|"
+                - link "Water Bottle" [ref=e697] [cursor=pointer]:
+                  - /url: /menu?q=Water+Bottle
+              - generic [ref=e698]:
+                - text: "|"
+                - link "Virgin Mojito" [ref=e699] [cursor=pointer]:
+                  - /url: /menu?q=Virgin+Mojito
+              - generic [ref=e700]:
+                - text: "|"
+                - link "Veggie Sticks 10pc" [ref=e701] [cursor=pointer]:
+                  - /url: /menu?q=Veggie+Sticks+10pc
+              - generic [ref=e702]:
+                - text: "|"
+                - link "Veggie Loaded (medium 21 Cm)" [ref=e703] [cursor=pointer]:
+                  - /url: /menu?q=Veggie+Loaded+%28Medium+21+Cm%29
+              - generic [ref=e704]:
+                - text: "|"
+                - link "Vadapav" [ref=e705] [cursor=pointer]:
+                  - /url: /menu?q=Vadapav
+              - generic [ref=e706]:
+                - text: "|"
+                - link "Supreme" [ref=e707] [cursor=pointer]:
+                  - /url: /menu?q=Supreme
+              - generic [ref=e708]:
+                - text: "|"
+                - link "Stuffed Supreme" [ref=e709] [cursor=pointer]:
+                  - /url: /menu?q=Stuffed+Supreme
+              - generic [ref=e710]:
+                - text: "|"
+                - link "Stuffed Cheese & Corn" [ref=e711] [cursor=pointer]:
+                  - /url: /menu?q=Stuffed+Cheese+%26+Corn
+              - generic [ref=e712]:
+                - text: "|"
+                - link "Stuffed Cheese" [ref=e713] [cursor=pointer]:
+                  - /url: /menu?q=Stuffed+Cheese
+              - generic [ref=e714]:
+                - text: "|"
+                - link "Strawberry Swirl" [ref=e715] [cursor=pointer]:
+                  - /url: /menu?q=Strawberry+Swirl
+              - generic [ref=e716]:
+                - text: "|"
+                - link "Strawberry Sensation" [ref=e717] [cursor=pointer]:
+                  - /url: /menu?q=Strawberry+Sensation
+              - generic [ref=e718]:
+                - text: "|"
+                - link "Spring Rolls 5pc" [ref=e719] [cursor=pointer]:
+                  - /url: /menu?q=Spring+Rolls+5pc
+              - generic [ref=e720]:
+                - text: "|"
+                - link "Spicy Lemonade" [ref=e721] [cursor=pointer]:
+                  - /url: /menu?q=Spicy+Lemonade
+              - generic [ref=e722]:
+                - text: "|"
+                - link "Salted" [ref=e723] [cursor=pointer]:
+                  - /url: /menu?q=Salted
+              - generic [ref=e724]:
+                - text: "|"
+                - link "Raw Banana Samosa 5pc ( Without Onion & Garlic )" [ref=e725] [cursor=pointer]:
+                  - /url: /menu?q=Raw+Banana+Samosa+5pc+%28+Without+Onion+%26+Garlic+%29
+              - generic [ref=e726]:
+                - text: "|"
+                - link "Ras Malai Retreat" [ref=e727] [cursor=pointer]:
+                  - /url: /menu?q=Ras+Malai+Retreat
+              - generic [ref=e728]:
+                - text: "|"
+                - link "Peri Peri" [ref=e729] [cursor=pointer]:
+                  - /url: /menu?q=Peri+Peri
+              - generic [ref=e730]:
+                - text: "|"
+                - link "Pepe Paneer (medium 21 Cm)" [ref=e731] [cursor=pointer]:
+                  - /url: /menu?q=Pepe+Paneer+%28Medium+21+Cm%29
+              - generic [ref=e732]:
+                - text: "|"
+                - link "Paneer Patola" [ref=e733] [cursor=pointer]:
+                  - /url: /menu?q=Paneer+Patola
+            - paragraph [ref=e734]:
+              - generic [ref=e735]: "Favourites:"
+              - link "All In One (medium 21 Cm)" [ref=e737] [cursor=pointer]:
+                - /url: /menu?q=All+In+One+%28Medium+21+Cm%29
+              - generic [ref=e738]:
+                - text: "|"
+                - link "Aloo Tikki" [ref=e739] [cursor=pointer]:
+                  - /url: /menu?q=Aloo+Tikki
+              - generic [ref=e740]:
+                - text: "|"
+                - link "Banarasi Paan Fusion" [ref=e741] [cursor=pointer]:
+                  - /url: /menu?q=Banarasi+Paan+Fusion
+              - generic [ref=e742]:
+                - text: "|"
+                - link "Burger Sause" [ref=e743] [cursor=pointer]:
+                  - /url: /menu?q=Burger+Sause
+              - generic [ref=e744]:
+                - text: "|"
+                - link "Chatpata Cheese" [ref=e745] [cursor=pointer]:
+                  - /url: /menu?q=Chatpata+Cheese
+              - generic [ref=e746]:
+                - text: "|"
+                - link "Chatpata Tikki" [ref=e747] [cursor=pointer]:
+                  - /url: /menu?q=Chatpata+Tikki
+              - generic [ref=e748]:
+                - text: "|"
+                - link "Cheese Slice" [ref=e749] [cursor=pointer]:
+                  - /url: /menu?q=Cheese+Slice
+              - generic [ref=e750]:
+                - text: "|"
+                - link "Cheesy Rounders 8pc" [ref=e751] [cursor=pointer]:
+                  - /url: /menu?q=Cheesy+Rounders+8pc
+            - paragraph [ref=e752]:
+              - generic [ref=e753]: "Categories:"
+              - link "Burgers" [ref=e755] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542961
+              - generic [ref=e756]:
+                - text: "|"
+                - link "Naan & Wraps" [ref=e757] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_2430322
+              - generic [ref=e758]:
+                - text: "|"
+                - link "Sides" [ref=e759] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542967
+              - generic [ref=e760]:
+                - text: "|"
+                - link "Pizza" [ref=e761] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542962
+              - generic [ref=e762]:
+                - text: "|"
+                - link "Beverages" [ref=e763] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542968
+              - generic [ref=e764]:
+                - text: "|"
+                - link "Garlic Bread" [ref=e765] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_542966
+              - generic [ref=e766]:
+                - text: "|"
+                - link "Taste Maker Dips" [ref=e767] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_1262830
+              - generic [ref=e768]:
+                - text: "|"
+                - link "Desserts" [ref=e769] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_543664
+              - generic [ref=e770]:
+                - text: "|"
+                - link "Party Combos" [ref=e771] [cursor=pointer]:
+                  - /url: /menu#cat-cat_pp_store_24475_5354101
+        - generic [ref=e772]:
+          - heading "Categories" [level=2] [ref=e773]
+          - list [ref=e774]:
+            - listitem [ref=e775]:
+              - link "Burgers" [ref=e776] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542961
+            - listitem [ref=e777]:
+              - link "Naan & Wraps" [ref=e778] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_2430322
+            - listitem [ref=e779]:
+              - link "Sides" [ref=e780] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542967
+            - listitem [ref=e781]:
+              - link "Pizza" [ref=e782] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542962
+            - listitem [ref=e783]:
+              - link "Beverages" [ref=e784] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542968
+            - listitem [ref=e785]:
+              - link "Garlic Bread" [ref=e786] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_542966
+            - listitem [ref=e787]:
+              - link "Taste Maker Dips" [ref=e788] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_1262830
+            - listitem [ref=e789]:
+              - link "Desserts" [ref=e790] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_543664
+            - listitem [ref=e791]:
+              - link "Party Combos" [ref=e792] [cursor=pointer]:
+                - /url: /menu#cat-cat_pp_store_24475_5354101
+    - contentinfo [ref=e793]:
+      - generic [ref=e794]:
+        - generic [ref=e795]:
+          - generic [ref=e796]:
+            - link "SVS Food home" [ref=e797] [cursor=pointer]:
+              - /url: /
+              - img "SVS Food" [ref=e798]
+            - paragraph [ref=e799]: SVS FOOD Private Limited
+            - generic [ref=e800]:
+              - paragraph [ref=e801]: Corporate Address
+              - generic [ref=e802]:
+                - text: Shop No. 200, Mezanine Floor,
+                - text: Ojas Imperia, Bandariya Tiraha,
+                - text: Narmada Road, Jabalpur,
+                - text: Madhya Pradesh 482001
+          - generic [ref=e803]:
+            - heading "Useful Links" [level=4] [ref=e804]
+            - generic [ref=e805]:
+              - link "Our delivery fleet" [ref=e806] [cursor=pointer]:
+                - /url: /delivery
+              - link "Blog" [ref=e807] [cursor=pointer]:
+                - /url: /blog
+              - link "News" [ref=e808] [cursor=pointer]:
+                - /url: /news
+              - link "SVS TECH" [ref=e809] [cursor=pointer]:
+                - /url: https://svstech.svsfood.com/
+              - link "SVS Locater" [ref=e810] [cursor=pointer]:
+                - /url: /locations
+              - link "SVS Cash" [ref=e811] [cursor=pointer]:
+                - /url: /account?tab=svs-cash
+              - link "Helpdesk" [ref=e812] [cursor=pointer]:
+                - /url: /account?tab=help
+          - generic [ref=e813]:
+            - heading "Legal" [level=4] [ref=e814]
+            - generic [ref=e815]:
+              - link "Refund Policy" [ref=e816] [cursor=pointer]:
+                - /url: /refund-policy
+              - link "Shipping Policy" [ref=e817] [cursor=pointer]:
+                - /url: /shipping-policy
+              - link "Privacy Policy" [ref=e818] [cursor=pointer]:
+                - /url: /privacy-policy
+              - link "Terms & Conditions" [ref=e819] [cursor=pointer]:
+                - /url: /terms-and-conditions
+          - generic [ref=e820]:
+            - heading "Company" [level=4] [ref=e821]
+            - generic [ref=e822]:
+              - link "Careers" [ref=e823] [cursor=pointer]:
+                - /url: https://careers.svsfood.com
+              - link "Become an SVS HERO" [ref=e824] [cursor=pointer]:
+                - /url: /riders
+              - link "Partner" [ref=e825] [cursor=pointer]:
+                - /url: https://connect.svsfood.com
+              - link "About us" [ref=e826] [cursor=pointer]:
+                - /url: /aboutus
+          - generic [ref=e827]:
+            - heading "Contact & Connect" [level=4] [ref=e828]
+            - generic [ref=e829]:
+              - link "helpdesk@svsfood.com" [ref=e830] [cursor=pointer]:
+                - /url: mailto:helpdesk@svsfood.com
+              - link "info@svsfood.com" [ref=e831] [cursor=pointer]:
+                - /url: mailto:info@svsfood.com
+              - link "career@svsfood.com" [ref=e832] [cursor=pointer]:
+                - /url: mailto:career@svsfood.com
+              - link "(+91) 7869717041" [ref=e833] [cursor=pointer]:
+                - /url: tel:+917869717041
+            - generic [ref=e834]:
+              - link "Facebook" [ref=e835] [cursor=pointer]:
+                - /url: https://www.facebook.com/svsfoodveg/
+                - img [ref=e836]
+              - link "Instagram" [ref=e838] [cursor=pointer]:
+                - /url: https://www.instagram.com/svs_food/
+                - img [ref=e839]
+              - link "YouTube" [ref=e841] [cursor=pointer]:
+                - /url: https://www.youtube.com/@svsfood
+                - img [ref=e842]
+              - link "X" [ref=e844] [cursor=pointer]:
+                - /url: https://x.com/svs_food
+                - img [ref=e845]
+              - link "LinkedIn" [ref=e847] [cursor=pointer]:
+                - /url: https://linkedin.com/company/svsfood
+                - img [ref=e848]
+          - generic [ref=e852]:
+            - generic [ref=e853]:
+              - generic:
+                - img
+            - generic [ref=e854]:
+              - generic:
+                - img
+        - generic [ref=e858]:
+          - paragraph [ref=e859]: © 2026 SVS FOOD Private Limited. All Rights Reserved.
+          - link "Download App" [ref=e860] [cursor=pointer]:
+            - /url: https://app.svsfood.com
+            - img [ref=e861]
+            - text: Download App
+  - generic [ref=e864]:
+    - generic [ref=e865]: Powered by
+    - link "SVS Food home" [ref=e866] [cursor=pointer]:
+      - /url: /
+      - img "SVS" [ref=e867]
+      - generic [ref=e868]: .
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e874] [cursor=pointer]:
+    - img [ref=e875]
+  - alert [ref=e878]
+  - dialog:
+    - generic:
+      - generic:
+        - generic: 🛒
+        - paragraph: Your cart is empty
+        - paragraph: Add items from the menu to see them here
+        - button: Add items
 ```

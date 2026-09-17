@@ -18,7 +18,7 @@
         - generic [ref=e25]:
           - generic:
             - text: Search for “
-            - generic: Pizza
+            - generic: Burgers
             - text: ”
           - textbox "Search menu items" [ref=e26]:
             - /placeholder: ""
@@ -434,7 +434,4 @@
       - img "SVS" [ref=e292]
       - generic [ref=e293]: .
   - region "Notifications alt+T"
-  - button "Open Next.js Dev Tools" [ref=e299] [cursor=pointer]:
-    - img [ref=e300]
-  - alert [ref=e303]
 ```

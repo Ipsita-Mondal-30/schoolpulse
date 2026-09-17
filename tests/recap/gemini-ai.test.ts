@@ -13,14 +13,38 @@ function samplePayload(): MicroLessonAiPayload {
     topic: 'Opposite Words',
     title: "Let's learn Opposite Words!",
     summary: 'Hot and cold are opposites.',
-    slides: [
-      { type: 'intro', title: 'Intro', text: 'Opposite words mean different things.' },
-      { type: 'example', title: 'Hot / cold', text: 'Hot is opposite of cold.', word: 'hot', opposite: 'cold' },
+    scenes: [
+      { type: 'intro', message: "Hey! Let's learn!", visualHint: 'star' },
+      {
+        type: 'visual_teach',
+        headline: 'Opposites!',
+        bits: ['hot', 'cold'],
+        visualHint: 'abc',
+      },
+      {
+        type: 'examples',
+        items: [
+          { label: 'hot ↔ cold' },
+          { label: 'big ↔ small' },
+        ],
+      },
+      {
+        type: 'choice',
+        prompt: 'Opposite of hot?',
+        options: ['cold', 'warm', 'sun'],
+        answerIndex: 0,
+      },
+      {
+        type: 'find',
+        prompt: 'Find small',
+        options: ['tall', 'small', 'wide'],
+        answerIndex: 1,
+      },
     ],
     quiz: [
-      { question: 'Opposite of hot?', options: ['cold', 'warm', 'sun', 'day'], answerIndex: 0 },
-      { question: 'Opposite of big?', options: ['tall', 'small', 'wide', 'long'], answerIndex: 1 },
-      { question: 'Opposite of happy?', options: ['glad', 'sad', 'fun', 'smile'], answerIndex: 1 },
+      { question: 'Opposite of hot?', options: ['cold', 'warm', 'sun'], answerIndex: 0 },
+      { question: 'Opposite of big?', options: ['tall', 'small', 'wide'], answerIndex: 1 },
+      { question: 'Opposite of happy?', options: ['glad', 'sad', 'fun'], answerIndex: 1 },
     ],
   };
 }
@@ -157,7 +181,7 @@ describe('Gemini structured output validation', () => {
             topic: 'X',
             title: 'Y',
             summary: 'Z',
-            slides: [],
+            scenes: [],
             quiz: [],
           }) as never,
         libraryResources: [],

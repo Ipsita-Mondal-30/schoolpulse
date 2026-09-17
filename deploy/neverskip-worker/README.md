@@ -148,6 +148,33 @@ Ops check from a laptop (no SSH secrets): `npm run check:neverskip-ops`.
 Re-auth: on the **same Linux host**, run `npm run neverskip:login` again with
 `NEVERSKIP_PROFILE_DIR` pointing at the persistent profile path.
 
+## Urgent production recovery (Oracle VM `152.67.3.1`)
+
+Run on the VM (SSH or RDP). Do **not** delete `neverskip-data/neverskip-profile`.
+
+```bash
+crontab -l
+tail -100 /home/ubuntu/neverskip-sync.log
+
+cd /home/ubuntu/schoolpulse
+git fetch origin && git rev-parse HEAD && git log -1 --oneline
+git status
+git pull origin main   # only if behind; keep profile
+
+cd /home/ubuntu/schoolpulse/deploy/neverskip-worker
+NEVERSKIP_PROFILE_DIR=/home/ubuntu/schoolpulse/deploy/neverskip-worker/neverskip-data/neverskip-profile \
+NEVERSKIP_HEADLESS=false \
+xvfb-run -a npm run sync:neverskip:browser
+```
+
+If logs show `AUTHENTICATION_REQUIRED` / `SESSION_EXPIRED`, re-login on this host, then re-run the sync.
+
+Cron must call the wrapper (not a one-off Docker path):
+
+```cron
+0 */4 * * * /home/ubuntu/schoolpulse/deploy/neverskip-worker/run-sync.sh >> /home/ubuntu/neverskip-sync.log 2>&1
+```
+
 ## Optional long-running loop
 
 Not recommended for production (prefer host cron + one-shot). Available as:

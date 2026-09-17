@@ -13,8 +13,13 @@ import {
   extractLearningTopic,
   type LibraryResourceDetail,
 } from '@/lib/recap/topic-extraction';
-import { parseLessonQuiz, type GenerateMicroLessonDeps } from '@/lib/recap/generate';
-import type { MicroLessonQuizItem, MicroLessonSlide } from '@/lib/recap/schema';
+import { parseLessonQuiz, isLegacyMicroLessonSlides, type GenerateMicroLessonDeps } from '@/lib/recap/generate';
+import {
+  parseStoredScenes,
+  type MicroLessonQuizItem,
+  type MicroLessonScene,
+  type MicroLessonSlide,
+} from '@/lib/recap/schema';
 
 const libraryResources = (libraryData.resources as LibraryResourceDetail[]).map((r) => ({
   id: r.id,
@@ -63,7 +68,8 @@ function sectionMatches(sections: string[], section: string): boolean {
 
 export function lessonToSlides(slidesJson: string): MicroLessonSlide[] {
   try {
-    return JSON.parse(slidesJson) as MicroLessonSlide[];
+    const parsed = parseStoredScenes(slidesJson);
+    return parsed.legacySlides ?? [];
   } catch {
     return [];
   }
@@ -77,12 +83,33 @@ export type MicroLessonForPlayer = {
   grade: string;
   title: string;
   summary: string;
+  /** @deprecated Prefer scenes — legacy v1 only */
   slides: MicroLessonSlide[];
-  quiz: Array<{ question: string; options: string[] }>;
+  scenes: MicroLessonScene[];
+  celebrationMessage?: string;
+  schemaVersion: 1 | 2;
+  quiz: Array<{
+    question: string;
+    options: string[];
+    optionHints?: MicroLessonQuizItem['optionHints'];
+  }>;
 };
 
 export function toPlayerLesson(lesson: MicroLesson): MicroLessonForPlayer {
   const quizInternal = parseLessonQuiz(lesson.quiz);
+  let scenes: MicroLessonScene[] = [];
+  let celebrationMessage: string | undefined;
+  let schemaVersion: 1 | 2 = 1;
+  let slides: MicroLessonSlide[] = [];
+  try {
+    const parsed = parseStoredScenes(lesson.slides);
+    schemaVersion = parsed.version;
+    scenes = parsed.scenes;
+    celebrationMessage = parsed.celebrationMessage;
+    slides = parsed.legacySlides ?? [];
+  } catch {
+    slides = [];
+  }
   return {
     id: lesson.id,
     homeworkId: lesson.homeworkId,
@@ -91,8 +118,15 @@ export function toPlayerLesson(lesson: MicroLesson): MicroLessonForPlayer {
     grade: lesson.grade,
     title: lesson.title,
     summary: lesson.summary,
-    slides: lessonToSlides(lesson.slides),
-    quiz: quizInternal.map((q) => ({ question: q.question, options: q.options })),
+    slides,
+    scenes,
+    celebrationMessage,
+    schemaVersion,
+    quiz: quizInternal.map((q) => ({
+      question: q.question,
+      options: q.options,
+      optionHints: q.optionHints,
+    })),
   };
 }
 

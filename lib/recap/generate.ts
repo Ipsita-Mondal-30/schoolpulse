@@ -7,7 +7,17 @@ import type { MicroLesson } from '@prisma/client';
 import { getPrisma } from '@/lib/prisma';
 import libraryData from '@/data/content-library.json';
 import { defaultGenerateLessonAi, type GenerateLessonAiFn } from '@/lib/recap/ai';
-import { validateMicroLessonPayload, type MicroLessonAiPayload } from '@/lib/recap/schema';
+import {
+  encodeScenesForStorage,
+  isSlidesEnvelopeV2,
+  microLessonQuizItemSchema,
+  parseStoredScenes,
+  validateMicroLessonPayload,
+  type MicroLessonAiPayload,
+  type MicroLessonQuizItem,
+  type MicroLessonScene,
+  type MicroLessonSlide,
+} from '@/lib/recap/schema';
 import {
   extractLearningTopic,
   INSUFFICIENT_TOPIC_REASON,
@@ -39,27 +49,57 @@ function toSortableDate(raw?: string | null): string {
   return '';
 }
 
-export function parseLessonSlides(slidesJson: string): MicroLessonAiPayload['slides'] {
-  const slides = JSON.parse(slidesJson) as unknown;
-  if (!Array.isArray(slides)) throw new Error('Invalid slides JSON');
-  return slides as MicroLessonAiPayload['slides'];
+/** True when stored slides JSON is legacy v1 (needs force regenerate for interactive player). */
+export function isLegacyMicroLessonSlides(slidesJson: string): boolean {
+  try {
+    const raw = JSON.parse(slidesJson) as unknown;
+    return !isSlidesEnvelopeV2(raw);
+  } catch {
+    return true;
+  }
 }
 
-export function parseLessonQuiz(quizJson: string): MicroLessonAiPayload['quiz'] {
+export function parseLessonScenes(slidesJson: string): {
+  version: 1 | 2;
+  scenes: MicroLessonScene[];
+  celebrationMessage?: string;
+  legacySlides?: MicroLessonSlide[];
+} {
+  return parseStoredScenes(slidesJson);
+}
+
+/** @deprecated Prefer parseLessonScenes — returns legacy slide array or empty for v2. */
+export function parseLessonSlides(slidesJson: string): MicroLessonSlide[] {
+  const parsed = parseStoredScenes(slidesJson);
+  return parsed.legacySlides ?? [];
+}
+
+export function parseLessonQuiz(quizJson: string): MicroLessonQuizItem[] {
   const quiz = JSON.parse(quizJson) as unknown;
   if (!Array.isArray(quiz) || quiz.length < 3) throw new Error('Invalid quiz JSON');
-  for (const item of quiz) {
+  return quiz.map((item, i) => {
+    const parsed = microLessonQuizItemSchema.safeParse(item);
+    if (parsed.success) return parsed.data;
+    // Tolerate legacy 4-option quizzes by trimming to 3 if answer still valid
     if (
-      !item ||
-      typeof item !== 'object' ||
-      !Array.isArray((item as { options?: unknown }).options) ||
-      (item as { options: unknown[] }).options.length !== 4 ||
-      typeof (item as { answerIndex?: unknown }).answerIndex !== 'number'
+      item &&
+      typeof item === 'object' &&
+      typeof (item as { question?: unknown }).question === 'string' &&
+      Array.isArray((item as { options?: unknown }).options) &&
+      typeof (item as { answerIndex?: unknown }).answerIndex === 'number'
     ) {
-      throw new Error('Invalid quiz item');
+      const options = (item as { options: string[] }).options.slice(0, 3);
+      const answerIndex = (item as { answerIndex: number }).answerIndex;
+      if (options.length === 3 && answerIndex >= 0 && answerIndex <= 2) {
+        return {
+          question: (item as { question: string }).question,
+          options,
+          answerIndex,
+        };
+      }
     }
-  }
-  return quiz as MicroLessonAiPayload['quiz'];
+    throw new Error(`Invalid quiz item at ${i}`);
+  });
 }
 
 export async function generateMicroLessonForHomework(
@@ -114,9 +154,12 @@ export async function generateMicroLessonForHomework(
     return {
       ok: false,
       reason: 'unavailable',
-      message: 'Recap isn\'t available yet.',
+      message: "Recap isn't available yet.",
     };
   }
+
+  const slidesJson = encodeScenesForStorage(payload);
+  const quizJson = JSON.stringify(payload.quiz);
 
   try {
     if (homework.microLesson && options.force) {
@@ -128,8 +171,8 @@ export async function generateMicroLessonForHomework(
           grade: extraction.grade,
           title: payload.title,
           summary: payload.summary,
-          slides: JSON.stringify(payload.slides),
-          quiz: JSON.stringify(payload.quiz),
+          slides: slidesJson,
+          quiz: quizJson,
         },
       });
       return { ok: true, lesson, created: false };
@@ -143,13 +186,12 @@ export async function generateMicroLessonForHomework(
         grade: extraction.grade,
         title: payload.title,
         summary: payload.summary,
-        slides: JSON.stringify(payload.slides),
-        quiz: JSON.stringify(payload.quiz),
+        slides: slidesJson,
+        quiz: quizJson,
       },
     });
     return { ok: true, lesson, created: true };
   } catch (err) {
-    // Race: unique homeworkId — return existing
     const existing = await prisma.microLesson.findUnique({
       where: { homeworkId: homework.id },
     });

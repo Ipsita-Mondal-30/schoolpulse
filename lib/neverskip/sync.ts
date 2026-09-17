@@ -26,9 +26,15 @@ export interface SyncDataOptions {
   homeworkPagesFetched?: number;
   homeworkFetchIncomplete?: boolean;
   homeworkFetchErrors?: string[];
+  homeworkSourceTotal?: number | null;
+  homeworkRawFetched?: number;
+  homeworkUniqueFetched?: number;
   noticePagesFetched?: number;
   noticeFetchIncomplete?: boolean;
   noticeFetchErrors?: string[];
+  noticeSourceTotal?: number | null;
+  noticeRawFetched?: number;
+  noticeUniqueFetched?: number;
 }
 
 function newestIsoDate(dates: Array<string | null | undefined>): string {
@@ -61,16 +67,28 @@ export async function syncNeverSkipData({
   homeworkPagesFetched,
   homeworkFetchIncomplete,
   homeworkFetchErrors = [],
+  homeworkSourceTotal,
+  homeworkRawFetched,
+  homeworkUniqueFetched,
   noticePagesFetched,
   noticeFetchIncomplete,
   noticeFetchErrors = [],
+  noticeSourceTotal,
+  noticeRawFetched,
+  noticeUniqueFetched,
 }: SyncDataOptions): Promise<SyncSummary> {
   const summary = emptySummary();
   summary.errors.push(...homeworkFetchErrors, ...noticeFetchErrors);
   if (homeworkPagesFetched != null) summary.homeworkPagesFetched = homeworkPagesFetched;
   if (homeworkFetchIncomplete) summary.homeworkFetchIncomplete = true;
+  if (homeworkSourceTotal !== undefined) summary.homeworkSourceTotal = homeworkSourceTotal;
+  if (homeworkRawFetched != null) summary.homeworkRawFetched = homeworkRawFetched;
+  if (homeworkUniqueFetched != null) summary.homeworkUniqueFetched = homeworkUniqueFetched;
   if (noticePagesFetched != null) summary.noticePagesFetched = noticePagesFetched;
   if (noticeFetchIncomplete) summary.noticeFetchIncomplete = true;
+  if (noticeSourceTotal !== undefined) summary.noticeSourceTotal = noticeSourceTotal;
+  if (noticeRawFetched != null) summary.noticeRawFetched = noticeRawFetched;
+  if (noticeUniqueFetched != null) summary.noticeUniqueFetched = noticeUniqueFetched;
 
   nsLog('SYNC START');
   nsLog(`NeverSkip ${label} started`);
@@ -207,9 +225,19 @@ export async function syncNeverSkipData({
     (sourceNewestHomework && storedNewestHomework && sourceNewestHomework > storedNewestHomework) ||
     (sourceNewestNotice && storedNewestNotice && sourceNewestNotice > storedNewestNotice);
 
-  if (incomplete || countsMismatch || normalizationLoss || dataLoss) {
+  // Both streams empty with fetch errors = failed sync, not a quiet success.
+  const bothEmptyWithErrors =
+    homework.length === 0 &&
+    notices.length === 0 &&
+    (homeworkFetchErrors.length > 0 || noticeFetchErrors.length > 0 || summary.errors.length > 0);
+
+  if (incomplete || countsMismatch || normalizationLoss || dataLoss || bothEmptyWithErrors) {
     nsError('SYNC FAILED — INCOMPLETE SOURCE DATA');
     nsError('SYNC STATUS: INCOMPLETE');
+    if (bothEmptyWithErrors) {
+      nsError('SYNC FAILED — empty homework and notices after fetch errors');
+      summary.errors.push('empty homework and notices after fetch errors');
+    }
     if (homeworkFetchIncomplete) {
       nsError('Homework pagination incomplete — sync preserved partial homework results');
       summary.errors.push('homework pagination incomplete');
@@ -240,6 +268,20 @@ export async function syncNeverSkipData({
     nsLog('SYNC COMPLETE');
     nsLog('SYNC STATUS: COMPLETE');
   }
+
+  nsLog('FULL SYNC REPORT');
+  nsLog(
+    `HOMEWORK source total=${summary.homeworkSourceTotal ?? '(none)'} fetched(raw)=${summary.homeworkRawFetched ?? summary.homeworkFetched} unique=${summary.homeworkUniqueFetched ?? summary.homeworkFetched} inserted=${summary.homeworkInserted} updated=${summary.homeworkUpdated} duplicates=${summary.homeworkSkipped}`,
+  );
+  nsLog(
+    `NOTICES source total=${summary.noticeSourceTotal ?? '(none)'} fetched(raw)=${summary.noticeRawFetched ?? summary.noticesFetched} unique=${summary.noticeUniqueFetched ?? summary.noticesFetched} inserted=${summary.noticesInserted} updated=${summary.noticesUpdated} duplicates=${summary.noticesSkipped}`,
+  );
+  nsLog(
+    `DATABASE homework total=${summary.homeworkStored ?? '?'} notice total=${summary.noticesStored ?? '?'}`,
+  );
+  nsLog(`LATEST HOMEWORK date=${summary.newestHomeworkDate || '(none)'}`);
+  nsLog(`LATEST NOTICE date=${summary.newestNoticeDate || '(none)'}`);
+
   return summary;
 }
 
@@ -251,9 +293,15 @@ export async function syncNeverSkip({ client, store }: SyncOptions): Promise<Syn
   let homeworkPagesFetched: number | undefined;
   let homeworkFetchIncomplete = false;
   let homeworkFetchErrors: string[] = [];
+  let homeworkSourceTotal: number | null | undefined;
+  let homeworkRawFetched: number | undefined;
+  let homeworkUniqueFetched: number | undefined;
   let noticePagesFetched: number | undefined;
   let noticeFetchIncomplete = false;
   let noticeFetchErrors: string[] = [];
+  let noticeSourceTotal: number | null | undefined;
+  let noticeRawFetched: number | undefined;
+  let noticeUniqueFetched: number | undefined;
 
   try {
     const hw = await fetchHomeworkAssignmentsDetailed(client);
@@ -261,6 +309,9 @@ export async function syncNeverSkip({ client, store }: SyncOptions): Promise<Syn
     homeworkPagesFetched = hw.pagesFetched;
     homeworkFetchIncomplete = hw.incomplete;
     homeworkFetchErrors = hw.errors;
+    homeworkSourceTotal = hw.sourceTotal;
+    homeworkRawFetched = hw.rawFetched;
+    homeworkUniqueFetched = hw.uniqueFetched;
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'homework fetch failed';
     fetchErrors.push(msg);
@@ -273,6 +324,9 @@ export async function syncNeverSkip({ client, store }: SyncOptions): Promise<Syn
     noticePagesFetched = nt.pagesFetched;
     noticeFetchIncomplete = nt.incomplete;
     noticeFetchErrors = nt.errors;
+    noticeSourceTotal = nt.sourceTotal;
+    noticeRawFetched = nt.rawFetched;
+    noticeUniqueFetched = nt.uniqueFetched;
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'notices fetch failed';
     fetchErrors.push(msg);
@@ -287,9 +341,15 @@ export async function syncNeverSkip({ client, store }: SyncOptions): Promise<Syn
     homeworkPagesFetched,
     homeworkFetchIncomplete,
     homeworkFetchErrors,
+    homeworkSourceTotal,
+    homeworkRawFetched,
+    homeworkUniqueFetched,
     noticePagesFetched,
     noticeFetchIncomplete,
     noticeFetchErrors,
+    noticeSourceTotal,
+    noticeRawFetched,
+    noticeUniqueFetched,
   });
 
   return {
@@ -307,9 +367,15 @@ export function collectedToSyncInput(
   | 'homeworkPagesFetched'
   | 'homeworkFetchIncomplete'
   | 'homeworkFetchErrors'
+  | 'homeworkSourceTotal'
+  | 'homeworkRawFetched'
+  | 'homeworkUniqueFetched'
   | 'noticePagesFetched'
   | 'noticeFetchIncomplete'
   | 'noticeFetchErrors'
+  | 'noticeSourceTotal'
+  | 'noticeRawFetched'
+  | 'noticeUniqueFetched'
 > {
   return {
     homework: data.homework,
@@ -317,8 +383,14 @@ export function collectedToSyncInput(
     homeworkPagesFetched: data.homeworkPagesFetched,
     homeworkFetchIncomplete: data.homeworkFetchIncomplete,
     homeworkFetchErrors: data.homeworkFetchErrors,
+    homeworkSourceTotal: data.homeworkSourceTotal,
+    homeworkRawFetched: data.homeworkRawFetched,
+    homeworkUniqueFetched: data.homeworkUniqueFetched,
     noticePagesFetched: data.noticePagesFetched,
     noticeFetchIncomplete: data.noticeFetchIncomplete,
     noticeFetchErrors: data.noticeFetchErrors,
+    noticeSourceTotal: data.noticeSourceTotal,
+    noticeRawFetched: data.noticeRawFetched,
+    noticeUniqueFetched: data.noticeUniqueFetched,
   };
 }

@@ -155,19 +155,13 @@ describe('shouldFetchNextHomeworkPage', () => {
     ).toBe(true);
   });
 
-  it('continues past page_count when unique < totalCount (125 vs 129 case)', () => {
+  it('continues past raw>=total_count when unique is still short (134 vs 137 overlap case)', () => {
     expect(
       shouldFetchNextHomeworkPage(
-        { pageCount: 13, totalCount: 129, sfileLimit: 25, itemListLength: 10 },
-        12,
-        125,
-      ),
-    ).toBe(true);
-    expect(
-      shouldFetchNextHomeworkPage(
-        { pageCount: 13, totalCount: 129, sfileLimit: 25, itemListLength: 4 },
-        12,
-        125,
+        { pageCount: 14, totalCount: 137, sfileLimit: 10, itemListLength: 7 },
+        13,
+        134,
+        137,
       ),
     ).toBe(true);
   });
@@ -325,26 +319,25 @@ describe('fetchAllHomeworkPages', () => {
     expect(result.errors.some((e) => /total_count/i.test(e))).toBe(true);
   });
 
-  it('accepts unique < total_count when raw page lengths cover total_count', async () => {
+  it('marks incomplete when unique < total_count even if raw page lengths cover total_count', async () => {
     const result = await fetchAllHomeworkPages(async (page) => {
       if (page === 0) {
         return pageEnvelope(
           Array.from({ length: 10 }, (_, i) => hwItem(String(i + 1))),
-          { page_count: 2, total_count: 12, sfile_limit: 10 },
+          { page_count: 2, total_count: 13, sfile_limit: 10 },
         );
       }
-      // 2 overlaps + 2 new = 12 raw, 10 unique from page0 + 2 = 12 unique actually
-      // Make overlaps: return 2 dupes + 2 new = 12 raw total, 10 unique? 
-      // page0: 1-10, page1: 9,10,11,12 → raw 14? Let's do page1: 3 items with 1 overlap
       return pageEnvelope([hwItem('10'), hwItem('11'), hwItem('12')], {
         page_count: 2,
         total_count: 13,
         sfile_limit: 10,
       });
     });
-    // raw = 13, unique = 12, total_count = 13 → complete
-    expect(result.incomplete).toBe(false);
-    expect(result.items).toHaveLength(12);
+    // raw = 13, unique = 12, total_count = 13 → incomplete (unique must reconcile)
+    expect(result.incomplete).toBe(true);
+    expect(result.uniqueFetched).toBe(12);
+    expect(result.sourceTotal).toBe(13);
+    expect(result.errors.some((e) => /unique homework 12 < total_count 13/i.test(e))).toBe(true);
   });
 
   it('preserves earlier pages when a later page fails', async () => {
@@ -522,6 +515,24 @@ describe('notice pagination', () => {
     expect(result.pagesFetched).toBe(1);
     expect(result.incomplete).toBe(true);
     expect(result.errors.some((e) => e.includes('page 1'))).toBe(true);
+  });
+
+  it('marks INVALID_RESPONSE on malformed page-0 envelope', async () => {
+    const result = await fetchAllNoticePages(async () => {
+      return { S: true, D: { unexpected: true } } as NeverSkipNoticesResponse;
+    });
+    expect(result.items).toHaveLength(0);
+    expect(result.incomplete).toBe(true);
+    expect(result.errors.some((e) => e.includes('INVALID_RESPONSE'))).toBe(true);
+  });
+
+  it('marks AUTHENTICATION_REQUIRED on S:false page-0 envelope', async () => {
+    const result = await fetchAllNoticePages(async () => {
+      return { S: false, M: 'session' } as NeverSkipNoticesResponse;
+    });
+    expect(result.items).toHaveLength(0);
+    expect(result.incomplete).toBe(true);
+    expect(result.errors.some((e) => e.includes('AUTHENTICATION_REQUIRED'))).toBe(true);
   });
 
   it('paginates notices when total_count is present', async () => {

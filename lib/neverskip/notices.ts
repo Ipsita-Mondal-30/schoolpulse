@@ -1,6 +1,6 @@
 import type { NeverSkipClient } from './client';
-import { nsLog, nsWarn } from './log';
-import { extractNotices } from './normalizers';
+import { nsError, nsLog, nsWarn } from './log';
+import { extractNotices, inspectNoticeEnvelope } from './normalizers';
 import type { NeverSkipNoticesResponse, NeverSkipRawNotice } from './types';
 
 export interface NoticePaginationMeta {
@@ -34,6 +34,9 @@ export interface NoticeFetchResult {
   pagesFetched: number;
   incomplete: boolean;
   errors: string[];
+  sourceTotal: number | null;
+  rawFetched: number;
+  uniqueFetched: number;
 }
 
 function noticeDedupeKey(item: NeverSkipRawNotice): string | null {
@@ -174,7 +177,17 @@ export async function fetchAllNoticePages(
 
     if (response == null) {
       if (pageIndex === 0) {
-        return { items: [], pagesFetched: 0, incomplete: true, errors: ['page 0: empty response'] };
+        nsError('NOTICE SYNC = FAILED');
+        nsError('NOTICE FETCH = FAILED — empty response');
+        return {
+          items: [],
+          pagesFetched: 0,
+          incomplete: true,
+          errors: ['NOTICE SYNC = FAILED — page 0: empty response'],
+          sourceTotal: null,
+          rawFetched: 0,
+          uniqueFetched: 0,
+        };
       }
       // Probe page with no declared totals: empty body means the first page was the full list.
       if (latestMeta && latestMeta.totalCount == null && latestMeta.pageCount == null) {
@@ -186,10 +199,58 @@ export async function fetchAllNoticePages(
       break;
     }
 
-    const items = extractNotices(response);
+    const inspected = inspectNoticeEnvelope(response);
+    if (inspected.status === 'failure_envelope') {
+      const msg = 'NOTICE SYNC = AUTHENTICATION_REQUIRED — failure envelope (S:false)';
+      nsError(msg);
+      errors.push(msg);
+      incomplete = true;
+      if (pageIndex === 0) {
+        return {
+          items: [],
+          pagesFetched: 0,
+          incomplete: true,
+          errors,
+          sourceTotal: null,
+          rawFetched: 0,
+          uniqueFetched: 0,
+        };
+      }
+      break;
+    }
+    if (inspected.status === 'invalid_response') {
+      const msg = 'NOTICE SYNC = INVALID_RESPONSE — unexpected notice API structure';
+      nsError(msg);
+      incomplete = true;
+      if (pageIndex === 0) {
+        errors.push(msg);
+        return {
+          items: [],
+          pagesFetched: 0,
+          incomplete: true,
+          errors,
+          sourceTotal: null,
+          rawFetched: 0,
+          uniqueFetched: 0,
+        };
+      }
+      // Page>0 probe without totals: treat as end-of-list rather than wiping page-0 data.
+      if (latestMeta && latestMeta.totalCount == null && latestMeta.pageCount == null) {
+        nsLog(
+          `Notice page ${pageIndex} invalid without totals — treating earlier pages as complete`,
+        );
+        incomplete = false;
+        break;
+      }
+      errors.push(msg);
+      break;
+    }
+
+    const items = inspected.items;
     const noticeMeta = extractNoticePagination(response);
     latestMeta = noticeMeta;
 
+    nsLog(`NOTICES page ${pageIndex + 1}: ${items.length}`);
     nsLog(
       `Notice page progress: page=${pageIndex} received=${items.length}` +
         (noticeMeta.totalCount != null ? ` totalCount=${noticeMeta.totalCount}` : '') +
@@ -245,28 +306,41 @@ export async function fetchAllNoticePages(
   }
 
   const items = mergeNoticePages(pages);
-  if (
-    latestMeta?.totalCount != null &&
-    latestMeta.totalCount > 0 &&
-    items.length < latestMeta.totalCount
-  ) {
+  const rawFetched = pages.reduce((n, p) => n + p.length, 0);
+  const uniqueFetched = items.length;
+  const sourceTotal = latestMeta?.totalCount ?? null;
+
+  if (sourceTotal != null && sourceTotal > 0 && uniqueFetched < sourceTotal) {
     incomplete = true;
-    errors.push(
-      `fetched ${items.length} unique notices < total_count ${latestMeta.totalCount}`,
-    );
+    errors.push(`fetched ${uniqueFetched} unique notices < total_count ${sourceTotal}`);
     nsWarn(
-      `SYNC FAILED — INCOMPLETE NOTICE DATA (unique=${items.length} < total_count=${latestMeta.totalCount})`,
+      `SYNC FAILED — INCOMPLETE NOTICE DATA (unique=${uniqueFetched} < total_count=${sourceTotal})`,
     );
   }
 
+  nsLog(`NOTICES fetched (raw): ${rawFetched}`);
+  nsLog(`NOTICES unique: ${uniqueFetched}`);
+  if (sourceTotal != null) nsLog(`NOTICES total source: ${sourceTotal}`);
   nsLog(`Notice pages fetched: ${pages.length}`);
-  nsLog(`Notice records fetched: ${items.length}`);
+  nsLog(`Notice records fetched: ${uniqueFetched}`);
+  if (!incomplete && pages.length > 0) {
+    nsLog(`NOTICE FETCH = SUCCESS`);
+    nsLog(`NOTICES FETCHED = ${uniqueFetched}`);
+  }
   if (incomplete) {
     nsWarn('SYNC STATUS: INCOMPLETE — notice pagination did not fetch all source records');
     nsWarn('Notice pagination incomplete — preserving records collected so far');
   }
 
-  return { items, pagesFetched: pages.length, incomplete, errors };
+  return {
+    items,
+    pagesFetched: pages.length,
+    incomplete,
+    errors,
+    sourceTotal,
+    rawFetched,
+    uniqueFetched,
+  };
 }
 
 export async function fetchDailyNotices(client: NeverSkipClient): Promise<NeverSkipRawNotice[]> {

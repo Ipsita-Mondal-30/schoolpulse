@@ -68,16 +68,46 @@ export function extractAssignments(response: NeverSkipHomeworkResponse | null | 
   return [];
 }
 
-export function extractNotices(response: NeverSkipNoticesResponse | null | undefined): NeverSkipRawNotice[] {
-  if (!response || typeof response !== 'object') return [];
+export type NoticeEnvelopeStatus =
+  | { status: 'ok'; items: NeverSkipRawNotice[] }
+  | { status: 'failure_envelope' }
+  | { status: 'invalid_response' };
+
+/**
+ * Inspect a notices API body without treating failure/malformed envelopes as empty success.
+ * Empty `item_list: []` is still `ok` with zero items.
+ */
+export function inspectNoticeEnvelope(
+  response: NeverSkipNoticesResponse | null | undefined,
+): NoticeEnvelopeStatus {
+  if (response == null) return { status: 'invalid_response' };
+  if (typeof response !== 'object' || Array.isArray(response)) {
+    return { status: 'invalid_response' };
+  }
   const r = response as Record<string, unknown>;
+  if (r.S === false) return { status: 'failure_envelope' };
+
   const D = r.D;
   if (D && typeof D === 'object' && !Array.isArray(D)) {
-    const list = coerceItemList((D as Record<string, unknown>).item_list);
-    if (list) return list.filter(isObject);
+    const d = D as Record<string, unknown>;
+    if ('item_list' in d) {
+      const list = coerceItemList(d.item_list);
+      if (list) return { status: 'ok', items: list.filter(isObject) };
+      return { status: 'invalid_response' };
+    }
   }
+
   const rootList = coerceItemList(r.item_list) || coerceItemList(r.data);
-  if (rootList) return rootList.filter(isObject);
+  if (rootList) return { status: 'ok', items: rootList.filter(isObject) };
+
+  // S:true with D but no item_list — unexpected shape
+  if (r.S === true || D != null) return { status: 'invalid_response' };
+  return { status: 'invalid_response' };
+}
+
+export function extractNotices(response: NeverSkipNoticesResponse | null | undefined): NeverSkipRawNotice[] {
+  const inspected = inspectNoticeEnvelope(response);
+  if (inspected.status === 'ok') return inspected.items;
   return [];
 }
 
@@ -98,6 +128,20 @@ export function normalizeDate(raw?: string | null): string {
     return normalizeDate(noticeStamp[2]);
   }
 
+  // Portal / API combined stamps without pipe: "16/09/2026 05:50 PM" or "05:50 PM 16/09/2026"
+  const dateThenTime = s.match(
+    /^(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})\s+(\d{1,2}:\d{2}(?:\s*(?:AM|PM))?)$/i,
+  );
+  if (dateThenTime) {
+    return normalizeDate(dateThenTime[1]);
+  }
+  const timeThenDate = s.match(
+    /^(\d{1,2}:\d{2}\s*(?:AM|PM)?)\s+(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})$/i,
+  );
+  if (timeThenDate) {
+    return normalizeDate(timeThenDate[2]);
+  }
+
   if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
 
   // 4-Sep-2026 or 04-Sep-2026 (reject nonsense years like 30-Nov--0001)
@@ -113,7 +157,7 @@ export function normalizeDate(raw?: string | null): string {
     if (mon) return `${m1[3]}-${mon}-${m1[1].padStart(2, '0')}`;
   }
 
-  // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+  // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY (never MM/DD/YYYY)
   const m2 = s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})$/);
   if (m2) {
     let year = m2[3];
@@ -144,6 +188,21 @@ export function normalizeTime(raw?: string | null): string {
   const noticeStamp = s.match(/^(\d{1,2}:\d{2}\s*(?:AM|PM)?)\s*\|/i);
   if (noticeStamp) {
     return normalizeTime(noticeStamp[1]);
+  }
+
+  // "16/09/2026 05:50 PM" → time portion
+  const dateThenTime = s.match(
+    /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}\s+(\d{1,2}:\d{2}(?:\s*(?:AM|PM))?)$/i,
+  );
+  if (dateThenTime) {
+    return normalizeTime(dateThenTime[1]);
+  }
+  // "05:50 PM 16/09/2026"
+  const timeThenDate = s.match(
+    /^(\d{1,2}:\d{2}\s*(?:AM|PM)?)\s+\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/i,
+  );
+  if (timeThenDate) {
+    return normalizeTime(timeThenDate[1]);
   }
 
   const ampm = s.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
@@ -325,8 +384,11 @@ export function normalizeNotice(raw: NeverSkipRawNotice): NormalizedNotice | nul
     typeof raw.msg_time === 'string' ? raw.msg_time : undefined,
     typeof raw.ntc_tm === 'string' ? raw.ntc_tm : undefined,
     typeof raw.crt_tm === 'string' ? raw.crt_tm : undefined,
-    // Combined stamp lives in `date` for live NeverSkip notices
-    typeof raw.date === 'string' && raw.date.includes('|') ? raw.date : undefined,
+    // Combined stamp lives in `date` for live NeverSkip notices (pipe or space-separated)
+    typeof raw.date === 'string' &&
+      (/[|/]/.test(raw.date) || /\d{1,2}:\d{2}/.test(raw.date))
+      ? raw.date
+      : undefined,
   );
 
   const classesFromTargetList = classesFromTarget(raw.test_tar);

@@ -9,7 +9,7 @@ import {
   type HomeworkPayload,
 } from './homework';
 import { nsDebugApiEnvelope, nsError, nsLog, nsWarn } from './log';
-import { extractNotices } from './normalizers';
+import { extractNotices, inspectNoticeEnvelope } from './normalizers';
 import { NOTICES_PATH, fetchAllNoticePages, type NoticesPayload } from './notices';
 import type {
   CollectedNeverSkipData,
@@ -550,38 +550,79 @@ export async function collectNeverSkipData(
     let noticePagesFetched = 0;
     let noticeFetchIncomplete = false;
     let noticeFetchErrors: string[] = [];
+    let noticeSourceTotal: number | null = null;
+    let noticeRawFetched = 0;
+    let noticeUniqueFetched = 0;
 
-    if (noticesRaw && context) {
-      const tokenHeaders = sessionTokenHeader ? { Token: sessionTokenHeader } : undefined;
-      const paged = await fetchAllNoticePages(
-        async (pageIndex, payload: NoticesPayload) => {
-          if (pageIndex === 0) return noticesRaw;
-          const result = await fetchViaSession(
-            context!,
-            apiBaseUrl,
-            NOTICES_PATH,
-            payload,
-            tokenHeaders,
-          );
-          if (!result?.body) {
-            throw new Error(`notice session page ${pageIndex} failed (HTTP ${result?.status ?? 'n/a'})`);
-          }
-          return result.body as NeverSkipNoticesResponse;
-        },
-        { firstPage: noticesRaw },
-      );
-      notices = paged.items;
-      noticePagesFetched = paged.pagesFetched;
-      noticeFetchIncomplete = paged.incomplete;
-      noticeFetchErrors = paged.errors;
+    if (!noticesRaw) {
+      if (requireAuth) {
+        noticeFetchIncomplete = true;
+        noticeFetchErrors = ['NOTICE SYNC = FAILED — no notice API response captured'];
+        nsError('NOTICE SYNC = FAILED');
+        nsError('NOTICE FETCH = FAILED — no authenticated notice API response');
+      }
+    } else if (context) {
+      const firstInspect = inspectNoticeEnvelope(noticesRaw);
+      if (firstInspect.status === 'failure_envelope') {
+        throwSessionExpired();
+      }
+      if (firstInspect.status === 'invalid_response') {
+        noticeFetchIncomplete = true;
+        noticeFetchErrors = ['NOTICE SYNC = INVALID_RESPONSE — unexpected notice API structure'];
+        nsError('NOTICE SYNC = INVALID_RESPONSE');
+      } else {
+        const tokenHeaders = sessionTokenHeader ? { Token: sessionTokenHeader } : undefined;
+        const paged = await fetchAllNoticePages(
+          async (pageIndex, payload: NoticesPayload) => {
+            if (pageIndex === 0) return noticesRaw;
+            const result = await fetchViaSession(
+              context!,
+              apiBaseUrl,
+              NOTICES_PATH,
+              payload,
+              tokenHeaders,
+            );
+            if (!result?.body) {
+              throw new Error(`notice session page ${pageIndex} failed (HTTP ${result?.status ?? 'n/a'})`);
+            }
+            return result.body as NeverSkipNoticesResponse;
+          },
+          { firstPage: noticesRaw },
+        );
+        notices = paged.items;
+        noticePagesFetched = paged.pagesFetched;
+        noticeFetchIncomplete = paged.incomplete;
+        noticeFetchErrors = paged.errors;
+        noticeSourceTotal = paged.sourceTotal;
+        noticeRawFetched = paged.rawFetched;
+        noticeUniqueFetched = paged.uniqueFetched;
+      }
     } else if (noticesRaw) {
-      notices = extractNotices(noticesRaw);
-      noticePagesFetched = notices.length > 0 ? 1 : 0;
+      const inspected = inspectNoticeEnvelope(noticesRaw);
+      if (inspected.status === 'ok') {
+        notices = inspected.items;
+        noticePagesFetched = 1;
+        noticeRawFetched = notices.length;
+        noticeUniqueFetched = notices.length;
+      } else if (inspected.status === 'failure_envelope') {
+        noticeFetchIncomplete = true;
+        noticeFetchErrors = ['NOTICE SYNC = AUTHENTICATION_REQUIRED'];
+      } else {
+        noticeFetchIncomplete = true;
+        noticeFetchErrors = ['NOTICE SYNC = INVALID_RESPONSE'];
+        notices = extractNotices(noticesRaw);
+        noticePagesFetched = notices.length > 0 ? 1 : 0;
+        noticeRawFetched = notices.length;
+        noticeUniqueFetched = notices.length;
+      }
     }
 
     let homeworkPagesFetched = 0;
     let homeworkFetchIncomplete = false;
     let homeworkFetchErrors: string[] = [];
+    let homeworkSourceTotal: number | null = null;
+    let homeworkRawFetched = 0;
+    let homeworkUniqueFetched = 0;
     let homework: CollectedNeverSkipData['homework'] = [];
 
     if (homeworkRaw && context) {
@@ -607,6 +648,9 @@ export async function collectNeverSkipData(
       homeworkPagesFetched = paged.pagesFetched;
       homeworkFetchIncomplete = paged.incomplete;
       homeworkFetchErrors = paged.errors;
+      homeworkSourceTotal = paged.sourceTotal;
+      homeworkRawFetched = paged.rawFetched;
+      homeworkUniqueFetched = paged.uniqueFetched;
     } else if (homeworkRaw) {
       // No browser context (tests) — still run pagination helper so page-0 metadata is logged;
       // additional pages cannot be fetched without a session.
@@ -618,6 +662,9 @@ export async function collectNeverSkipData(
       homeworkPagesFetched = paged.pagesFetched;
       homeworkFetchIncomplete = paged.incomplete;
       homeworkFetchErrors = paged.errors;
+      homeworkSourceTotal = paged.sourceTotal;
+      homeworkRawFetched = paged.rawFetched;
+      homeworkUniqueFetched = paged.uniqueFetched;
     }
 
     if (homeworkRaw && homework.length === 0) {
@@ -658,9 +705,15 @@ export async function collectNeverSkipData(
       homeworkPagesFetched,
       homeworkFetchIncomplete,
       homeworkFetchErrors,
+      homeworkSourceTotal,
+      homeworkRawFetched,
+      homeworkUniqueFetched,
       noticePagesFetched,
       noticeFetchIncomplete,
       noticeFetchErrors,
+      noticeSourceTotal,
+      noticeRawFetched,
+      noticeUniqueFetched,
     };
   } finally {
     page.off('response', onResponse);

@@ -1,43 +1,89 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { MicroLessonForPlayer } from '@/lib/recap/today';
+import type { MicroLessonScene } from '@/lib/recap/schema';
+import RecapProgress from '@/components/recap/RecapProgress';
+import IntroScene from '@/components/recap/scenes/IntroScene';
+import TeachScene from '@/components/recap/scenes/TeachScene';
+import ExamplesScene from '@/components/recap/scenes/ExamplesScene';
+import ChoiceScene from '@/components/recap/scenes/ChoiceScene';
+import MatchScene from '@/components/recap/scenes/MatchScene';
+import QuizScene from '@/components/recap/scenes/QuizScene';
+import CelebrationScene from '@/components/recap/scenes/CelebrationScene';
 
-type Phase = 'slides' | 'quiz' | 'done';
+type Phase = 'scenes' | 'quiz' | 'done';
+
+function playableScenes(scenes: MicroLessonScene[]): MicroLessonScene[] {
+  return scenes.filter((s) => s.type !== 'celebration');
+}
 
 export default function RecapPlayer({ lesson }: { lesson: MicroLessonForPlayer }) {
-  const [phase, setPhase] = useState<Phase>('slides');
-  const [slideIndex, setSlideIndex] = useState(0);
+  const reduceMotion = useReducedMotion();
+  const scenes = useMemo(() => playableScenes(lesson.scenes), [lesson.scenes]);
+  const celebrationFromScenes = lesson.scenes.find((s) => s.type === 'celebration');
+  const celebrationMessage =
+    lesson.celebrationMessage ||
+    (celebrationFromScenes && celebrationFromScenes.type === 'celebration'
+      ? celebrationFromScenes.message
+      : 'Great learning today!');
+
+  const [phase, setPhase] = useState<Phase>(scenes.length > 0 ? 'scenes' : 'quiz');
+  const [sceneIndex, setSceneIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
-  const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
-  const [locked, setLocked] = useState(false);
   const [score, setScore] = useState(0);
   const [total, setTotal] = useState(lesson.quiz.length);
   const [saving, setSaving] = useState(false);
 
-  const slides = lesson.slides;
-  const slide = slides[slideIndex];
+  const scene = scenes[sceneIndex];
   const question = lesson.quiz[questionIndex];
 
-  const goNextSlide = useCallback(() => {
-    if (slideIndex < slides.length - 1) {
-      setSlideIndex((i) => i + 1);
+  const progressTotal = scenes.length + lesson.quiz.length;
+  const progressCurrent =
+    phase === 'scenes'
+      ? sceneIndex + 1
+      : phase === 'quiz'
+        ? scenes.length + questionIndex + 1
+        : progressTotal;
+
+  const goNextScene = useCallback(() => {
+    if (sceneIndex < scenes.length - 1) {
+      setSceneIndex((i) => i + 1);
       return;
     }
     setPhase('quiz');
-  }, [slideIndex, slides.length]);
+  }, [sceneIndex, scenes.length]);
 
-  useEffect(() => {
-    if (phase !== 'slides') return;
-    const t = setTimeout(() => goNextSlide(), 4000);
-    return () => clearTimeout(t);
-  }, [phase, slideIndex, goNextSlide]);
+  async function finishQuiz(nextAnswers: number[]) {
+    setSaving(true);
+    try {
+      const attemptRes = await fetch(`/api/recap/${lesson.id}/attempt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: nextAnswers }),
+      });
+      const attemptData = (await attemptRes.json()) as {
+        ok?: boolean;
+        score?: number;
+        total?: number;
+      };
+      if (attemptData.ok) {
+        setScore(attemptData.score ?? 0);
+        setTotal(attemptData.total ?? lesson.quiz.length);
+      } else {
+        setTotal(lesson.quiz.length);
+      }
+    } catch {
+      setTotal(lesson.quiz.length);
+    } finally {
+      setSaving(false);
+      setPhase('done');
+    }
+  }
 
-  async function onPickOption(optionIndex: number) {
-    if (locked || feedback) return;
-    setLocked(true);
-
+  async function handleQuizAnswer(optionIndex: number): Promise<'correct' | 'incorrect'> {
     const res = await fetch(`/api/recap/${lesson.id}/check`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -45,153 +91,92 @@ export default function RecapPlayer({ lesson }: { lesson: MicroLessonForPlayer }
     });
     const data = (await res.json()) as { ok?: boolean; correct?: boolean };
     const correct = Boolean(data.ok && data.correct);
-    setFeedback(correct ? 'correct' : 'incorrect');
 
     const nextAnswers = [...answers];
     nextAnswers[questionIndex] = optionIndex;
     setAnswers(nextAnswers);
 
-    setTimeout(async () => {
-      setFeedback(null);
-      setLocked(false);
+    window.setTimeout(() => {
       if (questionIndex < lesson.quiz.length - 1) {
         setQuestionIndex((i) => i + 1);
         return;
       }
-      setSaving(true);
-      try {
-        const attemptRes = await fetch(`/api/recap/${lesson.id}/attempt`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ answers: nextAnswers }),
-        });
-        const attemptData = (await attemptRes.json()) as {
-          ok?: boolean;
-          score?: number;
-          total?: number;
-        };
-        if (attemptData.ok) {
-          setScore(attemptData.score ?? 0);
-          setTotal(attemptData.total ?? lesson.quiz.length);
-        } else {
-          setScore(nextAnswers.filter((a, i) => a === i).length);
-          setTotal(lesson.quiz.length);
-        }
-      } catch {
-        setTotal(lesson.quiz.length);
-      } finally {
-        setSaving(false);
-        setPhase('done');
-      }
-    }, 1100);
+      void finishQuiz(nextAnswers);
+    }, 1000);
+
+    return correct ? 'correct' : 'incorrect';
   }
 
-  const progressTotal = phase === 'slides' ? slides.length + lesson.quiz.length : slides.length + lesson.quiz.length;
-  const progressCurrent =
-    phase === 'slides'
-      ? slideIndex + 1
-      : phase === 'quiz'
-        ? slides.length + questionIndex + 1
-        : progressTotal;
-  const progressPct = Math.round((progressCurrent / Math.max(progressTotal, 1)) * 100);
+  if (lesson.schemaVersion === 1 || scenes.length === 0) {
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-4 text-center">
+        <p className="text-lg font-semibold text-[var(--sp-ink)]">Getting your game ready…</p>
+        <p className="mt-2 text-sm text-[var(--sp-muted)]">
+          Refresh in a moment if this stays here.
+        </p>
+        <a href="/recap" className="mt-6 font-semibold text-[var(--sp-primary)]">
+          Back to Recap
+        </a>
+      </div>
+    );
+  }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-lg flex-col px-4 py-6">
-      <header className="mb-6">
+    <div className="mx-auto flex min-h-[75vh] max-w-lg flex-col px-3 py-5 sm:px-4">
+      <header className="mb-4">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
           Today&apos;s Recap
         </p>
-        <h1 className="mt-1 text-xl font-semibold text-[var(--sp-ink)]">{lesson.title}</h1>
-        <p className="mt-0.5 text-sm text-[var(--sp-muted)]">
-          {lesson.subject} · {lesson.topic}
-        </p>
-        <div className="mt-4 h-2 overflow-hidden rounded-full bg-zinc-100">
-          <div
-            className="h-full rounded-full bg-[var(--sp-primary)] transition-all duration-300"
-            style={{ width: `${progressPct}%` }}
-          />
+        <h1 className="mt-1 text-lg font-bold text-[var(--sp-ink)]">{lesson.topic}</h1>
+        <div className="mt-3">
+          <RecapProgress current={progressCurrent} total={progressTotal} />
         </div>
       </header>
 
-      {phase === 'slides' && slide ? (
-        <section className="flex flex-1 flex-col items-center justify-center rounded-[28px] bg-white px-6 py-10 text-center shadow-[0_1px_0_rgba(0,0,0,0.03)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
-            {slide.type}
-          </p>
-          <h2 className="mt-4 text-2xl font-semibold leading-snug text-[var(--sp-ink)] sm:text-3xl">
-            {slide.title}
-          </h2>
-          {slide.word || slide.opposite ? (
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-3xl font-bold text-[var(--sp-ink)]">
-              {slide.word ? <span>{slide.word}</span> : null}
-              {slide.word && slide.opposite ? (
-                <span className="text-[var(--sp-muted)]">→</span>
-              ) : null}
-              {slide.opposite ? <span>{slide.opposite}</span> : null}
-            </div>
+      <div className="relative flex flex-1 flex-col overflow-hidden rounded-[32px] bg-gradient-to-b from-amber-50 via-orange-50/80 to-rose-50 p-4 shadow-[0_1px_0_rgba(0,0,0,0.03)] sm:p-6">
+        <AnimatePresence mode="wait">
+          {phase === 'scenes' && scene?.type === 'intro' ? (
+            <IntroScene key={`intro-${sceneIndex}`} scene={scene} onDone={goNextScene} />
           ) : null}
-          <p className="mt-6 max-w-sm text-base leading-relaxed text-[var(--sp-muted)]">
-            {slide.text}
-          </p>
-          <button
-            type="button"
-            onClick={goNextSlide}
-            className="mt-10 rounded-2xl bg-[var(--sp-primary)] px-8 py-3 text-base font-semibold text-white hover:bg-orange-600 sp-focus"
-          >
-            {slideIndex < slides.length - 1 ? 'Next' : 'Start quiz'}
-          </button>
-        </section>
-      ) : null}
+          {phase === 'scenes' && scene?.type === 'visual_teach' ? (
+            <TeachScene key={`teach-${sceneIndex}`} scene={scene} onNext={goNextScene} />
+          ) : null}
+          {phase === 'scenes' && scene?.type === 'examples' ? (
+            <ExamplesScene key={`ex-${sceneIndex}`} scene={scene} onNext={goNextScene} />
+          ) : null}
+          {phase === 'scenes' && (scene?.type === 'choice' || scene?.type === 'find') ? (
+            <ChoiceScene key={`choice-${sceneIndex}`} scene={scene} onSolved={goNextScene} />
+          ) : null}
+          {phase === 'scenes' && scene?.type === 'match' ? (
+            <MatchScene key={`match-${sceneIndex}`} scene={scene} onSolved={goNextScene} />
+          ) : null}
 
-      {phase === 'quiz' && question ? (
-        <section className="flex flex-1 flex-col rounded-[28px] bg-white px-5 py-8 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
-            Question {questionIndex + 1} of {lesson.quiz.length}
-          </p>
-          <h2 className="mt-3 text-xl font-semibold leading-snug text-[var(--sp-ink)]">
-            {question.question}
-          </h2>
-          <div className="mt-6 grid gap-3">
-            {question.options.map((option, idx) => (
-              <button
-                key={`${questionIndex}-${idx}`}
-                type="button"
-                disabled={locked}
-                onClick={() => void onPickOption(idx)}
-                className="rounded-2xl border border-[var(--sp-border)] bg-[var(--sp-bg)] px-4 py-4 text-left text-base font-semibold text-[var(--sp-ink)] hover:border-orange-200 hover:bg-[var(--sp-primary-soft)] disabled:opacity-60 sp-focus"
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-          {feedback === 'correct' ? (
-            <p className="mt-5 text-center text-base font-semibold text-emerald-600">
-              Great job!
-            </p>
+          {phase === 'quiz' && question ? (
+            <QuizScene
+              key={`quiz-${questionIndex}`}
+              question={question.question}
+              options={question.options}
+              optionHints={question.optionHints}
+              questionIndex={questionIndex}
+              total={lesson.quiz.length}
+              onAnswer={handleQuizAnswer}
+            />
           ) : null}
-          {feedback === 'incorrect' ? (
-            <p className="mt-5 text-center text-base font-semibold text-amber-600">
-              Almost! Let&apos;s think again.
-            </p>
-          ) : null}
-        </section>
-      ) : null}
 
-      {phase === 'done' ? (
-        <section className="flex flex-1 flex-col items-center justify-center rounded-[28px] bg-white px-6 py-12 text-center shadow-[0_1px_0_rgba(0,0,0,0.03)]">
-          <h2 className="text-3xl font-semibold text-[var(--sp-ink)]">Nice work!</h2>
-          <p className="mt-4 text-lg text-[var(--sp-muted)]">
-            {saving ? 'Saving…' : `${score} / ${total} correct`}
-          </p>
-          <p className="mt-2 text-sm text-[var(--sp-subtle)]">Recap completed</p>
-          <a
-            href="/"
-            className="mt-8 rounded-2xl bg-[var(--sp-primary)] px-8 py-3 text-base font-semibold text-white hover:bg-orange-600 sp-focus"
-          >
-            Back to Home
-          </a>
-        </section>
-      ) : null}
+          {phase === 'done' ? (
+            <CelebrationScene
+              key="done"
+              message={saving ? 'Saving your stars…' : celebrationMessage}
+              score={score}
+              total={total}
+            />
+          ) : null}
+        </AnimatePresence>
+
+        {reduceMotion ? (
+          <span className="sr-only">Animations reduced for accessibility</span>
+        ) : null}
+      </div>
     </div>
   );
 }

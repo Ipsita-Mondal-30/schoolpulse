@@ -126,9 +126,15 @@ export interface CollectedNeverSkipData {
   homeworkPagesFetched?: number;
   homeworkFetchIncomplete?: boolean;
   homeworkFetchErrors?: string[];
+  homeworkSourceTotal?: number | null;
+  homeworkRawFetched?: number;
+  homeworkUniqueFetched?: number;
   noticePagesFetched?: number;
   noticeFetchIncomplete?: boolean;
   noticeFetchErrors?: string[];
+  noticeSourceTotal?: number | null;
+  noticeRawFetched?: number;
+  noticeUniqueFetched?: number;
 }
 
 export interface SyncSummary {
@@ -142,6 +148,9 @@ export interface SyncSummary {
   homeworkMissing?: number;
   homeworkPagesFetched?: number;
   homeworkFetchIncomplete?: boolean;
+  homeworkSourceTotal?: number | null;
+  homeworkRawFetched?: number;
+  homeworkUniqueFetched?: number;
   noticesFetched: number;
   noticesInserted: number;
   noticesUpdated: number;
@@ -151,6 +160,9 @@ export interface SyncSummary {
   noticesMissing?: number;
   noticePagesFetched?: number;
   noticeFetchIncomplete?: boolean;
+  noticeSourceTotal?: number | null;
+  noticeRawFetched?: number;
+  noticeUniqueFetched?: number;
   newestHomeworkDate?: string;
   newestNoticeDate?: string;
   errors: string[];

@@ -231,6 +231,27 @@ describe('buildUpdatesFeed', () => {
     expect(items[0].type).toBe('notice');
   });
 
+  it('adds Content Library landing href when notice mentions content library', () => {
+    const items = buildUpdatesFeed({
+      homework: [],
+      notices: [
+        nt({
+          sourceId: 'n-cl',
+          title: 'Textbook pages',
+          summary: 'Unit 1 to 5 uploaded in the Content Library',
+          content: 'Textbook pages of Unit 1 to 5 have been uploaded in the Content Library for your reference.',
+          publishedDate: '2026-09-16',
+          createdAt: '2026-09-16T12:00:00.000Z',
+        }),
+      ],
+      changes: [],
+      since: SINCE,
+      publishedSinceYmd: PUBLISHED_SINCE,
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0].libraryHref).toBe('/class-diary');
+  });
+
   it('includes both new homework and new notices in one feed, newest first', () => {
     const items = buildUpdatesFeed({
       homework: [hw({ sourceId: '1325', title: 'Hindi sulekh', createdAt: '2026-09-15T12:56:52.948Z' })],

@@ -30,17 +30,24 @@ export type GenerateLessonAiFn = (input: {
 }) => Promise<MicroLessonAiPayload>;
 
 function buildSystemPrompt(): string {
-  return `You create short Grade 1 micro-lessons for SchoolPulse "Today's Recap".
+  return `You create Grade 1 interactive micro-lessons for SchoolPulse "Today's Recap".
+
+The React app turns your JSON into an animated mini-game. You provide CONTENT only.
 
 Rules:
-- Content is AI-generated support material, not official school content.
-- Use ONLY the school source snippets provided. Never invent school-specific facts.
-- Never contradict school-provided material.
-- Keep the lesson 1–3 minutes: minimal text, clear examples, child-friendly.
-- Quiz (3–5 questions) must test ONLY information introduced in the slides.
-- Each quiz item needs exactly 4 options; answerIndex is 0–3.
-- Slide types: intro | example | explanation | practice.
-- Optional word/opposite fields for antonym-style examples.
+- Use ONLY the school source snippets. Never invent school-specific facts.
+- Never return HTML, CSS, React, or code.
+- Child-friendly, minimal text, large ideas — not paragraphs.
+- scenes (5–10) must include: intro, visual_teach, examples, and at least one of choice | find | match.
+- intro.message: short hook (one sentence).
+- visual_teach: one headline + 1–6 short "bits" (words/letters/phrases), not sentences.
+- examples: 2–4 short labels with optional visualHint.
+- choice/find: prompt + exactly 3 options + answerIndex 0–2.
+- match: 2–4 left/right pairs (tap-to-match game).
+- Pick interaction that fits the topic (do not force match if choice/find is clearer).
+- visualHint values only from: star, letter, book, pencil, shape_circle, shape_square, shape_triangle, bug, caterpillar, sun, moon, heart, hand, abc, number, leaf, sparkle.
+- quiz: exactly 3 questions, each with exactly 3 short options and answerIndex 0–2. Test only what scenes taught.
+- Optional celebrationMessage: short praise (UI adds score).
 
 Return structured JSON matching the schema.`;
 }
@@ -62,7 +69,7 @@ Topic (from school sources): ${extraction.topic}
 School source material (ground truth):
 ${sources}
 
-Generate a micro-lesson and quiz grounded only in the material above.`,
+Generate an interactive scene-based micro-lesson and 3-question quiz grounded only in the material above.`,
   });
 
   return validateMicroLessonPayload(result.object);

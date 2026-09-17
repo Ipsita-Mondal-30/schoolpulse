@@ -1,7 +1,10 @@
 'use server';
 
 import { getPrisma } from '@/lib/prisma';
-import { generateMicroLessonForHomework } from '@/lib/recap/generate';
+import {
+  generateMicroLessonForHomework,
+  isLegacyMicroLessonSlides,
+} from '@/lib/recap/generate';
 import { getTodaysRecap, toPlayerLesson, type MicroLessonForPlayer } from '@/lib/recap/today';
 
 export async function loadTodaysRecapForUi(options?: {
@@ -37,7 +40,18 @@ export async function getMicroLessonForUi(
   lessonId: string,
 ): Promise<MicroLessonForPlayer | null> {
   const prisma = getPrisma();
-  const lesson = await prisma.microLesson.findUnique({ where: { id: lessonId } });
+  let lesson = await prisma.microLesson.findUnique({ where: { id: lessonId } });
   if (!lesson) return null;
+
+  // Upgrade legacy text-slide lessons to interactive scene schema once.
+  if (isLegacyMicroLessonSlides(lesson.slides)) {
+    const upgraded = await generateMicroLessonForHomework(lesson.homeworkId, {
+      force: true,
+    });
+    if (upgraded.ok) {
+      lesson = upgraded.lesson;
+    }
+  }
+
   return toPlayerLesson(lesson);
 }

@@ -11,6 +11,32 @@ import { formatRelativeTimeIndia, type FieldChange } from '@/lib/neverskip/chang
 import { homeworkSectionsForUi, noticeSummaryForUi, resolveNoticeClassesForUi } from '@/lib/ui-merge';
 import { addDaysYmd, getIndiaToday } from '@/lib/daily-brief';
 import { isNewerThan } from '@/lib/updates-unread';
+import libraryData from '@/data/content-library.json';
+import {
+  resolveNoticeLibraryLink,
+  type LibraryResourceRef,
+} from '@/lib/notice-library-link';
+
+const LIBRARY_RESOURCES: LibraryResourceRef[] = (
+  libraryData.resources as { id: string; title: string; date: string }[]
+).map((r) => ({ id: r.id, title: r.title, date: r.date }));
+
+function noticeLibraryHref(notice: {
+  title?: string;
+  summary?: string;
+  content?: string;
+  publishedDate?: string;
+}): string | undefined {
+  const link = resolveNoticeLibraryLink(
+    {
+      summary: notice.summary || notice.title || '',
+      message: notice.content || '',
+      date: notice.publishedDate || '',
+    },
+    LIBRARY_RESOURCES,
+  );
+  return link?.href;
+}
 
 export type UpdateFeedKind = 'new' | 'changed' | 'recent';
 export type UpdateFeedType = 'homework' | 'notice';
@@ -42,6 +68,8 @@ export interface UpdateFeedItem {
   sections: string[];
   href: string;
   changedFields: UpdateFeedChangeField[];
+  /** Content Library CTA when notice text mentions it (never invents resource ids). */
+  libraryHref?: string;
 }
 
 export interface UpdateFeedHomeworkRow {
@@ -286,6 +314,7 @@ export function buildUpdatesFeed(input: {
     );
     const title = noticeSummaryForUi(notice.title, notice.summary, notice.content) || 'School notice';
     const sourceTime = normalizePublishedTime(notice.publishedTime) || undefined;
+    const libraryHref = noticeLibraryHref(notice);
 
     if (change && changeMs >= createdMs && changeMs >= sinceMs) {
       newNoticeKeys.add(key);
@@ -304,6 +333,7 @@ export function buildUpdatesFeed(input: {
         sections,
         href: noticeHref(uiId),
         changedFields: asChangeFields(change.changedFields),
+        libraryHref,
       });
       continue;
     }
@@ -325,6 +355,7 @@ export function buildUpdatesFeed(input: {
         sections,
         href: noticeHref(uiId),
         changedFields: [],
+        libraryHref,
       });
     }
   }
@@ -379,6 +410,7 @@ export function buildUpdatesFeed(input: {
     const title = noticeSummaryForUi(notice.title, notice.summary, notice.content) || 'School notice';
     const sourceTime = normalizePublishedTime(notice.publishedTime) || undefined;
     const sortKey = noticePublicationSortKey(notice);
+    const libraryHref = noticeLibraryHref(notice);
 
     recentItems.push({
       id: `recent:notice:${source}:${notice.sourceId}`,
@@ -395,6 +427,7 @@ export function buildUpdatesFeed(input: {
       sections,
       href: noticeHref(uiId),
       changedFields: [],
+      libraryHref,
     });
   }
 

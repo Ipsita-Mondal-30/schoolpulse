@@ -10,6 +10,7 @@ import { InMemoryNeverSkipStore } from '@/lib/neverskip/memory-store';
 import {
   extractAssignments,
   extractNotices,
+  inspectNoticeEnvelope,
   normalizeDate,
   normalizeHomework,
   normalizeNotice,
@@ -167,9 +168,40 @@ describe('NeverSkip notice parsing & normalization', () => {
     expect(list).toHaveLength(3);
   });
 
+  it('parses stringified D.item_list', () => {
+    const list = extractNotices({
+      S: true,
+      D: {
+        item_list: JSON.stringify([
+          {
+            title: '',
+            cont: 'Notes for completed chapter are shared in content library.',
+            date: '16/09/2026 04:18 PM',
+          },
+        ]),
+      },
+    } as unknown as NeverSkipNoticesResponse);
+    expect(list).toHaveLength(1);
+    const norm = normalizeNotice(list[0]);
+    expect(norm!.publishedDate).toBe('2026-09-16');
+    expect(norm!.publishedTime).toBe('16:18');
+  });
+
   it('returns empty for empty response', () => {
     expect(extractNotices({})).toEqual([]);
     expect(extractNotices({ D: {} })).toEqual([]);
+  });
+
+  it('inspectNoticeEnvelope flags failure and invalid shapes', () => {
+    expect(inspectNoticeEnvelope({ S: false, M: 'x' } as NeverSkipNoticesResponse).status).toBe(
+      'failure_envelope',
+    );
+    expect(inspectNoticeEnvelope({ S: true, D: { foo: 1 } } as NeverSkipNoticesResponse).status).toBe(
+      'invalid_response',
+    );
+    expect(
+      inspectNoticeEnvelope({ S: true, D: { item_list: [] } } as NeverSkipNoticesResponse).status,
+    ).toBe('ok');
   });
 
   it('normalizes notice with explicit id and classes', () => {
@@ -180,6 +212,43 @@ describe('NeverSkip notice parsing & normalization', () => {
     expect(norm!.publishedDate).toBe('2026-09-04');
     expect(norm!.publishedTime).toBe('15:39');
     expect(norm!.content).toContain('English textbook');
+  });
+
+  it('keeps notices with empty title, missing image, and missing test_tar', () => {
+    const norm = normalizeNotice({
+      title: '',
+      cont: 'EVS Revision paper with answer key has been shared in content library.',
+      date: '16/09/2026 04:17 PM',
+      image: '',
+    });
+    expect(norm).not.toBeNull();
+    expect(norm!.publishedDate).toBe('2026-09-16');
+    expect(norm!.publishedTime).toBe('16:17');
+    expect(norm!.title.toLowerCase()).toContain('evs revision');
+    expect(norm!.imageUrl).toBeNull();
+    expect(norm!.classes).toEqual([]);
+  });
+
+  it('parses DD/MM/YYYY as day-first (not MM/DD)', () => {
+    expect(normalizeDate('16/09/2026')).toBe('2026-09-16');
+    expect(normalizeDate('15/09/2026')).toBe('2026-09-15');
+    expect(normalizeDate('05:50 PM | 16/09/2026')).toBe('2026-09-16');
+    expect(normalizeDate('16/09/2026 05:50 PM')).toBe('2026-09-16');
+    expect(normalizeTime('16/09/2026 05:50 PM')).toBe('17:50');
+  });
+
+  it('normalizes multiple notices on the same date', () => {
+    const a = normalizeNotice({
+      cont: 'English Textbook at home',
+      date: '16/09/2026 05:50 PM',
+    })!;
+    const b = normalizeNotice({
+      cont: 'Notes for completed chapter',
+      date: '16/09/2026 04:18 PM',
+    })!;
+    expect(a.publishedDate).toBe('2026-09-16');
+    expect(b.publishedDate).toBe('2026-09-16');
+    expect(a.sourceId).not.toBe(b.sourceId);
   });
 
   it('parses audience title Classes: into classes and content-based display title', () => {
