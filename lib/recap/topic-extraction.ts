@@ -51,11 +51,11 @@ const INELIGIBLE_PATTERNS: RegExp[] = [
 ];
 
 const LEARNING_HINT =
-  /\b(learn|practice|revise|revision|opposite|opposites|addition|subtraction|multiply|division|words?|numbers?|shapes?|phonics|grammar|reading|writing|spell|maths?|english|hindi|kannada|evs|science|matra|sulekh|chapter|unit)\b/i;
+  /\b(learn|practice|revise|revision|opposite|opposites|addition|subtraction|multiply|division|words?|numbers?|shapes?|phonics|grammar|reading|writing|spell|maths?|english|hindi|kannada|evs|science|matra|sulekh|chapter|unit|poem)\b|कविता/i;
 
 /** Explicit school learning markers (Devanagari मात्रा, matra, chapter titles, etc.). */
 const EXPLICIT_TOPIC_HINT =
-  /मात्रा|\bmatra\b|\bopposites?\b|\bshapes?\b|\bpatterns?\b|\bphonics\b|\bgrammar\b|\bchapter\b|\bunit\b/i;
+  /मात्रा|\bmatra\b|\bopposites?\b|\bshapes?\b|\bpatterns?\b|\bphonics\b|\bgrammar\b|\bchapter\b|\bunit\b|\bpoem\b|कविता/i;
 
 function cleanSnippet(text: string): string {
   return text.replace(/\s+/g, ' ').trim();
@@ -128,6 +128,17 @@ export function extractExplicitTopic(text: string): string | null {
   if (chapter?.[1]) {
     const topic = cleanSnippet(chapter[1]).replace(/\s+/g, ' ');
     if (!looksLikePageOnly(topic) && topic.length <= 80) return topic;
+  }
+
+  // Learn poem - Bitiya Aayi / कविता …
+  const poem = cleaned.match(
+    /\b(?:learn|practice|revise)?\s*poem\s*[-–:]?\s*([A-Za-z\u0900-\u097F][\w\u0900-\u097F\s'-]{1,50})/i,
+  );
+  if (poem?.[1]) {
+    const name = cleanSnippet(poem[1]).replace(/\b\d+\s*[-–]?\s*\d*\s*lines?\b/i, '').trim();
+    if (name.length >= 2 && !looksLikePageOnly(name)) {
+      return `Poem — ${name}`.replace(/\s+/g, ' ');
+    }
   }
 
   // Opposite words / shapes-style short titles

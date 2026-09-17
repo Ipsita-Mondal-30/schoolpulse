@@ -148,13 +148,21 @@ export async function generateMicroLessonForHomework(
     payload = validateMicroLessonPayload(payload);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'AI generation failed';
+    console.error('[recap/generateMicroLesson]', message);
     if (/invalid micro-lesson|answerIndex/i.test(message)) {
       return { ok: false, reason: 'invalid', message };
+    }
+    if (/GOOGLE_GENERATIVE_AI_API_KEY is not configured/i.test(message)) {
+      return {
+        ok: false,
+        reason: 'unavailable',
+        message: "Recap isn't available yet. AI key is not configured on this server.",
+      };
     }
     return {
       ok: false,
       reason: 'unavailable',
-      message: "Recap isn't available yet.",
+      message: "Recap isn't available yet. Please try again in a moment.",
     };
   }
 

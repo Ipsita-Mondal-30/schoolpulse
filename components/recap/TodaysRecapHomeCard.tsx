@@ -93,12 +93,12 @@ export default function TodaysRecapHomeCard({
       setError(
         json.reason === 'ineligible'
           ? "SchoolPulse couldn't create a recap for this homework."
-          : json.message || "Recap isn't available yet.",
+          : json.message || "Recap isn't available yet. Please try again.",
       );
-      // Still open the Recap hub so the button is never a dead end.
+      // Open hub so the parent can retry from the topic list.
       router.push('/recap');
     } catch {
-      setError("Recap isn't available yet.");
+      setError("Recap isn't available yet. Please try again.");
       router.push('/recap');
     } finally {
       setStarting(false);

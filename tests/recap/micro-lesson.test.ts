@@ -198,6 +198,21 @@ describe('topic extraction', () => {
     }
   });
 
+  it('extracts Learn poem - Bitiya Aayi as an eligible poem topic', () => {
+    const result = extractLearningTopic({
+      title: 'Learn poem- Bitiya Aayi',
+      description:
+        "Today's Hindi Homework (17/09/26) Learn poem - Bitiya Aayi 1-4 Lines from Textbook page no 32",
+      subject: 'HINDI',
+      date: '2026-09-17',
+    });
+    expect(result.eligible).toBe(true);
+    if (result.eligible) {
+      expect(result.topic.toLowerCase()).toContain('bitiya');
+      expect(result.topic.toLowerCase()).toMatch(/poem/);
+    }
+  });
+
   it('keeps Chapter 10 Shapes and Patterns eligible', () => {
     const result = extractLearningTopic({
       title: 'Chapter-10 Shapes and Patterns',
