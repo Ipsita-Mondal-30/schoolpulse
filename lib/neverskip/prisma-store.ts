@@ -12,10 +12,12 @@ import {
 } from './changes';
 import {
   homeworkContentKey,
+  jolContentKey,
   noticeContentKey,
   type NeverSkipStore,
 } from './store';
 import type { NormalizedHomework, NormalizedNotice, UpsertResult } from './types';
+import type { NormalizedJolItem } from './types';
 
 function parseJsonArray(raw: string): string[] {
   try {
@@ -260,5 +262,121 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       select: { id: true },
     });
     return !!row;
+  }
+
+  async upsertJolItem(item: NormalizedJolItem): Promise<UpsertResult> {
+    const prisma = getPrisma();
+    const existing = await prisma.importedJolItem.findUnique({
+      where: {
+        source_sourceId: { source: item.source, sourceId: item.sourceId },
+      },
+    });
+    const sectionsJson = JSON.stringify(item.sections);
+
+    if (!existing) {
+      await prisma.importedJolItem.create({
+        data: {
+          source: item.source,
+          sourceId: item.sourceId,
+          title: item.title,
+          description: item.description,
+          content: item.content,
+          activityDate: item.activityDate,
+          publishedDate: item.publishedDate,
+          publishedTime: item.publishedTime,
+          resourceType: item.resourceType,
+          resourceUrl: item.resourceUrl,
+          downloadUrl: item.downloadUrl,
+          thumbnailUrl: item.thumbnailUrl,
+          subjectName: item.subjectName,
+          sectionsJson,
+          jolRelated: item.jolRelated,
+          metadataJson: item.metadataJson,
+        },
+      });
+      return 'inserted';
+    }
+
+    const existingNorm: NormalizedJolItem = {
+      source: existing.source as NormalizedJolItem['source'],
+      sourceId: existing.sourceId,
+      title: existing.title,
+      description: existing.description,
+      content: existing.content,
+      activityDate: existing.activityDate,
+      publishedDate: existing.publishedDate,
+      publishedTime: existing.publishedTime,
+      resourceType: existing.resourceType,
+      resourceUrl: existing.resourceUrl,
+      downloadUrl: existing.downloadUrl,
+      thumbnailUrl: existing.thumbnailUrl,
+      subjectName: existing.subjectName,
+      sections: parseJsonArray(existing.sectionsJson),
+      jolRelated: existing.jolRelated,
+      metadataJson: existing.metadataJson,
+    };
+
+    if (jolContentKey(existingNorm) === jolContentKey(item)) {
+      return 'unchanged';
+    }
+
+    await prisma.contentChangeEvent.create({
+      data: {
+        entityType: 'jol',
+        source: item.source,
+        sourceId: item.sourceId,
+        entityId: existing.id,
+        changedFieldsJson: JSON.stringify([
+          { field: 'content', label: 'Content library item', previous: existing.title, current: item.title, reliable: true },
+        ]),
+        previousSnapshotJson: JSON.stringify(existingNorm),
+        currentSnapshotJson: JSON.stringify(item),
+      },
+    });
+
+    await prisma.importedJolItem.update({
+      where: { id: existing.id },
+      data: {
+        title: item.title,
+        description: item.description,
+        content: item.content,
+        activityDate: item.activityDate,
+        publishedDate: item.publishedDate,
+        publishedTime: item.publishedTime,
+        resourceType: item.resourceType,
+        resourceUrl: item.resourceUrl,
+        downloadUrl: item.downloadUrl,
+        thumbnailUrl: item.thumbnailUrl,
+        subjectName: item.subjectName,
+        sectionsJson,
+        jolRelated: item.jolRelated,
+        metadataJson: item.metadataJson,
+      },
+    });
+    return 'updated';
+  }
+
+  async listJolItems(): Promise<NormalizedJolItem[]> {
+    const rows = await getPrisma().importedJolItem.findMany({
+      orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
+    });
+    return rows.map((r) => ({
+      source: r.source as NormalizedJolItem['source'],
+      sourceId: r.sourceId,
+      title: r.title,
+      description: r.description,
+      content: r.content,
+      activityDate: r.activityDate,
+      publishedDate: r.publishedDate,
+      publishedTime: r.publishedTime,
+      resourceType: r.resourceType,
+      resourceUrl: r.resourceUrl,
+      downloadUrl: r.downloadUrl,
+      thumbnailUrl: r.thumbnailUrl,
+      subjectName: r.subjectName,
+      sections: parseJsonArray(r.sectionsJson),
+      jolRelated: r.jolRelated,
+      metadataJson: r.metadataJson,
+    }));
   }
 }

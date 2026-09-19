@@ -1,0 +1,592 @@
+{
+  "pages": [
+    {
+      "page": 0,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "16245",
+        "subject_name": "HINDI",
+        "con_tit": "Hindi revision paper - 4  mid-term along with answer key.",
+        "sch_dt": "2026-09-18",
+        "sch_fdt": "18-Sep-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "16245",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Revpaper4GRADE1MIDTERM_20260918155843.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Revpaper4GRADE1MIDTERM_20260918155843.pdf"
+        },
+        {
+          "con_id": "16245",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_HindiREVISIONpaperGRADE1MIDTERM_20260918155843.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_HindiREVISIONpaperGRADE1MIDTERM_20260918155843.pdf"
+        }
+      ]
+    },
+    {
+      "page": 1,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "15983",
+        "subject_name": "COMPUTER SCIENCE",
+        "con_tit": "Joy of learning, WS -II, Computer science practice paper and answer key",
+        "sch_dt": "2026-09-16",
+        "sch_fdt": "16-Sep-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "15983",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_MidtermJOLGrade1AK_20260916193259.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_MidtermJOLGrade1AK_20260916193259.pdf"
+        },
+        {
+          "con_id": "15983",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_MidtermJOLGrade1ComputerPP_20260916193300.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_MidtermJOLGrade1ComputerPP_20260916193300.pdf"
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "15745",
+        "subject_name": "HINDI",
+        "con_tit": "Hindi  Mid term  revision paper -1  with Answer key",
+        "sch_dt": "2026-09-15",
+        "sch_fdt": "15-Sep-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "15745",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Midtermrevisionpaper-11_20260915162731.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Midtermrevisionpaper-11_20260915162731.pdf"
+        },
+        {
+          "con_id": "15745",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Midtermrevisionpaper-1AK_20260915162732.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Midtermrevisionpaper-1AK_20260915162732.pdf"
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "15329",
+        "subject_name": "HINDI",
+        "con_tit": "Ri ki matra workbook, Notebook and Textbook notes ",
+        "sch_dt": "2026-09-08",
+        "sch_fdt": "8-Sep-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "15329",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Rikimatraworkbooknotes_20260908165115.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Rikimatraworkbooknotes_20260908165115.pdf"
+        },
+        {
+          "con_id": "15329",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_RikimatraTextbooknotes_20260908165115.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_RikimatraTextbooknotes_20260908165115.pdf"
+        }
+      ]
+    },
+    {
+      "page": 4,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "14955",
+        "subject_name": "ENGLISH",
+        "con_tit": "Class 1_WS 1_Unit 4_The Colours of Nature",
+        "sch_dt": "2026-08-28",
+        "sch_fdt": "28-Aug-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "14955",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1WS1Unit4TheColoursofNature_20260828155126.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1WS1Unit4TheColoursofNature_20260828155126.pdf"
+        }
+      ]
+    },
+    {
+      "page": 5,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "14539",
+        "subject_name": "HINDI",
+        "con_tit": "Hindi notebook  and textbook notes  (  chhoti  e ki  and badi ee ki matra)",
+        "sch_dt": "2026-08-08",
+        "sch_fdt": "8-Aug-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "14539",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_chotiekimatra_20260808151204.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_chotiekimatra_20260808151204.pdf"
+        },
+        {
+          "con_id": "14539",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_chotieandbadieematra_20260808151204.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_chotieandbadieematra_20260808151204.pdf"
+        }
+      ]
+    },
+    {
+      "page": 6,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "14246",
+        "subject_name": "ENGLISH",
+        "con_tit": "Unit 2 _Take care I'm here _Grammar book",
+        "sch_dt": "2026-07-23",
+        "sch_fdt": "23-Jul-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "14246",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Unit2TakeCareImhereGrammarClass1_20260723192912.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Unit2TakeCareImhereGrammarClass1_20260723192912.pdf"
+        }
+      ]
+    },
+    {
+      "page": 7,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "13928",
+        "subject_name": "HINDI",
+        "con_tit": "Revision paper -3",
+        "sch_dt": "2026-07-16",
+        "sch_fdt": "16-Jul-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "13928",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_grade1-REV3AK_20260716173224.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_grade1-REV3AK_20260716173224.pdf"
+        },
+        {
+          "con_id": "13928",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_grade1-REV31_20260716173224.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_grade1-REV31_20260716173224.pdf"
+        }
+      ]
+    },
+    {
+      "page": 8,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "13633",
+        "subject_name": "E.V.S",
+        "con_tit": "Revision_Chapter 3. My Sense Organs ",
+        "sch_dt": "2026-07-15",
+        "sch_fdt": "15-Jul-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "13633",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF15-07-2026153316_20260715153317.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF15-07-2026153316_20260715153317.pdf"
+        }
+      ]
+    },
+    {
+      "page": 9,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "13310",
+        "subject_name": "E.V.S",
+        "con_tit": "Revision paper_ chapter 1. Myself",
+        "sch_dt": "2026-07-13",
+        "sch_fdt": "13-Jul-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "13310",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF13-07-2026155047_20260713155047.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF13-07-2026155047_20260713155047.pdf"
+        }
+      ]
+    },
+    {
+      "page": 10,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 10,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "13107",
+        "subject_name": "E.V.S",
+        "con_tit": "Ch 4 I keep my body clean ",
+        "sch_dt": "2026-07-09",
+        "sch_fdt": "9-Jul-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "13107",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF09-07-202640707PM_20260709160709.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF09-07-202640707PM_20260709160709.pdf"
+        }
+      ]
+    },
+    {
+      "page": 11,
+      "status": 200,
+      "page_count": 12,
+      "item_count": 7,
+      "first": {
+        "keys": [
+          "refid",
+          "sub_id",
+          "subject_name",
+          "con_tit",
+          "con_desc",
+          "is_sch",
+          "sch_dt",
+          "sch_tm",
+          "circle_clr",
+          "media",
+          "sch_fdt",
+          "tmstmp",
+          "full_desc",
+          "cls_sec"
+        ],
+        "refid": "12724",
+        "subject_name": "MATHEMATICS",
+        "con_tit": " Chapter-1 Pre number concept ",
+        "sch_dt": "2026-06-22",
+        "sch_fdt": "22-Jun-2026",
+        "is_sch": "N",
+        "cls_sec": "I-A",
+        "mediaType": "array"
+      },
+      "mediaSample": [
+        {
+          "con_id": "12724",
+          "media_type": "P",
+          "media_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF22-06-2026162838_20260622162840.pdf",
+          "video_src": "",
+          "file_loc": "N",
+          "thump_url": "https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+          "stat": "A",
+          "dwn_url": "https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF22-06-2026162838_20260622162840.pdf"
+        }
+      ]
+    }
+  ]
+}

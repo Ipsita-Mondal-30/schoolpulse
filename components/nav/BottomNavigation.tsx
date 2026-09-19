@@ -6,6 +6,7 @@ import {
   Bell,
   BookOpen,
   CalendarDays,
+  GraduationCap,
   Home,
   LayoutGrid,
 } from 'lucide-react';
@@ -32,6 +33,12 @@ const BOTTOM_LINKS = [
     match: (p: string) => p.startsWith('/updates'),
   },
   {
+    href: '/joy-of-learning',
+    label: 'JoL',
+    icon: GraduationCap,
+    match: (p: string) => p.startsWith('/joy-of-learning'),
+  },
+  {
     href: '/more',
     label: 'More',
     icon: LayoutGrid,
@@ -48,7 +55,7 @@ export function BottomNavigation() {
       className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--sp-border)] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
       aria-label="Primary"
     >
-      <div className="grid grid-cols-5 h-14">
+      <div className="grid grid-cols-6 h-14">
         {BOTTOM_LINKS.map((link) => {
           const Icon = link.icon;
           const active = link.match(pathname);

@@ -11,19 +11,32 @@ import {
 import { nsDebugApiEnvelope, nsError, nsLog, nsWarn } from './log';
 import { extractNotices, inspectNoticeEnvelope } from './normalizers';
 import { NOTICES_PATH, fetchAllNoticePages, type NoticesPayload } from './notices';
+import {
+  JOL_API_MATCH,
+  JOL_CONTENT_LIBRARY_PAGE,
+  JOL_CONTENT_LIBRARY_PATH,
+  buildContentLibPayload,
+  fetchAllContentLibraryPages,
+  isContentLibraryApiUrl,
+  type ContentLibPayload,
+} from './jol';
 import type {
   CollectedNeverSkipData,
+  NeverSkipContentLibraryResponse,
   NeverSkipHomeworkResponse,
   NeverSkipNoticesResponse,
+  NeverSkipRawContentItem,
   NeverSkipRawNotice,
 } from './types';
 
 export const HOMEWORK_API_MATCH = '/parentweb/lms/getassignmentsapi';
 export const NOTICES_API_MATCH = '/parentweb/connect/fetchdailynoticeinfo';
+export const CONTENT_LIBRARY_API_MATCH = JOL_API_MATCH;
 
 export const DEFAULT_PORTAL_BASE = 'https://parent.neverskip.com';
 export const DEFAULT_NOTICES_PAGE = 'https://parent.neverskip.com/default/dailynotice';
 export const DEFAULT_HOMEWORK_PAGE = 'https://parent.neverskip.com/default/assignment';
+export const DEFAULT_CONTENT_LIBRARY_PAGE = JOL_CONTENT_LIBRARY_PAGE;
 export const DEFAULT_PROFILE_DIR = '.playwright-profile';
 
 export class NeverSkipSessionExpiredError extends Error {
@@ -69,9 +82,12 @@ export function isNoticesApiUrl(url: string): boolean {
   return url.includes(NOTICES_API_MATCH);
 }
 
-export function matchNeverSkipApiKind(url: string): 'homework' | 'notices' | null {
+export function matchNeverSkipApiKind(
+  url: string,
+): 'homework' | 'notices' | 'contentlib' | null {
   if (isHomeworkApiUrl(url)) return 'homework';
   if (isNoticesApiUrl(url)) return 'notices';
+  if (isContentLibraryApiUrl(url)) return 'contentlib';
   return null;
 }
 
@@ -356,6 +372,7 @@ export async function collectNeverSkipData(
 
   let homeworkRaw: NeverSkipHomeworkResponse | null = null;
   let noticesRaw: NeverSkipNoticesResponse | null = null;
+  let contentLibRaw: NeverSkipContentLibraryResponse | null = null;
   let homeworkMeta: { url: string; status: number } | null = null;
   /** In-memory Token from intercepted portal XHR — never logged. */
   let sessionTokenHeader: string | null = null;
@@ -407,6 +424,10 @@ export async function collectNeverSkipData(
     if (kind === 'notices' && !noticesRaw) {
       noticesRaw = body as NeverSkipNoticesResponse;
       nsLog('Notices response captured');
+    }
+    if (kind === 'contentlib' && !contentLibRaw) {
+      contentLibRaw = body as NeverSkipContentLibraryResponse;
+      nsLog('Content library response captured');
     }
   };
 
@@ -477,6 +498,16 @@ export async function collectNeverSkipData(
 
     await waitForCapture(() => homeworkRaw, Math.min(timeoutMs, 30_000));
 
+    // Content Library (JOL resources / printouts)
+    const contentLibraryPageUrl =
+      process.env.NEVERSKIP_CONTENT_LIBRARY_URL || DEFAULT_CONTENT_LIBRARY_PAGE;
+    nsLog('Opening content library page');
+    await page
+      .goto(contentLibraryPageUrl, { waitUntil: 'domcontentloaded', timeout: timeoutMs })
+      .catch(() => undefined);
+    await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 15_000) }).catch(() => undefined);
+    await waitForCapture(() => contentLibRaw, Math.min(timeoutMs, 20_000));
+
     // Session cookie fallback (authorized browser context — not NEVERSKIP_TOKEN env)
     if (!noticesRaw && context) {
       nsLog('Notices not intercepted; retrying via authenticated browser session request');
@@ -512,6 +543,24 @@ export async function collectNeverSkipData(
         homeworkRaw = result.body as NeverSkipHomeworkResponse;
         homeworkMeta = { url: result.url, status: result.status };
         nsLog('Homework response captured');
+      }
+    }
+
+    if (!contentLibRaw && context) {
+      nsLog('Content library not intercepted; retrying via authenticated browser session request');
+      const result = await fetchViaSession(
+        context,
+        apiBaseUrl,
+        JOL_CONTENT_LIBRARY_PATH,
+        buildContentLibPayload(0),
+        sessionTokenHeader ? { Token: sessionTokenHeader } : undefined,
+      );
+      if (result?.body) {
+        if (requireAuth && isNeverSkipFailureEnvelope(result.body)) {
+          throwSessionExpired();
+        }
+        contentLibRaw = result.body as NeverSkipContentLibraryResponse;
+        nsLog('Content library response captured');
       }
     }
 
@@ -673,6 +722,51 @@ export async function collectNeverSkipData(
       );
     }
 
+    let jolItems: NeverSkipRawContentItem[] = [];
+    let jolPagesFetched = 0;
+    let jolFetchIncomplete = false;
+    let jolFetchErrors: string[] = [];
+    let jolSourceTotal: number | null = null;
+    let jolRawFetched = 0;
+    let jolUniqueFetched = 0;
+
+    if (contentLibRaw && context) {
+      if (isNeverSkipFailureEnvelope(contentLibRaw)) {
+        jolFetchIncomplete = true;
+        jolFetchErrors = ['JOL SYNC = AUTHENTICATION_REQUIRED'];
+      } else {
+        const tokenHeaders = sessionTokenHeader ? { Token: sessionTokenHeader } : undefined;
+        const paged = await fetchAllContentLibraryPages(
+          async (pageIndex, payload: ContentLibPayload) => {
+            if (pageIndex === 0) return contentLibRaw;
+            const result = await fetchViaSession(
+              context!,
+              apiBaseUrl,
+              JOL_CONTENT_LIBRARY_PATH,
+              payload,
+              tokenHeaders,
+            );
+            if (!result?.body) {
+              throw new Error(`contentlib page ${pageIndex} failed (HTTP ${result?.status ?? 'n/a'})`);
+            }
+            return result.body as NeverSkipContentLibraryResponse;
+          },
+          { firstPage: contentLibRaw },
+        );
+        jolItems = paged.items;
+        jolPagesFetched = paged.pagesFetched;
+        jolFetchIncomplete = paged.incomplete;
+        jolFetchErrors = paged.errors;
+        jolSourceTotal = paged.sourceTotal;
+        jolRawFetched = paged.rawFetched;
+        jolUniqueFetched = paged.uniqueFetched;
+      }
+    } else if (requireAuth && !contentLibRaw) {
+      jolFetchIncomplete = true;
+      jolFetchErrors = ['JOL SYNC = FAILED — no content library API response'];
+      nsError('JOL SYNC = FAILED — no content library API response');
+    }
+
     if (requireAuth) {
       if (homeworkPagesFetched > 0) {
         nsLog(`Homework pages fetched: ${homeworkPagesFetched}`);
@@ -682,6 +776,8 @@ export async function collectNeverSkipData(
         nsLog(`Notice pages fetched: ${noticePagesFetched}`);
       }
       nsLog(`Notices fetched: ${notices.length}`);
+      if (jolPagesFetched > 0) nsLog(`JOL/contentlib pages fetched: ${jolPagesFetched}`);
+      nsLog(`JOL/contentlib records fetched: ${jolItems.length}`);
     }
 
     // Authenticated sync with notices but zero homework usually means homework API failed.
@@ -702,6 +798,7 @@ export async function collectNeverSkipData(
     return {
       homework,
       notices,
+      jolItems,
       homeworkPagesFetched,
       homeworkFetchIncomplete,
       homeworkFetchErrors,
@@ -714,6 +811,12 @@ export async function collectNeverSkipData(
       noticeSourceTotal,
       noticeRawFetched,
       noticeUniqueFetched,
+      jolPagesFetched,
+      jolFetchIncomplete,
+      jolFetchErrors,
+      jolSourceTotal,
+      jolRawFetched,
+      jolUniqueFetched,
     };
   } finally {
     page.off('response', onResponse);

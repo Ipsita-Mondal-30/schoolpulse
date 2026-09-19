@@ -176,10 +176,39 @@ model ImportedNotice {
   @@index([publishedDate])
 }
 
+/// NeverSkip Content Library / Joy of Learning resources (fetchcontentlib)
+model ImportedJolItem {
+  id            String   @id @default(cuid())
+  source        String   @default("neverskip")
+  sourceId      String
+  title         String
+  description   String   @default("")
+  content       String   @default("")
+  activityDate  String   @default("")
+  publishedDate String   @default("")
+  publishedTime String   @default("00:00")
+  resourceType  String
+  resourceUrl   String?
+  downloadUrl   String?
+  thumbnailUrl  String?
+  subjectName   String?
+  sectionsJson  String   @default("[]")
+  jolRelated    Boolean  @default(false)
+  metadataJson  String   @default("{}")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([source, sourceId])
+  @@index([publishedDate])
+  @@index([activityDate])
+  @@index([resourceType])
+  @@index([jolRelated])
+}
+
 /// Detected NeverSkip content updates (only when an existing sourceId changes)
 model ContentChangeEvent {
   id                   String   @id @default(cuid())
-  entityType           String // "homework" | "notice"
+  entityType           String // "homework" | "notice" | "jol"
   source               String   @default("neverskip")
   sourceId             String
   entityId             String

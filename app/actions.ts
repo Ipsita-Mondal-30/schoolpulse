@@ -596,6 +596,74 @@ export async function loadNoticesForUi(): Promise<ImportedNoticeItem[]> {
     return merged;
 }
 
+export type UiJolItem = {
+  id: string;
+  sourceId: string;
+  title: string;
+  description: string;
+  content: string;
+  activityDate: string;
+  publishedDate: string;
+  publishedTime: string;
+  resourceType: string;
+  resourceUrl: string | null;
+  downloadUrl: string | null;
+  thumbnailUrl: string | null;
+  subjectName: string | null;
+  sections: string[];
+  jolRelated: boolean;
+  media: Array<{
+    mediaType: string;
+    mediaUrl: string | null;
+    downloadUrl: string | null;
+    thumbnailUrl: string | null;
+  }>;
+  createdAt: string;
+};
+
+/** Server-side Content Library / JOL items for Joy of Learning UI. */
+export async function loadJolForUi(): Promise<UiJolItem[]> {
+  const { getPrisma } = await import('@/lib/prisma');
+  const rows = await getPrisma().importedJolItem.findMany({
+    orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
+  });
+  return rows.map((r) => {
+    let media: UiJolItem['media'] = [];
+    try {
+      const meta = JSON.parse(r.metadataJson) as { media?: UiJolItem['media'] };
+      if (Array.isArray(meta.media)) media = meta.media;
+    } catch {
+      media = [];
+    }
+    let sections: string[] = [];
+    try {
+      const parsed = JSON.parse(r.sectionsJson) as unknown;
+      sections = Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch {
+      sections = [];
+    }
+    return {
+      id: r.id,
+      sourceId: r.sourceId,
+      title: r.title,
+      description: r.description,
+      content: r.content,
+      activityDate: r.activityDate,
+      publishedDate: r.publishedDate,
+      publishedTime: r.publishedTime,
+      resourceType: r.resourceType,
+      resourceUrl: r.resourceUrl,
+      downloadUrl: r.downloadUrl,
+      thumbnailUrl: r.thumbnailUrl,
+      subjectName: r.subjectName,
+      sections,
+      jolRelated: r.jolRelated,
+      media,
+      createdAt: r.createdAt.toISOString(),
+    };
+  });
+}
+
 /** Tonight Daily Brief: reuses homework/notices loaders; does not invent due dates. */
 export async function loadDailyBriefForUi(options?: {
     today?: string;

@@ -1,4 +1,4 @@
-import type { NormalizedHomework, NormalizedNotice, UpsertResult } from './types';
+import type { NormalizedHomework, NormalizedJolItem, NormalizedNotice, UpsertResult } from './types';
 
 export interface NeverSkipStore {
   upsertHomework(item: NormalizedHomework): Promise<UpsertResult>;
@@ -8,6 +8,9 @@ export interface NeverSkipStore {
   upsertNotice(item: NormalizedNotice): Promise<UpsertResult>;
   listNotices(): Promise<NormalizedNotice[]>;
   hasNotice(source: string, sourceId: string): Promise<boolean>;
+
+  upsertJolItem(item: NormalizedJolItem): Promise<UpsertResult>;
+  listJolItems(): Promise<NormalizedJolItem[]>;
 }
 
 export function homeworkContentKey(item: NormalizedHomework): string {
@@ -33,5 +36,24 @@ export function noticeContentKey(item: NormalizedNotice): string {
     publishedTime: item.publishedTime,
     classes: item.classes,
     imageUrl: item.imageUrl,
+  });
+}
+
+export function jolContentKey(item: NormalizedJolItem): string {
+  return JSON.stringify({
+    title: item.title,
+    description: item.description,
+    content: item.content,
+    activityDate: item.activityDate,
+    publishedDate: item.publishedDate,
+    publishedTime: item.publishedTime,
+    resourceType: item.resourceType,
+    resourceUrl: item.resourceUrl,
+    downloadUrl: item.downloadUrl,
+    thumbnailUrl: item.thumbnailUrl,
+    subjectName: item.subjectName,
+    sections: item.sections,
+    jolRelated: item.jolRelated,
+    metadataJson: item.metadataJson,
   });
 }

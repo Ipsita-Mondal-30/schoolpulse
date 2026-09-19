@@ -5,7 +5,7 @@
 
 import type { NormalizedHomework, NormalizedNotice } from './types';
 
-export type ChangeEntityType = 'homework' | 'notice';
+export type ChangeEntityType = 'homework' | 'notice' | 'jol';
 
 export interface FieldChange {
   field: string;

@@ -9,10 +9,11 @@ import {
 } from './changes';
 import {
   homeworkContentKey,
+  jolContentKey,
   noticeContentKey,
   type NeverSkipStore,
 } from './store';
-import type { NormalizedHomework, NormalizedNotice, UpsertResult } from './types';
+import type { NormalizedHomework, NormalizedJolItem, NormalizedNotice, UpsertResult } from './types';
 
 export interface InMemoryChangeEvent {
   id: string;
@@ -29,6 +30,7 @@ export interface InMemoryChangeEvent {
 export class InMemoryNeverSkipStore implements NeverSkipStore {
   private homework = new Map<string, NormalizedHomework & { _id: string }>();
   private notices = new Map<string, NormalizedNotice & { _id: string }>();
+  private jolItems = new Map<string, NormalizedJolItem & { _id: string }>();
   private changes: InMemoryChangeEvent[] = [];
   private seq = 0;
 
@@ -146,5 +148,34 @@ export class InMemoryNeverSkipStore implements NeverSkipStore {
 
   async hasNotice(source: string, sourceId: string): Promise<boolean> {
     return this.notices.has(this.hwKey(source, sourceId));
+  }
+
+  async upsertJolItem(item: NormalizedJolItem): Promise<UpsertResult> {
+    const key = this.hwKey(item.source, item.sourceId);
+    const existing = this.jolItems.get(key);
+    if (!existing) {
+      this.jolItems.set(key, {
+        ...item,
+        sections: [...item.sections],
+        _id: this.nextId('jol'),
+      });
+      return 'inserted';
+    }
+    if (jolContentKey(existing) === jolContentKey(item)) {
+      return 'unchanged';
+    }
+    this.jolItems.set(key, {
+      ...item,
+      sections: [...item.sections],
+      _id: existing._id,
+    });
+    return 'updated';
+  }
+
+  async listJolItems(): Promise<NormalizedJolItem[]> {
+    return Array.from(this.jolItems.values()).map((j) => {
+      const { _id: _, ...rest } = j;
+      return { ...rest, sections: [...rest.sections] };
+    });
   }
 }

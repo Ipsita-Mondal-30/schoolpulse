@@ -3,6 +3,7 @@ export * from './auth';
 export * from './client';
 export * from './homework';
 export * from './notices';
+export * from './jol';
 export * from './normalizers';
 export * from './classify';
 export * from './ids';

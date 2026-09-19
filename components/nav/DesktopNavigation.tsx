@@ -7,6 +7,7 @@ import {
   Bell,
   BookOpen,
   CalendarDays,
+  GraduationCap,
   Home,
   LayoutGrid,
 } from 'lucide-react';
@@ -17,6 +18,7 @@ export const DESKTOP_PRIMARY = [
   { href: '/homework', label: 'Homework', icon: BookOpen },
   { href: '/planner', label: 'Planner', icon: CalendarDays },
   { href: '/updates', label: 'Updates', icon: Bell },
+  { href: '/joy-of-learning', label: 'Joy of Learning', icon: GraduationCap },
   { href: '/more', label: 'More', icon: LayoutGrid },
 ] as const;
 

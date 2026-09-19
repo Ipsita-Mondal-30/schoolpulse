@@ -89,6 +89,38 @@ export interface NeverSkipNoticesResponse {
   [key: string]: unknown;
 }
 
+/** Raw Content Library item from fetchcontentlib */
+export interface NeverSkipRawContentItem {
+  refid?: string | number;
+  con_id?: string | number;
+  sub_id?: string | number;
+  subject_name?: string;
+  con_tit?: string;
+  con_desc?: string;
+  full_desc?: string;
+  is_sch?: string;
+  sch_dt?: string;
+  sch_tm?: string;
+  sch_fdt?: string;
+  tmstmp?: string | number;
+  media?: unknown;
+  cls_sec?: string;
+  title?: string;
+  [key: string]: unknown;
+}
+
+export type NeverSkipContentLibraryResponse = {
+  S?: boolean;
+  D?: {
+    item_list?: NeverSkipRawContentItem[] | string;
+    page_count?: number | string;
+    stu_id?: string | number;
+    [key: string]: unknown;
+  };
+  item_list?: NeverSkipRawContentItem[];
+  [key: string]: unknown;
+};
+
 /** Normalized homework ready for persistence / UI mapping */
 export interface NormalizedHomework {
   source: typeof NEVERSKIP_SOURCE;
@@ -117,12 +149,33 @@ export interface NormalizedNotice {
   imageUrl: string | null;
 }
 
+/** Normalized Content Library / JOL item */
+export interface NormalizedJolItem {
+  source: typeof NEVERSKIP_SOURCE;
+  sourceId: string;
+  title: string;
+  description: string;
+  content: string;
+  activityDate: string;
+  publishedDate: string;
+  publishedTime: string;
+  resourceType: string;
+  resourceUrl: string | null;
+  downloadUrl: string | null;
+  thumbnailUrl: string | null;
+  subjectName: string | null;
+  sections: string[];
+  jolRelated: boolean;
+  metadataJson: string;
+}
+
 export type UpsertResult = 'inserted' | 'updated' | 'unchanged';
 
 /** Raw items collected from NeverSkip (browser intercept or API client). */
 export interface CollectedNeverSkipData {
   homework: NeverSkipRawAssignment[];
   notices: NeverSkipRawNotice[];
+  jolItems?: NeverSkipRawContentItem[];
   homeworkPagesFetched?: number;
   homeworkFetchIncomplete?: boolean;
   homeworkFetchErrors?: string[];
@@ -135,6 +188,12 @@ export interface CollectedNeverSkipData {
   noticeSourceTotal?: number | null;
   noticeRawFetched?: number;
   noticeUniqueFetched?: number;
+  jolPagesFetched?: number;
+  jolFetchIncomplete?: boolean;
+  jolFetchErrors?: string[];
+  jolSourceTotal?: number | null;
+  jolRawFetched?: number;
+  jolUniqueFetched?: number;
 }
 
 export interface SyncSummary {
@@ -163,8 +222,20 @@ export interface SyncSummary {
   noticeSourceTotal?: number | null;
   noticeRawFetched?: number;
   noticeUniqueFetched?: number;
+  jolFetched?: number;
+  jolInserted?: number;
+  jolUpdated?: number;
+  jolSkipped?: number;
+  jolNormalized?: number;
+  jolStored?: number;
+  jolPagesFetched?: number;
+  jolFetchIncomplete?: boolean;
+  jolSourceTotal?: number | null;
+  jolRawFetched?: number;
+  jolUniqueFetched?: number;
   newestHomeworkDate?: string;
   newestNoticeDate?: string;
+  newestJolDate?: string;
   errors: string[];
 }
 
