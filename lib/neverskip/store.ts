@@ -1,4 +1,10 @@
-import type { NormalizedHomework, NormalizedJolItem, NormalizedNotice, UpsertResult } from './types';
+import type {
+  NormalizedHomework,
+  NormalizedJolItem,
+  NormalizedNotice,
+  NormalizedScheduleEvent,
+  UpsertResult,
+} from './types';
 
 export interface NeverSkipStore {
   upsertHomework(item: NormalizedHomework): Promise<UpsertResult>;
@@ -11,6 +17,30 @@ export interface NeverSkipStore {
 
   upsertJolItem(item: NormalizedJolItem): Promise<UpsertResult>;
   listJolItems(): Promise<NormalizedJolItem[]>;
+
+  /**
+   * Replace all NeverSkip schedule events with the provided set.
+   * Call ONLY when calendar fetch completed successfully (including empty).
+   */
+  replaceScheduleEvents(events: NormalizedScheduleEvent[]): Promise<{
+    inserted: number;
+    updated: number;
+    removed: number;
+  }>;
+  listScheduleEvents(): Promise<NormalizedScheduleEvent[]>;
+
+  recordSyncRun(run: {
+    status: string;
+    startedAt: Date;
+    finishedAt: Date;
+    homeworkExpected?: number | null;
+    homeworkFetched?: number;
+    noticeFetched?: number;
+    jolFetched?: number;
+    scheduleFetched?: number;
+    errorSummary?: string;
+    reportJson?: string;
+  }): Promise<void>;
 }
 
 export function homeworkContentKey(item: NormalizedHomework): string {
@@ -54,6 +84,22 @@ export function jolContentKey(item: NormalizedJolItem): string {
     subjectName: item.subjectName,
     sections: item.sections,
     jolRelated: item.jolRelated,
+    scheduleDocument: item.scheduleDocument,
     metadataJson: item.metadataJson,
+  });
+}
+
+export function scheduleEventContentKey(item: NormalizedScheduleEvent): string {
+  return JSON.stringify({
+    title: item.title,
+    description: item.description,
+    eventDate: item.eventDate,
+    startTime: item.startTime,
+    endTime: item.endTime,
+    weekday: item.weekday,
+    subjectName: item.subjectName,
+    periodLabel: item.periodLabel,
+    classSection: item.classSection,
+    resourceUrl: item.resourceUrl,
   });
 }

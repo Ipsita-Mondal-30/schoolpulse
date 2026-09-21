@@ -1,0 +1,179 @@
+{
+  "capturedAt": "2026-09-21T13:07:24.286Z",
+  "captures": [
+    {
+      "path": "/parentweb/auth/hasauth",
+      "status": 200,
+      "dKeys": [
+        "S",
+        "D",
+        "F"
+      ],
+      "itemLen": null,
+      "titles": [],
+      "pageUrl": "https://parent.neverskip.com/default/content-library"
+    },
+    {
+      "path": "/parentweb/support/getallaccyear",
+      "status": 200,
+      "dKeys": [
+        "S",
+        "D",
+        "F"
+      ],
+      "itemLen": null,
+      "titles": [
+        "2023-24",
+        "2024-25",
+        "2025-26",
+        "2026-27"
+      ],
+      "pageUrl": "https://parent.neverskip.com/default/content-library"
+    },
+    {
+      "path": "/parentweb/lms/getclasubjects",
+      "status": 200,
+      "dKeys": [
+        "item_list"
+      ],
+      "itemLen": 39,
+      "titles": [
+        "All",
+        "ENGLISH",
+        "MATHEMATICS",
+        "SCIENCE",
+        "III LAN-HINDI",
+        "II LANG-HINDI",
+        "SOCIAL SCIENCE",
+        "COMPUTER SCIENCE",
+        "CHEMISTRY",
+        "SOCIOLOGY",
+        "II LANG-KANNADA",
+        "BIOLOGY",
+        "HINDI",
+        "II LANG-SANSKRIT",
+        "BUSINESS STUDIES",
+        "KANNADA",
+        "III LANG-KANNADA",
+        "ENVIRONMENTAL SCIENCE",
+        "HISTORY",
+        "INFORMATION TECHNOLOGY"
+      ],
+      "pageUrl": "https://parent.neverskip.com/default/content-library"
+    },
+    {
+      "path": "/parentweb/lms/fetchcontentlib",
+      "status": 200,
+      "dKeys": [
+        "page_count",
+        "stu_id",
+        "item_list"
+      ],
+      "itemLen": 10,
+      "titles": [
+        "Revision 4 and AK",
+        "KANNADA",
+        "Revision -3 and AK",
+        "Revision -3 Chapter-3 Addition and Subtraction (upto 20)",
+        "MATHEMATICS",
+        "hindi  class 1 revision paper -5 along with Answer key",
+        "HINDI",
+        "Joy of learning, WS -II, English practice paper and answer key.\n",
+        "ENGLISH",
+        "Midterm JOL 2 Revision 2",
+        "COMPUTER SCIENCE",
+        "Joy of learning, WS -II, Kannada practice paper and answer key.\n",
+        "Hindi revision paper - 4  mid-term along with answer key.",
+        "Revision-2 chapter-2 playing with numbers (upto 20)",
+        "Joy of learning, WS -II, EVS practice paper and answer key.\n",
+        "SCIENCE"
+      ],
+      "pageUrl": "https://parent.neverskip.com/default/content-library"
+    },
+    {
+      "path": "/parentweb/dashboard/loaduser",
+      "status": 200,
+      "dKeys": [
+        "user_data",
+        "cur_id"
+      ],
+      "itemLen": null,
+      "titles": [],
+      "pageUrl": "https://parent.neverskip.com/default/content-library"
+    },
+    {
+      "path": "/parentweb/auth/getppschmenupermission",
+      "status": 200,
+      "dKeys": [
+        "deactive_menu_list",
+        "deactive_menu_lable_list"
+      ],
+      "itemLen": null,
+      "titles": [],
+      "pageUrl": "https://parent.neverskip.com/default/content-library"
+    },
+    {
+      "path": "/parentweb/auth/hasauth",
+      "status": 200,
+      "dKeys": [
+        "S",
+        "D",
+        "F"
+      ],
+      "itemLen": null,
+      "titles": [],
+      "pageUrl": "https://parent.neverskip.com/default/calendar"
+    },
+    {
+      "path": "/parentweb/support/getallaccyear",
+      "status": 200,
+      "dKeys": [
+        "S",
+        "D",
+        "F"
+      ],
+      "itemLen": null,
+      "titles": [
+        "2023-24",
+        "2024-25",
+        "2025-26",
+        "2026-27"
+      ],
+      "pageUrl": "https://parent.neverskip.com/default/calendar"
+    },
+    {
+      "path": "/parentweb/dashboard/loaduser",
+      "status": 200,
+      "dKeys": [
+        "user_data",
+        "cur_id"
+      ],
+      "itemLen": null,
+      "titles": [],
+      "pageUrl": "https://parent.neverskip.com/default/calendar"
+    },
+    {
+      "path": "/parentweb/lms/fetchcalenderapi",
+      "status": 200,
+      "dKeys": [
+        "S",
+        "D",
+        "F"
+      ],
+      "itemLen": null,
+      "titles": [],
+      "pageUrl": "https://parent.neverskip.com/default/calendar"
+    },
+    {
+      "path": "/parentweb/auth/getppschmenupermission",
+      "status": 200,
+      "dKeys": [
+        "deactive_menu_list",
+        "deactive_menu_lable_list"
+      ],
+      "itemLen": null,
+      "titles": [],
+      "pageUrl": "https://parent.neverskip.com/default/calendar"
+    }
+  ]
+}

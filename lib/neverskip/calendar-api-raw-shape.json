@@ -1,0 +1,27 @@
+{
+  "capturedAt": "2026-09-21T13:06:45.859Z",
+  "dumps": [
+    {
+      "kind": "request",
+      "method": "POST",
+      "contentType": "application/json",
+      "postDataLen": 2,
+      "postDataPreview": "{}"
+    },
+    {
+      "kind": "response",
+      "status": 200,
+      "textLen": 25,
+      "topKeys": [
+        "S",
+        "D",
+        "F"
+      ],
+      "S": true,
+      "F": "S",
+      "Dtype": "array:0",
+      "Dkeys": [],
+      "Dpreview": "[]"
+    }
+  ]
+}

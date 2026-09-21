@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import MonthlyPlanner from '@/components/MonthlyPlanner';
 import PlannerCalendar from '@/components/PlannerCalendar';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -16,6 +17,7 @@ import {
   ImportantDate,
   PlannerSubject,
 } from '@/lib/data';
+import { useCanonicalScheduleQuery } from '@/lib/queries/schedule';
 
 function defaultSelectedDate(year: number, monthName: string, dates: ImportantDate[]) {
   const today = getToday();
@@ -41,6 +43,7 @@ export default function PlannerPage() {
   const [importantDates, setImportantDates] = useState<ImportantDate[]>([]);
   const [planner, setPlanner] = useState<PlannerSubject[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const scheduleQuery = useCanonicalScheduleQuery();
 
   useEffect(() => {
     const months = getAvailableMonths();
@@ -61,7 +64,12 @@ export default function PlannerPage() {
 
   const monthIndex = useMemo(
     () => availableMonths.findIndex((m) => m.id === selectedMonthId),
-    [availableMonths, selectedMonthId]
+    [availableMonths, selectedMonthId],
+  );
+
+  const nsEvents = scheduleQuery.data?.events ?? [];
+  const nsDocs = (scheduleQuery.data?.documents ?? []).filter(
+    (d) => d.scheduleDocument || /timetable|newsletter/i.test(d.title),
   );
 
   if (!monthData) {
@@ -92,14 +100,50 @@ export default function PlannerPage() {
         }}
       />
 
+      <div className="mt-10 space-y-3">
+        <div className="flex items-end justify-between gap-3">
+          <h2 className="sp-section tracking-[0.12em]">NeverSkip schedule</h2>
+          <Link href="/timetable" className="text-sm font-semibold text-[var(--sp-primary)] hover:underline">
+            Timetable →
+          </Link>
+        </div>
+        <p className="text-xs text-[var(--sp-muted)]">
+          Same canonical source as Joy of Learning Dates (Calendar API + schedule documents). Sync:{' '}
+          {scheduleQuery.data?.freshness.lastStatus || 'unknown'}
+        </p>
+        {nsEvents.length === 0 && nsDocs.length === 0 ? (
+          <EmptyState
+            title="No live NeverSkip schedule events"
+            description="When Calendar or a timetable document syncs from NeverSkip, it appears here and on Timetable / Joy of Learning."
+          />
+        ) : (
+          <ul className="overflow-hidden rounded-2xl border border-[var(--sp-border)] bg-white">
+            {nsEvents.map((row) => (
+              <li
+                key={row.id}
+                className="flex items-center justify-between gap-3 border-b border-[var(--sp-border)] px-4 py-3 last:border-0"
+              >
+                <span className="text-sm text-[var(--sp-ink)]">{row.subjectName || row.title}</span>
+                <span className="text-sm text-[var(--sp-muted)]">{row.eventDate || row.weekday || '—'}</span>
+              </li>
+            ))}
+            {nsDocs.map((doc) => (
+              <li
+                key={doc.id}
+                className="flex items-center justify-between gap-3 border-b border-[var(--sp-border)] px-4 py-3 last:border-0"
+              >
+                <span className="text-sm text-[var(--sp-ink)]">{doc.title}</span>
+                <span className="text-sm text-[var(--sp-muted)]">{doc.publishedDate || 'doc'}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       <div className="mt-10">
         <h2 className="sp-section tracking-[0.12em] mb-3">This month</h2>
         {planner.length > 0 ? (
-          <MonthlyPlanner
-            subjects={planner}
-            month={monthData.month}
-            year={monthData.year}
-          />
+          <MonthlyPlanner subjects={planner} month={monthData.month} year={monthData.year} />
         ) : (
           <EmptyState
             title="Monthly planner coming soon"

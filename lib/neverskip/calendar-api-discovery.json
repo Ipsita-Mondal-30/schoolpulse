@@ -1,0 +1,124 @@
+{
+  "capturedAt": "2026-09-21T13:05:45.956Z",
+  "api": "https://nskapi.neverskip.com/parentweb/lms/fetchcalenderapi",
+  "interceptedPostDataKeys": [],
+  "interceptedSummary": {
+    "topKeys": [
+      "S",
+      "D",
+      "F"
+    ],
+    "dKeys": [],
+    "S": true,
+    "itemCount": null,
+    "sampleKeys": [],
+    "sampleRows": [],
+    "titles": [],
+    "dateFields": [],
+    "scheduleFields": []
+  },
+  "probeResults": [
+    {
+      "label": "intercepted-payload",
+      "payloadKeys": [],
+      "status": 200,
+      "topKeys": [
+        "S",
+        "M",
+        "F"
+      ],
+      "dKeys": [],
+      "S": false,
+      "itemCount": null,
+      "sampleKeys": [],
+      "sampleRows": [],
+      "titles": [],
+      "dateFields": [],
+      "scheduleFields": []
+    },
+    {
+      "label": "empty",
+      "payloadKeys": [],
+      "status": 200,
+      "topKeys": [
+        "S",
+        "M",
+        "F"
+      ],
+      "dKeys": [],
+      "S": false,
+      "itemCount": null,
+      "sampleKeys": [],
+      "sampleRows": [],
+      "titles": [],
+      "dateFields": [],
+      "scheduleFields": []
+    },
+    {
+      "label": "month-now",
+      "payloadKeys": [
+        "month",
+        "year"
+      ],
+      "status": 200,
+      "topKeys": [
+        "S",
+        "M",
+        "F"
+      ],
+      "dKeys": [],
+      "S": false,
+      "itemCount": null,
+      "sampleKeys": [],
+      "sampleRows": [],
+      "titles": [],
+      "dateFields": [],
+      "scheduleFields": []
+    },
+    {
+      "label": "month-10",
+      "payloadKeys": [
+        "month",
+        "year"
+      ],
+      "status": 200,
+      "topKeys": [
+        "S",
+        "M",
+        "F"
+      ],
+      "dKeys": [],
+      "S": false,
+      "itemCount": null,
+      "sampleKeys": [],
+      "sampleRows": [],
+      "titles": [],
+      "dateFields": [],
+      "scheduleFields": []
+    },
+    {
+      "label": "values-cd",
+      "payloadKeys": [
+        "values",
+        "page",
+        "pg_key",
+        "works",
+        "limit"
+      ],
+      "status": 200,
+      "topKeys": [
+        "S",
+        "M",
+        "F"
+      ],
+      "dKeys": [],
+      "S": false,
+      "itemCount": null,
+      "sampleKeys": [],
+      "sampleRows": [],
+      "titles": [],
+      "dateFields": [],
+      "scheduleFields": []
+    }
+  ]
+}

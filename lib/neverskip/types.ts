@@ -166,6 +166,23 @@ export interface NormalizedJolItem {
   subjectName: string | null;
   sections: string[];
   jolRelated: boolean;
+  scheduleDocument: boolean;
+  metadataJson: string;
+}
+
+export interface NormalizedScheduleEvent {
+  source: typeof NEVERSKIP_SOURCE;
+  sourceId: string;
+  title: string;
+  description: string;
+  eventDate: string;
+  startTime: string;
+  endTime: string;
+  weekday: string;
+  subjectName: string | null;
+  periodLabel: string | null;
+  classSection: string | null;
+  resourceUrl: string | null;
   metadataJson: string;
 }
 
@@ -194,6 +211,13 @@ export interface CollectedNeverSkipData {
   jolSourceTotal?: number | null;
   jolRawFetched?: number;
   jolUniqueFetched?: number;
+  /** Normalized calendar events from fetchcalenderapi */
+  scheduleEvents?: NormalizedScheduleEvent[];
+  scheduleRawCount?: number;
+  scheduleFetchIncomplete?: boolean;
+  scheduleFetchErrors?: string[];
+  /** True when calendar response was complete (including empty D:[]) */
+  scheduleFetchComplete?: boolean;
 }
 
 export interface SyncSummary {
@@ -233,9 +257,19 @@ export interface SyncSummary {
   jolSourceTotal?: number | null;
   jolRawFetched?: number;
   jolUniqueFetched?: number;
+  scheduleFetched?: number;
+  scheduleInserted?: number;
+  scheduleUpdated?: number;
+  scheduleSkipped?: number;
+  scheduleStored?: number;
+  scheduleFetchIncomplete?: boolean;
+  scheduleFetchComplete?: boolean;
+  schedulePreservedOnFailure?: boolean;
   newestHomeworkDate?: string;
   newestNoticeDate?: string;
   newestJolDate?: string;
+  newestScheduleDate?: string;
+  syncStatus?: string;
   errors: string[];
 }
 

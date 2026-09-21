@@ -14,10 +14,17 @@ import {
   homeworkContentKey,
   jolContentKey,
   noticeContentKey,
+  scheduleEventContentKey,
   type NeverSkipStore,
 } from './store';
-import type { NormalizedHomework, NormalizedNotice, UpsertResult } from './types';
-import type { NormalizedJolItem } from './types';
+import type {
+  NormalizedHomework,
+  NormalizedJolItem,
+  NormalizedNotice,
+  NormalizedScheduleEvent,
+  UpsertResult,
+} from './types';
+import { NEVERSKIP_SOURCE } from './types';
 
 function parseJsonArray(raw: string): string[] {
   try {
@@ -291,6 +298,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
           subjectName: item.subjectName,
           sectionsJson,
           jolRelated: item.jolRelated,
+          scheduleDocument: item.scheduleDocument,
           metadataJson: item.metadataJson,
         },
       });
@@ -313,6 +321,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       subjectName: existing.subjectName,
       sections: parseJsonArray(existing.sectionsJson),
       jolRelated: existing.jolRelated,
+      scheduleDocument: existing.scheduleDocument,
       metadataJson: existing.metadataJson,
     };
 
@@ -350,6 +359,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
         subjectName: item.subjectName,
         sectionsJson,
         jolRelated: item.jolRelated,
+        scheduleDocument: item.scheduleDocument,
         metadataJson: item.metadataJson,
       },
     });
@@ -376,7 +386,138 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       subjectName: r.subjectName,
       sections: parseJsonArray(r.sectionsJson),
       jolRelated: r.jolRelated,
+      scheduleDocument: r.scheduleDocument,
       metadataJson: r.metadataJson,
     }));
+  }
+
+  async replaceScheduleEvents(
+    events: NormalizedScheduleEvent[],
+  ): Promise<{ inserted: number; updated: number; removed: number }> {
+    const prisma = getPrisma();
+    const existing = await prisma.importedScheduleEvent.findMany({
+      where: { source: NEVERSKIP_SOURCE },
+    });
+    const existingById = new Map(existing.map((e) => [e.sourceId, e]));
+    const incomingIds = new Set(events.map((e) => e.sourceId));
+    let inserted = 0;
+    let updated = 0;
+    let removed = 0;
+
+    for (const item of events) {
+      const prev = existingById.get(item.sourceId);
+      if (!prev) {
+        await prisma.importedScheduleEvent.create({
+          data: {
+            source: item.source,
+            sourceId: item.sourceId,
+            title: item.title,
+            description: item.description,
+            eventDate: item.eventDate,
+            startTime: item.startTime,
+            endTime: item.endTime,
+            weekday: item.weekday,
+            subjectName: item.subjectName,
+            periodLabel: item.periodLabel,
+            classSection: item.classSection,
+            resourceUrl: item.resourceUrl,
+            metadataJson: item.metadataJson,
+          },
+        });
+        inserted += 1;
+        continue;
+      }
+      const prevNorm: NormalizedScheduleEvent = {
+        source: prev.source as NormalizedScheduleEvent['source'],
+        sourceId: prev.sourceId,
+        title: prev.title,
+        description: prev.description,
+        eventDate: prev.eventDate,
+        startTime: prev.startTime,
+        endTime: prev.endTime,
+        weekday: prev.weekday,
+        subjectName: prev.subjectName,
+        periodLabel: prev.periodLabel,
+        classSection: prev.classSection,
+        resourceUrl: prev.resourceUrl,
+        metadataJson: prev.metadataJson,
+      };
+      if (scheduleEventContentKey(prevNorm) === scheduleEventContentKey(item)) continue;
+      await prisma.importedScheduleEvent.update({
+        where: { id: prev.id },
+        data: {
+          title: item.title,
+          description: item.description,
+          eventDate: item.eventDate,
+          startTime: item.startTime,
+          endTime: item.endTime,
+          weekday: item.weekday,
+          subjectName: item.subjectName,
+          periodLabel: item.periodLabel,
+          classSection: item.classSection,
+          resourceUrl: item.resourceUrl,
+          metadataJson: item.metadataJson,
+        },
+      });
+      updated += 1;
+    }
+
+    for (const row of existing) {
+      if (incomingIds.has(row.sourceId)) continue;
+      await prisma.importedScheduleEvent.delete({ where: { id: row.id } });
+      removed += 1;
+    }
+
+    return { inserted, updated, removed };
+  }
+
+  async listScheduleEvents(): Promise<NormalizedScheduleEvent[]> {
+    const rows = await getPrisma().importedScheduleEvent.findMany({
+      orderBy: [{ eventDate: 'asc' }, { startTime: 'asc' }],
+    });
+    return rows.map((r) => ({
+      source: r.source as NormalizedScheduleEvent['source'],
+      sourceId: r.sourceId,
+      title: r.title,
+      description: r.description,
+      eventDate: r.eventDate,
+      startTime: r.startTime,
+      endTime: r.endTime,
+      weekday: r.weekday,
+      subjectName: r.subjectName,
+      periodLabel: r.periodLabel,
+      classSection: r.classSection,
+      resourceUrl: r.resourceUrl,
+      metadataJson: r.metadataJson,
+    }));
+  }
+
+  async recordSyncRun(run: {
+    status: string;
+    startedAt: Date;
+    finishedAt: Date;
+    homeworkExpected?: number | null;
+    homeworkFetched?: number;
+    noticeFetched?: number;
+    jolFetched?: number;
+    scheduleFetched?: number;
+    errorSummary?: string;
+    reportJson?: string;
+  }): Promise<void> {
+    await getPrisma().syncRun.create({
+      data: {
+        source: NEVERSKIP_SOURCE,
+        status: run.status,
+        startedAt: run.startedAt,
+        finishedAt: run.finishedAt,
+        homeworkExpected: run.homeworkExpected ?? null,
+        homeworkFetched: run.homeworkFetched ?? null,
+        noticeFetched: run.noticeFetched ?? null,
+        jolFetched: run.jolFetched ?? null,
+        scheduleFetched: run.scheduleFetched ?? null,
+        errorSummary: (run.errorSummary ?? '').slice(0, 2000),
+        reportJson: run.reportJson ?? '{}',
+      },
+    });
   }
 }

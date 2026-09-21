@@ -178,31 +178,120 @@ model ImportedNotice {
 
 /// NeverSkip Content Library / Joy of Learning resources (fetchcontentlib)
 model ImportedJolItem {
-  id            String   @id @default(cuid())
-  source        String   @default("neverskip")
-  sourceId      String
-  title         String
-  description   String   @default("")
-  content       String   @default("")
-  activityDate  String   @default("")
-  publishedDate String   @default("")
-  publishedTime String   @default("00:00")
-  resourceType  String
-  resourceUrl   String?
-  downloadUrl   String?
-  thumbnailUrl  String?
-  subjectName   String?
-  sectionsJson  String   @default("[]")
-  jolRelated    Boolean  @default(false)
-  metadataJson  String   @default("{}")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String   @id @default(cuid())
+  source           String   @default("neverskip")
+  sourceId         String
+  title            String
+  description      String   @default("")
+  content          String   @default("")
+  activityDate     String   @default("")
+  publishedDate    String   @default("")
+  publishedTime    String   @default("00:00")
+  resourceType     String
+  resourceUrl      String?
+  downloadUrl      String?
+  thumbnailUrl     String?
+  subjectName      String?
+  sectionsJson     String   @default("[]")
+  jolRelated       Boolean  @default(false)
+  /// True when title/desc marks a timetable / newsletter schedule document from NeverSkip
+  scheduleDocument Boolean  @default(false)
+  metadataJson     String   @default("{}")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@unique([source, sourceId])
   @@index([publishedDate])
   @@index([activityDate])
   @@index([resourceType])
   @@index([jolRelated])
+  @@index([scheduleDocument])
+}
+
+/// NeverSkip Calendar events from fetchcalenderapi (canonical structured schedule channel)
+model ImportedScheduleEvent {
+  id            String   @id @default(cuid())
+  source        String   @default("neverskip")
+  sourceId      String
+  title         String
+  description   String   @default("")
+  eventDate     String   @default("")
+  startTime     String   @default("")
+  endTime       String   @default("")
+  weekday       String   @default("")
+  subjectName   String?
+  periodLabel   String?
+  classSection  String?
+  resourceUrl   String?
+  metadataJson  String   @default("{}")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([source, sourceId])
+  @@index([eventDate])
+  @@index([weekday])
+}
+
+/// Joy of Learning worksheet timetable version (extracted from school newsletter / NeverSkip doc)
+model ImportedJolSchedule {
+  id                 String   @id @default(cuid())
+  source             String   @default("neverskip")
+  sourceId           String
+  title              String
+  academicYear       String   @default("")
+  classesLabel       String   @default("")
+  /// Active current worksheet timetable (only one active at a time per source family)
+  isActive           Boolean  @default(false)
+  sourceDocumentUrl  String?
+  sourceDocumentPath String?
+  sourceContentHash  String   @default("")
+  publishedDate      String   @default("")
+  syncedAt           DateTime @default(now())
+  metadataJson       String   @default("{}")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  days               ImportedJolScheduleDay[]
+
+  @@unique([source, sourceId])
+  @@index([isActive])
+  @@index([publishedDate])
+}
+
+model ImportedJolScheduleDay {
+  id         String   @id @default(cuid())
+  scheduleId String
+  schedule   ImportedJolSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  /// Stable row key within schedule: YYYY-MM-DD
+  sourceDayId String
+  activityDate String
+  weekday      String   @default("")
+  classI       String   @default("")
+  classII      String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([scheduleId, sourceDayId])
+  @@index([activityDate])
+}
+
+/// Persisted NeverSkip sync attempt / freshness (never log secrets here)
+model SyncRun {
+  id                 String   @id @default(cuid())
+  source             String   @default("neverskip")
+  status             String // COMPLETE | INCOMPLETE | FAILED | AUTHENTICATION_REQUIRED
+  startedAt          DateTime
+  finishedAt         DateTime
+  homeworkExpected   Int?
+  homeworkFetched    Int?
+  noticeFetched      Int?
+  jolFetched         Int?
+  scheduleFetched    Int?
+  errorSummary       String   @default("")
+  reportJson         String   @default("{}")
+  createdAt          DateTime @default(now())
+
+  @@index([source, finishedAt])
+  @@index([status])
 }
 
 /// Detected NeverSkip content updates (only when an existing sourceId changes)

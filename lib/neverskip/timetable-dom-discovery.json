@@ -1,0 +1,248 @@
+{
+  "capturedAt": "2026-09-21T13:03:47.927Z",
+  "interestingMenuTexts": [
+    "Assignments",
+    "Class Diary",
+    "Content Library",
+    "Daily notices",
+    "Calendar"
+  ],
+  "clickResults": [
+    {
+      "text": "Calendar",
+      "pathAfter": "(error)",
+      "session": "locator.click: Timeout 2000ms exceeded.\nCall log:\n  - waiting for getByText('Calendar', { exact: true }).first()\n    - locator resolved to <a class=\"menunm menushow\" _ngcontent-ng-c365701446=\"\"> Calendar </a>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    3 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 500ms\n"
+    }
+  ],
+  "cardTitles": [
+    "Student",
+    "Virtual Classroom",
+    "Services",
+    "Support",
+    "Joy of learning, WS -II, English practice paper and answer key.",
+    "Midterm JOL 2 Revision 2",
+    "Joy of learning, WS -II, Kannada practice paper and answer key.",
+    "Joy of learning, WS -II, EVS practice paper and answer key.",
+    "Joy of learning, WS -II, Hindi practice paper and answer key.",
+    "JOL 2 Revision 1",
+    "Joy of learning, WS -II, Computer science practice paper and answer key",
+    "Joy of learning, Worksheet II, Maths practice paper and answer key",
+    "EVS practice paper and answer key"
+  ],
+  "apiCaptures": [
+    {
+      "path": "/parentweb/auth/hasauth",
+      "status": 200,
+      "dKeys": [
+        "S",
+        "D",
+        "F"
+      ],
+      "labels": []
+    },
+    {
+      "path": "/parentweb/support/getallaccyear",
+      "status": 200,
+      "dKeys": [
+        "S",
+        "D",
+        "F"
+      ],
+      "labels": [
+        "name=2023-24",
+        "name=2024-25",
+        "name=2025-26",
+        "name=2026-27"
+      ]
+    },
+    {
+      "path": "/parentweb/lms/getclasubjects",
+      "status": 200,
+      "dKeys": [
+        "item_list"
+      ],
+      "labels": [
+        "subject_name=All",
+        "subject_name=ENGLISH",
+        "subject_name=MATHEMATICS",
+        "subject_name=SCIENCE",
+        "subject_name=III LAN-HINDI",
+        "subject_name=II LANG-HINDI",
+        "subject_name=SOCIAL SCIENCE",
+        "subject_name=COMPUTER SCIENCE",
+        "subject_name=CHEMISTRY",
+        "subject_name=SOCIOLOGY",
+        "subject_name=II LANG-KANNADA",
+        "subject_name=BIOLOGY",
+        "subject_name=HINDI",
+        "subject_name=II LANG-SANSKRIT",
+        "subject_name=BUSINESS STUDIES",
+        "subject_name=KANNADA",
+        "subject_name=III LANG-KANNADA",
+        "subject_name=ENVIRONMENTAL SCIENCE",
+        "subject_name=HISTORY",
+        "subject_name=INFORMATION TECHNOLOGY",
+        "subject_name=POLITICAL SCIENCE",
+        "subject_name=GEOSPATIAL TECHNOLOGY",
+        "subject_name=ARTIFICIAL INTELLIGENCE",
+        "subject_name=SANSKRIT",
+        "subject_name=ACCOUNTANCY",
+        "subject_name=FINANCIAL MARKETS MANAGEMENT",
+        "subject_name=ENTREPRENEURSHIP",
+        "subject_name=LEGAL STUDIES",
+        "subject_name=ECONOMICS",
+        "subject_name=III LANG-SANSKRIT",
+        "subject_name=PHYSICS",
+        "subject_name=BIOTECHNOLOGY",
+        "subject_name=PSYCHOLOGY",
+        "subject_name=PHYSICAL EDUCATION",
+        "subject_name=FASHION STUDIES",
+        "subject_name=PAINTING",
+        "subject_name=APPLIED MATHEMATICS",
+        "subject_name=EARLY CHILDHOOD CARE AND EDUCATION",
+        "subject_name=PHYSICAL ACTIVITY TRAINER"
+      ]
+    },
+    {
+      "path": "/parentweb/lms/fetchcontentlib",
+      "status": 200,
+      "dKeys": [
+        "page_count",
+        "stu_id",
+        "item_list"
+      ],
+      "labels": [
+        "subject_name=KANNADA",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS-1KANNADAJOYOFLEARNINGWORKSHEET-IIREVI",
+        "thump_url=https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS-1KANNADAJOYOFLEARNINGWORKSHEET-IIREVI",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS-1-KANNADAJOYOFLEARNING-WORKSHEET-II-R",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS-1-KANNADAJOYOFLEARNING-WORKSHEET-II-R",
+        "subject_name=MATHEMATICS",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF21-09-2026154355_20260921154405.pdf",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF21-09-2026154355_20260921154405.pdf",
+        "subject_name=HINDI",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Hindiclass1REVPAPER-5ANSWERKEY_202609211536",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Hindiclass1REVPAPER-5ANSWERKEY_202609211536",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Hindiclass1REVPAPER-5QP_20260921153647.pdf",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Hindiclass1REVPAPER-5QP_20260921153647.pdf",
+        "subject_name=ENGLISH",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_English1JOL-2PracticePaperAK_20260920115029",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_English1JOL-2PracticePaperAK_20260920115029",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_EnglishIJOL-2PracticePaperQP1_2026092011503",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_EnglishIJOL-2PracticePaperQP1_2026092011503",
+        "subject_name=COMPUTER SCIENCE",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF19-09-2026130514_20260919130514.pdf",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF19-09-2026130514_20260919130514.pdf",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1JOYOFLEARNINGWORKSHEETPRACTICEPAPER-A",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1JOYOFLEARNINGWORKSHEETPRACTICEPAPER-A",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS-1JOYOFLEARNINGWORKSHEET-PRACTICEPAPER",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS-1JOYOFLEARNINGWORKSHEET-PRACTICEPAPER",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Revpaper4GRADE1MIDTERM_20260918155843.pdf",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Revpaper4GRADE1MIDTERM_20260918155843.pdf",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_HindiREVISIONpaperGRADE1MIDTERM_20260918155",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_HindiREVISIONpaperGRADE1MIDTERM_20260918155",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF18-09-2026155825_20260918155825.pdf",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF18-09-2026155825_20260918155825.pdf",
+        "subject_name=SCIENCE",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1EVSJOLWS-2PracticePaperUpdated_202609",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1EVSJOLWS-2PracticePaperUpdated_202609",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_AnswerkeyPracticepaperCl1EVSJOL-II_20260918",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_AnswerkeyPracticepaperCl1EVSJOL-II_20260918"
+      ]
+    },
+    {
+      "path": "/parentweb/dashboard/loaduser",
+      "status": 200,
+      "dKeys": [
+        "user_data",
+        "cur_id"
+      ],
+      "labels": [
+        "sch_name=BGS NATIONAL PUBLIC SCHOOL",
+        "stu_name=AVYUKT S"
+      ]
+    },
+    {
+      "path": "/parentweb/auth/getppschmenupermission",
+      "status": 200,
+      "dKeys": [
+        "deactive_menu_list",
+        "deactive_menu_lable_list"
+      ],
+      "labels": []
+    },
+    {
+      "path": "/parentweb/lms/fetchcontentlib",
+      "status": 200,
+      "dKeys": [
+        "page_count",
+        "stu_id",
+        "item_list"
+      ],
+      "labels": []
+    },
+    {
+      "path": "/parentweb/lms/fetchcontentlib",
+      "status": 200,
+      "dKeys": [
+        "page_count",
+        "stu_id",
+        "item_list"
+      ],
+      "labels": []
+    },
+    {
+      "path": "/parentweb/lms/fetchcontentlib",
+      "status": 200,
+      "dKeys": [
+        "page_count",
+        "stu_id",
+        "item_list"
+      ],
+      "labels": [
+        "subject_name=ENGLISH",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_English1JOL-2PracticePaperAK_20260920115029",
+        "thump_url=https://neverskip.s3.us-east-1.amazonaws.com/nskdata/PDF_4.png",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_English1JOL-2PracticePaperAK_20260920115029",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_EnglishIJOL-2PracticePaperQP1_2026092011503",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_EnglishIJOL-2PracticePaperQP1_2026092011503",
+        "subject_name=COMPUTER SCIENCE",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF19-09-2026130514_20260919130514.pdf",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF19-09-2026130514_20260919130514.pdf",
+        "subject_name=KANNADA",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1JOYOFLEARNINGWORKSHEETPRACTICEPAPER-A",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1JOYOFLEARNINGWORKSHEETPRACTICEPAPER-A",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS-1JOYOFLEARNINGWORKSHEET-PRACTICEPAPER",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_CLASS-1JOYOFLEARNINGWORKSHEET-PRACTICEPAPER",
+        "subject_name=SCIENCE",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1EVSJOLWS-2PracticePaperUpdated_202609",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1EVSJOLWS-2PracticePaperUpdated_202609",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_AnswerkeyPracticepaperCl1EVSJOL-II_20260918",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_AnswerkeyPracticepaperCl1EVSJOL-II_20260918",
+        "subject_name=HINDI",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_HindiIJOLworksheet2practicePaperAK_20260917",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_HindiIJOLworksheet2practicePaperAK_20260917",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_HindiIJOLworksheet2practicePaper_2026091716",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_HindiIJOLworksheet2practicePaper_2026091716",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF17-09-2026162645_20260917162653.pdf",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_PDF17-09-2026162645_20260917162653.pdf",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_MidtermJOLGrade1AK_20260916193259.pdf",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_MidtermJOLGrade1AK_20260916193259.pdf",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_MidtermJOLGrade1ComputerPP_20260916193300.p",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_MidtermJOLGrade1ComputerPP_20260916193300.p",
+        "subject_name=MATHEMATICS",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Maths-Grade1-JoyofLearningWorksheet-IIPract",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Maths-Grade1-JoyofLearningWorksheet-IIPract",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_MathsGradeIJoyofLearningWorksheet-IIPractic",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_MathsGradeIJoyofLearningWorksheet-IIPractic",
+        "subject_name=ENVIRONMENTAL SCIENCE",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1EVSJOLPracticePaperAK_20260711184046.",
+        "thump_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1EVSJOLPracticePaperAK_20260711184046.",
+        "media_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1EVSJOLPracticePaperQP_20260711184045.",
+        "dwn_url=https://d1hfw03022jglv.cloudfront.net/3079/conlib/CONLIB_Class1EVSJOLPracticePaperQP_20260711184045."
+      ]
+    }
+  ]
+}

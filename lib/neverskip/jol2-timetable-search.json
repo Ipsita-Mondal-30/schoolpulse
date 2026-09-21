@@ -1,0 +1,57 @@
+{
+  "capturedAt": "2026-09-21T13:27:41.866Z",
+  "uniqueTitles": [
+    "Class: I",
+    "Class: I-A",
+    "Classes: I, II",
+    "Classes: I-A, I-B, I-D, I-F, I-J",
+    "Classes: I-A, I-B, I-K",
+    "Classes: I-A, I-G, I-K",
+    "Classes: I-A, I-H",
+    "Classes: I-A, I-H, II-D, II-E",
+    "Classes: I-G, I-A, I-K",
+    "EVS practice paper and answer key",
+    "Hindi revision paper - 4  mid-term along with answer key.",
+    "JOL 2 Revision 1",
+    "Joy of learning, WS -II, Computer science practice paper and answer key",
+    "Joy of learning, WS -II, EVS practice paper and answer key.\n",
+    "Joy of learning, WS -II, English practice paper and answer key.\n",
+    "Joy of learning, WS -II, Hindi practice paper and answer key.\n",
+    "Joy of learning, WS -II, Kannada practice paper and answer key.\n",
+    "Joy of learning, Worksheet  II, Maths practice paper and answer key",
+    "Midterm JOL 2 Revision 2",
+    "Revision -3 Chapter-3 Addition and Subtraction (upto 20)",
+    "Revision -3 and AK",
+    "Revision 4 and AK",
+    "Revision-2 chapter-2 playing with numbers (upto 20)",
+    "hindi  class 1 revision paper -5 along with Answer key"
+  ],
+  "titleCount": 24,
+  "timetableLikeTitles": [],
+  "hits": [
+    {
+      "path": "/parentweb/support/getallaccyear",
+      "status": 200,
+      "matched": [
+        "2026-27"
+      ],
+      "preview": "{\"S\":true,\"D\":[{\"refid\":\"1\",\"name\":\"2023-24\",\"acc_year\":\"2324\",\"is_current\":false},{\"refid\":\"2\",\"name\":\"2024-25\",\"acc_year\":\"2425\",\"is_current\":false},{\"refid\":\"3\",\"name\":\"2025-26\",\"acc_year\":\"2526\",\"is_current\":false},{\"refid\":\"4\",\"name\":\"2026-27\",\"acc_year\":\"2627\",\"is_current\":true}],\"F\":\"S\"}"
+    },
+    {
+      "path": "/parentweb/support/getallaccyear",
+      "status": 200,
+      "matched": [
+        "2026-27"
+      ],
+      "preview": "{\"S\":true,\"D\":[{\"refid\":\"1\",\"name\":\"2023-24\",\"acc_year\":\"2324\",\"is_current\":false},{\"refid\":\"2\",\"name\":\"2024-25\",\"acc_year\":\"2425\",\"is_current\":false},{\"refid\":\"3\",\"name\":\"2025-26\",\"acc_year\":\"2526\",\"is_current\":false},{\"refid\":\"4\",\"name\":\"2026-27\",\"acc_year\":\"2627\",\"is_current\":true}],\"F\":\"S\"}"
+    },
+    {
+      "path": "/parentweb/support/getallaccyear",
+      "status": 200,
+      "matched": [
+        "2026-27"
+      ],
+      "preview": "{\"S\":true,\"D\":[{\"refid\":\"1\",\"name\":\"2023-24\",\"acc_year\":\"2324\",\"is_current\":false},{\"refid\":\"2\",\"name\":\"2024-25\",\"acc_year\":\"2425\",\"is_current\":false},{\"refid\":\"3\",\"name\":\"2025-26\",\"acc_year\":\"2526\",\"is_current\":false},{\"refid\":\"4\",\"name\":\"2026-27\",\"acc_year\":\"2627\",\"is_current\":true}],\"F\":\"S\"}"
+    }
+  ]
+}

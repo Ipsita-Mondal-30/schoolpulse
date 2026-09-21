@@ -14,6 +14,7 @@
  * No dedicated /jol endpoint found. Content Library is the source for JOL printouts/resources.
  */
 
+import { isScheduleDocumentText } from './calendar';
 import type { NeverSkipClient } from './client';
 import { nsError, nsLog, nsWarn } from './log';
 import { normalizeDate, normalizeTime } from './normalizers';
@@ -143,6 +144,8 @@ function deriveResourceType(
   media: ContentMedia[],
 ): string {
   const blob = title.toLowerCase();
+  if (/timetable|time\s*table/i.test(blob)) return 'timetable';
+  if (/newsletter/i.test(blob)) return 'newsletter';
   if (/print\s*out|printout/i.test(blob)) return 'printout';
   if (/worksheet/i.test(blob)) return 'worksheet';
   const primary = media[0];
@@ -174,7 +177,15 @@ export function normalizeContentLibraryItem(
   const media = parseContentMedia(raw.media);
   const primary = media[0];
   const jolRelated = isJolRelatedText(title, description, content, String(raw.subject_name ?? ''));
-  const resourceType = deriveResourceType(title, media);
+  const scheduleDocument = isScheduleDocumentText(
+    title,
+    description,
+    content,
+    String(raw.subject_name ?? ''),
+  );
+  const resourceType = scheduleDocument && /timetable|time\s*table/i.test(title)
+    ? 'timetable'
+    : deriveResourceType(title, media);
   const sections = String(raw.cls_sec ?? '')
     .split(/[,;|]/)
     .map((s) => s.trim())
@@ -196,6 +207,7 @@ export function normalizeContentLibraryItem(
     subjectName: String(raw.subject_name ?? '').trim() || null,
     sections,
     jolRelated,
+    scheduleDocument,
     metadataJson: JSON.stringify({
       sub_id: raw.sub_id ?? null,
       is_sch: raw.is_sch ?? null,

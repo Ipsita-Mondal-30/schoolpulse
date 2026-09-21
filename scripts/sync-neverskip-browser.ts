@@ -23,6 +23,7 @@ import {
 } from '../lib/neverskip/browser';
 import { PrismaNeverSkipStore } from '../lib/neverskip/prisma-store';
 import { collectedToSyncInput, syncNeverSkipData } from '../lib/neverskip/sync';
+import { syncJolWorksheetTimetableFromSchoolDocument } from '../lib/neverskip/jol-timetable-sync';
 import { nsError, nsLog } from '../lib/neverskip/log';
 
 async function main() {
@@ -45,16 +46,21 @@ async function main() {
     label: 'browser sync',
   });
 
-  if (summary.errors.length > 0 || summary.homeworkFetchIncomplete || summary.noticeFetchIncomplete || summary.jolFetchIncomplete) {
+  // JoL Worksheet II timetable from school newsletter document (see jol2-timetable-discovery.md).
+  // Missing PDF must not wipe an existing active schedule.
+  const jolTt = await syncJolWorksheetTimetableFromSchoolDocument();
+  nsLog(`JOL worksheet timetable sync: ${jolTt.status} days=${jolTt.dayCount ?? 0}`);
+
+  if (summary.errors.length > 0 || summary.homeworkFetchIncomplete || summary.noticeFetchIncomplete || summary.jolFetchIncomplete || summary.scheduleFetchIncomplete) {
     nsError('SYNC STATUS: INCOMPLETE');
     nsLog(
-      `Summary: homeworkPages=${summary.homeworkPagesFetched ?? '?'} homeworkFetched=${summary.homeworkFetched} homeworkInserted=${summary.homeworkInserted} homeworkSkipped=${summary.homeworkSkipped} noticesFetched=${summary.noticesFetched} noticesInserted=${summary.noticesInserted} noticesSkipped=${summary.noticesSkipped} jolFetched=${summary.jolFetched ?? 0} jolInserted=${summary.jolInserted ?? 0}`,
+      `Summary: homeworkPages=${summary.homeworkPagesFetched ?? '?'} homeworkFetched=${summary.homeworkFetched} homeworkInserted=${summary.homeworkInserted} homeworkSkipped=${summary.homeworkSkipped} noticesFetched=${summary.noticesFetched} noticesInserted=${summary.noticesInserted} noticesSkipped=${summary.noticesSkipped} jolFetched=${summary.jolFetched ?? 0} jolInserted=${summary.jolInserted ?? 0} scheduleFetched=${summary.scheduleFetched ?? 0} status=${summary.syncStatus ?? 'INCOMPLETE'}`,
     );
     process.exitCode = 1;
   } else {
     nsLog('SYNC STATUS: COMPLETE');
     nsLog(
-      `Summary: homeworkPages=${summary.homeworkPagesFetched ?? '?'} homeworkFetched=${summary.homeworkFetched} homeworkInserted=${summary.homeworkInserted} homeworkSkipped=${summary.homeworkSkipped} noticesFetched=${summary.noticesFetched} noticesInserted=${summary.noticesInserted} noticesSkipped=${summary.noticesSkipped} jolFetched=${summary.jolFetched ?? 0} jolInserted=${summary.jolInserted ?? 0}`,
+      `Summary: homeworkPages=${summary.homeworkPagesFetched ?? '?'} homeworkFetched=${summary.homeworkFetched} homeworkInserted=${summary.homeworkInserted} homeworkSkipped=${summary.homeworkSkipped} noticesFetched=${summary.noticesFetched} noticesInserted=${summary.noticesInserted} noticesSkipped=${summary.noticesSkipped} jolFetched=${summary.jolFetched ?? 0} jolInserted=${summary.jolInserted ?? 0} scheduleFetched=${summary.scheduleFetched ?? 0}`,
     );
   }
 }

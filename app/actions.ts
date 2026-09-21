@@ -612,6 +612,7 @@ export type UiJolItem = {
   subjectName: string | null;
   sections: string[];
   jolRelated: boolean;
+  scheduleDocument: boolean;
   media: Array<{
     mediaType: string;
     mediaUrl: string | null;
@@ -658,10 +659,16 @@ export async function loadJolForUi(): Promise<UiJolItem[]> {
       subjectName: r.subjectName,
       sections,
       jolRelated: r.jolRelated,
+      scheduleDocument: r.scheduleDocument,
       media,
       createdAt: r.createdAt.toISOString(),
     };
   });
+}
+
+export async function loadCanonicalScheduleForUi() {
+  const { loadCanonicalSchedule } = await import('@/lib/schedule/canonical');
+  return loadCanonicalSchedule();
 }
 
 /** Tonight Daily Brief: reuses homework/notices loaders; does not invent due dates. */

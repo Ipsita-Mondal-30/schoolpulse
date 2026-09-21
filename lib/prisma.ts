@@ -29,18 +29,64 @@ const globalForPrisma = globalThis as unknown as {
   prismaUrl: string | undefined;
 };
 
+type ScheduleAwareClient = PrismaClient & {
+  importedScheduleEvent?: { findMany?: unknown };
+  importedJolItem?: { findMany?: unknown };
+  importedJolSchedule?: { findFirst?: unknown };
+  syncRun?: { findFirst?: unknown };
+};
+
+/** True when this PrismaClient instance includes post-timetable-sync models. */
+function prismaHasScheduleModels(client: PrismaClient): boolean {
+  const c = client as ScheduleAwareClient;
+  return (
+    typeof c.importedScheduleEvent?.findMany === 'function' &&
+    typeof c.importedJolItem?.findMany === 'function' &&
+    typeof c.importedJolSchedule?.findFirst === 'function' &&
+    typeof c.syncRun?.findFirst === 'function'
+  );
+}
+
+function createPrismaClient(url: string | undefined): PrismaClient {
+  return new PrismaClient({
+    datasources: url ? { db: { url } } : undefined,
+  });
+}
+
+/** Drop the cached Prisma singleton (e.g. after prisma generate during hot reload). */
+export function resetPrismaClient(): void {
+  if (globalForPrisma.prisma) {
+    void globalForPrisma.prisma.$disconnect().catch(() => undefined);
+  }
+  globalForPrisma.prisma = undefined;
+  globalForPrisma.prismaUrl = undefined;
+}
+
 export function getPrisma(): PrismaClient {
   const url = resolveDatabaseUrl(process.env.DATABASE_URL);
   if (url && process.env.DATABASE_URL !== url) {
     process.env.DATABASE_URL = url;
   }
 
-  if (!globalForPrisma.prisma || globalForPrisma.prismaUrl !== url) {
-    globalForPrisma.prisma = new PrismaClient({
-      datasources: url ? { db: { url } } : undefined,
-    });
+  const stale =
+    globalForPrisma.prisma &&
+    (globalForPrisma.prismaUrl !== url || !prismaHasScheduleModels(globalForPrisma.prisma));
+
+  if (!globalForPrisma.prisma || stale) {
+    if (stale && globalForPrisma.prisma) {
+      void globalForPrisma.prisma.$disconnect().catch(() => undefined);
+    }
+    globalForPrisma.prisma = createPrismaClient(url);
     globalForPrisma.prismaUrl = url;
   }
+
+  // Belt-and-suspenders: never return a client missing schedule delegates.
+  if (!prismaHasScheduleModels(globalForPrisma.prisma)) {
+    void globalForPrisma.prisma.$disconnect().catch(() => undefined);
+    globalForPrisma.prisma = createPrismaClient(url);
+    globalForPrisma.prismaUrl = url;
+  }
+
   return globalForPrisma.prisma;
 }
 

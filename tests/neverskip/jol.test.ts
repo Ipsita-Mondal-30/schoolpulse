@@ -101,9 +101,24 @@ describe('content library / JOL helpers', () => {
     expect(normalized).toMatchObject({
       sourceId: 'jol-1',
       jolRelated: true,
+      scheduleDocument: false,
       resourceType: 'printout',
       downloadUrl: 'https://cdn.example.com/conlib/jol-1.pdf',
       publishedDate: '2026-09-18',
+    });
+  });
+
+  it('tags timetable/newsletter titles as schedule documents', () => {
+    const normalized = normalizeContentLibraryItem(
+      contentItem('tt-1', {
+        con_tit: 'Joy of Learning Worksheet II Timetable',
+        con_desc: 'Class I schedule',
+      }),
+    );
+    expect(normalized).toMatchObject({
+      scheduleDocument: true,
+      resourceType: 'timetable',
+      jolRelated: true,
     });
   });
 

@@ -20,6 +20,13 @@ import {
   isContentLibraryApiUrl,
   type ContentLibPayload,
 } from './jol';
+import {
+  CALENDAR_API_PATH,
+  CALENDAR_PAGE,
+  isCalendarApiUrl,
+  parseCalendarResponse,
+  type NeverSkipCalendarResponse,
+} from './calendar';
 import type {
   CollectedNeverSkipData,
   NeverSkipContentLibraryResponse,
@@ -84,10 +91,11 @@ export function isNoticesApiUrl(url: string): boolean {
 
 export function matchNeverSkipApiKind(
   url: string,
-): 'homework' | 'notices' | 'contentlib' | null {
+): 'homework' | 'notices' | 'contentlib' | 'calendar' | null {
   if (isHomeworkApiUrl(url)) return 'homework';
   if (isNoticesApiUrl(url)) return 'notices';
   if (isContentLibraryApiUrl(url)) return 'contentlib';
+  if (isCalendarApiUrl(url)) return 'calendar';
   return null;
 }
 
@@ -373,6 +381,7 @@ export async function collectNeverSkipData(
   let homeworkRaw: NeverSkipHomeworkResponse | null = null;
   let noticesRaw: NeverSkipNoticesResponse | null = null;
   let contentLibRaw: NeverSkipContentLibraryResponse | null = null;
+  let calendarRaw: NeverSkipCalendarResponse | null = null;
   let homeworkMeta: { url: string; status: number } | null = null;
   /** In-memory Token from intercepted portal XHR — never logged. */
   let sessionTokenHeader: string | null = null;
@@ -428,6 +437,10 @@ export async function collectNeverSkipData(
     if (kind === 'contentlib' && !contentLibRaw) {
       contentLibRaw = body as NeverSkipContentLibraryResponse;
       nsLog('Content library response captured');
+    }
+    if (kind === 'calendar' && !calendarRaw) {
+      calendarRaw = body as NeverSkipCalendarResponse;
+      nsLog('Calendar response captured');
     }
   };
 
@@ -508,6 +521,15 @@ export async function collectNeverSkipData(
     await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 15_000) }).catch(() => undefined);
     await waitForCapture(() => contentLibRaw, Math.min(timeoutMs, 20_000));
 
+    // Calendar (structured schedule events — may be empty D:[])
+    const calendarPageUrl = process.env.NEVERSKIP_CALENDAR_URL || CALENDAR_PAGE;
+    nsLog('Opening calendar page');
+    await page
+      .goto(calendarPageUrl, { waitUntil: 'domcontentloaded', timeout: timeoutMs })
+      .catch(() => undefined);
+    await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 15_000) }).catch(() => undefined);
+    await waitForCapture(() => calendarRaw, Math.min(timeoutMs, 15_000));
+
     // Session cookie fallback (authorized browser context — not NEVERSKIP_TOKEN env)
     if (!noticesRaw && context) {
       nsLog('Notices not intercepted; retrying via authenticated browser session request');
@@ -561,6 +583,24 @@ export async function collectNeverSkipData(
         }
         contentLibRaw = result.body as NeverSkipContentLibraryResponse;
         nsLog('Content library response captured');
+      }
+    }
+
+    if (!calendarRaw && context) {
+      nsLog('Calendar not intercepted; retrying via authenticated browser session request');
+      const result = await fetchViaSession(
+        context,
+        apiBaseUrl,
+        CALENDAR_API_PATH,
+        {},
+        sessionTokenHeader ? { Token: sessionTokenHeader } : undefined,
+      );
+      if (result?.body) {
+        if (requireAuth && isNeverSkipFailureEnvelope(result.body)) {
+          throwSessionExpired();
+        }
+        calendarRaw = result.body as NeverSkipCalendarResponse;
+        nsLog('Calendar response captured');
       }
     }
 
@@ -767,6 +807,26 @@ export async function collectNeverSkipData(
       nsError('JOL SYNC = FAILED — no content library API response');
     }
 
+    let scheduleEvents: CollectedNeverSkipData['scheduleEvents'] = [];
+    let scheduleRawCount = 0;
+    let scheduleFetchIncomplete = false;
+    let scheduleFetchErrors: string[] = [];
+    let scheduleFetchComplete = false;
+
+    if (calendarRaw) {
+      const parsed = parseCalendarResponse(calendarRaw);
+      scheduleEvents = parsed.events;
+      scheduleRawCount = parsed.rawCount;
+      scheduleFetchIncomplete = parsed.incomplete;
+      scheduleFetchErrors = parsed.errors;
+      scheduleFetchComplete = parsed.complete;
+    } else if (requireAuth) {
+      scheduleFetchIncomplete = true;
+      scheduleFetchComplete = false;
+      scheduleFetchErrors = ['CALENDAR SYNC = FAILED — no calendar API response'];
+      nsError('CALENDAR SYNC = FAILED — no calendar API response');
+    }
+
     if (requireAuth) {
       if (homeworkPagesFetched > 0) {
         nsLog(`Homework pages fetched: ${homeworkPagesFetched}`);
@@ -778,6 +838,7 @@ export async function collectNeverSkipData(
       nsLog(`Notices fetched: ${notices.length}`);
       if (jolPagesFetched > 0) nsLog(`JOL/contentlib pages fetched: ${jolPagesFetched}`);
       nsLog(`JOL/contentlib records fetched: ${jolItems.length}`);
+      nsLog(`Calendar events fetched: ${scheduleEvents.length} (complete=${scheduleFetchComplete})`);
     }
 
     // Authenticated sync with notices but zero homework usually means homework API failed.
@@ -817,6 +878,11 @@ export async function collectNeverSkipData(
       jolSourceTotal,
       jolRawFetched,
       jolUniqueFetched,
+      scheduleEvents,
+      scheduleRawCount,
+      scheduleFetchIncomplete,
+      scheduleFetchErrors,
+      scheduleFetchComplete,
     };
   } finally {
     page.off('response', onResponse);

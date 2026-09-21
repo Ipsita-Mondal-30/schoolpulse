@@ -25,3 +25,9 @@ tail -n 80 /home/ubuntu/neverskip-sync.log
 ```
 
 Confirm Neon after sync: recent homework (e.g. 17-Sep Bitiya), recent notices, and `ImportedJolItem` rows from `fetchcontentlib`.
+
+## Timetable / calendar (2026-09-21)
+
+SchoolPulse syncs `POST /parentweb/lms/fetchcalenderapi` (Calendar page). For Class I parent session this returns `D: []` (no structured events). There is **no** NeverSkip timetable menu/API. JoL Dates + Timetable + Planner read `ImportedScheduleEvent` + schedule-tagged Content Library docs via `loadCanonicalSchedule()` — not static JSON.
+
+Incomplete homework (e.g. unique 134 < total_count 137) must exit non-zero and persist `SyncRun.status=INCOMPLETE`.

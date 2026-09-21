@@ -2,7 +2,7 @@ import { classifyAssignment } from './classify';
 import type { NeverSkipClient } from './client';
 import { fetchHomeworkAssignmentsDetailed } from './homework';
 import { fetchContentLibraryDetailed, normalizeContentLibraryItem } from './jol';
-import { nsError, nsLog } from './log';
+import { nsError, nsLog, nsWarn } from './log';
 import { normalizeHomework, normalizeNotice } from './normalizers';
 import { fetchDailyNoticesDetailed } from './notices';
 import type { NeverSkipStore } from './store';
@@ -23,6 +23,7 @@ export interface SyncDataOptions {
   homework: NeverSkipRawAssignment[];
   notices: NeverSkipRawNotice[];
   jolItems?: NeverSkipRawContentItem[];
+  scheduleEvents?: import('./types').NormalizedScheduleEvent[];
   store: NeverSkipStore;
   /** Log prefix label, e.g. "browser sync" */
   label?: string;
@@ -44,6 +45,10 @@ export interface SyncDataOptions {
   jolSourceTotal?: number | null;
   jolRawFetched?: number;
   jolUniqueFetched?: number;
+  scheduleRawCount?: number;
+  scheduleFetchIncomplete?: boolean;
+  scheduleFetchErrors?: string[];
+  scheduleFetchComplete?: boolean;
 }
 
 function newestIsoDate(dates: Array<string | null | undefined>): string {
@@ -76,6 +81,7 @@ export async function syncNeverSkipData({
   homework,
   notices,
   jolItems = [],
+  scheduleEvents = [],
   store,
   label = 'sync',
   homeworkPagesFetched,
@@ -96,9 +102,19 @@ export async function syncNeverSkipData({
   jolSourceTotal,
   jolRawFetched,
   jolUniqueFetched,
+  scheduleRawCount,
+  scheduleFetchIncomplete,
+  scheduleFetchErrors = [],
+  scheduleFetchComplete,
 }: SyncDataOptions): Promise<SyncSummary> {
+  const startedAt = new Date();
   const summary = emptySummary();
-  summary.errors.push(...homeworkFetchErrors, ...noticeFetchErrors, ...jolFetchErrors);
+  summary.errors.push(
+    ...homeworkFetchErrors,
+    ...noticeFetchErrors,
+    ...jolFetchErrors,
+    ...scheduleFetchErrors,
+  );
   if (homeworkPagesFetched != null) summary.homeworkPagesFetched = homeworkPagesFetched;
   if (homeworkFetchIncomplete) summary.homeworkFetchIncomplete = true;
   if (homeworkSourceTotal !== undefined) summary.homeworkSourceTotal = homeworkSourceTotal;
@@ -212,12 +228,45 @@ export async function syncNeverSkipData({
   nsLog(`Updated JOL items: ${summary.jolUpdated ?? 0}`);
   nsLog(`Duplicate JOL skipped: ${summary.jolSkipped ?? 0}`);
 
+  // Calendar / schedule: replace only when fetch completed (including empty D:[]).
+  // If this sync invocation did not attempt calendar, leave existing rows untouched.
+  const calendarAttempted =
+    scheduleFetchComplete === true ||
+    scheduleFetchIncomplete === true ||
+    scheduleFetchErrors.length > 0 ||
+    scheduleRawCount != null;
+
+  summary.scheduleFetchIncomplete = Boolean(scheduleFetchIncomplete);
+  summary.scheduleFetchComplete = Boolean(scheduleFetchComplete);
+  summary.scheduleFetched = scheduleEvents.length;
+  if (scheduleRawCount != null) {
+    nsLog(`Calendar raw count: ${scheduleRawCount}`);
+  }
+  nsLog(
+    `Calendar events fetched: ${scheduleEvents.length} complete=${Boolean(scheduleFetchComplete)} attempted=${calendarAttempted}`,
+  );
+
+  if (calendarAttempted && scheduleFetchComplete && !scheduleFetchIncomplete) {
+    const replaced = await store.replaceScheduleEvents(scheduleEvents);
+    summary.scheduleInserted = replaced.inserted;
+    summary.scheduleUpdated = replaced.updated;
+    nsLog(
+      `Calendar replace: inserted=${replaced.inserted} updated=${replaced.updated} removed=${replaced.removed}`,
+    );
+  } else if (calendarAttempted) {
+    summary.schedulePreservedOnFailure = true;
+    nsError('CALENDAR SYNC incomplete/failed — preserving last-good schedule events (no overwrite)');
+    if (scheduleFetchIncomplete) summary.errors.push('calendar fetch incomplete');
+  }
+
   const storedHomework = await store.listHomework();
   const storedNotices = await store.listNotices();
   const storedJol = await store.listJolItems();
+  const storedSchedule = await store.listScheduleEvents();
   summary.homeworkStored = storedHomework.length;
   summary.noticesStored = storedNotices.length;
   summary.jolStored = storedJol.length;
+  summary.scheduleStored = storedSchedule.length;
 
   const homeworkNormalizedIds: string[] = [];
   const homeworkNormalizedDates: string[] = [];
@@ -291,7 +340,16 @@ export async function syncNeverSkipData({
   nsLog(`Newest JOL date (source): ${sourceNewestJol || '(none)'}`);
   nsLog(`Newest JOL date (stored): ${storedNewestJol || '(none)'}`);
 
-  const incomplete = Boolean(homeworkFetchIncomplete || noticeFetchIncomplete || jolFetchIncomplete);
+  summary.newestScheduleDate = newestIsoDate(storedSchedule.map((e) => e.eventDate));
+  nsLog(`Calendar stored count: ${summary.scheduleStored}`);
+  nsLog(`Newest schedule date (stored): ${summary.newestScheduleDate || '(none)'}`);
+
+  const incomplete = Boolean(
+    homeworkFetchIncomplete ||
+      noticeFetchIncomplete ||
+      jolFetchIncomplete ||
+      scheduleFetchIncomplete,
+  );
   const countsMismatch =
     (summary.homeworkMissing ?? 0) > 0 || (summary.noticesMissing ?? 0) > 0;
   const normalizationLoss =
@@ -310,11 +368,13 @@ export async function syncNeverSkipData({
     (homeworkFetchErrors.length > 0 ||
       noticeFetchErrors.length > 0 ||
       jolFetchErrors.length > 0 ||
+      scheduleFetchErrors.length > 0 ||
       summary.errors.length > 0);
 
   if (incomplete || countsMismatch || normalizationLoss || dataLoss || bothEmptyWithErrors) {
     nsError('SYNC FAILED — INCOMPLETE SOURCE DATA');
     nsError('SYNC STATUS: INCOMPLETE');
+    summary.syncStatus = 'INCOMPLETE';
     if (bothEmptyWithErrors) {
       nsError('SYNC FAILED — empty homework and notices after fetch errors');
       summary.errors.push('empty homework and notices after fetch errors');
@@ -330,6 +390,10 @@ export async function syncNeverSkipData({
     if (jolFetchIncomplete) {
       nsError('JOL/content library pagination incomplete — sync preserved partial results');
       summary.errors.push('jol pagination incomplete');
+    }
+    if (scheduleFetchIncomplete) {
+      nsError('Calendar fetch incomplete — last-good schedule preserved');
+      summary.errors.push('calendar fetch incomplete');
     }
     if (countsMismatch) {
       const msg = `stored counts do not match normalized (homework missing=${summary.homeworkMissing}, notices missing=${summary.noticesMissing})`;
@@ -352,6 +416,7 @@ export async function syncNeverSkipData({
   } else {
     nsLog('SYNC COMPLETE');
     nsLog('SYNC STATUS: COMPLETE');
+    summary.syncStatus = 'COMPLETE';
   }
 
   nsLog('FULL SYNC REPORT');
@@ -365,11 +430,40 @@ export async function syncNeverSkipData({
     `JOL source pages=${summary.jolPagesFetched ?? '(none)'} fetched(raw)=${summary.jolRawFetched ?? summary.jolFetched ?? 0} unique=${summary.jolUniqueFetched ?? summary.jolFetched ?? 0} inserted=${summary.jolInserted ?? 0} updated=${summary.jolUpdated ?? 0} duplicates=${summary.jolSkipped ?? 0}`,
   );
   nsLog(
-    `DATABASE homework total=${summary.homeworkStored ?? '?'} notice total=${summary.noticesStored ?? '?'} jol total=${summary.jolStored ?? '?'}`,
+    `CALENDAR fetched=${summary.scheduleFetched ?? 0} complete=${summary.scheduleFetchComplete ? 'yes' : 'no'} preservedOnFailure=${summary.schedulePreservedOnFailure ? 'yes' : 'no'} stored=${summary.scheduleStored ?? 0}`,
+  );
+  nsLog(
+    `DATABASE homework total=${summary.homeworkStored ?? '?'} notice total=${summary.noticesStored ?? '?'} jol total=${summary.jolStored ?? '?'} schedule total=${summary.scheduleStored ?? '?'}`,
   );
   nsLog(`LATEST HOMEWORK date=${summary.newestHomeworkDate || '(none)'}`);
   nsLog(`LATEST NOTICE date=${summary.newestNoticeDate || '(none)'}`);
   nsLog(`LATEST JOL date=${summary.newestJolDate || '(none)'}`);
+  nsLog(`LATEST SCHEDULE date=${summary.newestScheduleDate || '(none)'}`);
+
+  const finishedAt = new Date();
+  try {
+    await store.recordSyncRun({
+      status: summary.syncStatus || 'INCOMPLETE',
+      startedAt,
+      finishedAt,
+      homeworkExpected: homeworkSourceTotal ?? null,
+      homeworkFetched: summary.homeworkUniqueFetched ?? summary.homeworkFetched,
+      noticeFetched: summary.noticeUniqueFetched ?? summary.noticesFetched,
+      jolFetched: summary.jolUniqueFetched ?? summary.jolFetched,
+      scheduleFetched: summary.scheduleFetched,
+      errorSummary: summary.errors.slice(0, 20).join('; '),
+      reportJson: JSON.stringify({
+        homeworkSourceTotal,
+        homeworkFetched: summary.homeworkFetched,
+        noticeFetched: summary.noticesFetched,
+        jolFetched: summary.jolFetched,
+        scheduleFetched: summary.scheduleFetched,
+        incomplete: summary.syncStatus !== 'COMPLETE',
+      }),
+    });
+  } catch (err) {
+    nsWarn(`Failed to persist SyncRun: ${err instanceof Error ? err.message : String(err)}`);
+  }
 
   return summary;
 }
@@ -454,6 +548,7 @@ export function collectedToSyncInput(
   | 'homework'
   | 'notices'
   | 'jolItems'
+  | 'scheduleEvents'
   | 'homeworkPagesFetched'
   | 'homeworkFetchIncomplete'
   | 'homeworkFetchErrors'
@@ -472,11 +567,16 @@ export function collectedToSyncInput(
   | 'jolSourceTotal'
   | 'jolRawFetched'
   | 'jolUniqueFetched'
+  | 'scheduleRawCount'
+  | 'scheduleFetchIncomplete'
+  | 'scheduleFetchErrors'
+  | 'scheduleFetchComplete'
 > {
   return {
     homework: data.homework,
     notices: data.notices,
     jolItems: data.jolItems ?? [],
+    scheduleEvents: data.scheduleEvents ?? [],
     homeworkPagesFetched: data.homeworkPagesFetched,
     homeworkFetchIncomplete: data.homeworkFetchIncomplete,
     homeworkFetchErrors: data.homeworkFetchErrors,
@@ -495,5 +595,9 @@ export function collectedToSyncInput(
     jolSourceTotal: data.jolSourceTotal,
     jolRawFetched: data.jolRawFetched,
     jolUniqueFetched: data.jolUniqueFetched,
+    scheduleRawCount: data.scheduleRawCount,
+    scheduleFetchIncomplete: data.scheduleFetchIncomplete,
+    scheduleFetchErrors: data.scheduleFetchErrors,
+    scheduleFetchComplete: data.scheduleFetchComplete,
   };
 }

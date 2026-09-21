@@ -1,0 +1,61 @@
+{
+  "capturedAt": "2026-09-21T13:02:29.562Z",
+  "navHrefs": [],
+  "visitResults": [
+    {
+      "url": "https://parent.neverskip.com/default/planner",
+      "path": "/",
+      "session": "login",
+      "hints": []
+    }
+  ],
+  "captures": [
+    {
+      "method": "POST",
+      "path": "/parentweb/lms/fetchcontentlib",
+      "status": 200,
+      "titles": [
+        "Revision 4 and AK",
+        "Revision -3 and AK",
+        "Revision -3 Chapter-3 Addition and Subtraction (upto 20)",
+        "hindi  class 1 revision paper -5 along with Answer key",
+        "Joy of learning, WS -II, English practice paper and answer key.\n",
+        "Midterm JOL 2 Revision 2",
+        "Joy of learning, WS -II, Kannada practice paper and answer key.\n",
+        "Hindi revision paper - 4  mid-term along with answer key.",
+        "Revision-2 chapter-2 playing with numbers (upto 20)",
+        "Joy of learning, WS -II, EVS practice paper and answer key.\n"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/parentweb/auth/getppschmenupermission",
+      "status": 200,
+      "titles": []
+    }
+  ],
+  "menuPayloadsSafe": [
+    {
+      "deactive_menu_list": [
+        "dashboard",
+        "profile",
+        "academic",
+        "attendance",
+        "feedetails",
+        "assignments",
+        "lounge",
+        "class-diary",
+        "dailynotice",
+        "content-library",
+        "calendar",
+        "support"
+      ],
+      "deactive_menu_lable_list": [
+        "Student",
+        "Services",
+        "Virtual Classroom",
+        "Support"
+      ]
+    }
+  ]
+}

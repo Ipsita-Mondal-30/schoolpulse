@@ -11,9 +11,16 @@ import {
   homeworkContentKey,
   jolContentKey,
   noticeContentKey,
+  scheduleEventContentKey,
   type NeverSkipStore,
 } from './store';
-import type { NormalizedHomework, NormalizedJolItem, NormalizedNotice, UpsertResult } from './types';
+import type {
+  NormalizedHomework,
+  NormalizedJolItem,
+  NormalizedNotice,
+  NormalizedScheduleEvent,
+  UpsertResult,
+} from './types';
 
 export interface InMemoryChangeEvent {
   id: string;
@@ -31,6 +38,8 @@ export class InMemoryNeverSkipStore implements NeverSkipStore {
   private homework = new Map<string, NormalizedHomework & { _id: string }>();
   private notices = new Map<string, NormalizedNotice & { _id: string }>();
   private jolItems = new Map<string, NormalizedJolItem & { _id: string }>();
+  private scheduleEvents = new Map<string, NormalizedScheduleEvent & { _id: string }>();
+  private syncRuns: Array<Record<string, unknown>> = [];
   private changes: InMemoryChangeEvent[] = [];
   private seq = 0;
 
@@ -177,5 +186,61 @@ export class InMemoryNeverSkipStore implements NeverSkipStore {
       const { _id: _, ...rest } = j;
       return { ...rest, sections: [...rest.sections] };
     });
+  }
+
+  async replaceScheduleEvents(
+    events: NormalizedScheduleEvent[],
+  ): Promise<{ inserted: number; updated: number; removed: number }> {
+    const incoming = new Set(events.map((e) => this.hwKey(e.source, e.sourceId)));
+    let inserted = 0;
+    let updated = 0;
+    let removed = 0;
+    for (const [key, prev] of this.scheduleEvents) {
+      if (!incoming.has(key)) {
+        this.scheduleEvents.delete(key);
+        removed += 1;
+      } else {
+        void prev;
+      }
+    }
+    for (const item of events) {
+      const key = this.hwKey(item.source, item.sourceId);
+      const existing = this.scheduleEvents.get(key);
+      if (!existing) {
+        this.scheduleEvents.set(key, { ...item, _id: this.nextId('sched') });
+        inserted += 1;
+        continue;
+      }
+      if (scheduleEventContentKey(existing) === scheduleEventContentKey(item)) continue;
+      this.scheduleEvents.set(key, { ...item, _id: existing._id });
+      updated += 1;
+    }
+    return { inserted, updated, removed };
+  }
+
+  async listScheduleEvents(): Promise<NormalizedScheduleEvent[]> {
+    return Array.from(this.scheduleEvents.values()).map((e) => {
+      const { _id: _, ...rest } = e;
+      return { ...rest };
+    });
+  }
+
+  async recordSyncRun(run: {
+    status: string;
+    startedAt: Date;
+    finishedAt: Date;
+    homeworkExpected?: number | null;
+    homeworkFetched?: number;
+    noticeFetched?: number;
+    jolFetched?: number;
+    scheduleFetched?: number;
+    errorSummary?: string;
+    reportJson?: string;
+  }): Promise<void> {
+    this.syncRuns.push({ ...run });
+  }
+
+  getSyncRuns() {
+    return [...this.syncRuns];
   }
 }
