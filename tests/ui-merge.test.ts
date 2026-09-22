@@ -151,6 +151,15 @@ describe('sorting', () => {
     ]);
     expect(sorted.map((n) => n.id)).toEqual(['sep', 'blank']);
   });
+
+  it('sorts same-day notices by time newest first even when hours are unpadded', () => {
+    const sorted = sortNoticesNewestFirst([
+      nt({ id: 'morning', date: '2026-09-21', time: '9:05' }),
+      nt({ id: 'afternoon', date: '2026-09-21', time: '16:44' }),
+      nt({ id: 'mid', date: '2026-09-21', time: '15:33' }),
+    ]);
+    expect(sorted.map((n) => n.id)).toEqual(['afternoon', 'mid', 'morning']);
+  });
 });
 
 describe('class / section filters', () => {

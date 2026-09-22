@@ -147,15 +147,30 @@ export function mergeNoticeItems(imported: UiNoticeItem[], local: UiNoticeItem[]
   return Array.from(byId.values());
 }
 
-/** Newest first; blank dates sink to the bottom. */
+/** Normalize "9:05" / "9:5" / "09:05:00" → "09:05" for stable newest-first sorting. */
+function normalizeNoticeTime(raw?: string | null): string {
+  const s = String(raw ?? '').trim();
+  if (!s) return '00:00';
+  const m = s.match(/^(\d{1,2}):(\d{1,2})/);
+  if (!m) return '00:00';
+  const hh = String(Math.min(23, Math.max(0, Number(m[1])))).padStart(2, '0');
+  const mm = String(Math.min(59, Math.max(0, Number(m[2])))).padStart(2, '0');
+  return `${hh}:${mm}`;
+}
+
+/** Newest first by date then time; blank dates sink to the bottom. */
 export function sortNoticesNewestFirst(items: UiNoticeItem[]): UiNoticeItem[] {
   return [...items].sort((a, b) => {
     const da = toSortableDate(a.date);
     const db = toSortableDate(b.date);
-    if (!da && !db) return b.time.localeCompare(a.time);
+    if (!da && !db) {
+      return normalizeNoticeTime(b.time).localeCompare(normalizeNoticeTime(a.time));
+    }
     if (!da) return 1;
     if (!db) return -1;
-    if (da === db) return b.time.localeCompare(a.time);
+    if (da === db) {
+      return normalizeNoticeTime(b.time).localeCompare(normalizeNoticeTime(a.time));
+    }
     return db.localeCompare(da);
   });
 }

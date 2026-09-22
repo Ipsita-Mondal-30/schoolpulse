@@ -522,8 +522,13 @@ export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
 
         // Query Prisma directly so UI can use createdAt when publishedDate is blank.
         // Does not change NeverSkip normalization / ingestion.
+        // Prefer publication date/time so the newest school notice loads first.
         const rows = await getPrisma().importedNotice.findMany({
-            orderBy: [{ createdAt: 'desc' }],
+            orderBy: [
+                { publishedDate: 'desc' },
+                { publishedTime: 'desc' },
+                { createdAt: 'desc' },
+            ],
         });
 
         return rows.map((n) => {
