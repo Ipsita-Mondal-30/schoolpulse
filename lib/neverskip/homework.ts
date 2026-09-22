@@ -5,22 +5,105 @@ import type { NeverSkipHomeworkResponse, NeverSkipRawAssignment } from './types'
 
 export const HOMEWORK_PATH = '/parentweb/lms/getassignmentsapi';
 
-/** Default first-page payload observed from NeverSkip parent portal. */
+/** Default first-page payload — Class Diary SPA (`pg_key: CD`) observed in portal JS. */
 export const HOMEWORK_PAYLOAD = {
   values: '',
   page: '0',
+  sub_id: '',
+  assignment_date: 0,
   pg_key: 'CD',
   works: '',
-  limit: 0,
+  /** Portal posts `limt` (typo), not `limit`. */
+  limt: 0,
 } as const;
 
 export type HomeworkPayload = {
   values: string;
   page: string;
   pg_key: string;
-  works: string;
-  limit: number;
+  works?: string;
+  /** Legacy field — portal uses `limt` instead. */
+  limit?: number;
+  /** Portal typo field used by getassignmentsapi. */
+  limt?: number;
+  sub_id?: string | number;
+  assignment_date?: string | number;
+  /** Extra portal fields captured from the live SPA (never invent these). */
+  [key: string]: string | number | boolean | null | undefined;
 };
+
+/**
+ * Parse a portal-intercepted getassignmentsapi POST body into a reusable template.
+ * Returns null if body is missing/invalid — callers fall back to HOMEWORK_PAYLOAD.
+ */
+export function parseHomeworkPortalBody(raw: unknown): HomeworkPayload | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const obj = raw as Record<string, unknown>;
+  const page = obj.page != null ? String(obj.page) : '0';
+  const pg_key = obj.pg_key != null ? String(obj.pg_key) : HOMEWORK_PAYLOAD.pg_key;
+  const values = obj.values != null ? String(obj.values) : '';
+  const works = obj.works != null ? String(obj.works) : '';
+
+  const out: HomeworkPayload = { values, page, pg_key, works };
+
+  // Prefer portal `limt`; keep legacy `limit` only if present in the intercepted body.
+  if ('limt' in obj) {
+    const limtRaw = obj.limt;
+    if (typeof limtRaw === 'number' && Number.isFinite(limtRaw)) out.limt = Math.trunc(limtRaw);
+    else if (typeof limtRaw === 'string' && limtRaw.trim() !== '') {
+      const n = Number(limtRaw);
+      if (Number.isFinite(n)) out.limt = Math.trunc(n);
+    } else if (limtRaw == null) {
+      out.limt = 0;
+    }
+  } else if ('limit' in obj) {
+    const limitRaw = obj.limit;
+    if (typeof limitRaw === 'number' && Number.isFinite(limitRaw)) out.limit = Math.trunc(limitRaw);
+    else if (typeof limitRaw === 'string' && limitRaw.trim() !== '') {
+      const n = Number(limitRaw);
+      if (Number.isFinite(n)) out.limit = Math.trunc(n);
+    }
+  }
+
+  for (const [k, v] of Object.entries(obj)) {
+    if (k in out) continue;
+    if (v == null || typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
+      out[k] = v as string | number | boolean | null;
+    }
+  }
+  return out;
+}
+
+/**
+ * Clone an intercepted portal body and only change `page` (and AG `limt` when the SPA
+ * advances limt = page * 10). Does not invent new filter fields.
+ */
+export function buildHomeworkPayloadFromTemplate(
+  template: HomeworkPayload | null | undefined,
+  page: number | string,
+  limitOverride?: number,
+): HomeworkPayload {
+  if (!template) {
+    return buildHomeworkPayload(page, limitOverride ?? 0);
+  }
+  const pageNum = typeof page === 'number' ? page : Number(page) || 0;
+  const next: HomeworkPayload = { ...template, page: String(page) };
+
+  // Assignments SPA (pg_key AG): posted limt = current_page * 10 (see portal setPage → limt-10).
+  if (String(template.pg_key) === 'AG') {
+    next.limt = pageNum * 10;
+  }
+
+  // Legacy: only upgrade `limit` when the template still uses limit (not limt) and left it 0.
+  if (limitOverride != null && Number.isFinite(limitOverride) && !('limt' in template)) {
+    const tmplLimit =
+      typeof template.limit === 'number' ? template.limit : Number(template.limit) || 0;
+    if (tmplLimit === 0 && limitOverride > 0) {
+      next.limit = limitOverride;
+    }
+  }
+  return next;
+}
 
 export interface HomeworkPaginationMeta {
   pageCount: number | null;
@@ -218,14 +301,16 @@ export function logHomeworkMarkerSearch(items: NeverSkipRawAssignment[]): void {
   }
 }
 
-/** Build the portal-shaped POST body for a zero-based page index. */
-export function buildHomeworkPayload(page: number | string, limit = 0): HomeworkPayload {
+/** Build the portal-shaped POST body for a zero-based page index (Class Diary defaults). */
+export function buildHomeworkPayload(page: number | string, _limit = 0): HomeworkPayload {
   return {
     values: '',
     page: String(page),
+    sub_id: '',
+    assignment_date: 0,
     pg_key: 'CD',
     works: '',
-    limit,
+    limt: 0,
   };
 }
 
@@ -316,9 +401,15 @@ const MAX_EMPTY_UNIQUE_CHASE = 5;
  */
 export async function fetchAllHomeworkPages(
   fetchPage: (page: number, payload: HomeworkPayload) => Promise<NeverSkipHomeworkResponse | null>,
-  options: { limit?: number } = {},
+  options: { limit?: number; portalTemplate?: HomeworkPayload | null } = {},
 ): Promise<HomeworkFetchResult> {
   let limit = options.limit ?? 0;
+  const portalTemplate = options.portalTemplate ?? null;
+  if (portalTemplate) {
+    nsLog(
+      `Homework using portal request template keys=${Object.keys(portalTemplate).join(',')} pg_key=${portalTemplate.pg_key} values=${JSON.stringify(portalTemplate.values)} works=${JSON.stringify(portalTemplate.works)} limt=${portalTemplate.limt ?? portalTemplate.limit ?? ''} sub_id=${JSON.stringify(portalTemplate.sub_id)} assignment_date=${JSON.stringify(portalTemplate.assignment_date)}`,
+    );
+  }
   const pages: NeverSkipRawAssignment[][] = [];
   const errors: string[] = [];
   let incomplete = false;
@@ -328,7 +419,7 @@ export async function fetchAllHomeworkPages(
   let emptyUniqueStreak = 0;
 
   while (pageIndex < MAX_HOMEWORK_PAGES) {
-    const payload = buildHomeworkPayload(pageIndex, limit);
+    const payload = buildHomeworkPayloadFromTemplate(portalTemplate, pageIndex, limit);
     let response: NeverSkipHomeworkResponse | null;
     try {
       response = await fetchPage(pageIndex, payload);

@@ -6,6 +6,7 @@ import {
   HOMEWORK_PATH,
   HOMEWORK_PAYLOAD,
   fetchAllHomeworkPages,
+  parseHomeworkPortalBody,
   type HomeworkPayload,
 } from './homework';
 import { nsDebugApiEnvelope, nsError, nsLog, nsWarn } from './log';
@@ -383,6 +384,8 @@ export async function collectNeverSkipData(
   let contentLibRaw: NeverSkipContentLibraryResponse | null = null;
   let calendarRaw: NeverSkipCalendarResponse | null = null;
   let homeworkMeta: { url: string; status: number } | null = null;
+  /** Exact portal POST body for getassignmentsapi (page-0), replayed for later pages. */
+  let homeworkPortalTemplate: HomeworkPayload | null = null;
   /** In-memory Token from intercepted portal XHR — never logged. */
   let sessionTokenHeader: string | null = null;
 
@@ -409,6 +412,24 @@ export async function collectNeverSkipData(
     const token = headers['token'] || headers['Token'];
     if (token && !sessionTokenHeader) {
       sessionTokenHeader = token;
+    }
+    // Capture the live SPA homework POST body once so pages ≥1 replay portal fields.
+    if (kind === 'homework' && !homeworkPortalTemplate && request.method() === 'POST') {
+      const raw = request.postData();
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw) as unknown;
+          const template = parseHomeworkPortalBody(parsed);
+          if (template) {
+            homeworkPortalTemplate = template;
+            nsLog(
+              `Homework portal request template captured keys=${Object.keys(template).join(',')} page=${template.page} limt=${template.limt ?? template.limit ?? ''} pg_key=${template.pg_key} values=${JSON.stringify(template.values)} works=${JSON.stringify(template.works)} sub_id=${JSON.stringify(template.sub_id)} assignment_date=${JSON.stringify(template.assignment_date)}`,
+            );
+          }
+        } catch {
+          /* ignore non-JSON */
+        }
+      }
     }
   });
 
@@ -551,11 +572,12 @@ export async function collectNeverSkipData(
 
     if (!homeworkRaw && context) {
       nsLog('Homework not intercepted; retrying via authenticated browser session request');
+      const fallbackBody = { ...HOMEWORK_PAYLOAD } as HomeworkPayload;
       const result = await fetchViaSession(
         context,
         apiBaseUrl,
         HOMEWORK_PATH,
-        { ...HOMEWORK_PAYLOAD },
+        fallbackBody,
         sessionTokenHeader ? { Token: sessionTokenHeader } : undefined,
       );
       if (result?.body) {
@@ -564,6 +586,12 @@ export async function collectNeverSkipData(
         }
         homeworkRaw = result.body as NeverSkipHomeworkResponse;
         homeworkMeta = { url: result.url, status: result.status };
+        if (!homeworkPortalTemplate) {
+          homeworkPortalTemplate = parseHomeworkPortalBody(fallbackBody);
+          nsLog(
+            `Homework portal request template seeded from session fallback keys=${Object.keys(fallbackBody).join(',')} limt=${fallbackBody.limt} pg_key=${fallbackBody.pg_key}`,
+          );
+        }
         nsLog('Homework response captured');
       }
     }
@@ -720,20 +748,23 @@ export async function collectNeverSkipData(
       const firstPage = homeworkRaw;
       const tokenHeaders = sessionTokenHeader ? { Token: sessionTokenHeader } : undefined;
 
-      const paged = await fetchAllHomeworkPages(async (pageIndex, payload: HomeworkPayload) => {
-        if (pageIndex === 0) return firstPage;
-        const result = await fetchViaSession(
-          context!,
-          apiBaseUrl,
-          HOMEWORK_PATH,
-          payload,
-          tokenHeaders,
-        );
-        if (!result?.body) {
-          throw new Error(`session page ${pageIndex} failed (HTTP ${result?.status ?? 'n/a'})`);
-        }
-        return result.body as NeverSkipHomeworkResponse;
-      });
+      const paged = await fetchAllHomeworkPages(
+        async (pageIndex, payload: HomeworkPayload) => {
+          if (pageIndex === 0) return firstPage;
+          const result = await fetchViaSession(
+            context!,
+            apiBaseUrl,
+            HOMEWORK_PATH,
+            payload,
+            tokenHeaders,
+          );
+          if (!result?.body) {
+            throw new Error(`session page ${pageIndex} failed (HTTP ${result?.status ?? 'n/a'})`);
+          }
+          return result.body as NeverSkipHomeworkResponse;
+        },
+        { portalTemplate: homeworkPortalTemplate },
+      );
 
       homework = paged.items;
       homeworkPagesFetched = paged.pagesFetched;
@@ -745,10 +776,13 @@ export async function collectNeverSkipData(
     } else if (homeworkRaw) {
       // No browser context (tests) — still run pagination helper so page-0 metadata is logged;
       // additional pages cannot be fetched without a session.
-      const paged = await fetchAllHomeworkPages(async (pageIndex) => {
-        if (pageIndex === 0) return homeworkRaw;
-        return null;
-      });
+      const paged = await fetchAllHomeworkPages(
+        async (pageIndex) => {
+          if (pageIndex === 0) return homeworkRaw;
+          return null;
+        },
+        { portalTemplate: homeworkPortalTemplate },
+      );
       homework = paged.items;
       homeworkPagesFetched = paged.pagesFetched;
       homeworkFetchIncomplete = paged.incomplete;
