@@ -3,12 +3,24 @@
  * Incomplete/missing source document → do not deactivate current active schedule.
  */
 
+import fs from 'fs';
+import path from 'path';
 import { getPrisma } from '@/lib/prisma';
 import {
   assertJolWs2ValidationMatrix,
   extractJolWs2TimetableFromNewsletter,
+  hashFile,
+  isKnownSep2026NewsletterHash,
   type JolTimetableExtraction,
 } from './jol-timetable-extract';
+import {
+  isJolTimetableSourceCandidate,
+  resolveExistingJolTimetablePdf,
+  saveJolTimetablePdfBytes,
+  workerDocumentsDir,
+  JOL_TT_FILENAME,
+  JOL_TT_PUBLIC_REL,
+} from './jol-timetable-resolve';
 import { nsError, nsLog, nsWarn } from './log';
 
 export type JolTimetableSyncResult = {
@@ -45,7 +57,6 @@ export async function applyJolTimetableExtraction(
     };
   }
 
-  // Deactivate other active schedules before activating this one.
   await prisma.importedJolSchedule.updateMany({
     where: { isActive: true, NOT: { sourceId: extraction.sourceId } },
     data: { isActive: false },
@@ -98,7 +109,6 @@ export async function applyJolTimetableExtraction(
     },
   });
 
-  // Replace day rows for this schedule (stable by sourceDayId).
   for (const d of extraction.days) {
     await prisma.importedJolScheduleDay.upsert({
       where: {
@@ -121,7 +131,6 @@ export async function applyJolTimetableExtraction(
     });
   }
 
-  // Drop stale days no longer in extraction
   const keep = new Set(extraction.days.map((d) => d.activityDate));
   const currentDays = await prisma.importedJolScheduleDay.findMany({
     where: { scheduleId: schedule.id },
@@ -143,12 +152,91 @@ export async function applyJolTimetableExtraction(
   };
 }
 
-/** Sync JoL WS-II timetable from the school newsletter document when present. */
-export async function syncJolWorksheetTimetableFromSchoolDocument(): Promise<JolTimetableSyncResult> {
-  const extraction = extractJolWs2TimetableFromNewsletter();
-  if (!extraction) {
+/** Copy public newsletter into worker documents cache when present (Oracle bootstrap). */
+export function bootstrapJolTimetablePdfFromPublic(cwd = process.cwd()): string | null {
+  const publicPdf = path.resolve(cwd, JOL_TT_PUBLIC_REL);
+  if (!fs.existsSync(publicPdf)) return null;
+  const hash = hashFile(publicPdf);
+  if (!isKnownSep2026NewsletterHash(hash)) {
+    nsWarn('Public newsletter PDF hash unknown — not bootstrapping into worker documents');
+    return null;
+  }
+  const bytes = fs.readFileSync(publicPdf);
+  return saveJolTimetablePdfBytes(bytes, cwd);
+}
+
+export type JolDownloadCandidate = {
+  sourceId?: string | null;
+  title?: string | null;
+  subjectName?: string | null;
+  resourceType?: string | null;
+  downloadUrl?: string | null;
+};
+
+/**
+ * Sync JoL WS-II timetable from school document.
+ * Optionally accepts download candidates from Content Library + a fetchBytes helper.
+ */
+export async function syncJolWorksheetTimetableFromSchoolDocument(options?: {
+  cwd?: string;
+  downloadCandidates?: JolDownloadCandidate[];
+  fetchBytes?: (url: string) => Promise<Buffer | null>;
+}): Promise<JolTimetableSyncResult> {
+  const cwd = options?.cwd ?? process.cwd();
+
+  // Ensure worker cache has a copy when the public PDF is available locally.
+  if (!resolveExistingJolTimetablePdf(cwd)) {
+    bootstrapJolTimetablePdfFromPublic(cwd);
+  }
+
+  // Try authenticated download of matching Content Library PDFs.
+  if (options?.fetchBytes && options.downloadCandidates?.length) {
+    for (const cand of options.downloadCandidates) {
+      if (!isJolTimetableSourceCandidate(cand)) continue;
+      const url = cand.downloadUrl?.trim();
+      if (!url) continue;
+      try {
+        const bytes = await options.fetchBytes(url);
+        if (!bytes || bytes.length < 1000) continue;
+        const dest = saveJolTimetablePdfBytes(bytes, cwd);
+        const hash = hashFile(dest);
+        if (!isKnownSep2026NewsletterHash(hash)) {
+          nsWarn(
+            `Downloaded JOL/newsletter candidate hash ${hash.slice(0, 12)}… is not the known Sep 2026 newsletter — keeping file, skipping extract`,
+          );
+          continue;
+        }
+        nsLog(`JOL timetable downloaded from Content Library sourceId=${cand.sourceId || '?'}`);
+        break;
+      } catch (err) {
+        nsWarn(
+          `JOL timetable download failed for ${cand.sourceId || url}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+  }
+
+  const pdfPath = resolveExistingJolTimetablePdf(cwd);
+  if (!pdfPath) {
     nsWarn('JOL timetable source PDF missing — preserving last-good active schedule');
     return { status: 'SKIPPED_NO_SOURCE', errors: ['newsletter PDF missing'] };
   }
+
+  const extraction = extractJolWs2TimetableFromNewsletter(cwd, pdfPath);
+  if (!extraction) {
+    nsWarn(
+      `JOL timetable PDF present at ${pdfPath} but hash is not the known Sep 2026 newsletter — preserving last-good schedule`,
+    );
+    return {
+      status: 'SKIPPED_NO_SOURCE',
+      errors: ['newsletter PDF hash unknown; extract not applied'],
+    };
+  }
   return applyJolTimetableExtraction(extraction);
+}
+
+export function listWorkerDocumentFiles(cwd = process.cwd()): string[] {
+  const dir = workerDocumentsDir(cwd);
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter((f) => f === JOL_TT_FILENAME || f.endsWith('.pdf'));
 }

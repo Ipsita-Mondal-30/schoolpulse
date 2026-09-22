@@ -33,6 +33,8 @@ export interface NoticeFetchResult {
   items: NeverSkipRawNotice[];
   pagesFetched: number;
   incomplete: boolean;
+  /** True when only page 0 was ingested because further pages returned SQLSTATE/non-JSON. */
+  page0Only: boolean;
   errors: string[];
   sourceTotal: number | null;
   rawFetched: number;
@@ -143,6 +145,7 @@ export async function fetchAllNoticePages(
   const pages: NeverSkipRawNotice[][] = [];
   const errors: string[] = [];
   let incomplete = false;
+  let page0Only = false;
   let pageIndex = 0;
   let latestMeta: NoticePaginationMeta | null = null;
 
@@ -157,15 +160,16 @@ export async function fetchAllNoticePages(
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'notice page fetch failed';
       // Probe without portal totals: NeverSkip often returns SQLSTATE / non-JSON for page>0.
-      // Treat as end-of-list, not INCOMPLETE (newest notices are usually on page 0).
+      // Ingest page 0 (latest notices) and mark PAGE0_ONLY — do not claim full history complete.
       if (
         pageIndex > 0 &&
         latestMeta &&
         latestMeta.totalCount == null &&
         latestMeta.pageCount == null
       ) {
-        nsLog(
-          `Notice page ${pageIndex} probe failed without totals (${msg}) — treating first page as complete`,
+        page0Only = true;
+        nsWarn(
+          `Notice page ${pageIndex} probe failed without totals (${msg}) — PAGE0_ONLY; preserving Neon history + ingesting page 0`,
         );
         break;
       }
@@ -183,15 +187,18 @@ export async function fetchAllNoticePages(
           items: [],
           pagesFetched: 0,
           incomplete: true,
+          page0Only: false,
           errors: ['NOTICE SYNC = FAILED — page 0: empty response'],
           sourceTotal: null,
           rawFetched: 0,
           uniqueFetched: 0,
         };
       }
-      // Probe page with no declared totals: empty body means the first page was the full list.
+      // Probe page with no declared totals: empty body means the first page was the full list
+      // or further history is unavailable — mark PAGE0_ONLY rather than claiming complete.
       if (latestMeta && latestMeta.totalCount == null && latestMeta.pageCount == null) {
-        nsLog(`Notice page ${pageIndex} empty after unpaginated first page — stopping`);
+        page0Only = true;
+        nsWarn(`Notice page ${pageIndex} empty after unpaginated first page — PAGE0_ONLY`);
         break;
       }
       incomplete = true;
@@ -210,6 +217,7 @@ export async function fetchAllNoticePages(
           items: [],
           pagesFetched: 0,
           incomplete: true,
+          page0Only: false,
           errors,
           sourceTotal: null,
           rawFetched: 0,
@@ -228,6 +236,7 @@ export async function fetchAllNoticePages(
           items: [],
           pagesFetched: 0,
           incomplete: true,
+          page0Only: false,
           errors,
           sourceTotal: null,
           rawFetched: 0,
@@ -314,7 +323,7 @@ export async function fetchAllNoticePages(
     incomplete = true;
     errors.push(`fetched ${uniqueFetched} unique notices < total_count ${sourceTotal}`);
     nsWarn(
-      `SYNC FAILED — INCOMPLETE NOTICE DATA (unique=${uniqueFetched} < total_count=${sourceTotal})`,
+      `NOTICE PARTIAL — unique=${uniqueFetched} < total_count=${sourceTotal}; preserving collected notices`,
     );
   }
 
@@ -323,12 +332,14 @@ export async function fetchAllNoticePages(
   if (sourceTotal != null) nsLog(`NOTICES total source: ${sourceTotal}`);
   nsLog(`Notice pages fetched: ${pages.length}`);
   nsLog(`Notice records fetched: ${uniqueFetched}`);
-  if (!incomplete && pages.length > 0) {
+  if (page0Only) {
+    nsWarn('NOTICE STATUS: PAGE0_ONLY — additional history not available from portal');
+  } else if (!incomplete && pages.length > 0) {
     nsLog(`NOTICE FETCH = SUCCESS`);
     nsLog(`NOTICES FETCHED = ${uniqueFetched}`);
   }
   if (incomplete) {
-    nsWarn('SYNC STATUS: INCOMPLETE — notice pagination did not fetch all source records');
+    nsWarn('SYNC STATUS: PARTIAL — notice pagination did not fetch all source records');
     nsWarn('Notice pagination incomplete — preserving records collected so far');
   }
 
@@ -336,6 +347,7 @@ export async function fetchAllNoticePages(
     items,
     pagesFetched: pages.length,
     incomplete,
+    page0Only,
     errors,
     sourceTotal,
     rawFetched,

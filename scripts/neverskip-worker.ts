@@ -26,6 +26,8 @@ import {
 } from '../lib/neverskip/browser';
 import { PrismaNeverSkipStore } from '../lib/neverskip/prisma-store';
 import { collectedToSyncInput, syncNeverSkipData } from '../lib/neverskip/sync';
+import { syncJolWorksheetTimetableFromSchoolDocument } from '../lib/neverskip/jol-timetable-sync';
+import { normalizeContentLibraryItem } from '../lib/neverskip/jol';
 import { nsError, nsLog, nsWarn } from '../lib/neverskip/log';
 import {
   formatIntervalForLog,
@@ -52,14 +54,39 @@ async function runBrowserSync(): Promise<void> {
     label: 'worker sync',
   });
 
+  const downloadCandidates = (collected.jolItems ?? [])
+    .map((raw) => normalizeContentLibraryItem(raw))
+    .filter(Boolean)
+    .map((item) => ({
+      sourceId: item!.sourceId,
+      title: item!.title,
+      subjectName: item!.subjectName,
+      resourceType: item!.resourceType,
+      downloadUrl: item!.downloadUrl,
+    }));
+
+  const jolTt = await syncJolWorksheetTimetableFromSchoolDocument({
+    downloadCandidates,
+    fetchBytes: async (url) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        return Buffer.from(await res.arrayBuffer());
+      } catch {
+        return null;
+      }
+    },
+  });
+  nsLog(`JOL worksheet timetable sync: ${jolTt.status} days=${jolTt.dayCount ?? 0}`);
+
   nsLog('Worker sync completed');
   nsLog(
-    `Summary: homeworkPages=${summary.homeworkPagesFetched ?? '?'} homeworkFetched=${summary.homeworkFetched} homeworkInserted=${summary.homeworkInserted} homeworkSkipped=${summary.homeworkSkipped} noticesFetched=${summary.noticesFetched} noticesInserted=${summary.noticesInserted} noticesSkipped=${summary.noticesSkipped}`,
+    `Summary: status=${summary.syncStatus} homeworkPages=${summary.homeworkPagesFetched ?? '?'} homeworkFetched=${summary.homeworkFetched} noticesFetched=${summary.noticesFetched} jolFetched=${summary.jolFetched ?? 0} jolTt=${jolTt.status}`,
   );
 
-  if (summary.errors.length > 0 || summary.homeworkFetchIncomplete || summary.noticeFetchIncomplete) {
+  if (summary.syncStatus === 'FAILED') {
     throw new Error(
-      `Worker sync completed with errors: ${summary.errors.join('; ') || 'incomplete source data'}`,
+      `Worker sync failed: ${summary.errors.join('; ') || 'failed source data'}`,
     );
   }
 }

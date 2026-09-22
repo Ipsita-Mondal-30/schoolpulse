@@ -638,6 +638,7 @@ export async function collectNeverSkipData(
     let notices: NeverSkipRawNotice[] = [];
     let noticePagesFetched = 0;
     let noticeFetchIncomplete = false;
+    let noticePage0Only = false;
     let noticeFetchErrors: string[] = [];
     let noticeSourceTotal: number | null = null;
     let noticeRawFetched = 0;
@@ -681,6 +682,7 @@ export async function collectNeverSkipData(
         notices = paged.items;
         noticePagesFetched = paged.pagesFetched;
         noticeFetchIncomplete = paged.incomplete;
+        noticePage0Only = paged.page0Only;
         noticeFetchErrors = paged.errors;
         noticeSourceTotal = paged.sourceTotal;
         noticeRawFetched = paged.rawFetched;
@@ -868,6 +870,7 @@ export async function collectNeverSkipData(
       homeworkUniqueFetched,
       noticePagesFetched,
       noticeFetchIncomplete,
+      noticePage0Only,
       noticeFetchErrors,
       noticeSourceTotal,
       noticeRawFetched,

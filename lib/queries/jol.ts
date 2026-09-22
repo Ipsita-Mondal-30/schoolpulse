@@ -14,5 +14,8 @@ export function useJolQuery() {
     queryKey: jolQueryKey,
     queryFn: fetchJolForUi,
     refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
+    refetchInterval: 60_000,
   });
 }

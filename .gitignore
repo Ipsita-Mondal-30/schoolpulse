@@ -58,6 +58,9 @@ next-env.d.ts
 
 # Newsletter PDFs (large files)
 newsletters/
+
+# Worker-local NeverSkip document cache (JoL newsletter PDF, etc.)
+deploy/neverskip-worker/neverskip-data/
 security/zap_report.html
 
 # dynatrace

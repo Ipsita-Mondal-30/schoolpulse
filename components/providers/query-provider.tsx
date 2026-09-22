@@ -4,10 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 
 /**
- * Matches the previous ui-data-cache TTL: Homework ↔ Notices remounts reuse
- * fresh data for 5 minutes, then allow a refetch so NeverSkip DB writes appear.
+ * Short stale window so NeverSkip → Neon writes appear quickly after sync.
+ * Window-focus refetch is enabled so returning to SchoolPulse refreshes live data.
  */
-export const UI_QUERY_STALE_TIME_MS = 5 * 60 * 1000;
+export const UI_QUERY_STALE_TIME_MS = 30 * 1000;
 
 /** Keep inactive query results around across longer browsing sessions. */
 export const UI_QUERY_GC_TIME_MS = 30 * 60 * 1000;
@@ -18,8 +18,7 @@ export function makeQueryClient(): QueryClient {
       queries: {
         staleTime: UI_QUERY_STALE_TIME_MS,
         gcTime: UI_QUERY_GC_TIME_MS,
-        // Avoid surprise refetches when parents switch browser tabs.
-        refetchOnWindowFocus: false,
+        refetchOnWindowFocus: true,
         retry: 1,
       },
     },

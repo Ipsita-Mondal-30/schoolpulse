@@ -109,10 +109,10 @@ async function queryCanonicalSchedule(prisma: PrismaClient): Promise<CanonicalSc
       orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
     }),
     prisma.syncRun.findFirst({ orderBy: { finishedAt: 'desc' } }),
-    prisma.syncRun.findFirst({
-      where: { status: 'COMPLETE' },
-      orderBy: { finishedAt: 'desc' },
-    }),
+      prisma.syncRun.findFirst({
+        where: { status: { in: ['COMPLETE', 'PARTIAL'] } },
+        orderBy: { finishedAt: 'desc' },
+      }),
     prisma.importedJolSchedule.findFirst({
       where: { isActive: true },
       include: { days: { orderBy: { activityDate: 'asc' } } },

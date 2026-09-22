@@ -562,43 +562,31 @@ export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
     }
 }
 
-/** Server-side merge for Homework UI: Prisma ∪ sheet ∪ JSON. */
+/** Server-side Homework UI: Neon is the source of truth (no static JSON / sheet merge). */
 export async function loadHomeworkForUi(): Promise<{
     items: ImportedHomeworkItem[];
     fromSheet: boolean;
 }> {
-    const { mergeHomeworkItems } = await import('@/lib/ui-merge');
-    const localMod = await import('@/data/school-homework.json');
-    const local = localMod.default as ImportedHomeworkItem[];
-
-    const [imported, sheetRows] = await Promise.all([
-        fetchImportedHomework(),
-        fetchSheetHomework(),
-    ]);
-    const sheet = sheetRowsToHomeworkItems(sheetRows);
-    const merged = mergeHomeworkItems(imported, sheet, local);
+    const imported = await fetchImportedHomework();
 
     console.log(`[SchoolPulse] UI DB homework count: ${imported.length}`);
-    console.log(`[SchoolPulse] UI JSON/sheet homework count: ${local.length + sheet.length}`);
-    console.log(`[SchoolPulse] UI merged homework count: ${merged.length}`);
+    console.log('[SchoolPulse] UI JSON/sheet homework count: 0 (Neon-only)');
+    console.log(`[SchoolPulse] UI merged homework count: ${imported.length}`);
 
-    return { items: merged, fromSheet: sheet.length > 0 };
+    return { items: imported, fromSheet: false };
 }
 
-/** Server-side merge for Notices UI: Prisma ∪ JSON. */
+/** Server-side Notices UI: Neon is the source of truth (no static JSON merge). */
 export async function loadNoticesForUi(): Promise<ImportedNoticeItem[]> {
-    const { mergeNoticeItems, sortNoticesNewestFirst } = await import('@/lib/ui-merge');
-    const localMod = await import('@/data/notices.json');
-    const local = (localMod.default as { notices: ImportedNoticeItem[] }).notices;
-
+    const { sortNoticesNewestFirst } = await import('@/lib/ui-merge');
     const imported = await fetchImportedNotices();
-    const merged = sortNoticesNewestFirst(mergeNoticeItems(imported, local));
+    const sorted = sortNoticesNewestFirst(imported);
 
     console.log(`[SchoolPulse] UI DB notice count: ${imported.length}`);
-    console.log(`[SchoolPulse] UI JSON/sheet notice count: ${local.length}`);
-    console.log(`[SchoolPulse] UI merged notice count: ${merged.length}`);
+    console.log('[SchoolPulse] UI JSON/sheet notice count: 0 (Neon-only)');
+    console.log(`[SchoolPulse] UI merged notice count: ${sorted.length}`);
 
-    return merged;
+    return sorted;
 }
 
 export type UiJolItem = {

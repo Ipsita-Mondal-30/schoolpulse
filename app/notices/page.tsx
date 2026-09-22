@@ -16,15 +16,13 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { markNoticeRead } from '@/lib/updates-unread';
-import libraryData from '@/data/content-library.json';
 import { resolveNoticeLibraryLink } from '@/lib/notice-library-link';
+import { jolItemsToLibraryRefs } from '@/lib/library-from-jol';
+import { useJolQuery } from '@/lib/queries/jol';
 
 const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
 const DEFAULT_SECTION = 'All';
 const ALL_SECTIONS = ['All', ...CLASS1_SECTIONS] as const;
-const LIBRARY_RESOURCES = (libraryData.resources as { id: string; title: string; date: string }[]).map(
-  (r) => ({ id: r.id, title: r.title, date: r.date }),
-);
 
 function formatDateLabel(iso: string): string {
   if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return 'Undated';
@@ -44,9 +42,14 @@ function sectionLabel(sec: string): string {
 
 export default function NoticesPage() {
   const { data: noticesData, isPending, isError, refetch } = useNoticesQuery();
+  const { data: jolItems } = useJolQuery();
   const { data: acks } = useMyAcknowledgementsQuery();
   const [section, setSection] = useState(DEFAULT_SECTION);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const libraryResources = useMemo(
+    () => jolItemsToLibraryRefs(jolItems ?? []),
+    [jolItems],
+  );
 
   useEffect(() => {
     const saved = localStorage.getItem(PINNED_SECTION_KEY);
@@ -144,7 +147,7 @@ export default function NoticesPage() {
           {filteredNotices.map((notice: UiNoticeItem) => {
             const open = expandedId === notice.id;
             const libraryLink = open
-              ? resolveNoticeLibraryLink(notice, LIBRARY_RESOURCES)
+              ? resolveNoticeLibraryLink(notice, libraryResources)
               : null;
             return (
               <li

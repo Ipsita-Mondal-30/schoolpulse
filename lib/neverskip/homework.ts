@@ -40,6 +40,8 @@ export interface HomeworkFetchResult {
   rawFetched: number;
   /** Unique records after cross-page dedupe. */
   uniqueFetched: number;
+  /** Source IDs seen on more than one page (overlap / portal double-count). */
+  duplicateSourceIds?: string[];
 }
 
 function toFiniteInt(raw: unknown): number | null {
@@ -115,6 +117,44 @@ export function countUniqueHomeworkSourceIds(items: NeverSkipRawAssignment[]): n
     if (key) seen.add(key);
   }
   return seen.size;
+}
+
+/**
+ * Find assignment keys that appear on more than one page (portal overlaps).
+ * Returns assign_id/refid strings only — never payloads/tokens.
+ */
+export function findCrossPageDuplicateHomeworkIds(
+  pages: NeverSkipRawAssignment[][],
+): string[] {
+  const pageHits = new Map<string, number>();
+  for (const page of pages) {
+    const onPage = new Set<string>();
+    for (const item of page) {
+      const key = assignmentDedupeKey(item);
+      if (!key || onPage.has(key)) continue;
+      onPage.add(key);
+      pageHits.set(key, (pageHits.get(key) ?? 0) + 1);
+    }
+  }
+  return [...pageHits.entries()]
+    .filter(([, n]) => n > 1)
+    .map(([id]) => id)
+    .sort();
+}
+
+export function logHomeworkDuplicateSourceIds(ids: string[], sourceTotal: number | null, uniqueFetched: number): void {
+  if (ids.length === 0) {
+    nsWarn(
+      `Homework unique ${uniqueFetched} < total_count ${sourceTotal ?? '?'} but no cross-page duplicate keys found (portal may count soft-deleted/off-window rows)`,
+    );
+    return;
+  }
+  nsWarn(
+    `Homework cross-page duplicate source IDs (${ids.length}): ${ids.slice(0, 40).join(', ')}${ids.length > 40 ? ' …' : ''}`,
+  );
+  nsLog(
+    `Homework dedupe: raw overlaps accounted for; keeping ${uniqueFetched} unique records (source total_count=${sourceTotal ?? 'n/a'})`,
+  );
 }
 
 /**
@@ -407,12 +447,14 @@ export async function fetchAllHomeworkPages(
   const pagesFetched = pages.length;
   const uniqueFetched = items.length;
   const sourceTotal = latestMeta?.totalCount ?? null;
+  const duplicateSourceIds = findCrossPageDuplicateHomeworkIds(pages);
 
   if (homeworkTotalCountMismatch(sourceTotal, uniqueFetched)) {
     incomplete = true;
     const msg = `unique homework ${uniqueFetched} < total_count ${sourceTotal} (raw=${rawFetchedCount})`;
     errors.push(msg);
-    nsError(`SYNC FAILED — INCOMPLETE HOMEWORK DATA (${msg})`);
+    nsWarn(`HOMEWORK PARTIAL — ${msg}`);
+    logHomeworkDuplicateSourceIds(duplicateSourceIds, sourceTotal, uniqueFetched);
   }
 
   nsLog(`HOMEWORK total source: ${sourceTotal ?? '(none)'}`);
@@ -427,8 +469,8 @@ export async function fetchAllHomeworkPages(
   }
   logHomeworkMarkerSearch(items);
   if (incomplete) {
-    nsError('SYNC STATUS: INCOMPLETE — homework pagination did not fetch all source records');
-    nsWarn('Homework pagination incomplete — preserving records collected so far');
+    nsWarn('SYNC STATUS: PARTIAL — homework unique < total_count; preserving unique records and continuing other sources');
+    nsWarn('Homework pagination partial — preserving records collected so far');
   } else if (sourceTotal != null) {
     nsLog(
       `Homework pagination complete: raw=${rawFetchedCount} unique=${uniqueFetched} total_count=${sourceTotal}`,
@@ -443,6 +485,7 @@ export async function fetchAllHomeworkPages(
     sourceTotal,
     rawFetched: rawFetchedCount,
     uniqueFetched,
+    duplicateSourceIds,
   };
 }
 
