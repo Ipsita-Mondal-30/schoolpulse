@@ -15,6 +15,8 @@ export function useCanonicalScheduleQuery() {
     queryKey: scheduleQueryKey,
     queryFn: fetchCanonicalSchedule,
     refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     staleTime: 30_000,
+    refetchInterval: 60_000,
   });
 }

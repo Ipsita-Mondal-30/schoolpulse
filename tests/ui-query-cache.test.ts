@@ -16,13 +16,13 @@ describe('TanStack Query UI cache', () => {
     client = makeQueryClient();
   });
 
-  it('uses 5-minute staleTime and 30-minute gcTime defaults', () => {
-    expect(UI_QUERY_STALE_TIME_MS).toBe(5 * 60 * 1000);
+  it('uses 30-second staleTime, 30-minute gcTime, and refetchOnWindowFocus', () => {
+    expect(UI_QUERY_STALE_TIME_MS).toBe(30 * 1000);
     expect(UI_QUERY_GC_TIME_MS).toBe(30 * 60 * 1000);
     const defaults = client.getDefaultOptions().queries;
     expect(defaults?.staleTime).toBe(UI_QUERY_STALE_TIME_MS);
     expect(defaults?.gcTime).toBe(UI_QUERY_GC_TIME_MS);
-    expect(defaults?.refetchOnWindowFocus).toBe(false);
+    expect(defaults?.refetchOnWindowFocus).toBe(true);
   });
 
   it('fetches homework on first visit and reuses cache within staleTime', async () => {

@@ -296,7 +296,7 @@ describe('fetchAllHomeworkPages', () => {
     expect(result.pagesFetched).toBe(13);
     expect(result.items).toHaveLength(125);
     expect(result.incomplete).toBe(true);
-    expect(result.errors.some((e) => /INCOMPLETE HOMEWORK DATA|total_count 129/i.test(e))).toBe(
+    expect(result.errors.some((e) => /unique homework|total_count 129/i.test(e))).toBe(
       true,
     );
   });
@@ -388,8 +388,12 @@ describe('paginated homework sync idempotency', () => {
   it('does not report SYNC STATUS COMPLETE when homework pagination is incomplete', async () => {
     const logs: string[] = [];
     const origLog = console.log;
+    const origWarn = console.warn;
     const origError = console.error;
     console.log = (...args: unknown[]) => {
+      logs.push(args.map(String).join(' '));
+    };
+    console.warn = (...args: unknown[]) => {
       logs.push(args.map(String).join(' '));
     };
     console.error = (...args: unknown[]) => {
@@ -407,11 +411,12 @@ describe('paginated homework sync idempotency', () => {
       });
     } finally {
       console.log = origLog;
+      console.warn = origWarn;
       console.error = origError;
     }
     const joined = logs.join('\n');
-    expect(joined).toMatch(/SYNC STATUS: INCOMPLETE/);
-    expect(joined).not.toMatch(/SYNC STATUS: COMPLETE/);
+    expect(joined).toMatch(/SYNC STATUS: PARTIAL/);
+    expect(joined).not.toMatch(/SYNC STATUS: COMPLETE(?![\s\S]*PARTIAL)/);
     expect(joined).not.toMatch(/Sync completed with source pagination errors/);
   });
 

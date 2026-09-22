@@ -107,16 +107,24 @@ describe('schedule sync replace + preserve', () => {
     });
 
     expect(summary.schedulePreservedOnFailure).toBe(true);
-    expect(summary.syncStatus).toBe('INCOMPLETE');
+    expect(summary.syncStatus).toBe('PARTIAL');
     const rows = await store.listScheduleEvents();
     expect(rows).toHaveLength(1);
     expect(rows[0].sourceId).toBe('keep');
   });
 
-  it('marks incomplete homework fetch as INCOMPLETE (not COMPLETE)', async () => {
+  it('marks incomplete homework fetch as PARTIAL when unique records were preserved', async () => {
     const store = new InMemoryNeverSkipStore();
     const summary = await syncNeverSkipData({
-      homework: [],
+      homework: [
+        {
+          assign_id: '1',
+          assign_title: 'Math',
+          subject_name: 'Mathematics',
+          ass_dt: '17-Sep-2026',
+          assign_typ: 'H',
+        },
+      ],
       notices: [],
       scheduleEvents: [],
       scheduleFetchComplete: true,
@@ -126,9 +134,9 @@ describe('schedule sync replace + preserve', () => {
       homeworkSourceTotal: 137,
       homeworkUniqueFetched: 134,
       store,
-      label: 'hw-incomplete',
+      label: 'hw-partial',
     });
-    expect(summary.syncStatus).toBe('INCOMPLETE');
+    expect(summary.syncStatus).toBe('PARTIAL');
     expect(summary.errors.some((e) => /homework pagination incomplete/i.test(e))).toBe(true);
   });
 });

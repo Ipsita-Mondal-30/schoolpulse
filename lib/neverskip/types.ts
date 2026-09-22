@@ -201,6 +201,8 @@ export interface CollectedNeverSkipData {
   homeworkUniqueFetched?: number;
   noticePagesFetched?: number;
   noticeFetchIncomplete?: boolean;
+  /** Page-0 only ingest when further notice pages return SQLSTATE/non-JSON. */
+  noticePage0Only?: boolean;
   noticeFetchErrors?: string[];
   noticeSourceTotal?: number | null;
   noticeRawFetched?: number;
@@ -243,6 +245,7 @@ export interface SyncSummary {
   noticesMissing?: number;
   noticePagesFetched?: number;
   noticeFetchIncomplete?: boolean;
+  noticePage0Only?: boolean;
   noticeSourceTotal?: number | null;
   noticeRawFetched?: number;
   noticeUniqueFetched?: number;
@@ -270,6 +273,13 @@ export interface SyncSummary {
   newestJolDate?: string;
   newestScheduleDate?: string;
   syncStatus?: string;
+  /** Per-source status map for SyncRun reportJson / operators. */
+  sourceStatuses?: Record<
+    string,
+    { status: string; fetched?: number; stored?: number; newestDate?: string; error?: string }
+  >;
+  jolTimetableStatus?: string;
+  jolTimetableDayCount?: number;
   errors: string[];
 }
 

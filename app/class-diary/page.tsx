@@ -2,32 +2,20 @@
 
 import { Suspense, useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import libraryData from "@/data/content-library.json";
 import { getLibraryResourceById } from "@/lib/notice-library-link";
+import {
+  jolItemsToLibraryResources,
+  type LibraryResource as Resource,
+} from "@/lib/library-from-jol";
+import { useJolQuery } from "@/lib/queries/jol";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 
-// ── Types ──────────────────────────────────────────────────────────────────────
 type Media = { type: string; file: string; url?: string };
-type Resource = {
-  id: string;
-  subject: string;
-  title: string;
-  description: string;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:MM
-  section: string;
-  category?: string;
-  grade?: string;
-  monthLabel?: string;
-  media: Media[];
-};
-
-const MEDIA_BASE = libraryData.mediaBase;
-const resources = libraryData.resources as Resource[];
 
 function mediaHref(m: Media): string {
   if (m.url) return m.url;
-  return MEDIA_BASE + m.file;
+  return m.file;
 }
 
 // ── Subject styling ─────────────────────────────────────────────────────────────
@@ -198,6 +186,11 @@ export default function ContentLibraryPage() {
 
 function ContentLibraryInner() {
   const searchParams = useSearchParams();
+  const { data: jolItems, isPending, isError, refetch } = useJolQuery();
+  const resources = useMemo(
+    () => jolItemsToLibraryResources(jolItems ?? []),
+    [jolItems],
+  );
   const focusedId = getLibraryResourceById(searchParams.get('resource'), resources)?.id ?? null;
   const [search, setSearch] = useState("");
   const [activeSubject, setActiveSubject] = useState("All");
@@ -225,15 +218,19 @@ function ContentLibraryInner() {
       c.set(r.subject, (c.get(r.subject) ?? 0) + 1);
     });
     return [...c.entries()].sort((a, b) => b[1] - a[1]);
-  }, []);
+  }, [resources]);
 
-  const practiceCount = useMemo(() => resources.filter(isPracticePaper).length, []);
-  const newsletterCount = useMemo(() => resources.filter(isNewsletter).length, []);
+  const practiceCount = useMemo(() => resources.filter(isPracticePaper).length, [resources]);
+  const newsletterCount = useMemo(() => resources.filter(isNewsletter).length, [resources]);
 
   // Months present (desc)
-  const months = useMemo(() => Array.from(new Set(resources.map((r) => monthKey(r.date)))).sort((a, b) => b.localeCompare(a)), []);
-
-  const totalFiles = useMemo(() => resources.reduce((a, r) => a + r.media.length, 0), []);
+  const months = useMemo(
+    () =>
+      Array.from(new Set(resources.map((r) => monthKey(r.date)).filter(Boolean))).sort((a, b) =>
+        b.localeCompare(a),
+      ),
+    [resources],
+  );
 
   // Filtered set
   const filtered = useMemo(() => {
@@ -256,7 +253,7 @@ function ContentLibraryInner() {
         );
       })
       .sort((a, b) => (a.date === b.date ? b.time.localeCompare(a.time) : b.date.localeCompare(a.date)));
-  }, [search, activeSubject, activeMonth]);
+  }, [resources, search, activeSubject, activeMonth]);
 
   useEffect(() => {
     if (!focusedId) return;
@@ -279,12 +276,48 @@ function ContentLibraryInner() {
     return entries;
   }, [filtered, groupBy]);
 
+  if (isPending) {
+    return (
+      <main className="sp-page">
+        <LoadingState rows={5} />
+      </main>
+    );
+  }
+
+  if (isError) {
+    return (
+      <main className="sp-page">
+        <div className="sp-card p-5">
+          <p className="text-sm font-semibold">Couldn&apos;t load Content Library.</p>
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            className="mt-3 rounded-xl bg-[var(--sp-primary)] px-4 py-2 text-sm font-semibold text-white sp-focus"
+          >
+            Retry
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (resources.length === 0) {
+    return (
+      <main className="sp-page">
+        <EmptyState
+          title="No Content Library items yet"
+          description="When NeverSkip Content Library syncs into Neon, resources appear here."
+        />
+      </main>
+    );
+  }
+
   return (
     <main className="sp-page">
       <header className="mb-5">
         <h1 className="sp-title">Library</h1>
         <p className="sp-subtitle">
-          Worksheets, revision papers, and newsletters — {resources.length} resources.
+          Worksheets, revision papers, and newsletters from NeverSkip — {resources.length} resources.
         </p>
       </header>
 
@@ -441,7 +474,7 @@ function ContentLibraryInner() {
 
       {/* ── Footer ── */}
       <p className="mt-8 text-center text-[11px] text-gray-400">
-        Source: {libraryData.source} · Last synced {libraryData.lastSynced}
+        Source: NeverSkip Content Library (Neon) · {resources.length} synced resources
       </p>
     </main>
   );

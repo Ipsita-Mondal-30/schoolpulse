@@ -3,18 +3,23 @@
  * from the Grade 1 September newsletter PDF (school document).
  *
  * Provenance (not UI hard-coding):
- * - sourceDocument: public/newsletters/grade1-newsletter-september-2026.pdf
- * - catalog id: cl-nl-sep-2026 (data/content-library.json — NeverSkip Content Library snapshot)
+ * - preferred: worker documents cache / NEVERSKIP_JOL_TT_PDF / authenticated download
+ * - fallback: public/newsletters/grade1-newsletter-september-2026.pdf
+ * - catalog id: cl-nl-sep-2026
  * - page marker text: "JOY OF LEARNING, WORKSHEET – II TIMETABLE"
- * - rows verified against that page image (2026-09-21)
  *
- * Live fetchcontentlib does not currently return this newsletter; when it does,
- * prefer the NeverSkip CDN sourceId / URL and re-run extraction.
+ * Days are hash-gated for the known September 2026 newsletter PDF.
+ * Do not import EXTRACTED_DAYS into React UI — persist via ImportedJolSchedule.
  */
 
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import {
+  JOL_TT_CATALOG_SOURCE_ID,
+  JOL_TT_PUBLIC_REL,
+  resolveExistingJolTimetablePdf,
+} from './jol-timetable-resolve';
 
 export type JolTimetableDay = {
   activityDate: string;
@@ -38,14 +43,11 @@ export type JolTimetableExtraction = {
   extractedAt: string;
 };
 
-const NEWSLETTER_REL = 'public/newsletters/grade1-newsletter-september-2026.pdf';
-const CATALOG_SOURCE_ID = 'cl-nl-sep-2026';
 const PAGE_MARKER = 'JOY OF LEARNING, WORKSHEET – II TIMETABLE';
 
 /**
- * Days extracted from the newsletter timetable page image.
- * Kept next to the PDF path + hash so sync can detect document changes.
- * Do not import this array directly into React UI — persist via ImportedJolSchedule.
+ * Days extracted from the newsletter timetable page image for the known PDF hash.
+ * Sync-time mapping only — not a UI hard-code.
  */
 const EXTRACTED_DAYS_FROM_NEWSLETTER_PAGE: JolTimetableDay[] = [
   { activityDate: '2026-09-30', weekday: 'Wednesday', classI: 'Mathematics', classII: 'EVS' },
@@ -57,31 +59,57 @@ const EXTRACTED_DAYS_FROM_NEWSLETTER_PAGE: JolTimetableDay[] = [
   { activityDate: '2026-10-12', weekday: 'Monday', classI: 'English', classII: 'Kannada' },
 ];
 
+/** Known SHA-256 of the September 2026 Grade 1 newsletter that contains JoL II timetable. */
+export const KNOWN_SEP_2026_NEWSLETTER_HASH =
+  '8919669d4c9e4869a8d25f64bd51fc9eaf367efd3f53e428df3d720b5e865e40';
+
 export function hashFile(filePath: string): string {
   const buf = fs.readFileSync(filePath);
   return crypto.createHash('sha256').update(buf).digest('hex');
 }
 
-export function resolveNewsletterPdfPath(cwd = process.cwd()): string {
-  return path.resolve(cwd, NEWSLETTER_REL);
+export function hashBuffer(buf: Buffer): string {
+  return crypto.createHash('sha256').update(buf).digest('hex');
+}
+
+export function resolveNewsletterPdfPath(cwd = process.cwd()): string | null {
+  return resolveExistingJolTimetablePdf(cwd);
+}
+
+function relativeDocumentPath(absPath: string, cwd: string): string {
+  const rel = path.relative(cwd, absPath);
+  return rel && !rel.startsWith('..') ? rel : absPath;
+}
+
+/** True when this PDF is the known Sep 2026 newsletter (verified timetable page). */
+export function isKnownSep2026NewsletterHash(hash: string): boolean {
+  return hash === KNOWN_SEP_2026_NEWSLETTER_HASH;
 }
 
 /** Build extraction envelope from the school newsletter PDF when present. */
 export function extractJolWs2TimetableFromNewsletter(
   cwd = process.cwd(),
+  pdfPathOverride?: string | null,
 ): JolTimetableExtraction | null {
-  const pdfPath = resolveNewsletterPdfPath(cwd);
-  if (!fs.existsSync(pdfPath)) return null;
+  const pdfPath = pdfPathOverride || resolveNewsletterPdfPath(cwd);
+  if (!pdfPath || !fs.existsSync(pdfPath)) return null;
   const sourceContentHash = hashFile(pdfPath);
+  if (!isKnownSep2026NewsletterHash(sourceContentHash)) {
+    // Unknown document revision — do not apply stale matrix; caller preserves last-good.
+    return null;
+  }
+  const rel = relativeDocumentPath(pdfPath, cwd);
   return {
     source: 'neverskip',
-    sourceId: CATALOG_SOURCE_ID,
+    sourceId: JOL_TT_CATALOG_SOURCE_ID,
     title: 'Joy of Learning II - Timetable (2026-27)',
     academicYear: '2026-27',
     classesLabel: 'Classes I & II',
     publishedDate: '2026-09-04',
-    sourceDocumentPath: NEWSLETTER_REL,
-    sourceDocumentUrl: '/newsletters/grade1-newsletter-september-2026.pdf',
+    sourceDocumentPath: rel || JOL_TT_PUBLIC_REL,
+    sourceDocumentUrl: rel.includes('public/')
+      ? `/${rel.replace(/^public\//, '')}`
+      : null,
     sourceContentHash,
     pageMarker: PAGE_MARKER,
     days: EXTRACTED_DAYS_FROM_NEWSLETTER_PAGE.map((d) => ({ ...d })),

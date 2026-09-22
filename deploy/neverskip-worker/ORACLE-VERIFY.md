@@ -26,8 +26,22 @@ tail -n 80 /home/ubuntu/neverskip-sync.log
 
 Confirm Neon after sync: recent homework (e.g. 17-Sep Bitiya), recent notices, and `ImportedJolItem` rows from `fetchcontentlib`.
 
+## JoL II timetable document (required on Oracle)
+
+The newsletter PDF is gitignored. On the worker host ensure one of:
+
+```bash
+mkdir -p /home/ubuntu/schoolpulse/deploy/neverskip-worker/neverskip-data/documents
+# copy the Sep 2026 Grade 1 newsletter PDF into that folder as:
+#   grade1-newsletter-september-2026.pdf
+```
+
+or `NEVERSKIP_JOL_TT_PDF=/absolute/path/to/grade1-newsletter-september-2026.pdf`, or an authenticated Content Library download when NeverSkip exposes the newsletter URL.
+
+Missing PDF → `jolTimetable=SKIPPED_NO_SOURCE` (last-good `ImportedJolSchedule` preserved).
+
 ## Timetable / calendar (2026-09-21)
 
-SchoolPulse syncs `POST /parentweb/lms/fetchcalenderapi` (Calendar page). For Class I parent session this returns `D: []` (no structured events). There is **no** NeverSkip timetable menu/API. JoL Dates + Timetable + Planner read `ImportedScheduleEvent` + schedule-tagged Content Library docs via `loadCanonicalSchedule()` — not static JSON.
+SchoolPulse syncs `POST /parentweb/lms/fetchcalenderapi` (Calendar page). For Class I parent session this returns `D: []` (no structured events). There is **no** NeverSkip timetable menu/API. JoL Dates + Timetable + Planner read `ImportedJolSchedule` / `ImportedScheduleEvent` via `loadCanonicalSchedule()` — not static JSON.
 
-Incomplete homework (e.g. unique 134 < total_count 137) must exit non-zero and persist `SyncRun.status=INCOMPLETE`.
+Homework unique &lt; total_count (e.g. 134/137) is **`PARTIAL`** (exit 0 from browser sync); notices/JOL/timetable still upsert. Only hard failures exit non-zero.
