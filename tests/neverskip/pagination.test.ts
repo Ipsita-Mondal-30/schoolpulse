@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildHomeworkPayload,
+  buildHomeworkPayloadFromTemplate,
   extractHomeworkPagination,
   fetchAllHomeworkPages,
+  findCrossPageDuplicateHomeworkIds,
   mergeHomeworkPageItems,
+  parseHomeworkPortalBody,
   shouldFetchNextHomeworkPage,
 } from '@/lib/neverskip/homework';
 import {
@@ -54,11 +57,85 @@ describe('homework pagination helpers', () => {
     expect(buildHomeworkPayload(0)).toEqual({
       values: '',
       page: '0',
+      sub_id: '',
+      assignment_date: 0,
       pg_key: 'CD',
       works: '',
-      limit: 0,
+      limt: 0,
     });
     expect(buildHomeworkPayload(2).page).toBe('2');
+  });
+
+  it('parses portal POST bodies and replays only page (preserving portal fields)', () => {
+    const portal = parseHomeworkPortalBody({
+      values: 'filter-x',
+      page: '0',
+      pg_key: 'CD',
+      works: 'open',
+      limt: 0,
+      sub_id: '',
+      assignment_date: 0,
+      sort: 'ass_dt',
+      extra_flag: true,
+    });
+    expect(portal).not.toBeNull();
+    expect(portal!.pg_key).toBe('CD');
+    expect(portal!.values).toBe('filter-x');
+    expect(portal!.works).toBe('open');
+    expect(portal!.limt).toBe(0);
+    expect(portal!.sort).toBe('ass_dt');
+    expect(portal!.extra_flag).toBe(true);
+
+    const page2 = buildHomeworkPayloadFromTemplate(portal, 2);
+    expect(page2.page).toBe('2');
+    expect(page2.values).toBe('filter-x');
+    expect(page2.pg_key).toBe('CD');
+    expect(page2.works).toBe('open');
+    expect(page2.limt).toBe(0); // CD keeps limt 0
+    expect(page2.sort).toBe('ass_dt');
+  });
+
+  it('advances AG limt with page like the Assignments SPA', () => {
+    const portal = parseHomeworkPortalBody({
+      values: '',
+      page: '0',
+      limt: 0,
+      sub_id: '',
+      assignment_date: 0,
+      pg_key: 'AG',
+    });
+    expect(buildHomeworkPayloadFromTemplate(portal, 0).limt).toBe(0);
+    expect(buildHomeworkPayloadFromTemplate(portal, 1).limt).toBe(10);
+    expect(buildHomeworkPayloadFromTemplate(portal, 2).limt).toBe(20);
+    expect(buildHomeworkPayloadFromTemplate(portal, 2).page).toBe('2');
+    expect(buildHomeworkPayloadFromTemplate(portal, 2).pg_key).toBe('AG');
+  });
+
+  it('falls back to default payload when portal template is missing', () => {
+    expect(buildHomeworkPayloadFromTemplate(null, 4)).toEqual({
+      values: '',
+      page: '4',
+      sub_id: '',
+      assignment_date: 0,
+      pg_key: 'CD',
+      works: '',
+      limt: 0,
+    });
+    expect(parseHomeworkPortalBody(null)).toBeNull();
+    expect(parseHomeworkPortalBody('nope')).toBeNull();
+  });
+
+  it('finds cross-page duplicate assign_id/refid keys', () => {
+    const dupes = findCrossPageDuplicateHomeworkIds([
+      [hwItem('1'), hwItem('2')],
+      [hwItem('2'), hwItem('3')],
+      [hwItem('3'), hwItem('4')],
+    ]);
+    expect(dupes).toEqual(['id:2', 'id:3']);
+    expect(mergeHomeworkPageItems([
+      [hwItem('1'), hwItem('2')],
+      [hwItem('2'), hwItem('3')],
+    ]).map((i) => String(i.assign_id))).toEqual(['1', '2', '3']);
   });
 
   it('extracts pagination metadata', () => {
@@ -196,6 +273,110 @@ describe('fetchAllHomeworkPages', () => {
     expect(seen).toEqual([0, 1]);
     expect(result.pagesFetched).toBe(2);
     expect(result.items).toHaveLength(3);
+  });
+
+  it('replays portal template fields on subsequent pages', async () => {
+    const template = parseHomeworkPortalBody({
+      values: 'portal-filter',
+      page: '0',
+      pg_key: 'CD',
+      works: 'w1',
+      limt: 0,
+      sub_id: '',
+      assignment_date: 0,
+    });
+    const payloads: Array<Record<string, unknown>> = [];
+    const result = await fetchAllHomeworkPages(
+      async (page, payload) => {
+        payloads.push({ ...payload });
+        if (page === 0) {
+          return pageEnvelope(
+            Array.from({ length: 10 }, (_, i) => hwItem(String(i + 1))),
+            { page_count: 2, total_count: 12, sfile_limit: 10 },
+          );
+        }
+        return pageEnvelope([hwItem('11'), hwItem('12')], {
+          page_count: 2,
+          total_count: 12,
+          sfile_limit: 10,
+        });
+      },
+      { portalTemplate: template },
+    );
+    expect(result.items).toHaveLength(12);
+    expect(payloads).toHaveLength(2);
+    expect(payloads[0]).toMatchObject({
+      page: '0',
+      values: 'portal-filter',
+      works: 'w1',
+      limt: 0,
+      pg_key: 'CD',
+    });
+    expect(payloads[1]).toMatchObject({
+      page: '1',
+      values: 'portal-filter',
+      works: 'w1',
+      limt: 0, // CD does not advance limt
+      pg_key: 'CD',
+    });
+    expect(result.duplicateSourceIds ?? []).toEqual([]);
+  });
+
+  it('replays AG template with advancing limt', async () => {
+    const template = parseHomeworkPortalBody({
+      values: '',
+      page: '0',
+      limt: 0,
+      sub_id: '',
+      assignment_date: 0,
+      pg_key: 'AG',
+    });
+    const limts: number[] = [];
+    await fetchAllHomeworkPages(
+      async (page, payload) => {
+        limts.push(Number(payload.limt));
+        if (page === 0) {
+          return pageEnvelope(
+            Array.from({ length: 10 }, (_, i) => hwItem(String(i + 1))),
+            { page_count: 2, total_count: 12, sfile_limit: 10 },
+          );
+        }
+        return pageEnvelope([hwItem('11'), hwItem('12')], {
+          page_count: 2,
+          total_count: 12,
+          sfile_limit: 10,
+        });
+      },
+      { portalTemplate: template },
+    );
+    expect(limts).toEqual([0, 10]);
+  });
+
+  it('marks PARTIAL with duplicateSourceIds when unique < total_count after overlaps', async () => {
+    const result = await fetchAllHomeworkPages(async (page) => {
+      if (page === 0) {
+        return pageEnvelope([hwItem('1'), hwItem('2')], {
+          page_count: 2,
+          total_count: 4,
+          sfile_limit: 2,
+        });
+      }
+      if (page === 1) {
+        // Overlap on id 2; only one new id → unique 3 < total 4
+        return pageEnvelope([hwItem('2'), hwItem('3')], {
+          page_count: 2,
+          total_count: 4,
+          sfile_limit: 2,
+        });
+      }
+      // Chase pages empty — portal padded total_count with IDs never delivered
+      return pageEnvelope([], { page_count: 2, total_count: 4, sfile_limit: 2 });
+    });
+    expect(result.uniqueFetched).toBe(3);
+    expect(result.incomplete).toBe(true);
+    expect(result.duplicateSourceIds).toEqual(['id:2']);
+    // Keep all unique rows — do not drop to force COMPLETE
+    expect(result.items.map((i) => String(i.assign_id))).toEqual(['1', '2', '3']);
   });
 
   it('fetches multiple pages until page_count exhausted', async () => {

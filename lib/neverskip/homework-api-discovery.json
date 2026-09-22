@@ -1,0 +1,143 @@
+{
+  "capturedAt": "2026-09-22T17:34:10.761Z",
+  "homeworkPage": "https://parent.neverskip.com/default/assignment",
+  "apiPath": "/parentweb/lms/getassignmentsapi",
+  "apiUrl": "https://nskapi.neverskip.com/parentweb/lms/getassignmentsapi",
+  "ourDefaultPayload": {
+    "values": "",
+    "page": "0",
+    "sub_id": "",
+    "assignment_date": 0,
+    "pg_key": "CD",
+    "works": "",
+    "limt": 0
+  },
+  "requestCount": 0,
+  "responseCount": 0,
+  "requests": [],
+  "responses": [],
+  "replayResults": [
+    {
+      "page": 0,
+      "status": 200,
+      "itemCount": 10,
+      "totalCount": 136,
+      "newestAssDt": "2026-09-17",
+      "bodyKeys": [
+        "values",
+        "page",
+        "sub_id",
+        "assignment_date",
+        "pg_key",
+        "works",
+        "limt"
+      ],
+      "body": {
+        "values": "",
+        "page": "0",
+        "sub_id": "",
+        "assignment_date": 0,
+        "pg_key": "CD",
+        "works": "",
+        "limt": 0
+      }
+    },
+    {
+      "page": 1,
+      "status": 200,
+      "itemCount": 10,
+      "totalCount": 136,
+      "newestAssDt": "2026-09-08",
+      "bodyKeys": [
+        "values",
+        "page",
+        "sub_id",
+        "assignment_date",
+        "pg_key",
+        "works",
+        "limt"
+      ],
+      "body": {
+        "values": "",
+        "page": "1",
+        "sub_id": "",
+        "assignment_date": 0,
+        "pg_key": "CD",
+        "works": "",
+        "limt": 0
+      }
+    },
+    {
+      "page": 2,
+      "status": 200,
+      "itemCount": 10,
+      "totalCount": 136,
+      "newestAssDt": "2026-09-02",
+      "bodyKeys": [
+        "values",
+        "page",
+        "sub_id",
+        "assignment_date",
+        "pg_key",
+        "works",
+        "limt"
+      ],
+      "body": {
+        "values": "",
+        "page": "2",
+        "sub_id": "",
+        "assignment_date": 0,
+        "pg_key": "CD",
+        "works": "",
+        "limt": 0
+      }
+    },
+    {
+      "page": "AG-0",
+      "status": 200,
+      "itemCount": 0,
+      "totalCount": 0,
+      "newestAssDt": "",
+      "body": {
+        "values": "",
+        "page": "0",
+        "limt": 0,
+        "sub_id": "",
+        "assignment_date": 0,
+        "pg_key": "AG"
+      }
+    }
+  ],
+  "duplicates": {
+    "crossPageDuplicates": [],
+    "uniqueCount": 30,
+    "rawCount": 30
+  },
+  "firstPortalBody": null,
+  "diffVsDefault": {},
+  "newestAssignedDateSeen": "2026-09-17",
+  "liveProbe": {
+    "OLD_limit": {
+      "total": 137,
+      "newest": "2026-09-17"
+    },
+    "NEW_limt": {
+      "total": 136,
+      "newest": "2026-09-17"
+    },
+    "AG": {
+      "total": 0,
+      "newest": null
+    }
+  },
+  "syncAfterFix": {
+    "raw": 136,
+    "unique": 133,
+    "status": "PARTIAL",
+    "newest": "2026-09-17",
+    "notices": "PAGE0_ONLY",
+    "jol": "COMPLETE newest=2026-09-22"
+  },
+  "rootCause": "Pages \u22651 used guessed `limit` body; portal posts `limt` + sub_id + assignment_date. Live API newest ass_dt remains 2026-09-17.",
+  "liveXhrStatus": "SPA assignment route redirects to /; CD body replayed via session+Token"
+}
