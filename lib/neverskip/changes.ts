@@ -77,18 +77,91 @@ function valuesEqual(a: string | null, b: string | null): boolean {
   return a === b;
 }
 
-/** Collapse whitespace for trivial text-equivalence checks. */
+/** Soft fields: re-sync churn on old homework must not create Updates events. */
+export const HOMEWORK_SOFT_CHANGE_FIELDS = new Set(['description', 'sections']);
+
+/** Hard fields: genuine NeverSkip edits — always eligible for change events. */
+export const HOMEWORK_HARD_CHANGE_FIELDS = new Set([
+  'title',
+  'subjectName',
+  'dueDate',
+  'homeworkDate',
+  'attachmentUrl',
+]);
+
+/** Collapse whitespace / strip simple HTML for trivial text-equivalence checks. */
 export function collapseText(value: string | null | undefined): string {
   return String(value ?? '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
 /**
- * True when previous/current differ only by whitespace/casing noise — not a parent-facing edit.
+ * True when previous/current differ only by whitespace/casing/HTML noise — not a parent-facing edit.
  */
 export function isTrivialTextFieldChange(previous: string | null, current: string | null): boolean {
   return collapseText(previous).toLowerCase() === collapseText(current).toLowerCase();
+}
+
+/**
+ * Strip signed query params so CDN/token URL churn is not a content change.
+ * Compares origin + pathname (+ hash) only.
+ */
+export function normalizeAttachmentUrlForCompare(url: string | null | undefined): string | null {
+  const raw = String(url ?? '').trim();
+  if (!raw) return null;
+  try {
+    const u = new URL(raw);
+    return `${u.origin}${u.pathname}${u.hash || ''}`.replace(/\/$/, '') || null;
+  } catch {
+    // Relative / opaque — drop query string if present.
+    const noQuery = raw.split('?')[0].split('#')[0].trim();
+    return noQuery || null;
+  }
+}
+
+export function isTrivialAttachmentUrlChange(
+  previous: string | null,
+  current: string | null,
+): boolean {
+  return (
+    normalizeAttachmentUrlForCompare(previous) === normalizeAttachmentUrlForCompare(current)
+  );
+}
+
+export function isSoftOnlyHomeworkChanges(changes: FieldChange[]): boolean {
+  const visible = parentRelevantChanges('homework', changes);
+  if (visible.length === 0) return true;
+  return visible.every((c) => HOMEWORK_SOFT_CHANGE_FIELDS.has(c.field));
+}
+
+/**
+ * Whether an upsert should persist a ContentChangeEvent for parent Updates.
+ * Historical homework (homeworkDate before activity window) with only soft-field
+ * diffs must update the row without creating an event.
+ */
+export function shouldCreateHomeworkChangeEvent(
+  parentDiffs: FieldChange[],
+  homeworkDate: string,
+  activitySinceYmd: string,
+): boolean {
+  if (parentDiffs.length === 0) return false;
+  if (isNoiseChangeEvent('homework', parentDiffs)) return false;
+  const hwDate = String(homeworkDate || '').trim();
+  if (
+    /^\d{4}-\d{2}-\d{2}$/.test(hwDate) &&
+    /^\d{4}-\d{2}-\d{2}$/.test(activitySinceYmd) &&
+    hwDate < activitySinceYmd &&
+    isSoftOnlyHomeworkChanges(parentDiffs)
+  ) {
+    return false;
+  }
+  return true;
 }
 
 function pushChange(
@@ -98,11 +171,17 @@ function pushChange(
   previousRaw: unknown,
   currentRaw: unknown,
 ): void {
-  const previous = normalizeComparable(previousRaw);
-  const current = normalizeComparable(currentRaw);
+  let previous = normalizeComparable(previousRaw);
+  let current = normalizeComparable(currentRaw);
+
+  if (field === 'attachmentUrl') {
+    previous = normalizeAttachmentUrlForCompare(previous);
+    current = normalizeAttachmentUrlForCompare(current);
+  }
+
   if (valuesEqual(previous, current)) return;
 
-  // Ignore whitespace-only instruction/title/content churn from re-normalization.
+  // Ignore whitespace/HTML-only instruction/title/content churn from re-normalization.
   if (
     (field === 'description' ||
       field === 'title' ||
@@ -111,6 +190,10 @@ function pushChange(
       field === 'subjectName') &&
     isTrivialTextFieldChange(previous, current)
   ) {
+    return;
+  }
+
+  if (field === 'attachmentUrl' && isTrivialAttachmentUrlChange(previous, current)) {
     return;
   }
 
@@ -247,6 +330,54 @@ export function isNoiseChangeEvent(
   if (changes.length === 0) return true;
   if (entityType === 'homework' && isLegacyAudienceOnlyChange(changes)) return true;
   if (parentRelevantChanges(entityType, changes).length === 0) return true;
+  return false;
+}
+
+/**
+ * Proven false-positive ContentChangeEvent — safe to hide and soft-delete from Neon.
+ * Never deletes ImportedHomework; only classifies change events.
+ */
+export function isProvenNoiseChangeEvent(input: {
+  entityType: string;
+  changedFields: FieldChange[];
+  currentSnapshotJson: string;
+  activitySinceYmd: string;
+}): boolean {
+  const type = input.entityType === 'notice' ? 'notice' : 'homework';
+  const fields = input.changedFields;
+  if (isNoiseChangeEvent(type, fields)) return true;
+  const visible = userVisibleChanges(type, fields);
+  if (visible.length === 0) return true;
+  if (
+    visible.every((f) => {
+      if (
+        f.field === 'description' ||
+        f.field === 'title' ||
+        f.field === 'content' ||
+        f.field === 'summary' ||
+        f.field === 'subjectName'
+      ) {
+        return isTrivialTextFieldChange(f.previous, f.current);
+      }
+      if (f.field === 'attachmentUrl') {
+        return isTrivialAttachmentUrlChange(f.previous, f.current);
+      }
+      return false;
+    })
+  ) {
+    return true;
+  }
+  if (type === 'homework') {
+    try {
+      const snap = JSON.parse(input.currentSnapshotJson) as { homeworkDate?: string };
+      const hwDate = String(snap.homeworkDate || '').trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(hwDate) && hwDate < input.activitySinceYmd) {
+        if (isSoftOnlyHomeworkChanges(visible)) return true;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
   return false;
 }
 

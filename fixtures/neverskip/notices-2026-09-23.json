@@ -1,0 +1,65 @@
+{
+  "D": {
+    "item_list": [
+      {
+        "id": "ns-notice-20260923-hindi-olympiad",
+        "date": "05:22 PM | 23/09/2026",
+        "time": "05:22 PM",
+        "title": "Classes: I, II",
+        "cont": "Jai Shri Gurudev Namaste Dear Parents International Hindi Olympiad registration details for Class I and II.",
+        "image": "",
+        "msg_src": "Teacher",
+        "msg_type": "Daily Notice",
+        "test_tar": {
+          "classes": ["I", "II"]
+        }
+      },
+      {
+        "id": "ns-notice-20260923-hindi-rev7",
+        "date": "04:59 PM | 23/09/2026",
+        "time": "04:59 PM",
+        "title": "Classes: I-A, I-B, I-D, I-F, I-J",
+        "cont": "Jai shri Gurudev Namaste Dear parents Kindly find Hindi class 1 revision paper -7.",
+        "image": "",
+        "test_tar": {
+          "classes": ["I-A", "I-B", "I-D", "I-F", "I-J"]
+        }
+      },
+      {
+        "id": "ns-notice-20260923-maths",
+        "date": "04:14 PM | 23/09/2026",
+        "time": "04:14 PM",
+        "title": "Classes: I-A, I-B, I-D, I-F, I-J",
+        "cont": "Jai Shri Gurudev Namaste Dear Parents Kindly find Mathematics Revision Paper.",
+        "image": "",
+        "test_tar": {
+          "classes": ["I-A", "I-B", "I-D", "I-F", "I-J"]
+        }
+      },
+      {
+        "id": "ns-notice-20260923-evs-ch8",
+        "date": "03:46 PM | 23/09/2026",
+        "time": "03:46 PM",
+        "title": "Classes: I-A, I-B, I-D, I-F, I-J",
+        "cont": "Jai Shri Gurudev Namaste Dear Parents Kindly find EVS Revision Paper Ch 8.",
+        "image": "",
+        "test_tar": {
+          "classes": ["I-A", "I-B", "I-D", "I-F", "I-J"]
+        }
+      },
+      {
+        "id": "ns-notice-20260922-picture",
+        "date": "03:44 PM | 22/09/2026",
+        "time": "03:44 PM",
+        "title": "Classes: I-A, I-B, I-G, I-I",
+        "cont": "Jai Shri Gurudev!Namaste dear parents and students,Revision paper 2 - Picture composition",
+        "image": "",
+        "test_tar": {
+          "classes": ["I-A", "I-B", "I-G", "I-I"]
+        }
+      }
+    ],
+    "total_count": 5,
+    "page_count": 1
+  }
+}

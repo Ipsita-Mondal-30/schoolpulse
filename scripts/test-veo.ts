@@ -74,7 +74,12 @@ async function main() {
 
     if (/not configured/i.test(message)) {
       console.error('Set GOOGLE_GENERATIVE_AI_API_KEY in .env (server-only).');
-    } else if (/403|PERMISSION|not (enabled|allowed)|ACCESS_DENIED|quota|billing|not available|UNSUPPORTED|INVALID_ARGUMENT.*model|model.*not found|404/i.test(message)) {
+    } else if (/429|RESOURCE_EXHAUSTED|quota|rate.?limit/i.test(message)) {
+      console.error(
+        '\nVeo access: YES (API accepted the model) but QUOTA EXHAUSTED for this key/project.',
+      );
+      console.error('Wait for quota reset or raise billing limits, then re-run npm run test:veo.');
+    } else if (/403|PERMISSION|not (enabled|allowed)|ACCESS_DENIED|billing|not available|UNSUPPORTED|INVALID_ARGUMENT.*model|model.*not found|404/i.test(message)) {
       console.error(
         '\nVeo access: NO or blocked — the Gemini API key/project likely cannot use Veo.',
       );

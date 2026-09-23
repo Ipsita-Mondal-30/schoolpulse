@@ -76,7 +76,9 @@ export async function generateAndDownloadVeoVideo(options: {
 
   let operation = await ai.models.generateVideos({
     model,
-    prompt: options.prompt,
+    source: {
+      prompt: options.prompt,
+    },
     config: {
       numberOfVideos: options.numberOfVideos ?? 1,
       aspectRatio: options.aspectRatio ?? '16:9',

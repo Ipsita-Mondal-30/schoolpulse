@@ -1,3 +1,13 @@
+/**
+ * NeverSkip daily notices fetch.
+ *
+ * Pagination behavior (do not fabricate missing history):
+ * - When the envelope exposes `total_count` and/or `page_count`, walk pages (cap 50).
+ *   If unique fetched < total_count → incomplete / PARTIAL (admin diagnostics only).
+ * - When totals are absent and page 0 looks full, probe later pages; if probes fail
+ *   (SQLSTATE / non-JSON), keep page-0 rows and set `page0Only` — never invent notices.
+ * - Always upsert whatever unique rows were actually returned; never invent dates/content.
+ */
 import type { NeverSkipClient } from './client';
 import { nsError, nsLog, nsWarn } from './log';
 import { extractNotices, inspectNoticeEnvelope } from './normalizers';

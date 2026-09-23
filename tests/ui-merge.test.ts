@@ -197,6 +197,14 @@ describe('class / section filters', () => {
     expect(filterNoticesByClass(items, 'I-A').map((n) => n.id)).toEqual(['ia']);
     expect(filterNoticesByClass(items, 'All').map((n) => n.id).sort()).toEqual(['ia', 'ib']);
   });
+
+  it('treats whole-class I targeting as matching I-A', () => {
+    const items = [nt({ id: 'class-i', classes: ['I', 'II'], date: '2026-09-22' })];
+    expect(filterNoticesByClass(items, 'I-A').map((n) => n.id)).toEqual(['class-i']);
+    expect(resolveNoticeClassesForUi(['I', 'II'])).toEqual(
+      expect.arrayContaining(['I-A', 'I-B', 'I-K']),
+    );
+  });
 });
 
 describe('resolveNoticeDateForUi / classes', () => {

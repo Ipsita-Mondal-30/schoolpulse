@@ -91,7 +91,7 @@ export default function TimetablePage() {
                   {jolSchedule.title || 'Joy of Learning II — Timetable'}
                 </p>
                 <p className="mt-1 text-xs text-[var(--sp-muted)]">
-                  {jolSchedule.classesLabel || 'Class I & II'}
+                  Class I
                   {jolSchedule.academicYear ? ` · ${jolSchedule.academicYear}` : ''}
                 </p>
                 {jolSchedule.sourceDocumentUrl ? (
@@ -119,9 +119,7 @@ export default function TimetablePage() {
                       </span>
                     </div>
                     <p className="mt-1 text-sm text-[var(--sp-muted)]">
-                      Class I — {row.classI}
-                      <span className="mx-2 text-[var(--sp-subtle)]">·</span>
-                      Class II — {row.classII}
+                      {row.classI}
                     </p>
                   </li>
                 ))}

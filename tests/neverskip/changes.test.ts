@@ -19,8 +19,8 @@ function hw(
     subjectName: 'Mathematics',
     description: '',
     sections: ['I-A'],
-    homeworkDate: '2026-09-10',
-    dueDate: '2026-09-12',
+    homeworkDate: '2026-09-20',
+    dueDate: '2026-09-22',
     attachmentUrl: null,
     ...partial,
   };
@@ -282,6 +282,74 @@ describe('InMemoryNeverSkipStore change events', () => {
     const ev = store.listChangeEvents()[0];
     const blob = `${ev.previousSnapshotJson}${ev.currentSnapshotJson}${JSON.stringify(ev.changedFields)}`;
     expect(blob.toLowerCase()).not.toMatch(/password|cookie|authorization|database_url|token/);
+  });
+
+  it('historical soft-field description churn does not create a change event', async () => {
+    const store = new InMemoryNeverSkipStore();
+    await store.upsertHomework(
+      hw({
+        sourceId: 'june',
+        title: 'Chapter 1',
+        homeworkDate: '2026-06-02',
+        description: 'Old instructions',
+      }),
+    );
+    await store.upsertHomework(
+      hw({
+        sourceId: 'june',
+        title: 'Chapter 1',
+        homeworkDate: '2026-06-02',
+        description: 'Old  instructions', // whitespace/soft churn
+      }),
+    );
+    // trivial whitespace → content key equal or soft-only historical gate
+    expect(store.listChangeEvents()).toHaveLength(0);
+  });
+
+  it('historical soft-only description rewrite does not create a change event', async () => {
+    const store = new InMemoryNeverSkipStore();
+    await store.upsertHomework(
+      hw({
+        sourceId: 'june2',
+        title: 'Chapter 1',
+        homeworkDate: '2026-06-02',
+        description: 'Complete the worksheet',
+      }),
+    );
+    await store.upsertHomework(
+      hw({
+        sourceId: 'june2',
+        title: 'Chapter 1',
+        homeworkDate: '2026-06-02',
+        description: 'Complete the worksheet carefully',
+      }),
+    );
+    expect(store.listChangeEvents()).toHaveLength(0);
+  });
+
+  it('historical title change still creates a change event', async () => {
+    const store = new InMemoryNeverSkipStore();
+    await store.upsertHomework(
+      hw({ sourceId: 'june3', title: 'Old', homeworkDate: '2026-06-02' }),
+    );
+    await store.upsertHomework(
+      hw({ sourceId: 'june3', title: 'New', homeworkDate: '2026-06-02' }),
+    );
+    expect(store.listChangeEvents()).toHaveLength(1);
+  });
+
+  it('signed attachment query churn is not a change', () => {
+    const a = hw({
+      sourceId: '1',
+      title: 'T',
+      attachmentUrl: 'https://cdn.example.com/file.pdf?X-Amz-Signature=aaa&Expires=1',
+    });
+    const b = hw({
+      sourceId: '1',
+      title: 'T',
+      attachmentUrl: 'https://cdn.example.com/file.pdf?X-Amz-Signature=bbb&Expires=2',
+    });
+    expect(getMeaningfulHomeworkChanges(a, b)).toHaveLength(0);
   });
 
   it('userVisibleChanges hides internal subjectId', () => {

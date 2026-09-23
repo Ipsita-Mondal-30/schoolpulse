@@ -5,6 +5,7 @@ import type {
   NormalizedScheduleEvent,
   UpsertResult,
 } from './types';
+import { collapseText, normalizeAttachmentUrlForCompare } from './changes';
 
 export interface NeverSkipStore {
   upsertHomework(item: NormalizedHomework): Promise<UpsertResult>;
@@ -47,13 +48,13 @@ export function homeworkContentKey(item: NormalizedHomework): string {
   return JSON.stringify({
     refId: item.refId,
     subjectId: item.subjectId,
-    subjectName: item.subjectName,
-    title: item.title,
-    description: item.description,
+    subjectName: collapseText(item.subjectName).toLowerCase(),
+    title: collapseText(item.title).toLowerCase(),
+    description: collapseText(item.description).toLowerCase(),
     sections: [...item.sections].map(String).sort(),
     homeworkDate: item.homeworkDate,
     dueDate: item.dueDate,
-    attachmentUrl: item.attachmentUrl,
+    attachmentUrl: normalizeAttachmentUrlForCompare(item.attachmentUrl),
   });
 }
 

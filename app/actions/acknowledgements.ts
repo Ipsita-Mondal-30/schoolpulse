@@ -7,12 +7,14 @@ import { uiHomeworkId, uiNoticeId } from '@/lib/neverskip/ids';
 import { parsePrefixedSourceId } from '@/lib/acknowledgement-ids';
 import {
   acknowledgeAccessError,
+  classLabelFromParts,
   classesFromNoticeJson,
   listApprovedStudentClasses,
   PARENT_STUDENT_APPROVED,
   parentHasApprovedLink,
   sectionsFromHomeworkJson,
 } from '@/lib/parent-access';
+import { ensureParentLinkedToSyncedChild } from '@/lib/synced-child';
 
 export type SessionParent = {
   id: string;
@@ -129,24 +131,66 @@ export type ParentAccessSummary = {
   hasApprovedLink: boolean;
   approvedClassLabels: string[];
   studentName: string | null;
+  /** Primary Class 1 section for the synced child (e.g. I-A). */
+  primarySection: string | null;
+  studentId: string | null;
+  neverSkipStudentId: string | null;
 };
 
 export async function loadParentAccess(): Promise<ParentAccessSummary> {
+  const empty: ParentAccessSummary = {
+    hasApprovedLink: false,
+    approvedClassLabels: [],
+    studentName: null,
+    primarySection: null,
+    studentId: null,
+    neverSkipStudentId: null,
+  };
   const parent = await getSessionParent();
-  if (!parent) {
-    return { hasApprovedLink: false, approvedClassLabels: [], studentName: null };
-  }
+  if (!parent) return empty;
+
   const prisma = getPrisma();
-  const approvedClassLabels = await listApprovedStudentClasses(prisma, parent.id);
+
+  // Heal missing ParentStudent when NeverSkip data already exists in Neon.
+  let approvedClassLabels = await listApprovedStudentClasses(prisma, parent.id);
+  if (!parentHasApprovedLink(approvedClassLabels)) {
+    try {
+      await ensureParentLinkedToSyncedChild(prisma, parent.id);
+      approvedClassLabels = await listApprovedStudentClasses(prisma, parent.id);
+    } catch (err) {
+      console.error('Failed to link parent to synced child', err);
+    }
+  }
+
   const firstLink = await prisma.parentStudent.findFirst({
     where: { parentUserId: parent.id, status: PARENT_STUDENT_APPROVED },
-    include: { student: { select: { displayName: true } } },
+    include: {
+      student: {
+        select: {
+          id: true,
+          displayName: true,
+          neverSkipStudentId: true,
+          class: { select: { name: true, section: true } },
+        },
+      },
+    },
     orderBy: { createdAt: 'asc' },
   });
+
+  const primarySection =
+    approvedClassLabels[0] ||
+    (firstLink
+      ? classLabelFromParts(firstLink.student.class.name, firstLink.student.class.section) ||
+        null
+      : null);
+
   return {
     hasApprovedLink: parentHasApprovedLink(approvedClassLabels),
     approvedClassLabels,
     studentName: firstLink?.student.displayName?.trim() || null,
+    primarySection,
+    studentId: firstLink?.student.id ?? null,
+    neverSkipStudentId: firstLink?.student.neverSkipStudentId ?? null,
   };
 }
 

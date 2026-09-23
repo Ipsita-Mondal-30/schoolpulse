@@ -19,6 +19,7 @@ export default defineConfig({
       'tests/acknowledgements.test.ts',
       'tests/parent-onboarding.test.ts',
       'tests/recap/**/*.test.ts',
+      'tests/ai/**/*.test.ts',
     ],
   },
   resolve: {

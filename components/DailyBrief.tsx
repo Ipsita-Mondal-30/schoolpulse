@@ -23,12 +23,11 @@ import {
 import { useDailyBriefQuery } from '@/lib/queries/daily-brief';
 import { useUpdatesFeedQuery } from '@/lib/queries/updates';
 import { useParentAccessQuery } from '@/lib/queries/acknowledgements';
+import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import { LoadingState } from '@/components/ui/LoadingState';
 import TodaysRecapHomeCard from '@/components/recap/TodaysRecapHomeCard';
 import { countUnreadUpdates, filterUpdatesBySection } from '@/lib/updates-feed';
 import { readLastSeenIso } from '@/lib/updates-unread';
-
-const SECTION = 'I-A';
 
 function formatLongDate(ymd: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return ymd;
@@ -52,11 +51,12 @@ export default function DailyBrief() {
   const { data: session } = useSession();
   const isParent = session?.user?.role === 'parent';
   const { data: access } = useParentAccessQuery(Boolean(isParent));
+  const { section } = useSyncedChildSection();
   const [greeting, setGreeting] = useState('Good evening');
   const [todayYmd, setTodayYmd] = useState('');
   const [unreadUpdates, setUnreadUpdates] = useState(0);
   const [pulse, setPulse] = useState(() => buildDailyPulse());
-  const { data, isPending, isError, refetch } = useDailyBriefQuery({ section: SECTION });
+  const { data, isPending, isError, refetch } = useDailyBriefQuery({ section });
   const { data: updatesFeed } = useUpdatesFeedQuery();
 
   useEffect(() => {
@@ -76,17 +76,17 @@ export default function DailyBrief() {
 
   useEffect(() => {
     const lastSeen = readLastSeenIso();
-    const forSection = filterUpdatesBySection(updatesFeed ?? [], SECTION);
+    const forSection = filterUpdatesBySection(updatesFeed ?? [], section);
     setUnreadUpdates(countUnreadUpdates(forSection, lastSeen));
-  }, [updatesFeed]);
+  }, [updatesFeed, section]);
 
   const firstName =
     session?.user?.name?.trim().split(/\s+/)[0] ||
     (session?.user?.email ? session.user.email.split('@')[0] : '');
 
   const childName = access?.studentName?.trim() || '';
-  const childLabel = childName || classLine(SECTION);
-  const childInitial = (childName || classLine(SECTION)).slice(0, 1).toUpperCase();
+  const childLabel = childName || classLine(section);
+  const childInitial = (childName || classLine(section)).slice(0, 1).toUpperCase();
 
   const attention = useMemo(() => {
     if (!data) return [];
@@ -149,7 +149,7 @@ export default function DailyBrief() {
             {childInitial}
           </span>
           <p className="text-sm font-medium text-[var(--sp-ink)]">{childLabel}</p>
-          <p className="text-xs text-[var(--sp-muted)]">{classLine(SECTION)}</p>
+          <p className="text-xs text-[var(--sp-muted)]">{classLine(section)}</p>
         </div>
       </header>
 
@@ -267,7 +267,7 @@ export default function DailyBrief() {
         )}
       </section>
 
-      <TodaysRecapHomeCard section={SECTION} todayYmd={data.today || todayYmd} />
+      <TodaysRecapHomeCard section={section} todayYmd={data.today || todayYmd} />
 
       <section className="space-y-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">

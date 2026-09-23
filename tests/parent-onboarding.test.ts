@@ -99,5 +99,6 @@ describe('parent access helpers', () => {
     expect(acknowledgeAccessError([], ['I-A'])).toBe(ERR_NO_LINKED_CHILD);
     expect(acknowledgeAccessError(['I-A'], ['I-B'])).toBe(ERR_NOT_FOR_LINKED_CLASS);
     expect(acknowledgeAccessError(['I-A'], ['I-A'])).toBeNull();
+    expect(ERR_NO_LINKED_CHILD).toMatch(/child not synced/i);
   });
 });

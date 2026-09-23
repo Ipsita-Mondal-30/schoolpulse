@@ -481,27 +481,50 @@ function sheetRowsToHomeworkItems(rows: SheetHomework[]): ImportedHomeworkItem[]
 export async function fetchImportedHomework(): Promise<ImportedHomeworkItem[]> {
     try {
         if (!process.env.DATABASE_URL) {
-            console.log('[SchoolPulse] UI DB homework count: 0 (DATABASE_URL missing)');
             return [];
         }
-        const { PrismaNeverSkipStore } = await import('@/lib/neverskip/prisma-store');
+        const { getPrisma } = await import('@/lib/prisma');
         const { uiHomeworkId } = await import('@/lib/neverskip/ids');
         const { homeworkSectionsForUi, toSortableDate } = await import('@/lib/ui-merge');
-        const store = new PrismaNeverSkipStore();
-        const rows = await store.listHomework();
-        return rows.map((h) => ({
-            id: uiHomeworkId(h.sourceId, h.source),
-            title: h.title,
-            subject: h.subjectName,
-            sections: homeworkSectionsForUi(h.sections),
-            description: h.description,
-            submissionDate: h.dueDate || undefined,
-            sentDate: toSortableDate(h.homeworkDate) || h.homeworkDate,
-            attachmentImage: h.attachmentUrl || undefined,
-        }));
+        const { addDaysYmd, getIndiaToday } = await import('@/lib/daily-brief');
+
+        // Cap UI payload: recent assigned window + anything still due soon. Full archive stays in DB.
+        const today = getIndiaToday();
+        const sinceYmd = addDaysYmd(today, -90) || today;
+        const dueFloor = addDaysYmd(today, -14) || today;
+
+        const rows = await getPrisma().importedHomework.findMany({
+            where: {
+                OR: [
+                    { homeworkDate: { gte: sinceYmd } },
+                    { dueDate: { gte: dueFloor } },
+                ],
+            },
+            orderBy: [{ homeworkDate: 'desc' }, { updatedAt: 'desc' }],
+            take: 120,
+        });
+
+        return rows.map((h) => {
+            let sections: string[] = [];
+            try {
+                const parsed = JSON.parse(h.sectionsJson);
+                sections = Array.isArray(parsed) ? parsed.map(String) : [];
+            } catch {
+                sections = [];
+            }
+            return {
+                id: uiHomeworkId(h.sourceId, h.source),
+                title: h.title,
+                subject: h.subjectName,
+                sections: homeworkSectionsForUi(sections),
+                description: h.description,
+                submissionDate: h.dueDate || undefined,
+                sentDate: toSortableDate(h.homeworkDate) || h.homeworkDate,
+                attachmentImage: h.attachmentUrl || undefined,
+            };
+        });
     } catch (error) {
         console.error('Failed to fetch imported homework', error);
-        console.log('[SchoolPulse] UI DB homework count: 0 (error)');
         return [];
     }
 }
@@ -509,7 +532,6 @@ export async function fetchImportedHomework(): Promise<ImportedHomeworkItem[]> {
 export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
     try {
         if (!process.env.DATABASE_URL) {
-            console.log('[SchoolPulse] UI DB notice count: 0 (DATABASE_URL missing)');
             return [];
         }
         const { getPrisma } = await import('@/lib/prisma');
@@ -519,16 +541,21 @@ export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
             resolveNoticeClassesForUi,
             resolveNoticeDateForUi,
         } = await import('@/lib/ui-merge');
+        const { addDaysYmd, getIndiaToday } = await import('@/lib/daily-brief');
 
-        // Query Prisma directly so UI can use createdAt when publishedDate is blank.
-        // Does not change NeverSkip normalization / ingestion.
+        const sinceYmd = addDaysYmd(getIndiaToday(), -60) || getIndiaToday();
+
         // Prefer publication date/time so the newest school notice loads first.
         const rows = await getPrisma().importedNotice.findMany({
+            where: {
+                OR: [{ publishedDate: { gte: sinceYmd } }, { publishedDate: '' }],
+            },
             orderBy: [
                 { publishedDate: 'desc' },
                 { publishedTime: 'desc' },
                 { createdAt: 'desc' },
             ],
+            take: 80,
         });
 
         return rows.map((n) => {
@@ -557,7 +584,6 @@ export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
         });
     } catch (error) {
         console.error('Failed to fetch imported notices', error);
-        console.log('[SchoolPulse] UI DB notice count: 0 (error)');
         return [];
     }
 }
@@ -568,11 +594,6 @@ export async function loadHomeworkForUi(): Promise<{
     fromSheet: boolean;
 }> {
     const imported = await fetchImportedHomework();
-
-    console.log(`[SchoolPulse] UI DB homework count: ${imported.length}`);
-    console.log('[SchoolPulse] UI JSON/sheet homework count: 0 (Neon-only)');
-    console.log(`[SchoolPulse] UI merged homework count: ${imported.length}`);
-
     return { items: imported, fromSheet: false };
 }
 
@@ -580,13 +601,7 @@ export async function loadHomeworkForUi(): Promise<{
 export async function loadNoticesForUi(): Promise<ImportedNoticeItem[]> {
     const { sortNoticesNewestFirst } = await import('@/lib/ui-merge');
     const imported = await fetchImportedNotices();
-    const sorted = sortNoticesNewestFirst(imported);
-
-    console.log(`[SchoolPulse] UI DB notice count: ${imported.length}`);
-    console.log('[SchoolPulse] UI JSON/sheet notice count: 0 (Neon-only)');
-    console.log(`[SchoolPulse] UI merged notice count: ${sorted.length}`);
-
-    return sorted;
+    return sortNoticesNewestFirst(imported);
 }
 
 export type UiJolItem = {
@@ -790,8 +805,11 @@ export async function loadRecentUpdates(options?: {
         if (!process.env.DATABASE_URL) return [];
 
         const { getPrisma } = await import('@/lib/prisma');
-        const { parseFieldChanges, userVisibleChanges, isNoiseChangeEvent, isTrivialTextFieldChange } =
-            await import('@/lib/neverskip/changes');
+        const {
+            parseFieldChanges,
+            isProvenNoiseChangeEvent,
+            userVisibleChanges,
+        } = await import('@/lib/neverskip/changes');
         const { buildUpdatesFeed } = await import('@/lib/updates-feed');
         const { addDaysYmd, getIndiaToday } = await import('@/lib/daily-brief');
 
@@ -806,64 +824,24 @@ export async function loadRecentUpdates(options?: {
         const changeRows = await prisma.contentChangeEvent.findMany({
             where: { detectedAt: { gte: changeSince } },
             orderBy: { detectedAt: 'desc' },
-            take: 200,
+            take: 100,
         });
 
         const isProvenNoise = (row: {
             entityType: string;
             changedFieldsJson: string;
             currentSnapshotJson: string;
-            detectedAt: Date;
-        }): boolean => {
-            const type = row.entityType === 'notice' ? 'notice' : 'homework';
-            const fields = parseFieldChanges(row.changedFieldsJson);
-            if (isNoiseChangeEvent(type, fields)) return true;
-            const visible = userVisibleChanges(type, fields);
-            if (visible.length === 0) return true;
-            if (
-                visible.every((f) => {
-                    if (
-                        f.field === 'description' ||
-                        f.field === 'title' ||
-                        f.field === 'content' ||
-                        f.field === 'summary' ||
-                        f.field === 'subjectName'
-                    ) {
-                        return isTrivialTextFieldChange(f.previous, f.current);
-                    }
-                    return false;
-                })
-            ) {
-                return true;
-            }
-            // Stale homework with only description/sections churn from re-sync — not a parent "update".
-            if (type === 'homework') {
-                try {
-                    const snap = JSON.parse(row.currentSnapshotJson) as { homeworkDate?: string };
-                    const hwDate = String(snap.homeworkDate || '').trim();
-                    if (/^\d{4}-\d{2}-\d{2}$/.test(hwDate)) {
-                        const onlySoft = visible.every(
-                            (f) => f.field === 'description' || f.field === 'sections',
-                        );
-                        if (onlySoft && hwDate < activitySinceYmd) return true;
-                    }
-                } catch {
-                    /* ignore */
-                }
-            }
-            return false;
-        };
+        }): boolean =>
+            isProvenNoiseChangeEvent({
+                entityType: row.entityType,
+                changedFields: parseFieldChanges(row.changedFieldsJson),
+                currentSnapshotJson: row.currentSnapshotJson,
+                activitySinceYmd,
+            });
 
-        // Soft cleanup + feed filter: drop proven false-positive change events.
+        // Filter only — bulk delete belongs in scripts/cleanup-false-change-events.ts
+        // so parent page loads stay fast.
         const usableChangeRows = changeRows.filter((row) => !isProvenNoise(row));
-
-        // Best-effort: remove proven noise events so they stop resurfacing.
-        const noiseIds = changeRows.filter((row) => isProvenNoise(row)).map((row) => row.id);
-        if (noiseIds.length > 0) {
-            await prisma.contentChangeEvent
-                .deleteMany({ where: { id: { in: noiseIds } } })
-                .catch(() => undefined);
-        }
 
         const homeworkIdsFromChanges = usableChangeRows
             .filter((row) => row.entityType !== 'notice')
@@ -914,13 +892,20 @@ export async function loadRecentUpdates(options?: {
         ];
 
         const [homeworkRows, noticeRows] = await Promise.all([
-            prisma.importedHomework.findMany({ where: homeworkWhere }),
+            prisma.importedHomework.findMany({
+                where: homeworkWhere,
+                orderBy: [{ homeworkDate: 'desc' }],
+                take: 80,
+            }),
             prisma.importedNotice.findMany({
                 where: { OR: noticeOr },
                 orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
-                take: 200,
+                take: 80,
             }),
         ]);
+
+        // Bind locally so HMR / dynamic-import edge cases cannot leave this undefined.
+        const toVisibleFields = userVisibleChanges;
 
         const items = buildUpdatesFeed({
             since,
@@ -958,19 +943,16 @@ export async function loadRecentUpdates(options?: {
                     sourceId: row.sourceId,
                     entityId: row.entityId,
                     detectedAt: row.detectedAt,
-                    changedFields: userVisibleChanges(type, parseFieldChanges(row.changedFieldsJson)),
+                    changedFields: toVisibleFields(type, parseFieldChanges(row.changedFieldsJson)),
                     title: meta.title,
                     subject: meta.subject,
                 };
             }),
         });
 
-        // Prefer NEW/CHANGED first (already ordered), then RECENT; cap total.
         const newPart = items.filter((i) => i.section === 'new');
         const recentPart = items.filter((i) => i.section === 'recent');
-        const capped = [...newPart, ...recentPart.slice(0, Math.max(0, 80 - newPart.length))];
-        console.log(`[SchoolPulse] Updates feed count: ${capped.length} (new=${newPart.length} recent=${recentPart.length})`);
-        return capped;
+        return [...newPart, ...recentPart.slice(0, Math.max(0, 80 - newPart.length))];
     } catch (error) {
         console.error('Failed to load recent updates', error);
         return [];

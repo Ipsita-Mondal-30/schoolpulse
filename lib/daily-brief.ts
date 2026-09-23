@@ -265,7 +265,18 @@ export function buildDailyBrief(input: BuildDailyBriefInput): DailyBrief {
   } = input;
 
   const homework = dedupeById(filterHomeworkBySection(input.homework, section));
-  const notices = dedupeById(input.notices);
+  const notices = dedupeById(
+    input.notices.filter((n) => {
+      const classes = n.classes || [];
+      if (classes.length === 0) return true;
+      if (classes.includes(section) || classes.includes('ALL')) return true;
+      const want = section.toUpperCase();
+      return classes.some((c) => {
+        const u = String(c).toUpperCase();
+        return u === want || (want.startsWith('I-') && (u === 'I' || u === 'CLASS I'));
+      });
+    }),
+  );
 
   const overdue: DailyBriefHomeworkItem[] = [];
   const dueToday: DailyBriefHomeworkItem[] = [];
@@ -274,9 +285,12 @@ export function buildDailyBrief(input: BuildDailyBriefInput): DailyBrief {
   const placed = new Set<string>();
 
   for (const hw of homework) {
+    // Do not surface months-old overdue homework on the parent home brief.
     if (isOverdue(hw.submissionDate, today)) {
-      overdue.push(toBriefHomework(hw));
-      placed.add(hw.id);
+      if (isRecentlyOverdue(hw.submissionDate, today, ATTENTION_OVERDUE_DAYS)) {
+        overdue.push(toBriefHomework(hw));
+        placed.add(hw.id);
+      }
     } else if (isDueToday(hw.submissionDate, today)) {
       dueToday.push(toBriefHomework(hw));
       placed.add(hw.id);

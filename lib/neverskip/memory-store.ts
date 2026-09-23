@@ -5,6 +5,7 @@ import {
   isNoiseChangeEvent,
   noticeSnapshot,
   parentRelevantChanges,
+  shouldCreateHomeworkChangeEvent,
   type ChangeEntityType,
   type FieldChange,
 } from './changes';
@@ -26,6 +27,8 @@ import type {
   NormalizedScheduleEvent,
   UpsertResult,
 } from './types';
+import { UPDATES_RECENT_DAYS } from '@/lib/updates-feed';
+import { addDaysYmd, getIndiaToday } from '@/lib/daily-brief';
 
 export interface InMemoryChangeEvent {
   id: string;
@@ -89,10 +92,11 @@ export class InMemoryNeverSkipStore implements NeverSkipStore {
       isLegacyDefaultHomeworkAudience(existing.sections) &&
       parentDiffs.every((d) => d.field === 'sections') &&
       item.sections.length === defaultClass1Audience().length;
+    const activitySinceYmd =
+      addDaysYmd(getIndiaToday(), -(UPDATES_RECENT_DAYS - 1)) || getIndiaToday();
     if (
-      parentDiffs.length > 0 &&
       !skipAudienceNoise &&
-      !isNoiseChangeEvent('homework', diffs)
+      shouldCreateHomeworkChangeEvent(parentDiffs, item.homeworkDate, activitySinceYmd)
     ) {
       this.changes.push({
         id: this.nextId('chg'),

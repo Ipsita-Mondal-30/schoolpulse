@@ -108,13 +108,12 @@ export default function PlannerPage() {
           </Link>
         </div>
         <p className="text-xs text-[var(--sp-muted)]">
-          Same canonical source as Joy of Learning Dates (Calendar API + schedule documents). Sync:{' '}
-          {scheduleQuery.data?.freshness.lastStatus || 'unknown'}
+          Same schedule source as Joy of Learning and Timetable.
         </p>
         {nsEvents.length === 0 && nsDocs.length === 0 ? (
           <EmptyState
-            title="No live NeverSkip schedule events"
-            description="When Calendar or a timetable document syncs from NeverSkip, it appears here and on Timetable / Joy of Learning."
+            title="No schedule events yet"
+            description="When the school publishes calendar or timetable dates, they appear here and on Timetable / Joy of Learning."
           />
         ) : (
           <ul className="overflow-hidden rounded-2xl border border-[var(--sp-border)] bg-white">

@@ -158,18 +158,22 @@ function normalizeNoticeTime(raw?: string | null): string {
   return `${hh}:${mm}`;
 }
 
-/** Newest first by date then time; blank dates sink to the bottom. */
+/** Newest first by date then time; blank dates sink to the bottom. Stable id tie-break. */
 export function sortNoticesNewestFirst(items: UiNoticeItem[]): UiNoticeItem[] {
   return [...items].sort((a, b) => {
     const da = toSortableDate(a.date);
     const db = toSortableDate(b.date);
     if (!da && !db) {
-      return normalizeNoticeTime(b.time).localeCompare(normalizeNoticeTime(a.time));
+      const t = normalizeNoticeTime(b.time).localeCompare(normalizeNoticeTime(a.time));
+      if (t !== 0) return t;
+      return String(b.id).localeCompare(String(a.id));
     }
     if (!da) return 1;
     if (!db) return -1;
     if (da === db) {
-      return normalizeNoticeTime(b.time).localeCompare(normalizeNoticeTime(a.time));
+      const t = normalizeNoticeTime(b.time).localeCompare(normalizeNoticeTime(a.time));
+      if (t !== 0) return t;
+      return String(b.id).localeCompare(String(a.id));
     }
     return db.localeCompare(da);
   });
@@ -199,12 +203,32 @@ export function filterNoticesByClass(
   activeClass: string | 'All',
 ): UiNoticeItem[] {
   if (activeClass === 'All') return items;
-  return items.filter((n) => n.classes.includes(activeClass));
+  const want = String(activeClass).trim().toUpperCase();
+  return items.filter((n) => {
+    const classes = (n.classes || []).map((c) => String(c).trim().toUpperCase());
+    if (classes.length === 0) return true;
+    if (classes.includes('ALL') || classes.includes('ALLCLASSES')) return true;
+    if (classes.includes(want)) return true;
+    // Class-level "I" should match section I-A…I-K
+    if (want.startsWith('I-') && (classes.includes('I') || classes.includes('CLASS I'))) {
+      return true;
+    }
+    return false;
+  });
 }
 
 /** Prefer a readable summary when NeverSkip stored class targeting as the title. */
 export function noticeSummaryForUi(title: string, summary: string, content: string): string {
-  const s = (summary || title || '').trim();
+  const raw = (summary || title || '').trim();
+  let s = raw;
+  // Drop repeated school greetings so parents see the real subject first.
+  s = s.replace(/^(jai\s+(sri|shri|shree|sree)\s+gurudev[!.]?\s*)+/gi, '');
+  s = s.replace(/^namaste[!.]?\s*/i, '');
+  s = s.replace(
+    /^dear\s+(parents?|students?|children)(\s+and\s+(students?|parents?|children))?\s*,?\s*/i,
+    '',
+  );
+  s = s.replace(/\s+/g, ' ').trim() || raw;
   if (/^class(?:es)?\s*:/i.test(s)) {
     const first = content.replace(/\s+/g, ' ').trim().slice(0, 140);
     return first || s;
@@ -243,7 +267,22 @@ export function resolveNoticeClassesForUi(
   classes: string[],
   ...textParts: string[]
 ): string[] {
-  if (classes.length > 0) return classes;
-  const parsed = parseSectionsFromText(...textParts);
-  return parsed.length > 0 ? parsed : defaultClass1Audience();
+  const raw = classes.length > 0 ? classes : parseSectionsFromText(...textParts);
+  if (raw.length === 0) return defaultClass1Audience();
+
+  // Expand whole-class codes (NeverSkip sometimes sends "I" / "II" without section).
+  const expanded = new Set<string>();
+  for (const c of raw.map((x) => String(x || '').trim().toUpperCase())) {
+    if (!c) continue;
+    if (c === 'I' || c === 'CLASS I' || c === 'CLASS1' || c === '1') {
+      for (const sec of defaultClass1Audience()) expanded.add(sec);
+      continue;
+    }
+    if (c === 'ALL' || c === 'ALLCLASSES') {
+      expanded.add('ALL');
+      continue;
+    }
+    expanded.add(c);
+  }
+  return expanded.size > 0 ? [...expanded] : defaultClass1Audience();
 }
