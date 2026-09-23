@@ -12,11 +12,18 @@ import {
 } from '@/lib/recap/schema';
 import type { TopicExtractionResult } from '@/lib/recap/topic-extraction';
 
-export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.6-flash';
+
+/** Retired preview ids still present in some local .env files. */
+const GEMINI_MODEL_ALIASES: Record<string, string> = {
+  'gemini-2.5-flash': 'gemini-3.6-flash',
+  'gemini-2.0-flash': 'gemini-3.6-flash',
+  'gemini-1.5-flash': 'gemini-3.6-flash',
+};
 
 export function getGeminiModelId(): string {
-  const configured = process.env.GEMINI_MODEL?.trim();
-  return configured || DEFAULT_GEMINI_MODEL;
+  const configured = process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
+  return GEMINI_MODEL_ALIASES[configured] || configured;
 }
 
 export function assertGeminiApiKeyConfigured(): void {

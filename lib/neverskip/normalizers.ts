@@ -142,7 +142,14 @@ export function normalizeDate(raw?: string | null): string {
     return normalizeDate(timeThenDate[2]);
   }
 
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    const ymd = s.slice(0, 10);
+    const yearNum = Number(ymd.slice(0, 4));
+    // Reject MySQL zero-dates ("0000-00-00 00:00:00") and nonsense years.
+    if (!Number.isFinite(yearNum) || yearNum < 1990 || yearNum > 2100) return '';
+    if (ymd.slice(5, 7) === '00' || ymd.slice(8, 10) === '00') return '';
+    return ymd;
+  }
 
   // 4-Sep-2026 or 04-Sep-2026 (reject nonsense years like 30-Nov--0001)
   const m1 = s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
@@ -287,6 +294,7 @@ export function normalizeHomework(raw: NeverSkipRawAssignment): NormalizedHomewo
   const homeworkDate = normalizeDate(raw.ass_dt) || normalizeDate(raw.assign_dt);
   const dueDate =
     normalizeDate(raw.due_dt) ||
+    normalizeDate(raw.ass_duedt) ||
     normalizeDate(raw.submission_dt) ||
     null;
 

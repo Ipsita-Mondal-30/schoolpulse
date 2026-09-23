@@ -566,6 +566,17 @@ export async function syncNeverSkipData({
     );
   }
 
+  try {
+    if (process.env.DATABASE_URL && store.constructor?.name === 'PrismaNeverSkipStore') {
+      const { extractAndStoreHomeworkDeadlines } = await import('@/lib/deadlines/run');
+      await extractAndStoreHomeworkDeadlines({ maxGeminiCalls: 25 });
+    }
+  } catch (err) {
+    nsWarn(
+      `Deadline extraction skipped: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
   return summary;
 }
 

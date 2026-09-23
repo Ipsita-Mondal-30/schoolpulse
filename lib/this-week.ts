@@ -1,17 +1,23 @@
 /**
- * This Week view: group homework by reliable due date (Mon–Sun, India).
- * Never invents due dates — undated items go to dateNotSpecified.
+ * This Week view: group homework by school-provided due date (Mon–Sun, India).
+ * Assigned/published date is never used as the calendar day.
+ * Assigned-only items go to dateNotSpecified — they are not due.
  */
 
 import type { UiHomeworkItem } from '@/lib/ui-merge';
-import { filterHomeworkBySection, toSortableDate } from '@/lib/ui-merge';
+import { filterHomeworkBySection } from '@/lib/ui-merge';
+import {
+  assignedYmd,
+  dueYmd,
+  hasSchoolProvidedDueDate,
+} from '@/lib/homework-dates';
 import {
   addDaysYmd,
   formatBriefDate,
-  hasReliableDueDate,
   isDueToday,
   isDueTomorrow,
   isOverdue,
+  isRecentlyOverdue,
 } from '@/lib/daily-brief';
 import {
   eachDayYmd,
@@ -65,9 +71,8 @@ export interface BuildThisWeekViewInput {
   section: string;
 }
 
-function dueYmd(submissionDate?: string | null): string {
-  if (!hasReliableDueDate(submissionDate)) return '';
-  return toSortableDate(submissionDate!);
+function dueYmdOrEmpty(submissionDate?: string | null): string {
+  return dueYmd({ submissionDate });
 }
 
 function toItem(hw: UiHomeworkItem): ThisWeekHomeworkItem {
@@ -95,8 +100,8 @@ function dedupeById(items: UiHomeworkItem[]): UiHomeworkItem[] {
 
 function sortByDueAsc(items: ThisWeekHomeworkItem[]): ThisWeekHomeworkItem[] {
   return [...items].sort((a, b) => {
-    const da = dueYmd(a.submissionDate) || '';
-    const db = dueYmd(b.submissionDate) || '';
+    const da = dueYmdOrEmpty(a.submissionDate) || '';
+    const db = dueYmdOrEmpty(b.submissionDate) || '';
     if (da !== db) return da.localeCompare(db);
     return a.subject.localeCompare(b.subject) || a.title.localeCompare(b.title);
   });
@@ -110,7 +115,7 @@ function sortBySubjectTitle(items: ThisWeekHomeworkItem[]): ThisWeekHomeworkItem
 
 /**
  * Build Monday–Sunday workload view. Does not mutate inputs.
- * Only groups under a date when submissionDate is a reliable due date.
+ * Places homework only on a school-provided due date. Does not copy assigned → due.
  */
 export function buildThisWeekView(input: BuildThisWeekViewInput): ThisWeekView {
   const { today, section } = input;
@@ -129,31 +134,31 @@ export function buildThisWeekView(input: BuildThisWeekViewInput): ThisWeekView {
   let nextWeekCount = 0;
 
   for (const hw of homework) {
-    if (!hasReliableDueDate(hw.submissionDate)) {
+    const placeOn = dueYmd(hw);
+    if (!placeOn) {
       undated.push(toItem(hw));
       continue;
     }
 
-    const due = dueYmd(hw.submissionDate);
     const item = toItem(hw);
 
-    if (isOverdue(hw.submissionDate, today)) {
+    if (hasSchoolProvidedDueDate(hw) && isRecentlyOverdue(hw.submissionDate, today)) {
       overdue.push(item);
     }
 
-    if (isDueTomorrow(hw.submissionDate, today)) {
+    if (hasSchoolProvidedDueDate(hw) && isDueTomorrow(hw.submissionDate, today)) {
       dueTomorrowCount += 1;
     }
 
-    if (isInWeek(due, weekStart, weekEnd)) {
+    if (isInWeek(placeOn, weekStart, weekEnd)) {
       totalDatedThisWeek += 1;
-      const list = byDue.get(due) || [];
+      const list = byDue.get(placeOn) || [];
       list.push(item);
-      byDue.set(due, list);
+      byDue.set(placeOn, list);
     } else if (
       nextWeekStart &&
       nextWeekEnd &&
-      isInWeek(due, nextWeekStart, nextWeekEnd)
+      isInWeek(placeOn, nextWeekStart, nextWeekEnd)
     ) {
       nextWeekCount += 1;
     }
@@ -190,20 +195,22 @@ export function buildThisWeekView(input: BuildThisWeekViewInput): ThisWeekView {
   };
 }
 
-/** Relative due label for UI; never invents a date. */
+/** Relative date label for UI; never labels an assigned date as Due. */
 export function dueLabelForItem(
   item: ThisWeekHomeworkItem,
   today: string,
 ): string {
-  if (!hasReliableDueDate(item.submissionDate)) {
-    return 'No deadline provided by school';
+  if (hasSchoolProvidedDueDate(item)) {
+    if (isDueToday(item.submissionDate, today)) return 'Due today';
+    if (isDueTomorrow(item.submissionDate, today)) return 'Due tomorrow';
+    if (isOverdue(item.submissionDate, today)) {
+      const due = dueYmdOrEmpty(item.submissionDate);
+      return due ? `Due date passed · ${formatBriefDate(due)}` : 'Due date passed';
+    }
+    const due = dueYmdOrEmpty(item.submissionDate);
+    return due ? `Due ${formatBriefDate(due)}` : 'No deadline provided by school';
   }
-  if (isDueToday(item.submissionDate, today)) return 'Due today';
-  if (isDueTomorrow(item.submissionDate, today)) return 'Due tomorrow';
-  if (isOverdue(item.submissionDate, today)) {
-    const due = dueYmd(item.submissionDate);
-    return due ? `Due date passed · ${formatBriefDate(due)}` : 'Due date passed';
-  }
-  const due = dueYmd(item.submissionDate);
-  return due ? `Due ${formatBriefDate(due)}` : 'No deadline provided by school';
+  const assigned = assignedYmd(item);
+  if (assigned) return `Assigned ${formatBriefDate(assigned)}`;
+  return 'No deadline provided by school';
 }

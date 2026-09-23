@@ -504,6 +504,21 @@ export async function fetchImportedHomework(): Promise<ImportedHomeworkItem[]> {
             take: 120,
         });
 
+        const sourceIds = rows.map((h) => h.sourceId);
+        const { overlayHomeworkDueDate } = await import('@/lib/deadlines/overlay');
+        let extractionByHw = new Map<string, Parameters<typeof overlayHomeworkDueDate>[1]>();
+        try {
+            const extractions = await getPrisma().homeworkDeadlineExtraction.findMany({
+                where: {
+                    entityType: 'homework',
+                    sourceId: { in: sourceIds.length ? sourceIds : ['__none__'] },
+                },
+            });
+            extractionByHw = new Map(extractions.map((e) => [e.sourceId, e]));
+        } catch {
+            extractionByHw = new Map();
+        }
+
         return rows.map((h) => {
             let sections: string[] = [];
             try {
@@ -518,7 +533,7 @@ export async function fetchImportedHomework(): Promise<ImportedHomeworkItem[]> {
                 subject: h.subjectName,
                 sections: homeworkSectionsForUi(sections),
                 description: h.description,
-                submissionDate: h.dueDate || undefined,
+                submissionDate: overlayHomeworkDueDate(h.dueDate, extractionByHw.get(h.sourceId)),
                 sentDate: toSortableDate(h.homeworkDate) || h.homeworkDate,
                 attachmentImage: h.attachmentUrl || undefined,
             };
@@ -595,6 +610,77 @@ export async function loadHomeworkForUi(): Promise<{
 }> {
     const imported = await fetchImportedHomework();
     return { items: imported, fromSheet: false };
+}
+
+/** HIGH-confidence notice deadlines that are not already homework rows. Server DB only. */
+export async function loadThisWeekNoticeDeadlines(): Promise<ImportedHomeworkItem[]> {
+    try {
+        if (!process.env.DATABASE_URL) return [];
+        const { getPrisma } = await import('@/lib/prisma');
+        const { uiNoticeId } = await import('@/lib/neverskip/ids');
+        const { homeworkSectionsForUi } = await import('@/lib/ui-merge');
+        const { addDaysYmd, getIndiaToday } = await import('@/lib/daily-brief');
+        const { noticeHasStandaloneHighDue } = await import('@/lib/deadlines/overlay');
+        const { canonicalSubject } = await import('@/lib/deadlines/relate');
+
+        const today = getIndiaToday();
+        const dueFloor = addDaysYmd(today, -14) || today;
+        const dueCeil = addDaysYmd(today, 21) || today;
+
+        const extractions = await getPrisma().homeworkDeadlineExtraction.findMany({
+            where: {
+                entityType: 'notice',
+                hasDueDate: true,
+                confidence: 'HIGH',
+                dueDate: { gte: dueFloor, lte: dueCeil },
+            },
+        });
+        const ids = extractions.filter((e) => noticeHasStandaloneHighDue(e)).map((e) => e.sourceId);
+        if (ids.length === 0) return [];
+
+        const notices = await getPrisma().importedNotice.findMany({
+            where: { sourceId: { in: ids } },
+        });
+        const byId = new Map(notices.map((n) => [n.sourceId, n]));
+        const items: ImportedHomeworkItem[] = [];
+        for (const ex of extractions) {
+            const n = byId.get(ex.sourceId);
+            if (!n || !ex.dueDate) continue;
+            let classes: string[] = [];
+            try {
+                const parsed = JSON.parse(n.classesJson);
+                classes = Array.isArray(parsed) ? parsed.map(String) : [];
+            } catch {
+                classes = [];
+            }
+            const subjectKey = canonicalSubject(`${n.title} ${n.summary} ${n.content}`);
+            const subjectLabel =
+                subjectKey === 'evs'
+                    ? 'EVS'
+                    : subjectKey === 'maths'
+                      ? 'Mathematics'
+                      : subjectKey === 'hindi'
+                        ? 'Hindi'
+                        : subjectKey === 'english'
+                          ? 'English'
+                          : subjectKey === 'kannada'
+                            ? 'Kannada'
+                            : 'School';
+            items.push({
+                id: uiNoticeId(n.sourceId, n.source),
+                title: n.title || n.summary || 'School notice',
+                subject: subjectLabel,
+                sections: homeworkSectionsForUi(classes),
+                description: n.summary || n.content,
+                submissionDate: ex.dueDate,
+                sentDate: n.publishedDate,
+            });
+        }
+        return items;
+    } catch (error) {
+        console.error('Failed to fetch notice deadlines', error);
+        return [];
+    }
 }
 
 /** Server-side Notices UI: Neon is the source of truth (no static JSON merge). */

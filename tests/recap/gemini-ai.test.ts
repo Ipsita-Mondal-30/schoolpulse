@@ -62,8 +62,13 @@ describe('Gemini recap AI configuration', () => {
   });
 
   it('uses GEMINI_MODEL when set', () => {
-    process.env.GEMINI_MODEL = 'gemini-2.0-flash';
-    expect(getGeminiModelId()).toBe('gemini-2.0-flash');
+    process.env.GEMINI_MODEL = 'gemini-3.6-pro';
+    expect(getGeminiModelId()).toBe('gemini-3.6-pro');
+  });
+
+  it('remaps retired gemini-2.5-flash to gemini-3.6-flash', () => {
+    process.env.GEMINI_MODEL = 'gemini-2.5-flash';
+    expect(getGeminiModelId()).toBe('gemini-3.6-flash');
   });
 
   it('throws when GOOGLE_GENERATIVE_AI_API_KEY is missing', () => {

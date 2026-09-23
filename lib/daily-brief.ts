@@ -5,6 +5,7 @@
 
 import type { UiHomeworkItem, UiNoticeItem } from '@/lib/ui-merge';
 import { filterHomeworkBySection, toSortableDate } from '@/lib/ui-merge';
+import { isValidSchoolYmd } from '@/lib/homework-dates';
 
 export const INDIA_TIME_ZONE = 'Asia/Kolkata';
 
@@ -125,8 +126,7 @@ export function formatBriefDate(ymd: string): string {
 }
 
 export function hasReliableDueDate(submissionDate?: string | null): boolean {
-  if (!submissionDate || !String(submissionDate).trim()) return false;
-  return YMD_RE.test(toSortableDate(submissionDate));
+  return isValidSchoolYmd(submissionDate);
 }
 
 export type HomeworkDayBucket = 'today' | 'upcoming' | 'passed' | 'none';

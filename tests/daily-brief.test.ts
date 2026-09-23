@@ -64,6 +64,8 @@ describe('daily brief date helpers', () => {
     expect(isOverdue('', TODAY)).toBe(false);
     expect(hasReliableDueDate(undefined)).toBe(false);
     expect(hasReliableDueDate('2026-09-11')).toBe(true);
+    expect(hasReliableDueDate('0000-00-00')).toBe(false);
+    expect(hasReliableDueDate('0000-00-00 00:00:00')).toBe(false);
   });
 
   it('homeworkDayBucket prefers due date, else assignment date', () => {

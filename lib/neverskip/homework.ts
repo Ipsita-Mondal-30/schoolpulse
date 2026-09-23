@@ -173,7 +173,7 @@ export function logHomeworkPagination(page: number | string, meta: HomeworkPagin
 
 /** Safe date string from a raw assignment (no secrets). */
 function rawAssignmentDateHint(item: NeverSkipRawAssignment): string {
-  const raw = item.ass_dt ?? item.assign_dt ?? item.due_dt ?? '';
+  const raw = item.ass_dt ?? item.assign_dt ?? item.due_dt ?? item.ass_duedt ?? '';
   const s = String(raw).trim();
   return s || '(none)';
 }
@@ -283,6 +283,7 @@ export function countHomeworkMarkerHits(items: NeverSkipRawAssignment[]): {
       item.ass_dt,
       item.assign_dt,
       item.due_dt,
+      item.ass_duedt,
     ]
       .map((v) => String(v ?? '').toLowerCase())
       .join(' ');
