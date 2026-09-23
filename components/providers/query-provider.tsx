@@ -5,7 +5,7 @@ import { useState, type ReactNode } from "react";
 
 /**
  * Parent UI cache: reuse Neon-backed payloads across navigation.
- * Sync freshness comes from the Oracle worker → Neon, not browser refetch storms.
+ * Refetch when data is stale on mount (after sync), but never on window focus.
  */
 export const UI_QUERY_STALE_TIME_MS = 5 * 60 * 1000;
 
@@ -19,7 +19,9 @@ export function makeQueryClient(): QueryClient {
         staleTime: UI_QUERY_STALE_TIME_MS,
         gcTime: UI_QUERY_GC_TIME_MS,
         refetchOnWindowFocus: false,
-        refetchOnMount: false,
+        // Default TanStack behavior: refetch on mount only when stale.
+        // Do NOT force false — that freezes pre-sync notice/update payloads forever.
+        refetchOnMount: true,
         retry: 1,
       },
     },

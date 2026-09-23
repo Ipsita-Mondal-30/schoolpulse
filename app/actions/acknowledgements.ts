@@ -29,17 +29,24 @@ export type MyAcknowledgements = {
 };
 
 export async function getSessionParent(): Promise<SessionParent | null> {
-  const session = await auth();
-  const id = session?.user?.id;
-  const email = session?.user?.email;
-  const role = session?.user?.role;
-  if (!id || !email || role !== PARENT_ROLE) return null;
-  return {
-    id,
-    email,
-    name: session.user.name,
-    role,
-  };
+  try {
+    const session = await auth();
+    const id = session?.user?.id;
+    const email = session?.user?.email;
+    const role = session?.user?.role;
+    if (!id || !email || role !== PARENT_ROLE) return null;
+    return {
+      id,
+      email,
+      name: session.user.name,
+      role,
+    };
+  } catch (err) {
+    // Auth.js can throw (MissingSecret / JWT decrypt) instead of returning null —
+    // never let that surface as a raw Server Components digest to parents.
+    console.error('getSessionParent failed', err instanceof Error ? err.message : err);
+    return null;
+  }
 }
 
 export async function resolveImportedHomework(
@@ -146,52 +153,57 @@ export async function loadParentAccess(): Promise<ParentAccessSummary> {
     studentId: null,
     neverSkipStudentId: null,
   };
-  const parent = await getSessionParent();
-  if (!parent) return empty;
+  try {
+    const parent = await getSessionParent();
+    if (!parent) return empty;
 
-  const prisma = getPrisma();
+    const prisma = getPrisma();
 
-  // Heal missing ParentStudent when NeverSkip data already exists in Neon.
-  let approvedClassLabels = await listApprovedStudentClasses(prisma, parent.id);
-  if (!parentHasApprovedLink(approvedClassLabels)) {
-    try {
-      await ensureParentLinkedToSyncedChild(prisma, parent.id);
-      approvedClassLabels = await listApprovedStudentClasses(prisma, parent.id);
-    } catch (err) {
-      console.error('Failed to link parent to synced child', err);
+    // Heal missing ParentStudent when NeverSkip data already exists in Neon.
+    let approvedClassLabels = await listApprovedStudentClasses(prisma, parent.id);
+    if (!parentHasApprovedLink(approvedClassLabels)) {
+      try {
+        await ensureParentLinkedToSyncedChild(prisma, parent.id);
+        approvedClassLabels = await listApprovedStudentClasses(prisma, parent.id);
+      } catch (err) {
+        console.error('Failed to link parent to synced child', err);
+      }
     }
-  }
 
-  const firstLink = await prisma.parentStudent.findFirst({
-    where: { parentUserId: parent.id, status: PARENT_STUDENT_APPROVED },
-    include: {
-      student: {
-        select: {
-          id: true,
-          displayName: true,
-          neverSkipStudentId: true,
-          class: { select: { name: true, section: true } },
+    const firstLink = await prisma.parentStudent.findFirst({
+      where: { parentUserId: parent.id, status: PARENT_STUDENT_APPROVED },
+      include: {
+        student: {
+          select: {
+            id: true,
+            displayName: true,
+            neverSkipStudentId: true,
+            class: { select: { name: true, section: true } },
+          },
         },
       },
-    },
-    orderBy: { createdAt: 'asc' },
-  });
+      orderBy: { createdAt: 'asc' },
+    });
 
-  const primarySection =
-    approvedClassLabels[0] ||
-    (firstLink
-      ? classLabelFromParts(firstLink.student.class.name, firstLink.student.class.section) ||
-        null
-      : null);
+    const primarySection =
+      approvedClassLabels[0] ||
+      (firstLink
+        ? classLabelFromParts(firstLink.student.class.name, firstLink.student.class.section) ||
+          null
+        : null);
 
-  return {
-    hasApprovedLink: parentHasApprovedLink(approvedClassLabels),
-    approvedClassLabels,
-    studentName: firstLink?.student.displayName?.trim() || null,
-    primarySection,
-    studentId: firstLink?.student.id ?? null,
-    neverSkipStudentId: firstLink?.student.neverSkipStudentId ?? null,
-  };
+    return {
+      hasApprovedLink: parentHasApprovedLink(approvedClassLabels),
+      approvedClassLabels,
+      studentName: firstLink?.student.displayName?.trim() || null,
+      primarySection,
+      studentId: firstLink?.student.id ?? null,
+      neverSkipStudentId: firstLink?.student.neverSkipStudentId ?? null,
+    };
+  } catch (err) {
+    console.error('loadParentAccess failed', err instanceof Error ? err.message : err);
+    return empty;
+  }
 }
 
 async function assertHomeworkAccess(
@@ -230,133 +242,153 @@ async function assertNoticeAccess(
 export async function acknowledgeHomework(
   uiOrDbId: string,
 ): Promise<AcknowledgeResult> {
-  const parent = await getSessionParent();
-  if (!parent) {
-    return { ok: false, error: 'Sign in required' };
+  try {
+    const parent = await getSessionParent();
+    if (!parent) {
+      return { ok: false, error: 'Sign in required' };
+    }
+
+    const item = await resolveImportedHomework(uiOrDbId);
+    if (!item) {
+      return { ok: false, error: 'Homework not found' };
+    }
+
+    const accessError = await assertHomeworkAccess(parent.id, item.id);
+    if (accessError) {
+      return { ok: false, error: accessError };
+    }
+
+    const prisma = getPrisma();
+    const row = await prisma.homeworkAcknowledgement.upsert({
+      where: {
+        userId_homeworkId: { userId: parent.id, homeworkId: item.id },
+      },
+      create: {
+        userId: parent.id,
+        homeworkId: item.id,
+      },
+      update: {},
+    });
+
+    return {
+      ok: true,
+      acknowledgedAt: row.acknowledgedAt.toISOString(),
+      uiId: uiHomeworkId(item.sourceId, item.source),
+    };
+  } catch (err) {
+    console.error('acknowledgeHomework failed', err instanceof Error ? err.message : err);
+    return { ok: false, error: 'Could not save acknowledgement. Please try again.' };
   }
-
-  const item = await resolveImportedHomework(uiOrDbId);
-  if (!item) {
-    return { ok: false, error: 'Homework not found' };
-  }
-
-  const accessError = await assertHomeworkAccess(parent.id, item.id);
-  if (accessError) {
-    return { ok: false, error: accessError };
-  }
-
-  const prisma = getPrisma();
-  const row = await prisma.homeworkAcknowledgement.upsert({
-    where: {
-      userId_homeworkId: { userId: parent.id, homeworkId: item.id },
-    },
-    create: {
-      userId: parent.id,
-      homeworkId: item.id,
-    },
-    update: {},
-  });
-
-  return {
-    ok: true,
-    acknowledgedAt: row.acknowledgedAt.toISOString(),
-    uiId: uiHomeworkId(item.sourceId, item.source),
-  };
 }
 
 export async function unacknowledgeHomework(
   uiOrDbId: string,
 ): Promise<AcknowledgeResult> {
-  const parent = await getSessionParent();
-  if (!parent) {
-    return { ok: false, error: 'Sign in required' };
+  try {
+    const parent = await getSessionParent();
+    if (!parent) {
+      return { ok: false, error: 'Sign in required' };
+    }
+
+    const item = await resolveImportedHomework(uiOrDbId);
+    if (!item) {
+      return { ok: false, error: 'Homework not found' };
+    }
+
+    const accessError = await assertHomeworkAccess(parent.id, item.id);
+    if (accessError) {
+      return { ok: false, error: accessError };
+    }
+
+    const prisma = getPrisma();
+    await prisma.homeworkAcknowledgement.deleteMany({
+      where: { userId: parent.id, homeworkId: item.id },
+    });
+
+    return {
+      ok: true,
+      acknowledgedAt: '',
+      uiId: uiHomeworkId(item.sourceId, item.source),
+    };
+  } catch (err) {
+    console.error('unacknowledgeHomework failed', err instanceof Error ? err.message : err);
+    return { ok: false, error: 'Could not undo acknowledgement. Please try again.' };
   }
-
-  const item = await resolveImportedHomework(uiOrDbId);
-  if (!item) {
-    return { ok: false, error: 'Homework not found' };
-  }
-
-  const accessError = await assertHomeworkAccess(parent.id, item.id);
-  if (accessError) {
-    return { ok: false, error: accessError };
-  }
-
-  const prisma = getPrisma();
-  await prisma.homeworkAcknowledgement.deleteMany({
-    where: { userId: parent.id, homeworkId: item.id },
-  });
-
-  return {
-    ok: true,
-    acknowledgedAt: '',
-    uiId: uiHomeworkId(item.sourceId, item.source),
-  };
 }
 
 export async function acknowledgeNotice(
   uiOrDbId: string,
 ): Promise<AcknowledgeResult> {
-  const parent = await getSessionParent();
-  if (!parent) {
-    return { ok: false, error: 'Sign in required' };
+  try {
+    const parent = await getSessionParent();
+    if (!parent) {
+      return { ok: false, error: 'Sign in required' };
+    }
+
+    const item = await resolveImportedNotice(uiOrDbId);
+    if (!item) {
+      return { ok: false, error: 'Notice not found' };
+    }
+
+    const accessError = await assertNoticeAccess(parent.id, item.id);
+    if (accessError) {
+      return { ok: false, error: accessError };
+    }
+
+    const prisma = getPrisma();
+    const row = await prisma.noticeAcknowledgement.upsert({
+      where: {
+        userId_noticeId: { userId: parent.id, noticeId: item.id },
+      },
+      create: {
+        userId: parent.id,
+        noticeId: item.id,
+      },
+      update: {},
+    });
+
+    return {
+      ok: true,
+      acknowledgedAt: row.acknowledgedAt.toISOString(),
+      uiId: uiNoticeId(item.sourceId, item.source),
+    };
+  } catch (err) {
+    console.error('acknowledgeNotice failed', err instanceof Error ? err.message : err);
+    return { ok: false, error: 'Could not save acknowledgement. Please try again.' };
   }
-
-  const item = await resolveImportedNotice(uiOrDbId);
-  if (!item) {
-    return { ok: false, error: 'Notice not found' };
-  }
-
-  const accessError = await assertNoticeAccess(parent.id, item.id);
-  if (accessError) {
-    return { ok: false, error: accessError };
-  }
-
-  const prisma = getPrisma();
-  const row = await prisma.noticeAcknowledgement.upsert({
-    where: {
-      userId_noticeId: { userId: parent.id, noticeId: item.id },
-    },
-    create: {
-      userId: parent.id,
-      noticeId: item.id,
-    },
-    update: {},
-  });
-
-  return {
-    ok: true,
-    acknowledgedAt: row.acknowledgedAt.toISOString(),
-    uiId: uiNoticeId(item.sourceId, item.source),
-  };
 }
 
 export async function unacknowledgeNotice(
   uiOrDbId: string,
 ): Promise<AcknowledgeResult> {
-  const parent = await getSessionParent();
-  if (!parent) {
-    return { ok: false, error: 'Sign in required' };
+  try {
+    const parent = await getSessionParent();
+    if (!parent) {
+      return { ok: false, error: 'Sign in required' };
+    }
+
+    const item = await resolveImportedNotice(uiOrDbId);
+    if (!item) {
+      return { ok: false, error: 'Notice not found' };
+    }
+
+    const accessError = await assertNoticeAccess(parent.id, item.id);
+    if (accessError) {
+      return { ok: false, error: accessError };
+    }
+
+    const prisma = getPrisma();
+    await prisma.noticeAcknowledgement.deleteMany({
+      where: { userId: parent.id, noticeId: item.id },
+    });
+
+    return {
+      ok: true,
+      acknowledgedAt: '',
+      uiId: uiNoticeId(item.sourceId, item.source),
+    };
+  } catch (err) {
+    console.error('unacknowledgeNotice failed', err instanceof Error ? err.message : err);
+    return { ok: false, error: 'Could not undo acknowledgement. Please try again.' };
   }
-
-  const item = await resolveImportedNotice(uiOrDbId);
-  if (!item) {
-    return { ok: false, error: 'Notice not found' };
-  }
-
-  const accessError = await assertNoticeAccess(parent.id, item.id);
-  if (accessError) {
-    return { ok: false, error: accessError };
-  }
-
-  const prisma = getPrisma();
-  await prisma.noticeAcknowledgement.deleteMany({
-    where: { userId: parent.id, noticeId: item.id },
-  });
-
-  return {
-    ok: true,
-    acknowledgedAt: '',
-    uiId: uiNoticeId(item.sourceId, item.source),
-  };
 }

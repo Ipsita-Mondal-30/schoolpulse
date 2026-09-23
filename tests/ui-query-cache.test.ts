@@ -23,6 +23,7 @@ describe('TanStack Query UI cache', () => {
     expect(defaults?.staleTime).toBe(UI_QUERY_STALE_TIME_MS);
     expect(defaults?.gcTime).toBe(UI_QUERY_GC_TIME_MS);
     expect(defaults?.refetchOnWindowFocus).toBe(false);
+    expect(defaults?.refetchOnMount).toBe(true);
   });
 
   it('fetches homework on first visit and reuses cache within staleTime', async () => {

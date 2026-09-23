@@ -27,6 +27,8 @@ declare module '@auth/core/jwt' {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Explicit secret so Turbopack / server actions never hit MissingSecret mid-request.
+  secret: process.env.AUTH_SECRET,
   providers: [
     Credentials({
       name: 'credentials',
