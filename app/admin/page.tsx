@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Announcement } from '@/lib/data';
+import { useCanonicalScheduleQuery } from '@/lib/queries/schedule';
 
 // Simple password - change this to your preferred password
 const ADMIN_PASSWORD = 'sreeavyu';
@@ -14,6 +15,8 @@ export default function AdminPage() {
   const [newMessage, setNewMessage] = useState('');
   const [newType, setNewType] = useState<'info' | 'warning' | 'holiday' | 'important'>('info');
   const [newExpiresAt, setNewExpiresAt] = useState('');
+  const scheduleQuery = useCanonicalScheduleQuery();
+  const freshness = scheduleQuery.data?.freshness;
 
   // Check if already authenticated
   useEffect(() => {
@@ -138,6 +141,32 @@ export default function AdminPage() {
           <span>Logout</span>
           <span>🚪</span>
         </button>
+      </div>
+
+      {/* Sync diagnostics (admin only — not shown on parent pages) */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+        <h2 className="text-lg font-semibold text-gray-800 mb-2">NeverSkip sync (admin)</h2>
+        {scheduleQuery.isPending ? (
+          <p className="text-sm text-gray-500">Loading…</p>
+        ) : freshness ? (
+          <div className="space-y-1 text-sm text-gray-700">
+            <p>
+              Status:{' '}
+              <span className="font-semibold">{freshness.lastStatus || 'unknown'}</span>
+            </p>
+            {freshness.lastSuccessAt ? (
+              <p>Last success: {new Date(freshness.lastSuccessAt).toLocaleString('en-IN')}</p>
+            ) : null}
+            {freshness.lastAttemptAt ? (
+              <p>Last attempt: {new Date(freshness.lastAttemptAt).toLocaleString('en-IN')}</p>
+            ) : null}
+            {freshness.errorSummary ? (
+              <p className="text-amber-800 break-words">{freshness.errorSummary.slice(0, 400)}</p>
+            ) : null}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">No sync runs recorded yet.</p>
+        )}
       </div>
 
       {/* Add New Announcement */}

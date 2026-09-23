@@ -790,16 +790,16 @@ export async function loadRecentUpdates(options?: {
         if (!process.env.DATABASE_URL) return [];
 
         const { getPrisma } = await import('@/lib/prisma');
-        const { parseFieldChanges, userVisibleChanges } = await import('@/lib/neverskip/changes');
+        const { parseFieldChanges, userVisibleChanges, isNoiseChangeEvent, isTrivialTextFieldChange } =
+            await import('@/lib/neverskip/changes');
         const { buildUpdatesFeed } = await import('@/lib/updates-feed');
         const { addDaysYmd, getIndiaToday } = await import('@/lib/daily-brief');
 
-        const days = options?.days ?? 30;
-        // NEW/CHANGED: India today + yesterday only (bulk historical imports fall into RECENT).
-        const newSinceYmd = addDaysYmd(getIndiaToday(), -1) || getIndiaToday();
-        const since = new Date(`${newSinceYmd}T00:00:00+05:30`);
-        // RECENT notices: publication-date window (longer).
-        const publishedSinceYmd = addDaysYmd(getIndiaToday(), -(days - 1)) || '';
+        const days = Math.max(1, options?.days ?? 7);
+        // Parent Updates window: last N India calendar days (default 7).
+        const activitySinceYmd = addDaysYmd(getIndiaToday(), -(days - 1)) || getIndiaToday();
+        const since = new Date(`${activitySinceYmd}T00:00:00+05:30`);
+        const publishedSinceYmd = activitySinceYmd;
         const changeSince = since;
 
         const prisma = getPrisma();
@@ -809,10 +809,66 @@ export async function loadRecentUpdates(options?: {
             take: 200,
         });
 
-        const homeworkIdsFromChanges = changeRows
+        const isProvenNoise = (row: {
+            entityType: string;
+            changedFieldsJson: string;
+            currentSnapshotJson: string;
+            detectedAt: Date;
+        }): boolean => {
+            const type = row.entityType === 'notice' ? 'notice' : 'homework';
+            const fields = parseFieldChanges(row.changedFieldsJson);
+            if (isNoiseChangeEvent(type, fields)) return true;
+            const visible = userVisibleChanges(type, fields);
+            if (visible.length === 0) return true;
+            if (
+                visible.every((f) => {
+                    if (
+                        f.field === 'description' ||
+                        f.field === 'title' ||
+                        f.field === 'content' ||
+                        f.field === 'summary' ||
+                        f.field === 'subjectName'
+                    ) {
+                        return isTrivialTextFieldChange(f.previous, f.current);
+                    }
+                    return false;
+                })
+            ) {
+                return true;
+            }
+            // Stale homework with only description/sections churn from re-sync — not a parent "update".
+            if (type === 'homework') {
+                try {
+                    const snap = JSON.parse(row.currentSnapshotJson) as { homeworkDate?: string };
+                    const hwDate = String(snap.homeworkDate || '').trim();
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(hwDate)) {
+                        const onlySoft = visible.every(
+                            (f) => f.field === 'description' || f.field === 'sections',
+                        );
+                        if (onlySoft && hwDate < activitySinceYmd) return true;
+                    }
+                } catch {
+                    /* ignore */
+                }
+            }
+            return false;
+        };
+
+        // Soft cleanup + feed filter: drop proven false-positive change events.
+        const usableChangeRows = changeRows.filter((row) => !isProvenNoise(row));
+
+        // Best-effort: remove proven noise events so they stop resurfacing.
+        const noiseIds = changeRows.filter((row) => isProvenNoise(row)).map((row) => row.id);
+        if (noiseIds.length > 0) {
+            await prisma.contentChangeEvent
+                .deleteMany({ where: { id: { in: noiseIds } } })
+                .catch(() => undefined);
+        }
+
+        const homeworkIdsFromChanges = usableChangeRows
             .filter((row) => row.entityType !== 'notice')
             .map((row) => row.entityId);
-        const noticeIdsFromChanges = changeRows
+        const noticeIdsFromChanges = usableChangeRows
             .filter((row) => row.entityType === 'notice')
             .map((row) => row.entityId);
 
@@ -868,6 +924,7 @@ export async function loadRecentUpdates(options?: {
 
         const items = buildUpdatesFeed({
             since,
+            activitySinceYmd,
             publishedSinceYmd,
             homework: homeworkRows.map((row) => ({
                 id: row.id,
@@ -891,7 +948,7 @@ export async function loadRecentUpdates(options?: {
                 publishedTime: row.publishedTime,
                 classes: parseJsonArray(row.classesJson),
             })),
-            changes: changeRows.map((row) => {
+            changes: usableChangeRows.map((row) => {
                 const type = row.entityType === 'notice' ? 'notice' : 'homework';
                 const meta = snapshotTitle(row.currentSnapshotJson, type);
                 return {

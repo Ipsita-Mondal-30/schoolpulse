@@ -20,11 +20,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { HomeworkItem } from '@/components/ui/HomeworkItem';
 import { LoadingState } from '@/components/ui/LoadingState';
 
-const DEFAULT_SECTION = 'I-A';
-const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
-const ALL_SECTIONS = [
-  'I-A', 'I-B', 'I-C', 'I-D', 'I-E', 'I-F', 'I-G', 'I-H', 'I-I', 'I-J', 'I-K',
-];
+const SECTION = 'I-A';
 
 const WEEKDAYS_SHORT = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'] as const;
 
@@ -221,17 +217,10 @@ function PassedDueRow({
 }
 
 export default function ThisWeekPage() {
-  const [section, setSection] = useState(DEFAULT_SECTION);
   const [showAllUndated, setShowAllUndated] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [initialized, setInitialized] = useState(false);
-  const { data, isPending, isError, refetch } = useThisWeekQuery({ section });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const saved = localStorage.getItem(PINNED_SECTION_KEY);
-    if (saved && ALL_SECTIONS.includes(saved)) setSection(saved);
-  }, []);
+  const { data, isPending, isError, refetch } = useThisWeekQuery({ section: SECTION });
 
   useEffect(() => {
     if (!data || initialized) return;

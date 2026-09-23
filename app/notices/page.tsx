@@ -8,7 +8,6 @@ import {
   toSortableDate,
   type UiNoticeItem,
 } from '@/lib/ui-merge';
-import { CLASS1_SECTIONS, isClass1Section } from '@/lib/class-sections';
 import { useNoticesQuery } from '@/lib/queries/notices';
 import { useMyAcknowledgementsQuery } from '@/lib/queries/acknowledgements';
 import AcknowledgeButton from '@/components/AcknowledgeButton';
@@ -20,9 +19,8 @@ import { resolveNoticeLibraryLink } from '@/lib/notice-library-link';
 import { jolItemsToLibraryRefs } from '@/lib/library-from-jol';
 import { useJolQuery } from '@/lib/queries/jol';
 
-const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
-const DEFAULT_SECTION = 'All';
-const ALL_SECTIONS = ['All', ...CLASS1_SECTIONS] as const;
+/** SchoolPulse is scoped to a single Class 1 section. */
+const SECTION = 'I-A';
 
 function formatDateLabel(iso: string): string {
   if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return 'Undated';
@@ -34,17 +32,10 @@ function formatDateLabel(iso: string): string {
   });
 }
 
-function sectionLabel(sec: string): string {
-  if (sec === 'All') return 'All sections';
-  const letter = sec.includes('-') ? sec.split('-')[1] : sec;
-  return `Class 1 · Section ${letter}`;
-}
-
 export default function NoticesPage() {
   const { data: noticesData, isPending, isError, refetch } = useNoticesQuery();
   const { data: jolItems } = useJolQuery();
   const { data: acks } = useMyAcknowledgementsQuery();
-  const [section, setSection] = useState(DEFAULT_SECTION);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const libraryResources = useMemo(
     () => jolItemsToLibraryRefs(jolItems ?? []),
@@ -52,8 +43,6 @@ export default function NoticesPage() {
   );
 
   useEffect(() => {
-    const saved = localStorage.getItem(PINNED_SECTION_KEY);
-    if (saved === 'All' || (saved && isClass1Section(saved))) setSection(saved);
     const item = new URLSearchParams(window.location.search).get('item');
     if (item) setExpandedId(item);
   }, []);
@@ -67,8 +56,8 @@ export default function NoticesPage() {
   const notices = noticesData ?? [];
   const ackedNotices = new Set(Object.keys(acks?.notices ?? {}));
   const filteredNotices = useMemo(
-    () => sortNoticesNewestFirst(filterNoticesByClass(notices, section)),
-    [notices, section],
+    () => sortNoticesNewestFirst(filterNoticesByClass(notices, SECTION)),
+    [notices],
   );
 
   const latestNoticeDate = useMemo(() => {
@@ -95,35 +84,13 @@ export default function NoticesPage() {
 
   return (
     <div className="sp-page">
-      <PageHeader
-        title="Notices"
-        subtitle="From the school"
-        actions={
-          <label className="block">
-            <span className="sr-only">Section</span>
-            <select
-              value={section}
-              onChange={(e) => {
-                setSection(e.target.value);
-                localStorage.setItem(PINNED_SECTION_KEY, e.target.value);
-              }}
-              className="min-h-10 rounded-xl border border-[var(--sp-border)] bg-white px-3 text-sm font-semibold text-[var(--sp-ink)] shadow-sm sp-focus"
-            >
-              {ALL_SECTIONS.map((sec) => (
-                <option key={sec} value={sec}>
-                  {sectionLabel(sec)}
-                </option>
-              ))}
-            </select>
-          </label>
-        }
-      />
+      <PageHeader title="Notices" subtitle="From the school" />
 
       {!isPending && !isError && sectionHasOlderNotices ? (
         <p className="mb-5 text-sm text-[var(--sp-muted)]">
           {latestSectionNoticeDate
-            ? `No newer notices for ${sectionLabel(section)} since ${formatDateLabel(latestSectionNoticeDate)}. Latest school notice is ${formatDateLabel(latestNoticeDate)}.`
-            : `No notices for ${sectionLabel(section)}. Latest school notice is ${formatDateLabel(latestNoticeDate)}.`}
+            ? `No newer notices for Section A since ${formatDateLabel(latestSectionNoticeDate)}. Latest school notice is ${formatDateLabel(latestNoticeDate)}.`
+            : `No notices for Section A. Latest school notice is ${formatDateLabel(latestNoticeDate)}.`}
         </p>
       ) : null}
 

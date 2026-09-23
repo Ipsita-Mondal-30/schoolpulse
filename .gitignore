@@ -31,6 +31,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
+.env*
 !.env.example
 
 # local sqlite
@@ -58,6 +59,9 @@ next-env.d.ts
 # Newsletter PDFs (large files)
 newsletters/
 
+# Local AI-generated homework videos (MVP — never commit MP4s)
+data/generated-videos/
+
 # Worker-local NeverSkip document cache (JoL newsletter PDF, etc.)
 deploy/neverskip-worker/neverskip-data/
 security/zap_report.html
@@ -67,4 +71,3 @@ security/zap_report.html
 
 # Worker compose secrets (never commit)
 deploy/neverskip-worker/.env
-config.bat

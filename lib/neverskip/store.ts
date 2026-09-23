@@ -50,7 +50,7 @@ export function homeworkContentKey(item: NormalizedHomework): string {
     subjectName: item.subjectName,
     title: item.title,
     description: item.description,
-    sections: item.sections,
+    sections: [...item.sections].map(String).sort(),
     homeworkDate: item.homeworkDate,
     dueDate: item.dueDate,
     attachmentUrl: item.attachmentUrl,
@@ -64,7 +64,7 @@ export function noticeContentKey(item: NormalizedNotice): string {
     content: item.content,
     publishedDate: item.publishedDate,
     publishedTime: item.publishedTime,
-    classes: item.classes,
+    classes: [...item.classes].map(String).sort(),
     imageUrl: item.imageUrl,
   });
 }

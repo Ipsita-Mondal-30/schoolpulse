@@ -23,7 +23,7 @@ export default function TimetablePage() {
   if (isPending) {
     return (
       <div className="sp-page max-w-3xl">
-        <PageHeader title="Timetable" subtitle="From NeverSkip (live sync)" />
+        <PageHeader title="Timetable" subtitle="School schedule and worksheet dates" />
         <LoadingState rows={4} />
       </div>
     );
@@ -32,7 +32,7 @@ export default function TimetablePage() {
   if (isError) {
     return (
       <div className="sp-page max-w-3xl">
-        <PageHeader title="Timetable" subtitle="From NeverSkip (live sync)" />
+        <PageHeader title="Timetable" subtitle="School schedule and worksheet dates" />
         <div className="sp-card p-5">
           <p className="text-sm font-semibold">Couldn&apos;t load timetable.</p>
           <button
@@ -52,57 +52,32 @@ export default function TimetablePage() {
   const documents = (data?.documents ?? []).filter(
     (d) => d.scheduleDocument || /timetable|newsletter/i.test(d.title),
   );
-  const freshness = data?.freshness;
   const hasContent =
     Boolean(jolSchedule?.days?.length) || events.length > 0 || documents.length > 0;
-  const loadFailed = freshness?.lastStatus === 'LOAD_ERROR';
 
   return (
     <div className="sp-page max-w-3xl">
       <PageHeader
         title="Timetable"
-        subtitle="Canonical NeverSkip schedule (same source as Joy of Learning)"
+        subtitle="Worksheet dates and school calendar"
       />
 
       <div className="mb-6 space-y-1 rounded-[24px] bg-[var(--sp-primary-soft)]/50 px-5 py-4">
         <p className="text-sm text-[var(--sp-muted)]">
-          SchoolPulse no longer uses a static class grid. Joy of Learning worksheet dates come from
-          the active synced timetable; calendar periods appear when NeverSkip publishes them.
+          Joy of Learning worksheet dates and calendar periods for your child&apos;s class.
         </p>
-        <p className="text-xs text-[var(--sp-muted)]">
-          Sync status:{' '}
-          <span className="font-semibold text-[var(--sp-ink)]">
-            {freshness?.lastStatus || 'unknown'}
-          </span>
-          {freshness?.lastSuccessAt
-            ? ` · last success ${new Date(freshness.lastSuccessAt).toLocaleString('en-IN')}`
-            : ''}
-          {loadFailed && freshness?.errorSummary
-            ? ` · ${freshness.errorSummary.slice(0, 120)}`
-            : ''}
-        </p>
-        {loadFailed ? (
-          <button
-            type="button"
-            onClick={() => void refetch()}
-            className="mt-2 rounded-xl bg-[var(--sp-primary)] px-3 py-1.5 text-sm font-semibold text-white sp-focus"
-          >
-            Retry load
-          </button>
-        ) : (
-          <Link
-            href="/joy-of-learning"
-            className="inline-block text-sm font-semibold text-[var(--sp-primary)] hover:underline"
-          >
-            Open Joy of Learning →
-          </Link>
-        )}
+        <Link
+          href="/joy-of-learning"
+          className="inline-block text-sm font-semibold text-[var(--sp-primary)] hover:underline"
+        >
+          Open Joy of Learning →
+        </Link>
       </div>
 
       {!hasContent ? (
         <EmptyState
-          title="No NeverSkip timetable published yet"
-          description="Calendar returned no events for this account, and no Joy of Learning worksheet timetable is synced yet. We will not invent or show an outdated static grid."
+          title="No timetable published yet"
+          description="When the school publishes Joy of Learning worksheet dates or calendar periods, they will appear here."
         />
       ) : (
         <div className="space-y-8">
@@ -112,15 +87,12 @@ export default function TimetablePage() {
                 Joy of Learning timetable
               </h2>
               <div className="rounded-2xl border border-[var(--sp-border)] bg-white px-4 py-3">
-                <p className="text-sm font-semibold text-[var(--sp-ink)]">{jolSchedule.title}</p>
+                <p className="text-sm font-semibold text-[var(--sp-ink)]">
+                  {jolSchedule.title || 'Joy of Learning II — Timetable'}
+                </p>
                 <p className="mt-1 text-xs text-[var(--sp-muted)]">
-                  {jolSchedule.classesLabel}
+                  {jolSchedule.classesLabel || 'Class I & II'}
                   {jolSchedule.academicYear ? ` · ${jolSchedule.academicYear}` : ''}
-                  {' · '}
-                  active
-                  {jolSchedule.syncedAt
-                    ? ` · synced ${new Date(jolSchedule.syncedAt).toLocaleString('en-IN')}`
-                    : ''}
                 </p>
                 {jolSchedule.sourceDocumentUrl ? (
                   <a
@@ -130,7 +102,7 @@ export default function TimetablePage() {
                     className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[var(--sp-primary)] hover:underline"
                   >
                     <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                    Open source newsletter
+                    View school timetable
                   </a>
                 ) : null}
               </div>

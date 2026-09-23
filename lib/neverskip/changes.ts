@@ -67,13 +67,28 @@ function normalizeComparable(value: unknown): string | null {
     return t === '' ? null : t;
   }
   if (Array.isArray(value)) {
-    return JSON.stringify(value.map(String));
+    // Stable order so section/class reorder alone is not a content change.
+    return JSON.stringify([...value.map(String)].sort());
   }
   return String(value);
 }
 
 function valuesEqual(a: string | null, b: string | null): boolean {
   return a === b;
+}
+
+/** Collapse whitespace for trivial text-equivalence checks. */
+export function collapseText(value: string | null | undefined): string {
+  return String(value ?? '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * True when previous/current differ only by whitespace/casing noise — not a parent-facing edit.
+ */
+export function isTrivialTextFieldChange(previous: string | null, current: string | null): boolean {
+  return collapseText(previous).toLowerCase() === collapseText(current).toLowerCase();
 }
 
 function pushChange(
@@ -87,8 +102,18 @@ function pushChange(
   const current = normalizeComparable(currentRaw);
   if (valuesEqual(previous, current)) return;
 
-  // Reliable A→B when we know at least one side as a concrete value from storage.
-  // Both null already filtered. One null + one value is reliable (set/cleared).
+  // Ignore whitespace-only instruction/title/content churn from re-normalization.
+  if (
+    (field === 'description' ||
+      field === 'title' ||
+      field === 'content' ||
+      field === 'summary' ||
+      field === 'subjectName') &&
+    isTrivialTextFieldChange(previous, current)
+  ) {
+    return;
+  }
+
   const reliable = previous !== null || current !== null;
 
   out.push({ field, label, previous, current, reliable });
@@ -159,6 +184,70 @@ export function userVisibleChanges(
 ): FieldChange[] {
   const allow = entityType === 'homework' ? HOMEWORK_USER_FIELDS : NOTICE_USER_FIELDS;
   return changes.filter((c) => allow.has(c.field));
+}
+
+/**
+ * Parent-relevant homework fields that warrant an Updates card.
+ * Excludes internal ids; sections-only audience expansion is handled separately.
+ */
+export const PARENT_HOMEWORK_CHANGE_FIELDS = new Set([
+  'subjectName',
+  'title',
+  'description',
+  'homeworkDate',
+  'dueDate',
+  'attachmentUrl',
+  'sections',
+]);
+
+export const PARENT_NOTICE_CHANGE_FIELDS = new Set([
+  'title',
+  'summary',
+  'content',
+  'publishedDate',
+  'publishedTime',
+  'classes',
+  'imageUrl',
+]);
+
+export function parentRelevantChanges(
+  entityType: ChangeEntityType,
+  changes: FieldChange[],
+): FieldChange[] {
+  const allow =
+    entityType === 'notice' ? PARENT_NOTICE_CHANGE_FIELDS : PARENT_HOMEWORK_CHANGE_FIELDS;
+  return changes.filter((c) => allow.has(c.field));
+}
+
+/**
+ * Proven false-positive: historical I-A-only → full Class 1 audience rewrite on sync.
+ * Safe to hide from Updates and to clean up from ContentChangeEvent.
+ */
+export function isLegacyAudienceOnlyChange(changes: FieldChange[]): boolean {
+  if (changes.length !== 1 || changes[0].field !== 'sections') return false;
+  try {
+    const prev = JSON.parse(changes[0].previous || '[]') as unknown;
+    const next = JSON.parse(changes[0].current || '[]') as unknown;
+    if (!Array.isArray(prev) || !Array.isArray(next)) return false;
+    const prevS = prev.map(String);
+    const nextS = next.map(String);
+    if (!(prevS.length === 1 && prevS[0] === 'I-A')) return false;
+    // Full Class 1 A–K (or any expansion beyond sole I-A)
+    return nextS.length > 1 && nextS.includes('I-A');
+  } catch {
+    return false;
+  }
+}
+
+/** True when a stored change event should never surface on the parent Updates page. */
+export function isNoiseChangeEvent(
+  entityType: ChangeEntityType,
+  changes: FieldChange[],
+): boolean {
+  if (changes.length === 0) return true;
+  if (entityType === 'homework' && isLegacyAudienceOnlyChange(changes)) return true;
+  if (parentRelevantChanges(entityType, changes).length === 0) return true;
+  return false;
 }
 
 export function hasReliablePreviousValue(changes: FieldChange[]): boolean {

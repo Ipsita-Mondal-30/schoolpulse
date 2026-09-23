@@ -10,7 +10,6 @@ import {
   toSortableDate,
   type UiHomeworkItem,
 } from '@/lib/ui-merge';
-import { CLASS1_SECTIONS, isClass1Section } from '@/lib/class-sections';
 import {
   formatBriefDate,
   getIndiaToday,
@@ -25,17 +24,11 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
 
-const DEFAULT_SECTION = 'I-A';
-const ALL_SECTIONS = [...CLASS1_SECTIONS];
-const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
+/** SchoolPulse is scoped to a single Class 1 section. */
+const SECTION = 'I-A';
 const LINK_BANNER_DISMISS_KEY = 'schoolpulse_dismiss_link_banner';
 
 type DueFilter = 'all' | 'today' | 'upcoming';
-
-function sectionLabel(sec: string): string {
-  const letter = sec.includes('-') ? sec.split('-')[1] : sec;
-  return `Section ${letter}`;
-}
 
 function formatDateHeading(dateStr: string): string {
   try {
@@ -74,7 +67,6 @@ export default function HomeworkPage() {
   const { data: access } = useParentAccessQuery(Boolean(isParent));
   const { data, isPending, isError, error } = useHomeworkQuery();
 
-  const [selectedSection, setSelectedSection] = useState(DEFAULT_SECTION);
   const [dueFilter, setDueFilter] = useState<DueFilter>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [today, setToday] = useState('');
@@ -85,10 +77,6 @@ export default function HomeworkPage() {
   useEffect(() => {
     setToday(getIndiaToday());
     if (typeof window === 'undefined') return;
-    const saved = localStorage.getItem(PINNED_SECTION_KEY);
-    if (saved && isClass1Section(saved)) {
-      setSelectedSection(saved);
-    }
     setBannerDismissed(localStorage.getItem(LINK_BANNER_DISMISS_KEY) === '1');
     const item = new URLSearchParams(window.location.search).get('item');
     if (item) setExpandedId(item);
@@ -107,8 +95,8 @@ export default function HomeworkPage() {
   }, [isError, error]);
 
   const bySection = useMemo(
-    () => filterHomeworkBySection(allHomework, selectedSection),
-    [allHomework, selectedSection],
+    () => filterHomeworkBySection(allHomework, SECTION),
+    [allHomework],
   );
 
   const filterCounts = useMemo(() => {
@@ -170,11 +158,6 @@ export default function HomeworkPage() {
   const showLinkBanner =
     isParent && access && !access.hasApprovedLink && !bannerDismissed;
 
-  const onSectionChange = (sec: string) => {
-    setSelectedSection(sec);
-    localStorage.setItem(PINNED_SECTION_KEY, sec);
-  };
-
   const dismissBanner = () => {
     setBannerDismissed(true);
     localStorage.setItem(LINK_BANNER_DISMISS_KEY, '1');
@@ -185,22 +168,6 @@ export default function HomeworkPage() {
       <PageHeader
         title="Homework"
         subtitle="Everything assigned, with the school's due date"
-        actions={
-          <label className="block">
-            <span className="sr-only">Section</span>
-            <select
-              value={selectedSection}
-              onChange={(e) => onSectionChange(e.target.value)}
-              className="min-h-10 rounded-xl border border-[var(--sp-border)] bg-white px-3 text-sm font-semibold text-[var(--sp-ink)] shadow-sm sp-focus"
-            >
-              {ALL_SECTIONS.map((sec) => (
-                <option key={sec} value={sec}>
-                  Class 1 · {sectionLabel(sec)}
-                </option>
-              ))}
-            </select>
-          </label>
-        }
       />
 
       {showLinkBanner ? (
@@ -256,8 +223,8 @@ export default function HomeworkPage() {
       {!isPending && sectionHasOlderFeed ? (
         <p className="mb-5 text-sm text-[var(--sp-muted)]">
           {latestSectionDate
-            ? `No recent homework for ${sectionLabel(selectedSection)} since ${formatBriefDate(latestSectionDate)}. Newer school homework is dated ${formatBriefDate(latestImportedDate)}.`
-            : `No homework for ${sectionLabel(selectedSection)}. Newest school homework is dated ${formatBriefDate(latestImportedDate)}.`}
+            ? `No recent homework for Section A since ${formatBriefDate(latestSectionDate)}. Newer school homework is dated ${formatBriefDate(latestImportedDate)}.`
+            : `No homework for Section A. Newest school homework is dated ${formatBriefDate(latestImportedDate)}.`}
         </p>
       ) : null}
 
@@ -280,7 +247,7 @@ export default function HomeworkPage() {
                   ? `Try All to see ${filterCounts.all} assigned item${
                       filterCounts.all === 1 ? '' : 's'
                     } for this section.`
-                  : `Nothing for section ${selectedSection} yet.`
+                  : `Nothing for Section A yet.`
             }
           />
           {dueFilter !== 'all' && filterCounts.all > 0 ? (

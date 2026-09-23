@@ -2,11 +2,16 @@ import {
   getMeaningfulHomeworkChanges,
   getMeaningfulNoticeChanges,
   homeworkSnapshot,
+  isNoiseChangeEvent,
   noticeSnapshot,
-  serializeFieldChanges,
+  parentRelevantChanges,
   type ChangeEntityType,
   type FieldChange,
 } from './changes';
+import {
+  defaultClass1Audience,
+  isLegacyDefaultHomeworkAudience,
+} from '@/lib/class-sections';
 import {
   homeworkContentKey,
   jolContentKey,
@@ -77,14 +82,25 @@ export class InMemoryNeverSkipStore implements NeverSkipStore {
     }
 
     const diffs = getMeaningfulHomeworkChanges(existing, item);
-    if (diffs.length > 0) {
+    const parentDiffs = parentRelevantChanges('homework', diffs);
+    const skipAudienceNoise =
+      diffs.length === 1 &&
+      diffs[0].field === 'sections' &&
+      isLegacyDefaultHomeworkAudience(existing.sections) &&
+      parentDiffs.every((d) => d.field === 'sections') &&
+      item.sections.length === defaultClass1Audience().length;
+    if (
+      parentDiffs.length > 0 &&
+      !skipAudienceNoise &&
+      !isNoiseChangeEvent('homework', diffs)
+    ) {
       this.changes.push({
         id: this.nextId('chg'),
         entityType: 'homework',
         source: item.source,
         sourceId: item.sourceId,
         entityId: existing._id,
-        changedFields: diffs,
+        changedFields: parentDiffs,
         previousSnapshotJson: JSON.stringify(homeworkSnapshot(existing)),
         currentSnapshotJson: JSON.stringify(homeworkSnapshot(item)),
         detectedAt: new Date(),
@@ -126,14 +142,15 @@ export class InMemoryNeverSkipStore implements NeverSkipStore {
     }
 
     const diffs = getMeaningfulNoticeChanges(existing, item);
-    if (diffs.length > 0) {
+    const parentDiffs = parentRelevantChanges('notice', diffs);
+    if (parentDiffs.length > 0 && !isNoiseChangeEvent('notice', diffs)) {
       this.changes.push({
         id: this.nextId('chg'),
         entityType: 'notice',
         source: item.source,
         sourceId: item.sourceId,
         entityId: existing._id,
-        changedFields: diffs,
+        changedFields: parentDiffs,
         previousSnapshotJson: JSON.stringify(noticeSnapshot(existing)),
         currentSnapshotJson: JSON.stringify(noticeSnapshot(item)),
         detectedAt: new Date(),

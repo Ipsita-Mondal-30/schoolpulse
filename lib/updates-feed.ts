@@ -7,7 +7,11 @@
  */
 
 import { uiHomeworkId, uiNoticeId } from '@/lib/neverskip/ids';
-import { formatRelativeTimeIndia, type FieldChange } from '@/lib/neverskip/changes';
+import {
+  formatRelativeTimeIndia,
+  isNoiseChangeEvent,
+  type FieldChange,
+} from '@/lib/neverskip/changes';
 import { homeworkSectionsForUi, noticeSummaryForUi, resolveNoticeClassesForUi } from '@/lib/ui-merge';
 import { addDaysYmd, getIndiaToday } from '@/lib/daily-brief';
 import { isNewerThan } from '@/lib/updates-unread';
@@ -16,6 +20,9 @@ import {
   resolveNoticeLibraryLink,
   type LibraryResourceRef,
 } from '@/lib/notice-library-link';
+
+/** Default parent-facing window for NEW/CHANGED and recent activity dates. */
+export const UPDATES_RECENT_DAYS = 7;
 
 const LIBRARY_RESOURCES: LibraryResourceRef[] = (
   libraryData.resources as { id: string; title: string; date: string }[]
@@ -218,23 +225,34 @@ export function partitionUpdatesFeed(items: UpdateFeedItem[]): {
 
 /**
  * One row per sourceId in NEW/CHANGED; RECENT fills remaining notices by publication date.
+ *
+ * Parent rules:
+ * - First import of historical homework (old homeworkDate) does NOT appear as NEW.
+ * - Noise change events (audience expansion / internal-only / empty) are ignored.
+ * - Genuine content changes still appear even when assigned earlier (e.g. June HW edited today).
  */
 export function buildUpdatesFeed(input: {
   homework: UpdateFeedHomeworkRow[];
   notices: UpdateFeedNoticeRow[];
   changes: UpdateFeedChangeRow[];
   since: Date;
+  /** YYYY-MM-DD inclusive lower bound for NEW homework/notice activity dates. */
+  activitySinceYmd?: string;
   /** YYYY-MM-DD inclusive lower bound for RECENT notices (India calendar). */
   publishedSinceYmd?: string;
 }): UpdateFeedItem[] {
   const sinceMs = input.since.getTime();
-  const publishedSince = input.publishedSinceYmd?.trim() || '';
+  const activitySince =
+    input.activitySinceYmd?.trim() || input.publishedSinceYmd?.trim() || '';
+  const publishedSince = input.publishedSinceYmd?.trim() || activitySince;
   const latestChange = new Map<string, UpdateFeedChangeRow>();
 
   for (const change of input.changes) {
     const detectedMs = toMs(change.detectedAt);
     if (!Number.isFinite(detectedMs) || detectedMs < sinceMs) continue;
     const type: UpdateFeedType = change.entityType === 'notice' ? 'notice' : 'homework';
+    if (isNoiseChangeEvent(type, change.changedFields as FieldChange[])) continue;
+    if ((change.changedFields?.length ?? 0) === 0) continue;
     const key = entityKey(type, change.source || 'neverskip', change.sourceId);
     const existing = latestChange.get(key);
     if (!existing || detectedMs > toMs(existing.detectedAt)) {
@@ -278,7 +296,13 @@ export function buildUpdatesFeed(input: {
       continue;
     }
 
-    if (Number.isFinite(createdMs) && createdMs >= sinceMs) {
+    // NEW only when the assignment itself is recent — not merely first DB import of old HW.
+    const hwDate = String(hw.homeworkDate || '').trim();
+    const assignedRecent =
+      !activitySince ||
+      (YMD_RE.test(hwDate) && hwDate >= activitySince) ||
+      (!YMD_RE.test(hwDate) && Number.isFinite(createdMs) && createdMs >= sinceMs);
+    if (Number.isFinite(createdMs) && createdMs >= sinceMs && assignedRecent) {
       newItems.push({
         id: `new:homework:${source}:${hw.sourceId}`,
         kind: 'new',
@@ -338,7 +362,12 @@ export function buildUpdatesFeed(input: {
       continue;
     }
 
-    if (Number.isFinite(createdMs) && createdMs >= sinceMs) {
+    const pubDate = String(notice.publishedDate || '').trim();
+    const publishedRecent =
+      !activitySince ||
+      (YMD_RE.test(pubDate) && pubDate >= activitySince) ||
+      (!YMD_RE.test(pubDate) && Number.isFinite(createdMs) && createdMs >= sinceMs);
+    if (Number.isFinite(createdMs) && createdMs >= sinceMs && publishedRecent) {
       newNoticeKeys.add(key);
       newItems.push({
         id: `new:notice:${source}:${notice.sourceId}`,
