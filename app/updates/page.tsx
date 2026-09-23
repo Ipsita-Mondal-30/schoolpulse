@@ -6,7 +6,6 @@ import {
   presentChangeLines,
   type FieldChange,
 } from '@/lib/neverskip/changes';
-import { CLASS1_SECTIONS, isClass1Section } from '@/lib/class-sections';
 import { useUpdatesFeedQuery } from '@/lib/queries/updates';
 import {
   countUnreadUpdates,
@@ -23,9 +22,8 @@ import { LoadingState } from '@/components/ui/LoadingState';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { isNewerThan, readLastSeenIso, writeLastSeenNow } from '@/lib/updates-unread';
 
-const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
-const DEFAULT_SECTION = 'I-A';
-const ALL_SECTIONS = [...CLASS1_SECTIONS];
+/** SchoolPulse is scoped to a single Class 1 section. */
+const SECTION = 'I-A';
 
 function toFieldChanges(item: UpdateFeedItem): FieldChange[] {
   return item.changedFields.map((c) => ({
@@ -35,11 +33,6 @@ function toFieldChanges(item: UpdateFeedItem): FieldChange[] {
     current: c.current,
     reliable: c.reliable,
   }));
-}
-
-function sectionLabel(sec: string): string {
-  const letter = sec.includes('-') ? sec.split('-')[1] : sec;
-  return `Class 1 · Section ${letter}`;
 }
 
 function UpdateCard({
@@ -117,19 +110,16 @@ function UpdateCard({
 
 export default function UpdatesPage() {
   const { data, isPending, isError, refetch } = useUpdatesFeedQuery();
-  const [section, setSection] = useState(DEFAULT_SECTION);
   const [lastSeen, setLastSeen] = useState<string | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem(PINNED_SECTION_KEY);
-    if (saved && isClass1Section(saved)) setSection(saved);
     setLastSeen(readLastSeenIso());
     writeLastSeenNow();
   }, []);
 
   const feed = useMemo(
-    () => filterUpdatesBySection(data ?? [], section),
-    [data, section],
+    () => filterUpdatesBySection(data ?? [], SECTION),
+    [data],
   );
   const { newItems, recentItems } = useMemo(() => partitionUpdatesFeed(feed), [feed]);
   const unreadCount = countUnreadUpdates(feed, lastSeen);
@@ -139,25 +129,6 @@ export default function UpdatesPage() {
       <PageHeader
         title="Updates"
         subtitle="New and changed homework and notices"
-        actions={
-          <label className="block">
-            <span className="sr-only">Section</span>
-            <select
-              value={section}
-              onChange={(e) => {
-                setSection(e.target.value);
-                localStorage.setItem(PINNED_SECTION_KEY, e.target.value);
-              }}
-              className="min-h-10 rounded-xl border border-[var(--sp-border)] bg-white px-3 text-sm font-semibold text-[var(--sp-ink)] shadow-sm sp-focus"
-            >
-              {ALL_SECTIONS.map((sec) => (
-                <option key={sec} value={sec}>
-                  {sectionLabel(sec)}
-                </option>
-              ))}
-            </select>
-          </label>
-        }
       />
 
       {isPending ? (

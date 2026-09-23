@@ -324,19 +324,20 @@ async function main() {
   if (firstBody) {
     // Prefer session cookies via context.request — do not invent Token headers.
     for (const pageIndex of [0, 1, 2]) {
-      const body = { ...firstBody, page: String(pageIndex) };
+      const body: Record<string, unknown> = { ...firstBody, page: String(pageIndex) };
       // AG pagination advances limt; CD keeps limt:0
       if (String(body.pg_key) === 'AG') {
         body.limt = pageIndex * 10;
       }
       try {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        };
+        if (sessionToken) headers.Token = sessionToken;
         const res = await context.request.post(HW_API, {
           data: body,
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            ...(sessionToken ? { Token: sessionToken } : {}),
-          },
+          headers,
           timeout: 60_000,
         });
         const text = await res.text();
@@ -389,13 +390,14 @@ async function main() {
       pg_key: 'AG',
     };
     try {
+      const agHeaders: Record<string, string> = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      };
+      if (sessionToken) agHeaders.Token = sessionToken;
       const res = await context.request.post(HW_API, {
         data: agBody,
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(sessionToken ? { Token: sessionToken } : {}),
-        },
+        headers: agHeaders,
         timeout: 60_000,
       });
       const text = await res.text();

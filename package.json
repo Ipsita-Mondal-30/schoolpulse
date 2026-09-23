@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "playwright test",
     "test:unit": "vitest run",
+    "test:veo": "tsx scripts/test-veo.ts",
     "sync:neverskip": "tsx scripts/sync-neverskip.ts",
     "sync:neverskip:browser": "tsx scripts/sync-neverskip-browser.ts",
     "neverskip:login": "tsx scripts/neverskip-login.ts",
@@ -21,6 +22,7 @@
   "dependencies": {
     "@ai-sdk/google": "^1.2.22",
     "@ai-sdk/openai": "^0.0.26",
+    "@google/genai": "^2.24.0",
     "@prisma/client": "^5.22.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/react-query": "^5.102.8",

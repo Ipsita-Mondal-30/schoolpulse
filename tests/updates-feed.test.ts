@@ -95,7 +95,7 @@ describe('buildUpdatesFeed', () => {
     });
   });
 
-  it('treats old homework imported today as new and keeps the assigned date', () => {
+  it('does not treat historical homework first-imported today as a current update', () => {
     const items = buildUpdatesFeed({
       homework: [
         hw({
@@ -108,12 +108,100 @@ describe('buildUpdatesFeed', () => {
       notices: [],
       changes: [],
       since: SINCE,
+      activitySinceYmd: PUBLISHED_SINCE,
       publishedSinceYmd: PUBLISHED_SINCE,
     });
-    expect(items[0].kind).toBe('new');
-    expect(items[0].occurredAt).toBe('2026-09-15T10:00:00.000Z');
-    expect(items[0].sourceDate).toBe('2026-07-13');
-    expect(formatUpdateSourceDateLabel('homework', items[0].sourceDate)).toBe('Assigned 13 Jul');
+    expect(items).toHaveLength(0);
+  });
+
+  it('hides legacy audience-expansion change noise from Updates', () => {
+    const items = buildUpdatesFeed({
+      homework: [
+        hw({
+          sourceId: 'june-1',
+          title: 'Chapter 1: Myself',
+          homeworkDate: '2026-06-02',
+          createdAt: '2026-06-02T10:00:00.000Z',
+        }),
+      ],
+      notices: [],
+      changes: [
+        chg({
+          id: 'noise-1',
+          entityType: 'homework',
+          sourceId: 'june-1',
+          entityId: 'db-june-1',
+          detectedAt: '2026-09-15T14:00:00.000Z',
+          changedFields: [
+            {
+              field: 'sections',
+              label: 'Sections',
+              previous: '["I-A"]',
+              current: JSON.stringify([
+                'I-A',
+                'I-B',
+                'I-C',
+                'I-D',
+                'I-E',
+                'I-F',
+                'I-G',
+                'I-H',
+                'I-I',
+                'I-J',
+                'I-K',
+              ]),
+              reliable: true,
+            },
+          ],
+          title: 'Chapter 1: Myself',
+          subject: 'ENVIRONMENTAL SCIENCE',
+        }),
+      ],
+      since: SINCE,
+      activitySinceYmd: PUBLISHED_SINCE,
+      publishedSinceYmd: PUBLISHED_SINCE,
+    });
+    expect(items.filter((i) => i.kind === 'changed')).toHaveLength(0);
+  });
+
+  it('still shows a genuine recent title change on older homework', () => {
+    const items = buildUpdatesFeed({
+      homework: [
+        hw({
+          sourceId: 'june-2',
+          title: 'New title',
+          homeworkDate: '2026-06-02',
+          createdAt: '2026-06-02T10:00:00.000Z',
+        }),
+      ],
+      notices: [],
+      changes: [
+        chg({
+          id: 'real-1',
+          entityType: 'homework',
+          sourceId: 'june-2',
+          entityId: 'db-june-2',
+          detectedAt: '2026-09-15T14:00:00.000Z',
+          changedFields: [
+            {
+              field: 'title',
+              label: 'Title',
+              previous: 'Old title',
+              current: 'New title',
+              reliable: true,
+            },
+          ],
+          title: 'New title',
+          subject: 'ENGLISH',
+        }),
+      ],
+      since: SINCE,
+      activitySinceYmd: PUBLISHED_SINCE,
+      publishedSinceYmd: PUBLISHED_SINCE,
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0].kind).toBe('changed');
+    expect(items[0].title).toBe('New title');
   });
 
   it('does not emit a second new row when the same sourceId is seen again unchanged', () => {
@@ -185,12 +273,12 @@ describe('buildUpdatesFeed', () => {
     expect(items).toHaveLength(0);
   });
 
-  it('marks a first-imported notice as new using createdAt, not published date', () => {
+  it('does not treat historical notice first-imported today as a current update', () => {
     const items = buildUpdatesFeed({
       homework: [],
       notices: [
         nt({
-          sourceId: 'n-new',
+          sourceId: 'n-old',
           title: 'Corrected textbook handed over',
           publishedDate: '2026-07-01',
           createdAt: '2026-09-15T12:57:08.704Z',
@@ -198,6 +286,26 @@ describe('buildUpdatesFeed', () => {
       ],
       changes: [],
       since: SINCE,
+      activitySinceYmd: PUBLISHED_SINCE,
+      publishedSinceYmd: PUBLISHED_SINCE,
+    });
+    expect(items.filter((i) => i.kind === 'new')).toHaveLength(0);
+  });
+
+  it('marks a recently published notice first-imported today as new', () => {
+    const items = buildUpdatesFeed({
+      homework: [],
+      notices: [
+        nt({
+          sourceId: 'n-new',
+          title: 'Sports day circular',
+          publishedDate: '2026-09-14',
+          createdAt: '2026-09-15T12:57:08.704Z',
+        }),
+      ],
+      changes: [],
+      since: SINCE,
+      activitySinceYmd: PUBLISHED_SINCE,
       publishedSinceYmd: PUBLISHED_SINCE,
     });
     expect(items).toHaveLength(1);
@@ -206,7 +314,7 @@ describe('buildUpdatesFeed', () => {
       section: 'new',
       type: 'notice',
       occurredAt: '2026-09-15T12:57:08.704Z',
-      sourceDate: '2026-07-01',
+      sourceDate: '2026-09-14',
     });
   });
 

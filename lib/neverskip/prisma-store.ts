@@ -7,7 +7,9 @@ import {
   getMeaningfulHomeworkChanges,
   getMeaningfulNoticeChanges,
   homeworkSnapshot,
+  isNoiseChangeEvent,
   noticeSnapshot,
+  parentRelevantChanges,
   serializeFieldChanges,
 } from './changes';
 import {
@@ -91,18 +93,23 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
     }
 
     const diffs = getMeaningfulHomeworkChanges(existingNorm, item);
+    const parentDiffs = parentRelevantChanges('homework', diffs);
     const skipAudienceNoise =
       diffs.length === 1 &&
       diffs[0].field === 'sections' &&
       isLegacyHomeworkAudienceExpansion(existingNorm.sections, item.sections);
-    if (diffs.length > 0 && !skipAudienceNoise) {
+    if (
+      parentDiffs.length > 0 &&
+      !skipAudienceNoise &&
+      !isNoiseChangeEvent('homework', diffs)
+    ) {
       await prisma.contentChangeEvent.create({
         data: {
           entityType: 'homework',
           source: item.source,
           sourceId: item.sourceId,
           entityId: existing.id,
-          changedFieldsJson: serializeFieldChanges(diffs),
+          changedFieldsJson: serializeFieldChanges(parentDiffs),
           previousSnapshotJson: JSON.stringify(homeworkSnapshot(existingNorm)),
           currentSnapshotJson: JSON.stringify(homeworkSnapshot(item)),
         },
@@ -216,14 +223,15 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
     }
 
     const diffs = getMeaningfulNoticeChanges(existingNorm, item);
-    if (diffs.length > 0) {
+    const parentDiffs = parentRelevantChanges('notice', diffs);
+    if (parentDiffs.length > 0 && !isNoiseChangeEvent('notice', diffs)) {
       await prisma.contentChangeEvent.create({
         data: {
           entityType: 'notice',
           source: item.source,
           sourceId: item.sourceId,
           entityId: existing.id,
-          changedFieldsJson: serializeFieldChanges(diffs),
+          changedFieldsJson: serializeFieldChanges(parentDiffs),
           previousSnapshotJson: JSON.stringify(noticeSnapshot(existingNorm)),
           currentSnapshotJson: JSON.stringify(noticeSnapshot(item)),
         },

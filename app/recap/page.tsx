@@ -5,17 +5,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { TodaysRecapResult } from '@/lib/recap/today';
 
-const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
-const DEFAULT_SECTION = 'I-A';
+const SECTION = 'I-A';
 
 export default function RecapHubPage() {
   const router = useRouter();
-  const [section, setSection] = useState(DEFAULT_SECTION);
   const [data, setData] = useState<TodaysRecapResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const refreshToday = useCallback(async (sec: string) => {
+  const refreshToday = useCallback(async (sec: string = SECTION) => {
     const qs = new URLSearchParams({ section: sec });
     const res = await fetch(`/api/recap/today?${qs.toString()}`);
     const json = (await res.json()) as TodaysRecapResult;
@@ -24,13 +22,8 @@ export default function RecapHubPage() {
   }, []);
 
   useEffect(() => {
-    const saved = localStorage.getItem(PINNED_SECTION_KEY);
-    if (saved) setSection(saved);
-  }, []);
-
-  useEffect(() => {
     let cancelled = false;
-    void refreshToday(section)
+    void refreshToday(SECTION)
       .then((json) => {
         if (cancelled) return;
         // Clear stale generate errors once a lesson is ready.
@@ -51,7 +44,7 @@ export default function RecapHubPage() {
     return () => {
       cancelled = true;
     };
-  }, [section, refreshToday]);
+  }, [refreshToday]);
 
   // Prefetch Gemini for eligible topics so "Start" opens a ready lesson.
   useEffect(() => {
@@ -71,7 +64,7 @@ export default function RecapHubPage() {
           });
           const json = (await res.json()) as { ok?: boolean };
           if (json.ok && !cancelled) {
-            await refreshToday(section);
+            await refreshToday(SECTION);
             setError(null);
           }
         } catch {
@@ -83,7 +76,7 @@ export default function RecapHubPage() {
     return () => {
       cancelled = true;
     };
-  }, [data, refreshToday, section]);
+  }, [data, refreshToday]);
 
   const openTopic = useCallback(
     async (homeworkId: string, lessonId: string | null) => {
@@ -115,14 +108,14 @@ export default function RecapHubPage() {
             : json.message || "Recap isn't available yet. Please try again.",
         );
         // Refresh in case another request finished the lesson.
-        await refreshToday(section);
+        await refreshToday(SECTION);
       } catch {
         setError("Recap isn't available yet. Please try again.");
       } finally {
         setBusyId(null);
       }
     },
-    [refreshToday, router, section],
+    [refreshToday, router],
   );
 
   const emptyCopy =

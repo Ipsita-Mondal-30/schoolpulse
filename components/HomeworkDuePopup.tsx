@@ -6,8 +6,7 @@ import { useHomeworkQuery } from '@/lib/queries/homework';
 import { filterHomeworkBySection } from '@/lib/ui-merge';
 import { getIndiaToday, hasReliableDueDate, isDueToday } from '@/lib/daily-brief';
 
-const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
-const DEFAULT_SECTION = 'I-A';
+const SECTION = 'I-A';
 
 export default function HomeworkDuePopup() {
   const { data } = useHomeworkQuery();
@@ -19,8 +18,7 @@ export default function HomeworkDuePopup() {
     if (hour >= 9) return;
 
     const todayStr = getIndiaToday();
-    const section = localStorage.getItem(PINNED_SECTION_KEY) || DEFAULT_SECTION;
-    const dueToday = filterHomeworkBySection(data?.items ?? [], section).filter(
+    const dueToday = filterHomeworkBySection(data?.items ?? [], SECTION).filter(
       (hw) => hasReliableDueDate(hw.submissionDate) && isDueToday(hw.submissionDate, todayStr),
     );
 

@@ -28,11 +28,7 @@ import TodaysRecapHomeCard from '@/components/recap/TodaysRecapHomeCard';
 import { countUnreadUpdates, filterUpdatesBySection } from '@/lib/updates-feed';
 import { readLastSeenIso } from '@/lib/updates-unread';
 
-const DEFAULT_SECTION = 'I-A';
-const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
-const ALL_SECTIONS = [
-  'I-A', 'I-B', 'I-C', 'I-D', 'I-E', 'I-F', 'I-G', 'I-H', 'I-I', 'I-J', 'I-K',
-];
+const SECTION = 'I-A';
 
 function formatLongDate(ymd: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return ymd;
@@ -56,17 +52,14 @@ export default function DailyBrief() {
   const { data: session } = useSession();
   const isParent = session?.user?.role === 'parent';
   const { data: access } = useParentAccessQuery(Boolean(isParent));
-  const [section, setSection] = useState(DEFAULT_SECTION);
   const [greeting, setGreeting] = useState('Good evening');
   const [todayYmd, setTodayYmd] = useState('');
   const [unreadUpdates, setUnreadUpdates] = useState(0);
   const [pulse, setPulse] = useState(() => buildDailyPulse());
-  const { data, isPending, isError, refetch } = useDailyBriefQuery({ section });
+  const { data, isPending, isError, refetch } = useDailyBriefQuery({ section: SECTION });
   const { data: updatesFeed } = useUpdatesFeedQuery();
 
   useEffect(() => {
-    const saved = localStorage.getItem(PINNED_SECTION_KEY);
-    if (saved && ALL_SECTIONS.includes(saved)) setSection(saved);
     setGreeting(getBriefGreeting(getIndiaHour()));
     setTodayYmd(
       new Intl.DateTimeFormat('en-CA', {
@@ -83,17 +76,17 @@ export default function DailyBrief() {
 
   useEffect(() => {
     const lastSeen = readLastSeenIso();
-    const forSection = filterUpdatesBySection(updatesFeed ?? [], section);
+    const forSection = filterUpdatesBySection(updatesFeed ?? [], SECTION);
     setUnreadUpdates(countUnreadUpdates(forSection, lastSeen));
-  }, [updatesFeed, section]);
+  }, [updatesFeed]);
 
   const firstName =
     session?.user?.name?.trim().split(/\s+/)[0] ||
     (session?.user?.email ? session.user.email.split('@')[0] : '');
 
   const childName = access?.studentName?.trim() || '';
-  const childLabel = childName || classLine(section);
-  const childInitial = (childName || classLine(section)).slice(0, 1).toUpperCase();
+  const childLabel = childName || classLine(SECTION);
+  const childInitial = (childName || classLine(SECTION)).slice(0, 1).toUpperCase();
 
   const attention = useMemo(() => {
     if (!data) return [];
@@ -156,7 +149,7 @@ export default function DailyBrief() {
             {childInitial}
           </span>
           <p className="text-sm font-medium text-[var(--sp-ink)]">{childLabel}</p>
-          <p className="text-xs text-[var(--sp-muted)]">{classLine(section)}</p>
+          <p className="text-xs text-[var(--sp-muted)]">{classLine(SECTION)}</p>
         </div>
       </header>
 
@@ -274,7 +267,7 @@ export default function DailyBrief() {
         )}
       </section>
 
-      <TodaysRecapHomeCard section={section} todayYmd={data.today || todayYmd} />
+      <TodaysRecapHomeCard section={SECTION} todayYmd={data.today || todayYmd} />
 
       <section className="space-y-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--sp-subtle)]">
