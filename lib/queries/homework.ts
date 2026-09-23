@@ -23,8 +23,5 @@ export function useHomeworkQuery() {
   return useQuery({
     queryKey: homeworkQueryKey,
     queryFn: fetchHomeworkForUi,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-    staleTime: 30_000,
   });
 }

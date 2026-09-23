@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useHomeworkQuery } from '@/lib/queries/homework';
+import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import { filterHomeworkBySection } from '@/lib/ui-merge';
 import { getIndiaToday, hasReliableDueDate, isDueToday } from '@/lib/daily-brief';
 
-const SECTION = 'I-A';
-
 export default function HomeworkDuePopup() {
   const { data } = useHomeworkQuery();
+  const { section } = useSyncedChildSection();
   const [showPopup, setShowPopup] = useState(false);
   const [titles, setTitles] = useState<string[]>([]);
 
@@ -18,7 +18,7 @@ export default function HomeworkDuePopup() {
     if (hour >= 9) return;
 
     const todayStr = getIndiaToday();
-    const dueToday = filterHomeworkBySection(data?.items ?? [], SECTION).filter(
+    const dueToday = filterHomeworkBySection(data?.items ?? [], section).filter(
       (hw) => hasReliableDueDate(hw.submissionDate) && isDueToday(hw.submissionDate, todayStr),
     );
 
@@ -27,7 +27,7 @@ export default function HomeworkDuePopup() {
 
     const hasSeen = sessionStorage.getItem(`seen_homework_popup_${todayStr}`);
     if (!hasSeen) setShowPopup(true);
-  }, [data]);
+  }, [data, section]);
 
   const handleDismiss = () => {
     setShowPopup(false);

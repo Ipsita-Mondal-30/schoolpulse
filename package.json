@@ -10,6 +10,7 @@
     "test": "playwright test",
     "test:unit": "vitest run",
     "test:veo": "tsx scripts/test-veo.ts",
+    "cleanup:false-changes": "tsx scripts/cleanup-false-change-events.ts",
     "sync:neverskip": "tsx scripts/sync-neverskip.ts",
     "sync:neverskip:browser": "tsx scripts/sync-neverskip-browser.ts",
     "neverskip:login": "tsx scripts/neverskip-login.ts",

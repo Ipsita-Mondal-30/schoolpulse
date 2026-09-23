@@ -104,13 +104,15 @@ model User {
 
 /// Child/student roster entry linked to a Class (section)
 model Student {
-  id          String   @id @default(cuid())
-  displayName String
-  classId     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  class       Class    @relation(fields: [classId], references: [id])
-  parents     ParentStudent[]
+  id                 String   @id @default(cuid())
+  displayName        String
+  /// Stable NeverSkip (or portal-account) student identifier — not class/name alone.
+  neverSkipStudentId String?  @unique
+  classId            String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  class              Class    @relation(fields: [classId], references: [id])
+  parents            ParentStudent[]
 
   @@index([classId])
 }
@@ -151,6 +153,7 @@ model ImportedHomework {
   updatedAt     DateTime @updatedAt
   acknowledgements HomeworkAcknowledgement[]
   microLesson   MicroLesson?
+  homeworkVideo HomeworkVideo?
 
   @@unique([source, sourceId])
   @@index([homeworkDate])
@@ -376,4 +379,23 @@ model QuizAttempt {
 
   @@index([lessonId])
   @@index([completedAt])
+}
+
+/// Manual parent-triggered AI revision video for one ImportedHomework (1:1, idempotent)
+model HomeworkVideo {
+  id             String    @id @default(cuid())
+  homeworkId     String    @unique
+  status         String    @default("PENDING")
+  lessonJson     String    @default("{}")
+  videoUrl       String?
+  provider       String    @default("veo")
+  providerJobId  String?
+  errorMessage   String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  completedAt    DateTime?
+  homework       ImportedHomework @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([createdAt])
 }

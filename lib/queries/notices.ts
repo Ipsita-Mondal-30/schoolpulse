@@ -16,8 +16,5 @@ export function useNoticesQuery() {
   return useQuery({
     queryKey: noticesQueryKey,
     queryFn: fetchNoticesForUi,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-    staleTime: 30_000,
   });
 }

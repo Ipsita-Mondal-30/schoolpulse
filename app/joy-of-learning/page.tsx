@@ -3,15 +3,13 @@
 import { useMemo, useState } from 'react';
 import { Download, ExternalLink, GraduationCap } from 'lucide-react';
 import { getIndiaToday, addDaysYmd } from '@/lib/daily-brief';
-import { CLASS1_SECTIONS, isClass1Section } from '@/lib/class-sections';
 import { useJolQuery } from '@/lib/queries/jol';
 import { useCanonicalScheduleQuery } from '@/lib/queries/schedule';
+import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import type { UiJolItem } from '@/app/actions';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
-
-const DEFAULT_SECTION = 'I-A';
 
 function formatYmd(ymd: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return ymd || 'Undated';
@@ -21,11 +19,6 @@ function formatYmd(ymd: string): string {
     month: 'short',
     year: 'numeric',
   });
-}
-
-function sectionLabel(sec: string): string {
-  const letter = sec.includes('-') ? sec.split('-')[1] : sec;
-  return `Class 1 · Section ${letter}`;
 }
 
 function isPrintout(item: UiJolItem): boolean {
@@ -130,9 +123,8 @@ function Section({
 export default function JoyOfLearningPage() {
   const { data, isPending, isError, refetch } = useJolQuery();
   const scheduleQuery = useCanonicalScheduleQuery();
+  const { section, studentName } = useSyncedChildSection();
   const [filter, setFilter] = useState<'all' | 'jol'>('jol');
-  const [section, setSection] = useState(DEFAULT_SECTION);
-  const [classFocus, setClassFocus] = useState<'I' | 'II' | 'both'>('I');
   const today = getIndiaToday();
   const horizon = addDaysYmd(today, 21) || today;
 
@@ -156,6 +148,10 @@ export default function JoyOfLearningPage() {
   const hasDates =
     Boolean(jolSchedule?.days?.length) || scheduleEvents.length > 0;
 
+  const childHint = studentName
+    ? `Worksheet dates and school resources for ${studentName}.`
+    : "Worksheet dates and school resources for your child's class.";
+
   return (
     <div className="sp-page max-w-3xl">
       <PageHeader
@@ -163,23 +159,6 @@ export default function JoyOfLearningPage() {
         subtitle="Activities, resources and printouts from your school"
         actions={
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <label className="block">
-              <span className="sr-only">Section</span>
-              <select
-                value={section}
-                onChange={(e) => {
-                  const next = e.target.value;
-                  if (isClass1Section(next)) setSection(next);
-                }}
-                className="min-h-10 rounded-xl border border-[var(--sp-border)] bg-white px-3 text-sm font-semibold text-[var(--sp-ink)] shadow-sm sp-focus"
-              >
-                {CLASS1_SECTIONS.map((sec) => (
-                  <option key={sec} value={sec}>
-                    {sectionLabel(sec)}
-                  </option>
-                ))}
-              </select>
-            </label>
             <button
               type="button"
               onClick={() => setFilter('jol')}
@@ -210,9 +189,7 @@ export default function JoyOfLearningPage() {
         <GraduationCap className="mt-0.5 h-5 w-5 shrink-0 text-[var(--sp-primary)]" aria-hidden />
         <div>
           <p className="text-sm font-semibold text-[var(--sp-ink)]">Joy of Learning</p>
-          <p className="mt-0.5 text-sm text-[var(--sp-muted)]">
-            Worksheet dates and school resources for your child&apos;s class.
-          </p>
+          <p className="mt-0.5 text-sm text-[var(--sp-muted)]">{childHint}</p>
         </div>
       </div>
 
@@ -247,31 +224,9 @@ export default function JoyOfLearningPage() {
                     {jolSchedule.title || 'Joy of Learning II — Timetable'}
                   </p>
                   <p className="mt-1 text-xs text-[var(--sp-muted)]">
-                    {jolSchedule.classesLabel || 'Class I & II'}
+                    Class I
                     {jolSchedule.academicYear ? ` · ${jolSchedule.academicYear}` : ''}
                   </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {(
-                      [
-                        ['I', 'Class I'],
-                        ['II', 'Class II'],
-                        ['both', 'Both'],
-                      ] as const
-                    ).map(([key, label]) => (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setClassFocus(key)}
-                        className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold sp-focus ${
-                          classFocus === key
-                            ? 'bg-[var(--sp-primary)] text-white'
-                            : 'border border-[var(--sp-border)] bg-white text-[var(--sp-ink)]'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
                   {jolSchedule.sourceDocumentUrl ? (
                     <a
                       href={jolSchedule.sourceDocumentUrl}
@@ -296,13 +251,7 @@ export default function JoyOfLearningPage() {
                           {row.weekday ? ` · ${row.weekday}` : ''}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm text-[var(--sp-muted)]">
-                        {classFocus !== 'II' ? <>Class I — {row.classI}</> : null}
-                        {classFocus === 'both' ? (
-                          <span className="mx-2 text-[var(--sp-subtle)]">·</span>
-                        ) : null}
-                        {classFocus !== 'I' ? <>Class II — {row.classII}</> : null}
-                      </p>
+                      <p className="mt-1 text-sm text-[var(--sp-muted)]">{row.classI}</p>
                     </li>
                   ))}
                 </ul>
@@ -318,8 +267,8 @@ export default function JoyOfLearningPage() {
                       {row.subjectName || row.title}
                       {row.periodLabel ? ` · ${row.periodLabel}` : ''}
                     </span>
-                    <span className="shrink-0 text-sm text-[var(--sp-muted)]">
-                      {row.eventDate || row.weekday || '—'}
+                    <span className="shrink-0 text-xs text-[var(--sp-muted)]">
+                      {formatYmd(row.eventDate)}
                     </span>
                   </li>
                 ))}
@@ -330,23 +279,23 @@ export default function JoyOfLearningPage() {
           <Section title="Upcoming" empty={upcoming.length === 0}>
             <ul className="space-y-3">
               {upcoming.map((item) => (
-                <JolCard key={`up-${item.id}`} item={item} />
+                <JolCard key={item.id} item={item} />
               ))}
             </ul>
           </Section>
 
           <Section title="Printouts" empty={printouts.length === 0}>
             <ul className="space-y-3">
-              {printouts.slice(0, 20).map((item) => (
-                <JolCard key={`pr-${item.id}`} item={item} />
+              {printouts.map((item) => (
+                <JolCard key={item.id} item={item} />
               ))}
             </ul>
           </Section>
 
           <Section title="Resources" empty={resources.length === 0}>
             <ul className="space-y-3">
-              {resources.slice(0, 20).map((item) => (
-                <JolCard key={`re-${item.id}`} item={item} />
+              {resources.map((item) => (
+                <JolCard key={item.id} item={item} />
               ))}
             </ul>
           </Section>

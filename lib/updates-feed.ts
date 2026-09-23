@@ -480,9 +480,16 @@ export function buildUpdatesFeed(input: {
 
 export function filterUpdatesBySection(items: UpdateFeedItem[], section: string): UpdateFeedItem[] {
   if (!section) return items;
+  const want = section.trim().toUpperCase();
   return items.filter((item) => {
-    if (item.sections.length === 0) return true;
-    return item.sections.includes(section) || item.sections.includes('ALL');
+    const sections = (item.sections || []).map((s) => String(s).trim().toUpperCase());
+    if (sections.length === 0) return true;
+    if (sections.includes('ALL') || sections.includes('ALLCLASSES')) return true;
+    if (sections.includes(want)) return true;
+    if (want.startsWith('I-') && (sections.includes('I') || sections.includes('CLASS I'))) {
+      return true;
+    }
+    return false;
   });
 }
 

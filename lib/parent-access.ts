@@ -13,7 +13,7 @@ export const PARENT_STUDENT_APPROVED = 'approved';
 export const PARENT_STUDENT_PENDING = 'pending';
 export const PARENT_STUDENT_REJECTED = 'rejected';
 
-export const ERR_NO_LINKED_CHILD = 'No linked child yet';
+export const ERR_NO_LINKED_CHILD = 'Child not synced';
 export const ERR_NOT_FOR_LINKED_CLASS = 'Not available for your linked class';
 
 /** Normalize Class.section / Class.name / NeverSkip labels to comparable codes. */

@@ -7,6 +7,7 @@ import {
   type FieldChange,
 } from '@/lib/neverskip/changes';
 import { useUpdatesFeedQuery } from '@/lib/queries/updates';
+import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import {
   countUnreadUpdates,
   filterUpdatesBySection,
@@ -21,9 +22,6 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { isNewerThan, readLastSeenIso, writeLastSeenNow } from '@/lib/updates-unread';
-
-/** SchoolPulse is scoped to a single Class 1 section. */
-const SECTION = 'I-A';
 
 function toFieldChanges(item: UpdateFeedItem): FieldChange[] {
   return item.changedFields.map((c) => ({
@@ -110,6 +108,7 @@ function UpdateCard({
 
 export default function UpdatesPage() {
   const { data, isPending, isError, refetch } = useUpdatesFeedQuery();
+  const { section, studentName } = useSyncedChildSection();
   const [lastSeen, setLastSeen] = useState<string | null>(null);
 
   useEffect(() => {
@@ -118,8 +117,8 @@ export default function UpdatesPage() {
   }, []);
 
   const feed = useMemo(
-    () => filterUpdatesBySection(data ?? [], SECTION),
-    [data],
+    () => filterUpdatesBySection(data ?? [], section),
+    [data, section],
   );
   const { newItems, recentItems } = useMemo(() => partitionUpdatesFeed(feed), [feed]);
   const unreadCount = countUnreadUpdates(feed, lastSeen);
@@ -146,8 +145,17 @@ export default function UpdatesPage() {
         </div>
       ) : feed.length === 0 ? (
         <EmptyState
-          title="Nothing new since last visit"
-          description="When NeverSkip adds or changes homework or a notice, it will show up here."
+          title="No recent updates"
+          description="New homework and notices from the last week will appear here. Check Homework and Notices for the full lists."
+        />
+      ) : newItems.length === 0 && recentItems.length === 0 ? (
+        <EmptyState
+          title="No updates for your child"
+          description={
+            studentName
+              ? `There are school updates, but none match ${studentName}'s class right now.`
+              : 'There are school updates, but none match your child right now.'
+          }
         />
       ) : (
         <div className="space-y-6">

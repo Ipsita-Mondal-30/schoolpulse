@@ -10,6 +10,7 @@ import {
 } from '@/lib/ui-merge';
 import { useNoticesQuery } from '@/lib/queries/notices';
 import { useMyAcknowledgementsQuery } from '@/lib/queries/acknowledgements';
+import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import AcknowledgeButton from '@/components/AcknowledgeButton';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -18,9 +19,6 @@ import { markNoticeRead } from '@/lib/updates-unread';
 import { resolveNoticeLibraryLink } from '@/lib/notice-library-link';
 import { jolItemsToLibraryRefs } from '@/lib/library-from-jol';
 import { useJolQuery } from '@/lib/queries/jol';
-
-/** SchoolPulse is scoped to a single Class 1 section. */
-const SECTION = 'I-A';
 
 function formatDateLabel(iso: string): string {
   if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return 'Undated';
@@ -36,6 +34,7 @@ export default function NoticesPage() {
   const { data: noticesData, isPending, isError, refetch } = useNoticesQuery();
   const { data: jolItems } = useJolQuery();
   const { data: acks } = useMyAcknowledgementsQuery();
+  const { section } = useSyncedChildSection();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const libraryResources = useMemo(
     () => jolItemsToLibraryRefs(jolItems ?? []),
@@ -56,8 +55,8 @@ export default function NoticesPage() {
   const notices = noticesData ?? [];
   const ackedNotices = new Set(Object.keys(acks?.notices ?? {}));
   const filteredNotices = useMemo(
-    () => sortNoticesNewestFirst(filterNoticesByClass(notices, SECTION)),
-    [notices],
+    () => sortNoticesNewestFirst(filterNoticesByClass(notices, section)),
+    [notices, section],
   );
 
   const latestNoticeDate = useMemo(() => {
@@ -89,8 +88,8 @@ export default function NoticesPage() {
       {!isPending && !isError && sectionHasOlderNotices ? (
         <p className="mb-5 text-sm text-[var(--sp-muted)]">
           {latestSectionNoticeDate
-            ? `No newer notices for Section A since ${formatDateLabel(latestSectionNoticeDate)}. Latest school notice is ${formatDateLabel(latestNoticeDate)}.`
-            : `No notices for Section A. Latest school notice is ${formatDateLabel(latestNoticeDate)}.`}
+            ? `No newer notices for your child since ${formatDateLabel(latestSectionNoticeDate)}. Latest school notice is ${formatDateLabel(latestNoticeDate)}.`
+            : `No notices for your child yet. Latest school notice is ${formatDateLabel(latestNoticeDate)}.`}
         </p>
       ) : null}
 

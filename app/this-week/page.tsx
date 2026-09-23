@@ -14,13 +14,12 @@ import {
   type WorkloadLevel,
 } from '@/lib/week-range';
 import { useThisWeekQuery } from '@/lib/queries/this-week';
+import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { HomeworkItem } from '@/components/ui/HomeworkItem';
 import { LoadingState } from '@/components/ui/LoadingState';
-
-const SECTION = 'I-A';
 
 const WEEKDAYS_SHORT = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'] as const;
 
@@ -220,7 +219,8 @@ export default function ThisWeekPage() {
   const [showAllUndated, setShowAllUndated] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [initialized, setInitialized] = useState(false);
-  const { data, isPending, isError, refetch } = useThisWeekQuery({ section: SECTION });
+  const { section } = useSyncedChildSection();
+  const { data, isPending, isError, refetch } = useThisWeekQuery({ section });
 
   useEffect(() => {
     if (!data || initialized) return;

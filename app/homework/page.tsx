@@ -17,15 +17,15 @@ import {
 } from '@/lib/daily-brief';
 import { useHomeworkQuery } from '@/lib/queries/homework';
 import { useParentAccessQuery } from '@/lib/queries/acknowledgements';
+import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import AcknowledgeButton from '@/components/AcknowledgeButton';
+import { HomeworkAiLessonButton } from '@/components/HomeworkAiLessonButton';
 import { FilterTabs } from '@/components/ui/FilterTabs';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
 
-/** SchoolPulse is scoped to a single Class 1 section. */
-const SECTION = 'I-A';
 const LINK_BANNER_DISMISS_KEY = 'schoolpulse_dismiss_link_banner';
 
 type DueFilter = 'all' | 'today' | 'upcoming';
@@ -65,6 +65,7 @@ export default function HomeworkPage() {
   const { data: session } = useSession();
   const isParent = session?.user?.role === 'parent';
   const { data: access } = useParentAccessQuery(Boolean(isParent));
+  const { section } = useSyncedChildSection();
   const { data, isPending, isError, error } = useHomeworkQuery();
 
   const [dueFilter, setDueFilter] = useState<DueFilter>('all');
@@ -95,8 +96,8 @@ export default function HomeworkPage() {
   }, [isError, error]);
 
   const bySection = useMemo(
-    () => filterHomeworkBySection(allHomework, SECTION),
-    [allHomework],
+    () => filterHomeworkBySection(allHomework, section),
+    [allHomework, section],
   );
 
   const filterCounts = useMemo(() => {
@@ -223,8 +224,8 @@ export default function HomeworkPage() {
       {!isPending && sectionHasOlderFeed ? (
         <p className="mb-5 text-sm text-[var(--sp-muted)]">
           {latestSectionDate
-            ? `No recent homework for Section A since ${formatBriefDate(latestSectionDate)}. Newer school homework is dated ${formatBriefDate(latestImportedDate)}.`
-            : `No homework for Section A. Newest school homework is dated ${formatBriefDate(latestImportedDate)}.`}
+            ? `No recent homework for your child since ${formatBriefDate(latestSectionDate)}. Newer school homework is dated ${formatBriefDate(latestImportedDate)}.`
+            : `No homework for your child yet. Newest school homework is dated ${formatBriefDate(latestImportedDate)}.`}
         </p>
       ) : null}
 
@@ -247,7 +248,7 @@ export default function HomeworkPage() {
                   ? `Try All to see ${filterCounts.all} assigned item${
                       filterCounts.all === 1 ? '' : 's'
                     } for this section.`
-                  : `Nothing for Section A yet.`
+                  : `Nothing for your child yet.`
             }
           />
           {dueFilter !== 'all' && filterCounts.all > 0 ? (
@@ -388,6 +389,12 @@ export default function HomeworkPage() {
                               </a>
                             ) : null}
                             <AcknowledgeButton kind="homework" itemId={hw.id} />
+                            <HomeworkAiLessonButton
+                              homeworkId={hw.id}
+                              subject={hw.subject}
+                              title={heading}
+                              enabled={Boolean(isParent)}
+                            />
                           </div>
                         ) : null}
                       </article>

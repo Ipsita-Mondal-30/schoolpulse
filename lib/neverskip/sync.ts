@@ -547,6 +547,25 @@ export async function syncNeverSkipData({
     nsWarn(`Failed to persist SyncRun: ${err instanceof Error ? err.message : String(err)}`);
   }
 
+  // Refresh School/Class/Student + ParentStudent links so parents resolve the
+  // synced child after NeverSkip → Neon (no phantom child without import data).
+  try {
+    if (process.env.DATABASE_URL) {
+      const { getPrisma } = await import('@/lib/prisma');
+      const { refreshSyncedChildAfterImport } = await import('@/lib/synced-child');
+      const identity = await refreshSyncedChildAfterImport(getPrisma());
+      if (identity) {
+        nsLog(
+          `Synced child identity ready: ${identity.displayName} (${identity.classLabel}) id=${identity.neverSkipStudentId}`,
+        );
+      }
+    }
+  } catch (err) {
+    nsWarn(
+      `Synced child identity refresh failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
   return summary;
 }
 

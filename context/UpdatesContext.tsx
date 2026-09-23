@@ -5,11 +5,9 @@ import { filterHomeworkBySection } from '@/lib/ui-merge';
 import { getIndiaToday, hasReliableDueDate, isOverdue, isDueToday } from '@/lib/daily-brief';
 import { useHomeworkQuery } from '@/lib/queries/homework';
 import { useUpdatesFeedQuery } from '@/lib/queries/updates';
+import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import { countUnreadUpdates, filterUpdatesBySection } from '@/lib/updates-feed';
 import { readLastSeenIso } from '@/lib/updates-unread';
-
-const PINNED_SECTION_KEY = 'schoolpulse_pinned_section';
-const DEFAULT_SECTION = 'I-A';
 
 interface UpdatesContextType {
   homeworkCount: number;
@@ -24,13 +22,11 @@ const UpdatesContext = createContext<UpdatesContextType | undefined>(undefined);
 export function UpdatesProvider({ children }: { children: ReactNode }) {
   const { data: homeworkData, isPending: hwPending } = useHomeworkQuery();
   const { data: updatesFeed, isPending: upPending } = useUpdatesFeedQuery();
-  const [section, setSection] = useState(DEFAULT_SECTION);
+  const { section } = useSyncedChildSection();
   const [lastSeen, setLastSeen] = useState<string | null>(null);
   const [today, setToday] = useState('');
 
   useEffect(() => {
-    const saved = localStorage.getItem(PINNED_SECTION_KEY);
-    if (saved) setSection(saved);
     setLastSeen(readLastSeenIso());
     setToday(getIndiaToday());
   }, []);

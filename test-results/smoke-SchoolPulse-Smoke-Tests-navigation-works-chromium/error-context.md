@@ -43,7 +43,7 @@
     - generic [ref=e44]:
       - generic [ref=e45]:
         - generic [ref=e46]:
-          - paragraph [ref=e47]: Tuesday, 22 September 2026
+          - paragraph [ref=e47]: Wednesday, 23 September 2026
           - heading "Good evening" [level=1] [ref=e48]
         - generic [ref=e49]:
           - generic [ref=e50]: C
@@ -65,9 +65,9 @@
         - paragraph [ref=e68]: 1 thing need your attention
         - list [ref=e69]:
           - listitem [ref=e70]:
-            - link "6 new school updates View" [ref=e71] [cursor=pointer]:
+            - link "25 new school updates View" [ref=e71] [cursor=pointer]:
               - /url: /updates
-              - generic [ref=e73]: 6 new school updates
+              - generic [ref=e73]: 25 new school updates
               - generic [ref=e74]:
                 - text: View
                 - img [ref=e75]
@@ -101,12 +101,12 @@
             - img [ref=e109]
             - paragraph [ref=e111]: Planner
             - paragraph [ref=e112]: School dates & events
-        - link "Updates 6 new updates since last visit 6 new" [ref=e113] [cursor=pointer]:
+        - link "Updates 25 new updates since last visit 25 new" [ref=e113] [cursor=pointer]:
           - /url: /updates
           - generic [ref=e114]:
             - paragraph [ref=e115]: Updates
-            - paragraph [ref=e116]: 6 new updates since last visit
-          - generic [ref=e117]: 6 new
+            - paragraph [ref=e116]: 25 new updates since last visit
+          - generic [ref=e117]: 25 new
         - generic [ref=e118]:
           - link "Timetable Today’s schedule" [ref=e119] [cursor=pointer]:
             - /url: /timetable
@@ -161,7 +161,16 @@
       - textbox "Ask me anything..."
       - button [disabled]:
         - img
-  - button "Open Next.js Dev Tools" [ref=e148] [cursor=pointer]:
-    - img [ref=e149]
-  - alert [ref=e152]
+  - generic [ref=e147] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e148]:
+      - img [ref=e149]
+    - generic [ref=e152]:
+      - button "Open issues overlay" [ref=e153]:
+        - generic [ref=e154]:
+          - generic [ref=e155]: "0"
+          - generic [ref=e156]: "1"
+        - generic [ref=e157]: Issue
+      - button "Collapse issues badge" [ref=e158]:
+        - img [ref=e159]
+  - alert [ref=e161]
 ```

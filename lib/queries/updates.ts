@@ -16,6 +16,5 @@ export function useUpdatesFeedQuery() {
   return useQuery({
     queryKey: updatesFeedQueryKey,
     queryFn: fetchRecentUpdates,
-    refetchOnMount: 'always',
   });
 }

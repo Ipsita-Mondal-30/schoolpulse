@@ -11,6 +11,7 @@ import {
   noticeSnapshot,
   parentRelevantChanges,
   serializeFieldChanges,
+  shouldCreateHomeworkChangeEvent,
 } from './changes';
 import {
   homeworkContentKey,
@@ -27,6 +28,8 @@ import type {
   UpsertResult,
 } from './types';
 import { NEVERSKIP_SOURCE } from './types';
+import { UPDATES_RECENT_DAYS } from '@/lib/updates-feed';
+import { addDaysYmd, getIndiaToday } from '@/lib/daily-brief';
 
 function parseJsonArray(raw: string): string[] {
   try {
@@ -98,10 +101,11 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       diffs.length === 1 &&
       diffs[0].field === 'sections' &&
       isLegacyHomeworkAudienceExpansion(existingNorm.sections, item.sections);
+    const activitySinceYmd =
+      addDaysYmd(getIndiaToday(), -(UPDATES_RECENT_DAYS - 1)) || getIndiaToday();
     if (
-      parentDiffs.length > 0 &&
       !skipAudienceNoise &&
-      !isNoiseChangeEvent('homework', diffs)
+      shouldCreateHomeworkChangeEvent(parentDiffs, item.homeworkDate, activitySinceYmd)
     ) {
       await prisma.contentChangeEvent.create({
         data: {
