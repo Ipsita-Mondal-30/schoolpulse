@@ -148,6 +148,46 @@ export default function AcknowledgeButton({
     );
   }
 
+  if (error) {
+    const needsSignIn = /sign in required/i.test(error);
+    return (
+      <div className="mt-2">
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => void onAcknowledge()}
+          className="inline-flex items-center justify-center min-h-10 px-3 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold hover:bg-orange-600 disabled:opacity-60 shadow-sm shadow-orange-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+        >
+          {pending ? 'Saving…' : 'Acknowledge'}
+        </button>
+        <p className="text-xs text-red-600 mt-1.5" role="alert">
+          {needsSignIn ? (
+            <>
+              Session expired.{' '}
+              <Link
+                href={`/login?next=${encodeURIComponent(pathname || '/notices')}`}
+                className="font-bold underline"
+              >
+                Sign in again
+              </Link>
+            </>
+          ) : (
+            <>
+              Couldn&apos;t save acknowledgement. {error}{' '}
+              <button
+                type="button"
+                className="font-bold underline"
+                onClick={() => void onAcknowledge()}
+              >
+                Try again
+              </button>
+            </>
+          )}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-2">
       <button
@@ -158,18 +198,6 @@ export default function AcknowledgeButton({
       >
         {pending ? 'Saving…' : 'Acknowledge'}
       </button>
-      {error ? (
-        <p className="text-xs text-red-600 mt-1.5" role="alert">
-          Couldn&apos;t save acknowledgement. {error}{' '}
-          <button
-            type="button"
-            className="font-bold underline"
-            onClick={() => void onAcknowledge()}
-          >
-            Try again
-          </button>
-        </p>
-      ) : null}
     </div>
   );
 }
