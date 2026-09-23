@@ -34,6 +34,7 @@ type ScheduleAwareClient = PrismaClient & {
   importedJolItem?: { findMany?: unknown };
   importedJolSchedule?: { findFirst?: unknown };
   syncRun?: { findFirst?: unknown };
+  homeworkDeadlineExtraction?: { findMany?: unknown };
 };
 
 /** True when this PrismaClient instance includes post-timetable-sync models. */
@@ -43,7 +44,8 @@ function prismaHasScheduleModels(client: PrismaClient): boolean {
     typeof c.importedScheduleEvent?.findMany === 'function' &&
     typeof c.importedJolItem?.findMany === 'function' &&
     typeof c.importedJolSchedule?.findFirst === 'function' &&
-    typeof c.syncRun?.findFirst === 'function'
+    typeof c.syncRun?.findFirst === 'function' &&
+    typeof c.homeworkDeadlineExtraction?.findMany === 'function'
   );
 }
 

@@ -24,6 +24,7 @@
         "ass_dt": "2026-09-05",
         "assign_dt": "5-Sep-2026",
         "due_dt": "2026-09-08",
+        "ass_duedt": "2026-09-08 00:00:00",
         "assign_title": "Addition practice",
         "assign_details": "Complete page 12 in the workbook.",
         "assign_typ": "Homework",

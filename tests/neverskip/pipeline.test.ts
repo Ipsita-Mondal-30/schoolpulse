@@ -70,9 +70,17 @@ describe('NeverSkip homework parsing & normalization', () => {
     expect(norm!.sourceId).toBe('1198');
     expect(norm!.title).toBe('Chapter 9. Our School');
     expect(norm!.homeworkDate).toBe('2026-09-04');
+    expect(norm!.dueDate).toBeNull();
     expect(norm!.subjectName).toBe('EVS');
     expect(norm!.sections).toEqual(['I-A', 'I-B']);
     expect(norm!.attachmentUrl).toContain('ch9.pdf');
+  });
+
+  it('normalizes due_dt from the fixture without using assigned date as due', () => {
+    const raw = extractAssignments(fixture).find((a) => String(a.assign_id) === '1201')!;
+    const norm = normalizeHomework(raw);
+    expect(norm!.homeworkDate).toBe('2026-09-05');
+    expect(norm!.dueDate).toBe('2026-09-08');
   });
 
   it('parses assign_dt style dates', () => {
@@ -81,6 +89,116 @@ describe('NeverSkip homework parsing & normalization', () => {
     expect(normalizeDate('15-Sep-2026')).toBe('2026-09-15');
     expect(normalizeDate('15/09/26')).toBe('2026-09-15');
     expect(normalizeDate('15/09/2026')).toBe('2026-09-15');
+  });
+
+  it('maps ass_dt as assignedDate and assign_dt as the same calendar day', () => {
+    const fromIso = normalizeHomework({
+      assign_id: 'iso',
+      assign_title: 'ISO assigned',
+      ass_dt: '2026-09-17',
+      assign_dt: '17-Sep-2026',
+      assign_typ: 'Homework',
+    });
+    const fromDisplay = normalizeHomework({
+      assign_id: 'disp',
+      assign_title: 'Display assigned',
+      assign_dt: '17-Sep-2026',
+      assign_typ: 'Homework',
+    });
+    expect(fromIso!.homeworkDate).toBe('2026-09-17');
+    expect(fromDisplay!.homeworkDate).toBe('2026-09-17');
+    expect(fromIso!.dueDate).toBeNull();
+  });
+
+  it('maps due_dt and ass_duedt as dueDate without copying assignedDate', () => {
+    const fromDueDt = normalizeHomework({
+      assign_id: 'due-dt',
+      assign_title: 'Has due_dt',
+      ass_dt: '2026-09-21',
+      assign_dt: '21-Sep-2026',
+      due_dt: '2026-09-22',
+      assign_typ: 'Homework',
+    });
+    const fromAssDue = normalizeHomework({
+      assign_id: 'ass-due',
+      assign_title: 'Has ass_duedt',
+      ass_dt: '2026-09-21',
+      ass_duedt: '2026-09-23 00:00:00',
+      assign_typ: 'Homework',
+    });
+    expect(fromDueDt!.homeworkDate).toBe('2026-09-21');
+    expect(fromDueDt!.dueDate).toBe('2026-09-22');
+    expect(fromAssDue!.homeworkDate).toBe('2026-09-21');
+    expect(fromAssDue!.dueDate).toBe('2026-09-23');
+  });
+
+  it('does not treat MySQL zero ass_duedt as a due date', () => {
+    const norm = normalizeHomework({
+      assign_id: 'zero-due',
+      assign_title: 'Learn poem- Bitiya Aayi',
+      ass_dt: '2026-09-17',
+      assign_dt: '17-Sep-2026',
+      due_dt: '',
+      ass_duedt: '0000-00-00 00:00:00',
+      assign_typ: 'Homework',
+    });
+    expect(norm!.homeworkDate).toBe('2026-09-17');
+    expect(norm!.dueDate).toBeNull();
+  });
+
+  it('does not copy homework details into dueDate — extraction lives outside NeverSkip fields', () => {
+    const norm = normalizeHomework({
+      assign_id: 'evs-25',
+      subject_name: 'EVS',
+      assign_title: 'Revision / Completion',
+      assign_details: 'EVS completion on 25 September',
+      ass_dt: '2026-09-23',
+      assign_dt: '23-Sep-2026',
+      due_dt: '',
+      ass_duedt: '0000-00-00 00:00:00',
+      assign_typ: 'Homework',
+    });
+    expect(norm!.homeworkDate).toBe('2026-09-23');
+    expect(norm!.dueDate).toBeNull();
+  });
+
+  it('leaves dueDate null when Submission of book is only in details', () => {
+    const norm = normalizeHomework({
+      assign_id: '1325',
+      subject_name: 'HINDI',
+      assign_title: 'ए ki Matra sulekh pustika',
+      assign_details:
+        "Namaste Dear Parents and Children Jai Sri Gurudev Today's Hindi Homework (15/09/26) Do Page No 12( ए की मात्रा) in Sulekh pustika. Submission of book -16/9/26 Thankyou.",
+      ass_dt: '2026-09-15',
+      due_dt: '',
+      ass_duedt: '0000-00-00 00:00:00',
+      assign_typ: 'Homework',
+    });
+    expect(norm!.homeworkDate).toBe('2026-09-15');
+    expect(norm!.dueDate).toBeNull();
+  });
+
+  it('does not invent a due date from Workbook Completion without a date', () => {
+    const norm = normalizeHomework({
+      assign_id: '1309',
+      subject_name: 'ENVIRONMENTAL SCIENCE',
+      assign_title: 'Workbook Completion',
+      assign_details:
+        'Complete all the pending pages from page no 15 to page no 38.',
+      ass_dt: '2026-09-11',
+      due_dt: '',
+      ass_duedt: '0000-00-00 00:00:00',
+      assign_typ: 'Homework',
+    });
+    expect(norm!.homeworkDate).toBe('2026-09-11');
+    expect(norm!.dueDate).toBeNull();
+  });
+
+  it('keeps date-only ISO strings without UTC day shift', () => {
+    expect(normalizeDate('2026-09-23')).toBe('2026-09-23');
+    expect(normalizeDate('2026-09-23T00:00:00.000Z')).toBe('2026-09-23');
+    expect(normalizeDate('0000-00-00')).toBe('');
+    expect(normalizeDate('0000-00-00 00:00:00')).toBe('');
   });
 
   it('normalizes Hindi sulekh pustika title and 15-Sep date', () => {

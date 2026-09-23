@@ -154,12 +154,28 @@ describe('buildThisWeekView', () => {
     expect(dueLabelForItem(view.overdue[0], TODAY)).toMatch(/Due date passed/);
   });
 
-  it('puts homework without due date in dateNotSpecified only', () => {
+  it('does not place assigned-only homework on the assigned date as due', () => {
     const view = buildThisWeekView({
       today: TODAY,
       section: 'I-A',
       homework: [
         hw({ id: 'nd', title: 'No due', sentDate: TODAY }),
+      ],
+    });
+    expect(view.dateNotSpecified.map((i) => i.id)).toEqual(['nd']);
+    expect(view.days.every((d) => d.count === 0)).toBe(true);
+    expect(view.overdue).toHaveLength(0);
+    expect(view.nothingDueThisWeek).toBe(true);
+    expect(view.hasUndated).toBe(true);
+    expect(dueLabelForItem(view.dateNotSpecified[0], TODAY)).toBe('Assigned 10 Sep');
+  });
+
+  it('puts homework with neither assigned nor due date in dateNotSpecified only', () => {
+    const view = buildThisWeekView({
+      today: TODAY,
+      section: 'I-A',
+      homework: [
+        hw({ id: 'nd', title: 'No dates', sentDate: '' }),
       ],
     });
     expect(view.dateNotSpecified.map((i) => i.id)).toEqual(['nd']);
@@ -241,7 +257,7 @@ describe('buildThisWeekView', () => {
         hw({ id: 'od', title: 'Late', submissionDate: '2026-09-08' }),
         hw({ id: 'td', title: 'Today', submissionDate: TODAY }),
         hw({ id: 'tm', title: 'Tmr', submissionDate: '2026-09-11' }),
-        hw({ id: 'nd', title: 'No due' }),
+        hw({ id: 'nd', title: 'No dates', sentDate: '' }),
         hw({ id: 'nx', title: 'Next', submissionDate: '2026-09-15' }),
       ],
     });
@@ -270,13 +286,94 @@ describe('buildThisWeekView', () => {
       section: 'I-A',
       homework: [
         hw({ id: 'd', title: 'Dated', submissionDate: TODAY }),
-        hw({ id: 'u', title: 'Undated' }),
+        hw({ id: 'u', title: 'Undated', sentDate: '' }),
       ],
     });
     expect(view.totalDatedThisWeek).toBe(1);
     expect(view.undatedCount).toBe(1);
     expect(view.hasUndated).toBe(true);
     expect(view.nothingDueThisWeek).toBe(false);
+  });
+
+  it('places due-dated homework on due date, not assigned date', () => {
+    const view = buildThisWeekView({
+      today: TODAY,
+      section: 'I-A',
+      homework: [
+        hw({
+          id: 'due',
+          title: 'Math',
+          sentDate: '2026-09-08',
+          submissionDate: '2026-09-11',
+        }),
+      ],
+    });
+    expect(view.days.find((d) => d.date === '2026-09-08')?.count ?? 0).toBe(0);
+    expect(view.days.find((d) => d.date === '2026-09-11')?.items[0].id).toBe('due');
+    expect(dueLabelForItem(view.days.find((d) => d.date === '2026-09-11')!.items[0], TODAY)).toBe(
+      'Due tomorrow',
+    );
+  });
+
+  it('does not treat last-week assigned homework as this week or overdue', () => {
+    const view = buildThisWeekView({
+      today: '2026-09-23',
+      section: 'I-A',
+      homework: [
+        hw({
+          id: 'old',
+          title: 'Learn poem- Bitiya Aayi',
+          sentDate: '2026-09-17',
+        }),
+      ],
+    });
+    expect(view.weekStart).toBe('2026-09-21');
+    expect(view.weekEnd).toBe('2026-09-27');
+    expect(view.totalDatedThisWeek).toBe(0);
+    expect(view.undatedCount).toBe(1);
+    expect(view.overdueCount).toBe(0);
+    expect(view.nothingDueThisWeek).toBe(true);
+    expect(view.hasUndated).toBe(true);
+    expect(view.days.every((d) => d.count === 0)).toBe(true);
+  });
+
+  it('places EVS on the school completion date, not the assigned date', () => {
+    const view = buildThisWeekView({
+      today: '2026-09-23',
+      section: 'I-A',
+      homework: [
+        hw({
+          id: 'evs',
+          title: 'Revision / Completion',
+          subject: 'EVS',
+          sentDate: '2026-09-23',
+          submissionDate: '2026-09-25',
+        }),
+      ],
+    });
+    expect(view.weekStart).toBe('2026-09-21');
+    expect(view.days.find((d) => d.date === '2026-09-23')?.count ?? 0).toBe(0);
+    expect(view.days.find((d) => d.date === '2026-09-25')?.items.map((i) => i.title)).toEqual([
+      'Revision / Completion',
+    ]);
+    expect(view.nothingDueThisWeek).toBe(false);
+  });
+
+  it('does not treat assigned-only homework this week as due', () => {
+    const view = buildThisWeekView({
+      today: '2026-09-23',
+      section: 'I-A',
+      homework: [
+        hw({
+          id: 'wed',
+          title: 'EVS',
+          sentDate: '2026-09-23',
+        }),
+      ],
+    });
+    expect(view.nothingDueThisWeek).toBe(true);
+    expect(view.days.find((d) => d.date === '2026-09-23')?.count ?? 0).toBe(0);
+    expect(view.hasUndated).toBe(true);
   });
 
   it('filters by section', () => {

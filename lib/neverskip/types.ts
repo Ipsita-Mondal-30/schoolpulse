@@ -8,9 +8,14 @@ export interface NeverSkipRawAssignment {
   subject_id?: string | number;
   subject_name?: string;
   subject?: string;
+  /** ISO assigned / Class Diary date, e.g. "2026-09-17". */
   ass_dt?: string;
+  /** Display form of the same assigned date, e.g. "17-Sep-2026". */
   assign_dt?: string;
+  /** Optional due date; often empty for Class Diary homework. */
   due_dt?: string;
+  /** Optional due datetime; unset sentinels look like "0000-00-00 00:00:00". */
+  ass_duedt?: string;
   submission_dt?: string;
   assign_title?: string;
   assign_details?: string;
@@ -131,7 +136,9 @@ export interface NormalizedHomework {
   title: string;
   description: string;
   sections: string[];
+  /** Assigned / Class Diary date (ass_dt / assign_dt), YYYY-MM-DD. */
   homeworkDate: string;
+  /** School due date from NeverSkip due_dt / ass_duedt only. Extracted dates live in HomeworkDeadlineExtraction. */
   dueDate: string | null;
   attachmentUrl: string | null;
 }

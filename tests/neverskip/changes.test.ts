@@ -168,6 +168,23 @@ describe('InMemoryNeverSkipStore change events', () => {
     expect(store.listChangeEvents()).toHaveLength(0);
   });
 
+  it('re-sync with the same assigned and null due dates does not change dates or create events', async () => {
+    const store = new InMemoryNeverSkipStore();
+    const item = hw({
+      sourceId: '1328',
+      title: 'Learn poem- Bitiya Aayi',
+      homeworkDate: '2026-09-17',
+      dueDate: null,
+    });
+    expect(await store.upsertHomework(item)).toBe('inserted');
+    expect(store.listChangeEvents()).toHaveLength(0);
+    expect(await store.upsertHomework({ ...item })).toBe('unchanged');
+    const rows = await store.listHomework();
+    expect(rows[0].homeworkDate).toBe('2026-09-17');
+    expect(rows[0].dueDate).toBeNull();
+    expect(store.listChangeEvents()).toHaveLength(0);
+  });
+
   it('identical notice sync creates no change', async () => {
     const store = new InMemoryNeverSkipStore();
     const item = nt({ sourceId: 'n', title: 'Same' });

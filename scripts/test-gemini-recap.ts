@@ -26,7 +26,7 @@ const PROMPT =
   'Create a short child-friendly lesson for a Class 1 student about Opposite Words. Give simple examples and 3 quiz questions.';
 
 async function main() {
-  const modelId = process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash';
+  const modelId = process.env.GEMINI_MODEL?.trim() || 'gemini-3.6-flash';
   const hasKey = Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim());
 
   console.log('--- Gemini Recap smoke test ---');

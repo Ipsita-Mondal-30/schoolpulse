@@ -43,88 +43,98 @@
     - generic [ref=e44]:
       - generic [ref=e45]:
         - generic [ref=e46]:
-          - paragraph [ref=e47]: Wednesday, 23 September 2026
-          - heading "Good evening" [level=1] [ref=e48]
+          - paragraph [ref=e47]: Thursday, 24 September 2026
+          - heading "Good morning" [level=1] [ref=e48]
         - generic [ref=e49]:
           - generic [ref=e50]: C
           - paragraph [ref=e51]: Class I A
           - paragraph [ref=e52]: Class I A
       - generic [ref=e53]:
         - paragraph [ref=e54]: Daily pulse
-        - generic [ref=e57]:
-          - generic [ref=e58]:
-            - paragraph [ref=e59]: 07:55
-            - paragraph [ref=e60]: School starts
-          - generic [ref=e61]:
-            - paragraph [ref=e62]: 12:35
-            - paragraph [ref=e63]: Lunch Break
-          - generic [ref=e64]:
-            - paragraph [ref=e65]: 15:00
-            - paragraph [ref=e66]: School ends
-      - generic [ref=e67]:
-        - paragraph [ref=e68]: 1 thing need your attention
-        - list [ref=e69]:
-          - listitem [ref=e70]:
-            - link "25 new school updates View" [ref=e71] [cursor=pointer]:
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - paragraph [ref=e58]: 07:55
+            - paragraph [ref=e59]: School starts
+          - generic [ref=e60]:
+            - paragraph [ref=e61]: 12:35
+            - paragraph [ref=e62]: Lunch Break
+          - generic [ref=e63]:
+            - paragraph [ref=e64]: 15:00
+            - paragraph [ref=e65]: School ends
+      - generic [ref=e66]:
+        - paragraph [ref=e67]: 3 things need your attention
+        - list [ref=e68]:
+          - listitem [ref=e69]:
+            - link "HINDI — ए ki Matra sulekh pustika Due date passed · 16 Sep" [ref=e70] [cursor=pointer]:
+              - /url: /homework
+              - generic [ref=e72]: HINDI — ए ki Matra sulekh pustika
+              - generic [ref=e73]: Due date passed · 16 Sep
+          - listitem [ref=e74]:
+            - link "HINDI — ए और ऐ ki Matra words, writing and reading practice . Due date passed · 11 Sep" [ref=e75] [cursor=pointer]:
+              - /url: /homework
+              - generic [ref=e77]: HINDI — ए और ऐ ki Matra words, writing and reading practice .
+              - generic [ref=e78]: Due date passed · 11 Sep
+          - listitem [ref=e79]:
+            - link "21 new school updates View" [ref=e80] [cursor=pointer]:
               - /url: /updates
-              - generic [ref=e73]: 25 new school updates
-              - generic [ref=e74]:
+              - generic [ref=e82]: 21 new school updates
+              - generic [ref=e83]:
                 - text: View
-                - img [ref=e75]
-      - generic [ref=e77]:
-        - generic [ref=e78]:
-          - generic [ref=e79]:
-            - paragraph [ref=e80]: Today's Recap
-            - paragraph [ref=e81]: Review what was taught today
-            - paragraph [ref=e82]: Nothing to recap yet
-          - img [ref=e84]
+                - img [ref=e84]
+      - generic [ref=e86]:
         - generic [ref=e87]:
-          - button "Start recap →" [ref=e88]
-          - link "Open Recap" [ref=e89] [cursor=pointer]:
+          - generic [ref=e88]:
+            - paragraph [ref=e89]: Today's Recap
+            - paragraph [ref=e90]: Review what was taught today
+            - paragraph [ref=e91]: Nothing to recap yet
+          - img [ref=e93]
+        - generic [ref=e96]:
+          - button "Start recap →" [ref=e97]
+          - link "Open Recap" [ref=e98] [cursor=pointer]:
             - /url: /recap
-      - generic [ref=e90]:
-        - paragraph [ref=e91]: Your school
-        - link "Homework See schoolwork" [ref=e92] [cursor=pointer]:
+      - generic [ref=e99]:
+        - paragraph [ref=e100]: Your school
+        - link "Homework See schoolwork" [ref=e101] [cursor=pointer]:
           - /url: /homework
-          - generic [ref=e93]:
-            - paragraph [ref=e94]: Homework
-            - paragraph [ref=e95]: See schoolwork
-          - img [ref=e97]
-        - generic [ref=e100]:
-          - link "This week Workload at a glance" [ref=e101] [cursor=pointer]:
+          - generic [ref=e102]:
+            - paragraph [ref=e103]: Homework
+            - paragraph [ref=e104]: See schoolwork
+          - img [ref=e106]
+        - generic [ref=e109]:
+          - link "This week Workload at a glance" [ref=e110] [cursor=pointer]:
             - /url: /this-week
-            - img [ref=e103]
-            - paragraph [ref=e105]: This week
-            - paragraph [ref=e106]: Workload at a glance
-          - link "Planner School dates & events" [ref=e107] [cursor=pointer]:
+            - img [ref=e112]
+            - paragraph [ref=e114]: This week
+            - paragraph [ref=e115]: Workload at a glance
+          - link "Planner School dates & events" [ref=e116] [cursor=pointer]:
             - /url: /planner
-            - img [ref=e109]
-            - paragraph [ref=e111]: Planner
-            - paragraph [ref=e112]: School dates & events
-        - link "Updates 25 new updates since last visit 25 new" [ref=e113] [cursor=pointer]:
+            - img [ref=e118]
+            - paragraph [ref=e120]: Planner
+            - paragraph [ref=e121]: School dates & events
+        - link "Updates 21 new updates since last visit 21 new" [ref=e122] [cursor=pointer]:
           - /url: /updates
-          - generic [ref=e114]:
-            - paragraph [ref=e115]: Updates
-            - paragraph [ref=e116]: 25 new updates since last visit
-          - generic [ref=e117]: 25 new
-        - generic [ref=e118]:
-          - link "Timetable Today’s schedule" [ref=e119] [cursor=pointer]:
+          - generic [ref=e123]:
+            - paragraph [ref=e124]: Updates
+            - paragraph [ref=e125]: 21 new updates since last visit
+          - generic [ref=e126]: 21 new
+        - generic [ref=e127]:
+          - link "Timetable Today’s schedule" [ref=e128] [cursor=pointer]:
             - /url: /timetable
-            - img [ref=e121]
-            - paragraph [ref=e124]: Timetable
-            - paragraph [ref=e125]: Today’s schedule
-          - link "Library Learning resources" [ref=e126] [cursor=pointer]:
+            - img [ref=e130]
+            - paragraph [ref=e133]: Timetable
+            - paragraph [ref=e134]: Today’s schedule
+          - link "Library Learning resources" [ref=e135] [cursor=pointer]:
             - /url: /class-diary
-            - img [ref=e128]
-            - paragraph [ref=e130]: Library
-            - paragraph [ref=e131]: Learning resources
-  - contentinfo [ref=e132]:
-    - generic [ref=e133]:
-      - generic [ref=e134]: SchoolPulse
-      - generic [ref=e135]: BGS National Public School
-      - generic [ref=e136]: Currently showing Class 1 planner only. Built by parents, for parents — not an official school app.
-  - button "Open Chat" [ref=e137]:
-    - img [ref=e138]
+            - img [ref=e137]
+            - paragraph [ref=e139]: Library
+            - paragraph [ref=e140]: Learning resources
+  - contentinfo [ref=e141]:
+    - generic [ref=e142]:
+      - generic [ref=e143]: SchoolPulse
+      - generic [ref=e144]: BGS National Public School
+      - generic [ref=e145]: Currently showing Class 1 planner only. Built by parents, for parents — not an official school app.
+  - button "Open Chat" [ref=e146]:
+    - img [ref=e147]
   - generic:
     - generic:
       - generic:
@@ -161,16 +171,7 @@
       - textbox "Ask me anything..."
       - button [disabled]:
         - img
-  - generic [ref=e147] [cursor=pointer]:
-    - button "Open Next.js Dev Tools" [ref=e148]:
-      - img [ref=e149]
-    - generic [ref=e152]:
-      - button "Open issues overlay" [ref=e153]:
-        - generic [ref=e154]:
-          - generic [ref=e155]: "0"
-          - generic [ref=e156]: "1"
-        - generic [ref=e157]: Issue
-      - button "Collapse issues badge" [ref=e158]:
-        - img [ref=e159]
+  - button "Open Next.js Dev Tools" [ref=e157] [cursor=pointer]:
+    - img [ref=e158]
   - alert [ref=e161]
 ```

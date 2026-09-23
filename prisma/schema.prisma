@@ -146,7 +146,9 @@ model ImportedHomework {
   title         String
   description   String
   sectionsJson  String
+  /// NeverSkip assigned / Class Diary date (ass_dt / assign_dt), YYYY-MM-DD
   homeworkDate  String
+  /// School due date (due_dt / ass_duedt) when provided; null if unset
   dueDate       String?
   attachmentUrl String?
   createdAt     DateTime @default(now())
@@ -157,6 +159,39 @@ model ImportedHomework {
 
   @@unique([source, sourceId])
   @@index([homeworkDate])
+  @@index([dueDate])
+}
+
+/// AI/deterministic extraction of an explicit school deadline.
+/// NeverSkip homeworkDate / description / structured dueDate stay immutable.
+model HomeworkDeadlineExtraction {
+  id                String   @id @default(cuid())
+  /// "homework" | "notice"
+  entityType        String
+  source            String   @default("neverskip")
+  sourceId          String
+  entityId          String
+  contentHash       String
+  hasDueDate        Boolean  @default(false)
+  dueDate           String?
+  /// HIGH | MEDIUM | NONE
+  confidence        String   @default("NONE")
+  evidence          String?
+  /// STRUCTURED_FIELD | HOMEWORK_TEXT | NOTICE | NONE
+  sourceType        String   @default("NONE")
+  relatedSourceId   String?
+  relatedEntityType String?
+  sourceText        String   @default("")
+  reason            String?
+  model             String?
+  extractedAt       DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([entityType, source, sourceId])
+  @@index([dueDate, confidence])
+  @@index([contentHash])
+  @@index([entityType, dueDate])
 }
 
 /// Automated NeverSkip daily notices
