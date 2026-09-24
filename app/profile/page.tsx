@@ -1,11 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
 import { signOut, useSession } from 'next-auth/react';
+import { clearPersistedUiQueryCache } from '@/components/providers/query-provider';
 import { PageHeader } from '@/components/ui/PageHeader';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
+  const queryClient = useQueryClient();
 
   return (
     <div className="sp-page">
@@ -23,7 +26,10 @@ export default function ProfilePage() {
           </div>
           <button
             type="button"
-            onClick={() => void signOut({ callbackUrl: '/' })}
+            onClick={() => {
+              clearPersistedUiQueryCache(queryClient);
+              void signOut({ callbackUrl: '/' });
+            }}
             className="min-h-11 rounded-xl border border-[var(--sp-border)] px-4 text-sm font-semibold text-[var(--sp-ink)] hover:bg-[var(--sp-bg)] sp-focus"
           >
             Sign out

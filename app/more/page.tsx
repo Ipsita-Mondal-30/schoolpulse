@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
 import { signOut, useSession } from 'next-auth/react';
 import {
   Bus,
@@ -14,6 +15,7 @@ import {
   UserRound,
   Users,
 } from 'lucide-react';
+import { clearPersistedUiQueryCache } from '@/components/providers/query-provider';
 import { PageHeader } from '@/components/ui/PageHeader';
 
 const MORE_LINKS = [
@@ -31,6 +33,7 @@ const MORE_LINKS = [
 
 export default function MorePage() {
   const { data: session, status } = useSession();
+  const queryClient = useQueryClient();
 
   return (
     <div className="sp-page">
@@ -72,7 +75,10 @@ export default function MorePage() {
         {status === 'authenticated' && session?.user?.email ? (
           <button
             type="button"
-            onClick={() => void signOut({ callbackUrl: '/' })}
+            onClick={() => {
+              clearPersistedUiQueryCache(queryClient);
+              void signOut({ callbackUrl: '/' });
+            }}
             className="min-h-11 w-full rounded-xl border border-[var(--sp-border)] text-sm font-semibold text-[var(--sp-ink)] hover:bg-[var(--sp-bg)] sp-focus"
           >
             Sign out

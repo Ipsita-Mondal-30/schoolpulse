@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { signOut, useSession } from 'next-auth/react';
 import {
   Bell,
@@ -16,6 +17,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import { clearPersistedUiQueryCache } from '@/components/providers/query-provider';
 
 const MORE_LINKS = [
   { href: '/notices', label: 'Notices', icon: Bell },
@@ -39,6 +41,7 @@ export function MoreSheet({
 }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
+  const queryClient = useQueryClient();
 
   if (!open) return null;
 
@@ -98,6 +101,7 @@ export function MoreSheet({
               type="button"
               onClick={() => {
                 onClose();
+                clearPersistedUiQueryCache(queryClient);
                 void signOut({ callbackUrl: '/' });
               }}
               className="min-h-11 w-full rounded-xl border border-[var(--sp-border)] text-sm font-semibold text-[var(--sp-ink)] hover:bg-[var(--sp-bg)] sp-focus"

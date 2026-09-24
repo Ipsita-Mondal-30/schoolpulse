@@ -1,13 +1,27 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, type Query } from '@tanstack/react-query';
 import {
+  UI_PERSIST_QUERY_ROOTS,
   UI_QUERY_GC_TIME_MS,
+  UI_QUERY_PERSIST_MAX_AGE_MS,
   UI_QUERY_STALE_TIME_MS,
   makeQueryClient,
+  shouldPersistUiQuery,
 } from '@/components/providers/query-provider';
+import { changesQueryKey } from '@/lib/queries/changes';
 import { homeworkQueryKey } from '@/lib/queries/homework';
+import { jolQueryKey } from '@/lib/queries/jol';
 import { noticesQueryKey } from '@/lib/queries/notices';
+import { scheduleQueryKey } from '@/lib/queries/schedule';
+import { updatesFeedQueryKey } from '@/lib/queries/updates';
 import { filterHomeworkBySection, type UiHomeworkItem } from '@/lib/ui-merge';
+
+function fakeQuery(
+  queryKey: readonly unknown[],
+  status: 'success' | 'pending' | 'error' = 'success',
+): Query {
+  return { queryKey, state: { status } } as Query;
+}
 
 describe('TanStack Query UI cache', () => {
   let client: QueryClient;
@@ -16,14 +30,46 @@ describe('TanStack Query UI cache', () => {
     client = makeQueryClient();
   });
 
-  it('uses 5-minute staleTime, 30-minute gcTime, and no refetchOnWindowFocus', () => {
+  it('uses 5-minute staleTime, 24-hour gcTime, and no refetchOnWindowFocus', () => {
     expect(UI_QUERY_STALE_TIME_MS).toBe(5 * 60 * 1000);
-    expect(UI_QUERY_GC_TIME_MS).toBe(30 * 60 * 1000);
+    expect(UI_QUERY_GC_TIME_MS).toBe(24 * 60 * 60 * 1000);
+    expect(UI_QUERY_PERSIST_MAX_AGE_MS).toBe(24 * 60 * 60 * 1000);
+    expect(UI_QUERY_GC_TIME_MS).toBeGreaterThanOrEqual(UI_QUERY_PERSIST_MAX_AGE_MS);
     const defaults = client.getDefaultOptions().queries;
     expect(defaults?.staleTime).toBe(UI_QUERY_STALE_TIME_MS);
     expect(defaults?.gcTime).toBe(UI_QUERY_GC_TIME_MS);
     expect(defaults?.refetchOnWindowFocus).toBe(false);
     expect(defaults?.refetchOnMount).toBe(true);
+  });
+
+  it('persists school-content keys and excludes auth-scoped keys', () => {
+    expect(UI_PERSIST_QUERY_ROOTS).toEqual([
+      'homework',
+      'notices',
+      'updates-feed',
+      'canonical-schedule',
+      'jol',
+      'this-week',
+      'changes',
+    ]);
+
+    expect(shouldPersistUiQuery(fakeQuery(homeworkQueryKey))).toBe(true);
+    expect(shouldPersistUiQuery(fakeQuery(noticesQueryKey))).toBe(true);
+    expect(shouldPersistUiQuery(fakeQuery(updatesFeedQueryKey))).toBe(true);
+    expect(shouldPersistUiQuery(fakeQuery(scheduleQueryKey))).toBe(true);
+    expect(shouldPersistUiQuery(fakeQuery(jolQueryKey))).toBe(true);
+    expect(
+      shouldPersistUiQuery(fakeQuery(['this-week', 'notice-deadlines'] as const)),
+    ).toBe(true);
+    expect(shouldPersistUiQuery(fakeQuery(changesQueryKey))).toBe(true);
+
+    // Auth-scoped keys — use literals to avoid importing next-auth via actions.
+    expect(shouldPersistUiQuery(fakeQuery(['parent-access', 'me']))).toBe(false);
+    expect(shouldPersistUiQuery(fakeQuery(['acknowledgements', 'me']))).toBe(false);
+
+    // Only successful queries are written to disk.
+    expect(shouldPersistUiQuery(fakeQuery(homeworkQueryKey, 'pending'))).toBe(false);
+    expect(shouldPersistUiQuery(fakeQuery(homeworkQueryKey, 'error'))).toBe(false);
   });
 
   it('fetches homework on first visit and reuses cache within staleTime', async () => {
