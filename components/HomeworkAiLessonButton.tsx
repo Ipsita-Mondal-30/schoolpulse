@@ -111,12 +111,12 @@ export function HomeworkAiLessonButton({
           className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--sp-primary)] px-3 py-2 text-sm font-semibold text-white sp-focus"
         >
           <Play className="h-3.5 w-3.5" aria-hidden />
-          Watch AI Lesson
+          Watch AI Video
         </button>
       ) : inProgress ? (
         <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--sp-primary)]">
           <Sparkles className="h-3.5 w-3.5 animate-pulse" aria-hidden />
-          {status === 'PLANNING' ? 'Creating your lesson…' : 'Generating video…'}
+          {status === 'PLANNING' ? 'Preparing video script…' : 'Generating AI video…'}
         </p>
       ) : (
         <button
@@ -126,7 +126,7 @@ export function HomeworkAiLessonButton({
           className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--sp-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--sp-ink)] hover:bg-[var(--sp-primary-soft)]/50 sp-focus disabled:opacity-60"
         >
           <Play className="h-3.5 w-3.5" aria-hidden />
-          Generate AI Lesson
+          {status === 'FAILED' ? 'Retry AI Video' : 'Generate AI Video'}
         </button>
       )}
 
@@ -134,7 +134,7 @@ export function HomeworkAiLessonButton({
         <p className="text-xs text-[var(--sp-muted)]">
           {error ||
             payload?.message ||
-            "We couldn't create this lesson right now. Please try again later."}
+            "AI video couldn't be generated yet. Please try again later."}
           {status === 'FAILED' ? (
             <>
               {' '}
@@ -167,7 +167,7 @@ export function HomeworkAiLessonButton({
                   {payload.title || title}
                 </p>
                 <p className="mt-0.5 text-xs text-[var(--sp-muted)]">
-                  AI-generated revision lesson
+                  AI-generated video (Veo)
                 </p>
               </div>
               <button
@@ -185,6 +185,7 @@ export function HomeworkAiLessonButton({
                 src={payload.videoUrl}
                 controls
                 playsInline
+                preload="metadata"
                 className="aspect-video w-full"
               />
             </div>

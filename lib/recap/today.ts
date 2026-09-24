@@ -29,13 +29,26 @@ const libraryResources = (libraryData.resources as LibraryResourceDetail[]).map(
   subject: r.subject,
 }));
 
+export type RecapVideoStatus =
+  | 'NONE'
+  | 'QUEUED'
+  | 'PENDING'
+  | 'PLANNING'
+  | 'GENERATING'
+  | 'READY'
+  | 'FAILED';
+
 export type RecapTopicSummary = {
   homeworkId: string;
   subject: string;
   topic: string;
+  /** Interactive practice MicroLesson id (quiz/cards) — NOT a Veo video. */
   lessonId: string | null;
   questionCount: number | null;
   attempt: { score: number; total: number; completedAt: string } | null;
+  /** AI Homework Video (Veo) — separate from interactive practice. */
+  videoStatus: RecapVideoStatus;
+  videoUrl: string | null;
 };
 
 /** @deprecated Prefer RecapTopicSummary — kept for Home card primary topic */
@@ -159,6 +172,9 @@ export async function getTodaysRecap(
           attempts: { orderBy: { completedAt: 'desc' }, take: 1 },
         },
       },
+      homeworkVideo: {
+        select: { status: true, videoUrl: true },
+      },
     },
     orderBy: [{ dueDate: 'asc' }, { homeworkDate: 'desc' }],
     take: 40,
@@ -179,6 +195,21 @@ export async function getTodaysRecap(
 
   const topics: RecapTopicSummary[] = [];
   const seenHomework = new Set<string>();
+
+  function videoFields(hw: (typeof ranked)[number]): Pick<
+    RecapTopicSummary,
+    'videoStatus' | 'videoUrl'
+  > {
+    const st = (hw.homeworkVideo?.status || 'NONE') as RecapVideoStatus;
+    const ready =
+      st === 'READY' && hw.homeworkVideo?.videoUrl
+        ? hw.homeworkVideo.videoUrl
+        : null;
+    return {
+      videoStatus: hw.homeworkVideo ? st : 'NONE',
+      videoUrl: ready,
+    };
+  }
 
   for (const hw of ranked) {
     if (seenHomework.has(hw.id)) continue;
@@ -205,6 +236,7 @@ export async function getTodaysRecap(
               completedAt: attempt.completedAt.toISOString(),
             }
           : null,
+        ...videoFields(hw),
       });
       continue;
     }
@@ -228,6 +260,7 @@ export async function getTodaysRecap(
       lessonId: null,
       questionCount: null,
       attempt: null,
+      ...videoFields(hw),
     });
   }
 

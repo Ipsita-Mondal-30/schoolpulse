@@ -1062,21 +1062,28 @@ export async function loadRecentUpdates(options?: {
                 publishedTime: row.publishedTime,
                 classes: parseJsonArray(row.classesJson),
             })),
-            changes: usableChangeRows.map((row) => {
-                const type = row.entityType === 'notice' ? 'notice' : 'homework';
-                const meta = snapshotTitle(row.currentSnapshotJson, type);
-                return {
-                    id: row.id,
-                    entityType: type,
-                    source: row.source,
-                    sourceId: row.sourceId,
-                    entityId: row.entityId,
-                    detectedAt: row.detectedAt,
-                    changedFields: toVisibleFields(type, parseFieldChanges(row.changedFieldsJson)),
-                    title: meta.title,
-                    subject: meta.subject,
-                };
-            }),
+            changes: usableChangeRows
+                .map((row) => {
+                    const type = row.entityType === 'notice' ? 'notice' : 'homework';
+                    const meta = snapshotTitle(row.currentSnapshotJson, type);
+                    const changedFields = toVisibleFields(
+                        type,
+                        parseFieldChanges(row.changedFieldsJson),
+                    );
+                    return {
+                        id: row.id,
+                        entityType: type,
+                        source: row.source,
+                        sourceId: row.sourceId,
+                        entityId: row.entityId,
+                        detectedAt: row.detectedAt,
+                        changedFields,
+                        title: meta.title,
+                        subject: meta.subject,
+                    };
+                })
+                // Changed cards need at least one visible field — never invent "updated".
+                .filter((row) => row.changedFields.length > 0),
         });
 
         const newPart = items.filter((i) => i.section === 'new');

@@ -11,7 +11,7 @@ import {
   parentCanAccessHomework,
   sectionsFromHomeworkJson,
 } from '@/lib/parent-access';
-import { getVideoStorage } from '@/lib/ai/video-storage';
+import { getVideoStorage, homeworkVideoStorageKey } from '@/lib/ai/video-storage';
 import { VIDEO_STATUS } from '@/lib/ai/homework-video';
 
 export const runtime = 'nodejs';
@@ -60,23 +60,36 @@ export async function GET(
     return NextResponse.json({ error: 'Not ready' }, { status: 404 });
   }
 
+  const key = homeworkVideoStorageKey(homework.id);
   const storage = getVideoStorage();
-  const key = `homework/${homework.id}.mp4`;
   const absolute = storage.resolveAbsolutePath(key);
-  if (!existsSync(absolute)) {
-    return NextResponse.json({ error: 'File missing' }, { status: 404 });
+
+  // Prefer local disk (worker/dev); fall back to Neon-mirrored bytes (Vercel).
+  if (existsSync(absolute)) {
+    const st = statSync(absolute);
+    const nodeStream = createReadStream(absolute);
+    const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
+    return new NextResponse(webStream, {
+      status: 200,
+      headers: {
+        'Content-Type': 'video/mp4',
+        'Content-Length': String(st.size),
+        'Cache-Control': 'private, max-age=3600',
+      },
+    });
   }
 
-  const st = statSync(absolute);
-  const nodeStream = createReadStream(absolute);
-  const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
+  if (video.videoBytes && video.videoBytes.length > 0) {
+    const body = Buffer.from(video.videoBytes);
+    return new NextResponse(body, {
+      status: 200,
+      headers: {
+        'Content-Type': 'video/mp4',
+        'Content-Length': String(body.length),
+        'Cache-Control': 'private, max-age=3600',
+      },
+    });
+  }
 
-  return new NextResponse(webStream, {
-    status: 200,
-    headers: {
-      'Content-Type': 'video/mp4',
-      'Content-Length': String(st.size),
-      'Cache-Control': 'private, max-age=3600',
-    },
-  });
+  return NextResponse.json({ error: 'File missing' }, { status: 404 });
 }

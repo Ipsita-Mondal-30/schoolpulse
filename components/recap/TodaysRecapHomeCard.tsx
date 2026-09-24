@@ -1,9 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
+import { Play, Sparkles } from 'lucide-react';
 import type { TodaysRecapResult } from '@/lib/recap/today';
 
 function isSameIndiaDay(iso: string, todayYmd: string): boolean {
@@ -28,10 +27,7 @@ export default function TodaysRecapHomeCard({
   section: string;
   todayYmd: string;
 }) {
-  const router = useRouter();
   const [data, setData] = useState<TodaysRecapResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [starting, setStarting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,52 +55,7 @@ export default function TodaysRecapHomeCard({
     };
   }, [section, todayYmd]);
 
-  const start = useCallback(async () => {
-    if (!data) return;
-    setError(null);
-
-    // Always reach a real Recap route — hub lists topics or empty state.
-    if (data.topicCount === 0 || data.topicCount > 1 || !data.card) {
-      router.push('/recap');
-      return;
-    }
-
-    setStarting(true);
-    try {
-      if (data.card.lessonId) {
-        router.push(`/recap/${data.card.lessonId}`);
-        return;
-      }
-      const res = await fetch('/api/recap/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ homeworkId: data.card.homeworkId }),
-      });
-      const json = (await res.json()) as {
-        ok?: boolean;
-        lessonId?: string;
-        message?: string;
-        reason?: string;
-      };
-      if (json.ok && json.lessonId) {
-        router.push(`/recap/${json.lessonId}`);
-        return;
-      }
-      setError(
-        json.reason === 'ineligible'
-          ? "SchoolPulse couldn't create a recap for this homework."
-          : json.message || "Recap isn't available yet. Please try again.",
-      );
-      // Open hub so the parent can retry from the topic list.
-      router.push('/recap');
-    } catch {
-      setError("Recap isn't available yet. Please try again.");
-      router.push('/recap');
-    } finally {
-      setStarting(false);
-    }
-  }, [data, router]);
-
+  // Home card never auto-calls Gemini or Veo — opens /recap for AI Video + Practice.
   const loading = data === null;
   const topicCount = data?.topicCount ?? 0;
   const emptyCopy =
@@ -125,6 +76,15 @@ export default function TodaysRecapHomeCard({
       ? data.card.attempt
       : null;
 
+  const card = data?.card;
+  const videoReady = card?.videoStatus === 'READY' && card.videoUrl;
+  const videoGenerating =
+    card &&
+    (card.videoStatus === 'GENERATING' ||
+      card.videoStatus === 'PLANNING' ||
+      card.videoStatus === 'QUEUED' ||
+      card.videoStatus === 'PENDING');
+
   return (
     <section className="rounded-[28px] bg-[#EEF9F3] px-5 py-5">
       <div className="flex items-start justify-between gap-3">
@@ -138,17 +98,26 @@ export default function TodaysRecapHomeCard({
           <p className="mt-1 text-sm text-[var(--sp-muted)]">
             {loading ? "Checking today's homework…" : topicsLabel}
           </p>
-          {data?.card && topicCount === 1 ? (
+          {card && topicCount === 1 ? (
             <p className="mt-1 text-sm text-[var(--sp-muted)]">
-              {data.card.subject} · {data.card.topic}
+              {card.subject} · {card.topic}
+            </p>
+          ) : null}
+          {card && topicCount === 1 ? (
+            <p className="mt-1 text-xs text-[var(--sp-muted)]">
+              {videoReady
+                ? 'AI Video ready · Interactive practice available'
+                : videoGenerating
+                  ? 'AI Video generating… · Interactive practice separate'
+                  : 'AI Video + Interactive Practice (separate)'}
             </p>
           ) : null}
           {attemptToday ? (
             <p className="mt-2 text-sm text-[var(--sp-muted)]">
-              {attemptToday.total} questions · {attemptToday.score} correct · Completed today
+              Practice: {attemptToday.total} questions · {attemptToday.score} correct · Completed
+              today
             </p>
           ) : null}
-          {error ? <p className="mt-2 text-sm text-amber-700">{error}</p> : null}
         </div>
         <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/80 text-emerald-500">
           <Sparkles className="h-5 w-5" aria-hidden />
@@ -156,19 +125,24 @@ export default function TodaysRecapHomeCard({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={() => void start()}
-          disabled={starting || loading}
-          className="inline-flex items-center rounded-xl bg-[var(--sp-primary)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60 sp-focus"
+        <Link
+          href="/recap"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--sp-primary)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 sp-focus"
         >
-          {starting ? 'Preparing…' : 'Start recap →'}
-        </button>
+          {videoReady ? (
+            <>
+              <Play className="h-3.5 w-3.5" aria-hidden />
+              Watch AI Video
+            </>
+          ) : (
+            'Open Recap →'
+          )}
+        </Link>
         <Link
           href="/recap"
           className="text-sm font-medium text-[var(--sp-muted)] hover:text-[var(--sp-ink)] sp-focus"
         >
-          Open Recap
+          AI Video &amp; Practice
         </Link>
       </div>
     </section>
