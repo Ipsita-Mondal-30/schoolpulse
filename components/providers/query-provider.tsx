@@ -4,6 +4,7 @@ import { QueryClient, defaultShouldDehydrateQuery, type Query } from "@tanstack/
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { useState, type ReactNode } from "react";
+import { useSchoolPulseDataVersionSync } from "@/lib/queries/data-version";
 
 /**
  * Parent UI cache: reuse Neon-backed payloads across navigation and refresh.
@@ -105,7 +106,13 @@ export function QueryProvider({ children }: { children: ReactNode }) {
         },
       }}
     >
+      <SchoolPulseDataVersionBridge />
       {children}
     </PersistQueryClientProvider>
   );
+}
+
+function SchoolPulseDataVersionBridge() {
+  useSchoolPulseDataVersionSync();
+  return null;
 }

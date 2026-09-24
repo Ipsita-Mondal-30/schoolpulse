@@ -44,7 +44,6 @@ describe('homework lesson eligibility', () => {
 describe('homework lesson plan validation', () => {
   it('validates a minimal plan', () => {
     const plan = validateHomeworkLessonPlan({
-      eligible: true,
       title: "Let's Learn About Our Clothes!",
       subject: 'Environmental Science',
       learningObjective: 'Name clothes we wear',
@@ -68,6 +67,7 @@ describe('homework lesson plan validation', () => {
       videoPrompt:
         'Friendly colorful educational animation about clothes for Class 1 children in a bright classroom, no written text.',
     });
+    expect(plan.eligible).toBe(true);
     expect(plan.scenes).toHaveLength(2);
     expect(buildVeoPromptFromLesson(plan).length).toBeGreaterThan(20);
   });
@@ -106,7 +106,32 @@ describe('parent-facing constants', () => {
   it('does not expose provider names in parent error copy', () => {
     expect(PARENT_VIDEO_ERROR.toLowerCase()).not.toMatch(/veo|gemini|api|operation/);
     expect(VIDEO_STATUS.READY).toBe('READY');
+    expect(VIDEO_STATUS.QUEUED).toBe('QUEUED');
     expect(INSUFFICIENT_SOURCE).toBe('INSUFFICIENT_SOURCE');
+  });
+});
+
+describe('video job idempotency helpers', () => {
+  it('video route source enqueues instead of awaiting Veo inline', async () => {
+    const fs = await import('node:fs');
+    const src = fs.readFileSync(
+      join(process.cwd(), 'app/api/homework/[id]/video/route.ts'),
+      'utf8',
+    );
+    expect(src).toMatch(/enqueueHomeworkVideo/);
+    expect(src).toMatch(/after\(/);
+    expect(src).not.toMatch(/await generateHomeworkVideo/);
+  });
+
+  it('HomeworkAiLessonButton polls status and never embeds API keys', async () => {
+    const fs = await import('node:fs');
+    const src = fs.readFileSync(
+      join(process.cwd(), 'components/HomeworkAiLessonButton.tsx'),
+      'utf8',
+    );
+    expect(src).toMatch(/setInterval/);
+    expect(src).toMatch(/\/api\/homework\/.*\/video/);
+    expect(src).not.toMatch(/GOOGLE_GENERATIVE_AI_API_KEY|VEO_MODEL|AIza/);
   });
 });
 

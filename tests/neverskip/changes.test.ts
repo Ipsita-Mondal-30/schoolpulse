@@ -3,6 +3,8 @@ import {
   formatRelativeTimeIndia,
   getMeaningfulHomeworkChanges,
   getMeaningfulNoticeChanges,
+  isDueDateClearanceNoise,
+  isNoiseChangeEvent,
   presentChangeLines,
   userVisibleChanges,
 } from '@/lib/neverskip/changes';
@@ -367,6 +369,15 @@ describe('InMemoryNeverSkipStore change events', () => {
       attachmentUrl: 'https://cdn.example.com/file.pdf?X-Amz-Signature=bbb&Expires=2',
     });
     expect(getMeaningfulHomeworkChanges(a, b)).toHaveLength(0);
+  });
+
+  it('treats dueDate clearance (extracted → structured-null) as noise', () => {
+    const changes = getMeaningfulHomeworkChanges(
+      hw({ sourceId: '1', title: 'T', dueDate: '2026-09-16' }),
+      hw({ sourceId: '1', title: 'T', dueDate: null }),
+    );
+    expect(isDueDateClearanceNoise(changes)).toBe(true);
+    expect(isNoiseChangeEvent('homework', changes)).toBe(true);
   });
 
   it('userVisibleChanges hides internal subjectId', () => {

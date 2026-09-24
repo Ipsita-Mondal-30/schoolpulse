@@ -266,7 +266,7 @@ export function userVisibleChanges(
   changes: FieldChange[],
 ): FieldChange[] {
   const allow = entityType === 'homework' ? HOMEWORK_USER_FIELDS : NOTICE_USER_FIELDS;
-  return changes.filter((c) => allow.has(c.field));
+  return withoutDueDateClearanceNoise(changes).filter((c) => allow.has(c.field));
 }
 
 /**
@@ -322,6 +322,50 @@ export function isLegacyAudienceOnlyChange(changes: FieldChange[]): boolean {
   }
 }
 
+/**
+ * Proven false-positive: clearing ImportedHomework.dueDate after we stopped
+ * storing regex/AI-extracted dues on that column (structured NeverSkip only).
+ * Not a school announcement that a deadline was cancelled.
+ */
+export function isDueDateClearanceField(change: FieldChange): boolean {
+  if (change.field !== 'dueDate') return false;
+  const prev = String(change.previous || '').trim();
+  const next = String(change.current || '').trim();
+  return Boolean(prev) && !next;
+}
+
+export function withoutDueDateClearanceNoise(changes: FieldChange[]): FieldChange[] {
+  return changes.filter((c) => !isDueDateClearanceField(c));
+}
+
+export function isDueDateClearanceNoise(changes: FieldChange[]): boolean {
+  if (!changes.some(isDueDateClearanceField)) return false;
+  const remaining = withoutDueDateClearanceNoise(changes);
+  if (remaining.length === 0) return true;
+  return remaining.every((c) => {
+    if (
+      c.field === 'description' ||
+      c.field === 'title' ||
+      c.field === 'subjectName'
+    ) {
+      return isTrivialTextFieldChange(c.previous, c.current);
+    }
+    if (c.field === 'attachmentUrl') {
+      return isTrivialAttachmentUrlChange(c.previous, c.current);
+    }
+    if (c.field === 'sections') {
+      try {
+        const prev = JSON.parse(c.previous || '[]');
+        const next = JSON.parse(c.current || '[]');
+        return Array.isArray(prev) && Array.isArray(next) && JSON.stringify(prev) === JSON.stringify(next);
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
+}
+
 /** True when a stored change event should never surface on the parent Updates page. */
 export function isNoiseChangeEvent(
   entityType: ChangeEntityType,
@@ -329,6 +373,7 @@ export function isNoiseChangeEvent(
 ): boolean {
   if (changes.length === 0) return true;
   if (entityType === 'homework' && isLegacyAudienceOnlyChange(changes)) return true;
+  if (entityType === 'homework' && isDueDateClearanceNoise(changes)) return true;
   if (parentRelevantChanges(entityType, changes).length === 0) return true;
   return false;
 }

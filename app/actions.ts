@@ -608,8 +608,21 @@ export async function loadHomeworkForUi(): Promise<{
     items: ImportedHomeworkItem[];
     fromSheet: boolean;
 }> {
+    const { cachedJsonGet, cachedJsonSet, spCacheKey } = await import('@/lib/cache/schoolpulse');
+    const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
+    const key = spCacheKey(childKey, 'homework');
+    const cached = await cachedJsonGet<{ items: ImportedHomeworkItem[]; fromSheet: boolean }>(key);
+    if (cached) return cached;
     const imported = await fetchImportedHomework();
-    return { items: imported, fromSheet: false };
+    const payload = { items: imported, fromSheet: false as const };
+    await cachedJsonSet(key, payload);
+    return payload;
+}
+
+/** Cache generation after NeverSkip sync — clients refetch when this changes. */
+export async function loadSchoolPulseDataVersion(): Promise<{ version: string }> {
+    const { getDataVersion } = await import('@/lib/cache/schoolpulse');
+    return { version: await getDataVersion() };
 }
 
 /** HIGH-confidence notice deadlines that are not already homework rows. Server DB only. */
@@ -685,9 +698,16 @@ export async function loadThisWeekNoticeDeadlines(): Promise<ImportedHomeworkIte
 
 /** Server-side Notices UI: Neon is the source of truth (no static JSON merge). */
 export async function loadNoticesForUi(): Promise<ImportedNoticeItem[]> {
+    const { cachedJsonGet, cachedJsonSet, spCacheKey } = await import('@/lib/cache/schoolpulse');
+    const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
+    const key = spCacheKey(childKey, 'notices');
+    const cached = await cachedJsonGet<ImportedNoticeItem[]>(key);
+    if (cached) return cached;
     const { sortNoticesNewestFirst } = await import('@/lib/ui-merge');
     const imported = await fetchImportedNotices();
-    return sortNoticesNewestFirst(imported);
+    const sorted = sortNoticesNewestFirst(imported);
+    await cachedJsonSet(key, sorted);
+    return sorted;
 }
 
 export type UiJolItem = {
@@ -718,11 +738,17 @@ export type UiJolItem = {
 
 /** Server-side Content Library / JOL items for Joy of Learning UI. */
 export async function loadJolForUi(): Promise<UiJolItem[]> {
+  const { cachedJsonGet, cachedJsonSet, spCacheKey } = await import('@/lib/cache/schoolpulse');
+  const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
+  const key = spCacheKey(childKey, 'jol');
+  const cached = await cachedJsonGet<UiJolItem[]>(key);
+  if (cached) return cached;
+
   const { getPrisma } = await import('@/lib/prisma');
   const rows = await getPrisma().importedJolItem.findMany({
     orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
   });
-  return rows.map((r) => {
+  const mapped = rows.map((r) => {
     let media: UiJolItem['media'] = [];
     try {
       const meta = JSON.parse(r.metadataJson) as { media?: UiJolItem['media'] };
@@ -758,11 +784,22 @@ export async function loadJolForUi(): Promise<UiJolItem[]> {
       createdAt: r.createdAt.toISOString(),
     };
   });
+  await cachedJsonSet(key, mapped);
+  return mapped;
 }
 
-export async function loadCanonicalScheduleForUi() {
+export async function loadCanonicalScheduleForUi(): Promise<
+  import('@/lib/schedule/canonical').CanonicalSchedule
+> {
+  const { cachedJsonGet, cachedJsonSet, spCacheKey } = await import('@/lib/cache/schoolpulse');
+  const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
+  const key = spCacheKey(childKey, 'timetable');
+  const cached = await cachedJsonGet(key);
+  if (cached) return cached as import('@/lib/schedule/canonical').CanonicalSchedule;
   const { loadCanonicalSchedule } = await import('@/lib/schedule/canonical');
-  return loadCanonicalSchedule();
+  const schedule = await loadCanonicalSchedule();
+  await cachedJsonSet(key, schedule);
+  return schedule;
 }
 
 /** Tonight Daily Brief: reuses homework/notices loaders; does not invent due dates. */
@@ -890,6 +927,13 @@ export async function loadRecentUpdates(options?: {
     try {
         if (!process.env.DATABASE_URL) return [];
 
+        const days = Math.max(1, options?.days ?? 7);
+        const { cachedJsonGet, cachedJsonSet, spCacheKey } = await import('@/lib/cache/schoolpulse');
+        const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
+        const key = `${spCacheKey(childKey, 'updates')}:d${days}`;
+        const cached = await cachedJsonGet<import('@/lib/updates-feed').UpdateFeedItem[]>(key);
+        if (cached) return cached;
+
         const { getPrisma } = await import('@/lib/prisma');
         const {
             parseFieldChanges,
@@ -899,7 +943,6 @@ export async function loadRecentUpdates(options?: {
         const { buildUpdatesFeed } = await import('@/lib/updates-feed');
         const { addDaysYmd, getIndiaToday } = await import('@/lib/daily-brief');
 
-        const days = Math.max(1, options?.days ?? 7);
         // Parent Updates window: last N India calendar days (default 7).
         const activitySinceYmd = addDaysYmd(getIndiaToday(), -(days - 1)) || getIndiaToday();
         const since = new Date(`${activitySinceYmd}T00:00:00+05:30`);
@@ -1038,7 +1081,9 @@ export async function loadRecentUpdates(options?: {
 
         const newPart = items.filter((i) => i.section === 'new');
         const recentPart = items.filter((i) => i.section === 'recent');
-        return [...newPart, ...recentPart.slice(0, Math.max(0, 80 - newPart.length))];
+        const result = [...newPart, ...recentPart.slice(0, Math.max(0, 80 - newPart.length))];
+        await cachedJsonSet(key, result);
+        return result;
     } catch (error) {
         console.error('Failed to load recent updates', error);
         return [];

@@ -577,6 +577,18 @@ export async function syncNeverSkipData({
     );
   }
 
+  try {
+    const { invalidateSchoolPulseCaches } = await import('@/lib/cache/schoolpulse');
+    const inv = await invalidateSchoolPulseCaches('neverskip-sync');
+    nsLog(
+      `Cache invalidated after sync: redis=${inv.redisConfigured} deleted=${inv.deleted} version=${inv.version}`,
+    );
+  } catch (err) {
+    nsWarn(
+      `Cache invalidation skipped: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
   return summary;
 }
 

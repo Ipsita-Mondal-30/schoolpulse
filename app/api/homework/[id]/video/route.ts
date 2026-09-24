@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { getPrisma } from '@/lib/prisma';
 import {
   getSessionParent,
@@ -12,13 +12,15 @@ import {
   ERR_NOT_FOR_LINKED_CLASS,
 } from '@/lib/parent-access';
 import {
-  generateHomeworkVideo,
+  enqueueHomeworkVideo,
   getHomeworkVideoStatus,
+  processHomeworkVideoJob,
   VIDEO_STATUS,
 } from '@/lib/ai/homework-video';
 
 export const runtime = 'nodejs';
-export const maxDuration = 300;
+/** Background after() may continue briefly; Veo itself runs on the worker when possible. */
+export const maxDuration = 60;
 
 async function authorizeHomework(id: string) {
   const parent = await getSessionParent();
@@ -79,7 +81,22 @@ export async function POST(
   const authz = await authorizeHomework(id);
   if ('error' in authz && authz.error) return authz.error;
 
-  // Manual only — never auto-triggered. Long-running Veo call.
-  const result = await generateHomeworkVideo(authz.homework!.id);
+  const homeworkId = authz.homework!.id;
+  const result = await enqueueHomeworkVideo(homeworkId);
+
+  // Do not block the HTTP response on Veo (minutes). Process in after() when
+  // VIDEO_PROCESS_INLINE is not "false". Oracle worker also drains QUEUED jobs.
+  if (
+    result.status !== VIDEO_STATUS.READY &&
+    result.status !== VIDEO_STATUS.FAILED &&
+    process.env.VIDEO_PROCESS_INLINE !== 'false'
+  ) {
+    after(() => {
+      void processHomeworkVideoJob(homeworkId).catch((err) => {
+        console.error('[SchoolPulse] background video job failed:', err);
+      });
+    });
+  }
+
   return NextResponse.json(result);
 }

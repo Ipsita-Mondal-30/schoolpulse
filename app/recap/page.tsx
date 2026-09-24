@@ -46,37 +46,8 @@ export default function RecapHubPage() {
     };
   }, [refreshToday]);
 
-  // Prefetch Gemini for eligible topics so "Start" opens a ready lesson.
-  useEffect(() => {
-    if (!data || data.status !== 'eligible') return;
-    const pending = data.topics.filter((t) => !t.lessonId);
-    if (pending.length === 0) return;
-
-    let cancelled = false;
-    void (async () => {
-      for (const topic of pending.slice(0, 3)) {
-        if (cancelled) return;
-        try {
-          const res = await fetch('/api/recap/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ homeworkId: topic.homeworkId }),
-          });
-          const json = (await res.json()) as { ok?: boolean };
-          if (json.ok && !cancelled) {
-            await refreshToday(SECTION);
-            setError(null);
-          }
-        } catch {
-          // Leave topic as "Ready to generate"; user can retry via Start.
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [data, refreshToday]);
+  // Do NOT auto-prefetch Gemini here — free-tier quotas are tiny and page
+  // load was burning them before parents clicked "Start recap".
 
   const openTopic = useCallback(
     async (homeworkId: string, lessonId: string | null) => {

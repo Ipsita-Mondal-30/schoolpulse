@@ -103,7 +103,7 @@ test.describe('SchoolPulse Smoke Tests', () => {
     test('navigation works', async ({ page }) => {
         await page.goto('/');
         const mobileHw = page.locator('nav[aria-label="Primary"] a[href="/homework"]');
-        const desktopHw = page.locator('nav[aria-label="Main"] a[href="/homework"]');
+        const desktopHw = page.locator('[aria-label="Main"] a[href="/homework"]');
         if (await mobileHw.isVisible().catch(() => false)) {
             await mobileHw.click();
         } else {

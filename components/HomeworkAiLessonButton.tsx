@@ -3,7 +3,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Play, Sparkles, X } from 'lucide-react';
 
-type VideoStatus = 'PENDING' | 'PLANNING' | 'GENERATING' | 'READY' | 'FAILED';
+type VideoStatus =
+  | 'PENDING'
+  | 'QUEUED'
+  | 'PLANNING'
+  | 'GENERATING'
+  | 'READY'
+  | 'FAILED';
 
 type VideoPayload = {
   status: VideoStatus;
@@ -51,7 +57,10 @@ export function HomeworkAiLessonButton({
   useEffect(() => {
     if (
       !payload ||
-      (payload.status !== 'GENERATING' && payload.status !== 'PLANNING')
+      (payload.status !== 'GENERATING' &&
+        payload.status !== 'PLANNING' &&
+        payload.status !== 'QUEUED' &&
+        payload.status !== 'PENDING')
     ) {
       return;
     }
@@ -87,7 +96,11 @@ export function HomeworkAiLessonButton({
 
   const status = payload?.status || 'PENDING';
   const inProgress =
-    busy || status === 'PLANNING' || status === 'GENERATING';
+    busy ||
+    status === 'QUEUED' ||
+    status === 'PENDING' ||
+    status === 'PLANNING' ||
+    status === 'GENERATING';
 
   return (
     <div className="mt-3 space-y-2">

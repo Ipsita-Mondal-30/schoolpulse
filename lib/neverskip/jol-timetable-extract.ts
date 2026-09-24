@@ -18,6 +18,8 @@ import path from 'path';
 import {
   JOL_TT_CATALOG_SOURCE_ID,
   JOL_TT_PUBLIC_REL,
+  KNOWN_SEP_2026_NEWSLETTER_HASH,
+  isKnownSep2026NewsletterHash,
   resolveExistingJolTimetablePdf,
 } from './jol-timetable-resolve';
 
@@ -60,8 +62,7 @@ const EXTRACTED_DAYS_FROM_NEWSLETTER_PAGE: JolTimetableDay[] = [
 ];
 
 /** Known SHA-256 of the September 2026 Grade 1 newsletter that contains JoL II timetable. */
-export const KNOWN_SEP_2026_NEWSLETTER_HASH =
-  '8919669d4c9e4869a8d25f64bd51fc9eaf367efd3f53e428df3d720b5e865e40';
+export { KNOWN_SEP_2026_NEWSLETTER_HASH, isKnownSep2026NewsletterHash } from './jol-timetable-resolve';
 
 export function hashFile(filePath: string): string {
   const buf = fs.readFileSync(filePath);
@@ -79,11 +80,6 @@ export function resolveNewsletterPdfPath(cwd = process.cwd()): string | null {
 function relativeDocumentPath(absPath: string, cwd: string): string {
   const rel = path.relative(cwd, absPath);
   return rel && !rel.startsWith('..') ? rel : absPath;
-}
-
-/** True when this PDF is the known Sep 2026 newsletter (verified timetable page). */
-export function isKnownSep2026NewsletterHash(hash: string): boolean {
-  return hash === KNOWN_SEP_2026_NEWSLETTER_HASH;
 }
 
 /** Build extraction envelope from the school newsletter PDF when present. */
