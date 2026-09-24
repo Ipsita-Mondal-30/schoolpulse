@@ -17,6 +17,7 @@ export default defineConfig({
       'tests/this-week.test.ts',
       'tests/homework-dates.test.ts',
       'tests/deadlines/extract.test.ts',
+      'tests/cache/**/*.test.ts',
       'tests/neverskip/deadline-from-details.test.ts',
       'tests/neverskip/changes.test.ts',
       'tests/acknowledgements.test.ts',

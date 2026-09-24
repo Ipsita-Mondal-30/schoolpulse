@@ -8,7 +8,7 @@ import { google } from '@ai-sdk/google';
 import { generateObject } from 'ai';
 import {
   assertGeminiApiKeyConfigured,
-  getGeminiModelId,
+  withGeminiQuotaFallback,
 } from '@/lib/recap/ai';
 import {
   extractLearningTopic,
@@ -28,7 +28,6 @@ export const homeworkLessonSceneSchema = z.object({
 });
 
 export const homeworkLessonPlanSchema = z.object({
-  eligible: z.literal(true),
   title: z.string().min(1).max(120),
   subject: z.string().min(1).max(80),
   learningObjective: z.string().min(1).max(240),
@@ -38,14 +37,20 @@ export const homeworkLessonPlanSchema = z.object({
   videoPrompt: z.string().min(20).max(1200),
 });
 
-export type HomeworkLessonPlan = z.infer<typeof homeworkLessonPlanSchema>;
+export type HomeworkLessonPlan = z.infer<typeof homeworkLessonPlanSchema> & {
+  eligible: true;
+};
 
 export type HomeworkLessonResult =
   | HomeworkLessonPlan
   | { eligible: false; reason: typeof INSUFFICIENT_SOURCE | string };
 
 export function validateHomeworkLessonPlan(raw: unknown): HomeworkLessonPlan {
-  return homeworkLessonPlanSchema.parse(raw);
+  const plan = homeworkLessonPlanSchema.parse(raw);
+  if (plan.sourceConfidence === 'low') {
+    throw new Error(INSUFFICIENT_SOURCE);
+  }
+  return { ...plan, eligible: true };
 }
 
 /**
@@ -84,19 +89,20 @@ export async function generateHomeworkLessonPlan(input: {
   const sources = extraction.sourceSnippets.join('\n---\n');
   const classLevel = input.classLevel || 'Class I';
 
-  const result = await generateObject({
-    // @ts-expect-error ai / provider version alignment
-    model: google(getGeminiModelId()),
-    schema: homeworkLessonPlanSchema,
-    system: `You create short Class 1 / Class 2 revision lesson plans for SchoolPulse AI videos.
+  return withGeminiQuotaFallback(async (modelId) => {
+    const result = await generateObject({
+      // @ts-expect-error ai / provider version alignment
+      model: google(modelId),
+      schema: homeworkLessonPlanSchema,
+      system: `You create short Class 1 / Class 2 revision lesson plans for SchoolPulse AI videos.
 
 Rules:
 - Use ONLY the school source snippets provided. Never invent textbook page content.
+- Never invent what appears on a specific workbook page (e.g. page 13).
 - If sources are too thin, you must not invent facts — the caller already checked eligibility.
 - 2–3 short scenes (intro, teach, example). Fun, visual, animated, age-appropriate, minimal on-screen text.
-- videoPrompt: ONE combined visual prompt for a single short educational animation (no written text in the video, child-friendly 3D/2D classroom style).
-- eligible must be true in the JSON schema response.`,
-    prompt: `Homework id: ${input.homeworkId}
+- videoPrompt: ONE combined visual prompt for a single short educational animation (no written text in the video, child-friendly 3D/2D classroom style).`,
+      prompt: `Homework id: ${input.homeworkId}
 Subject: ${extraction.subject}
 Class: ${classLevel}
 Topic: ${extraction.topic}
@@ -104,11 +110,12 @@ Topic: ${extraction.topic}
 School source material (ground truth):
 ${sources}
 
-Return a structured lesson plan with 2–3 scenes and one combined videoPrompt.`,
-  });
+Return a structured lesson plan with 2–3 scenes and one combined videoPrompt.
+Teach the named topic only from the snippets — do not invent page contents.`,
+    });
 
-  const plan = validateHomeworkLessonPlan(result.object);
-  return plan;
+    return validateHomeworkLessonPlan(result.object);
+  });
 }
 
 /** Build the single Veo prompt from a validated lesson plan (Option A). */

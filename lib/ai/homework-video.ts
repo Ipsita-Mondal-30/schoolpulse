@@ -1,11 +1,14 @@
 /**
  * Orchestrate homework → Gemini lesson → one Veo clip → local storage → HomeworkVideo row.
- * Manual trigger only — never call from sync/cron/page load.
+ *
+ * HTTP handlers must enqueue and return quickly (Vercel timeouts).
+ * Long Veo work runs via processHomeworkVideoJob (after() locally / Oracle worker).
  */
 
 import { getPrisma } from '@/lib/prisma';
 import {
   INSUFFICIENT_SOURCE,
+  assessHomeworkVideoEligibility,
   buildVeoPromptFromLesson,
   generateHomeworkLessonPlan,
   type HomeworkLessonPlan,
@@ -18,6 +21,7 @@ import { tmpdir } from 'node:os';
 
 export const VIDEO_STATUS = {
   PENDING: 'PENDING',
+  QUEUED: 'QUEUED',
   PLANNING: 'PLANNING',
   GENERATING: 'GENERATING',
   READY: 'READY',
@@ -28,6 +32,12 @@ export type VideoStatus = (typeof VIDEO_STATUS)[keyof typeof VIDEO_STATUS];
 
 export const PARENT_VIDEO_ERROR =
   "We couldn't create this lesson right now. Please try again later.";
+
+const IN_PROGRESS: ReadonlySet<string> = new Set([
+  VIDEO_STATUS.QUEUED,
+  VIDEO_STATUS.PLANNING,
+  VIDEO_STATUS.GENERATING,
+]);
 
 export type HomeworkVideoPublic = {
   status: VideoStatus;
@@ -59,12 +69,13 @@ function parentSafeStatus(row: {
   if (status === VIDEO_STATUS.READY && row.videoUrl) {
     return { status, videoUrl: row.videoUrl, title, subject };
   }
-  if (
-    status === VIDEO_STATUS.GENERATING ||
-    status === VIDEO_STATUS.PLANNING ||
-    status === VIDEO_STATUS.PENDING
-  ) {
-    return { status, title, subject };
+  if (IN_PROGRESS.has(status) || status === VIDEO_STATUS.PENDING) {
+    // Parent UI treats QUEUED/PENDING like GENERATING (in progress).
+    const publicStatus =
+      status === VIDEO_STATUS.QUEUED || status === VIDEO_STATUS.PENDING
+        ? VIDEO_STATUS.GENERATING
+        : status;
+    return { status: publicStatus as VideoStatus, title, subject };
   }
   if (status === VIDEO_STATUS.FAILED) {
     return { status, message: PARENT_VIDEO_ERROR, title, subject };
@@ -83,9 +94,10 @@ export async function getHomeworkVideoStatus(
 }
 
 /**
- * Start or resume generation. Idempotent for READY / in-progress.
+ * Create or resume a video job without waiting for Veo.
+ * Idempotent: READY returns existing; in-progress returns current status.
  */
-export async function generateHomeworkVideo(
+export async function enqueueHomeworkVideo(
   homeworkDbId: string,
 ): Promise<HomeworkVideoPublic> {
   const prisma = getPrisma();
@@ -103,44 +115,115 @@ export async function generateHomeworkVideo(
   if (existing?.status === VIDEO_STATUS.READY && existing.videoUrl) {
     return parentSafeStatus(existing);
   }
-  if (
-    existing &&
-    (existing.status === VIDEO_STATUS.GENERATING || existing.status === VIDEO_STATUS.PLANNING)
-  ) {
+  if (existing && IN_PROGRESS.has(existing.status)) {
     return parentSafeStatus(existing);
   }
 
-  const row =
-    existing ??
-    (await prisma.homeworkVideo.create({
+  if (existing) {
+    const updated = await prisma.homeworkVideo.update({
+      where: { id: existing.id },
       data: {
-        homeworkId: homeworkDbId,
-        status: VIDEO_STATUS.PENDING,
+        status: VIDEO_STATUS.QUEUED,
+        errorMessage: null,
         provider: 'veo',
       },
-    }));
+    });
+    return parentSafeStatus(updated);
+  }
 
-  await prisma.homeworkVideo.update({
-    where: { id: row.id },
+  const created = await prisma.homeworkVideo.create({
+    data: {
+      homeworkId: homeworkDbId,
+      status: VIDEO_STATUS.QUEUED,
+      provider: 'veo',
+    },
+  });
+  return parentSafeStatus(created);
+}
+
+/**
+ * Full inline pipeline (scripts/tests). Prefer enqueue + process for HTTP.
+ */
+export async function generateHomeworkVideo(
+  homeworkDbId: string,
+): Promise<HomeworkVideoPublic> {
+  const enqueued = await enqueueHomeworkVideo(homeworkDbId);
+  if (enqueued.status === VIDEO_STATUS.READY) return enqueued;
+  return processHomeworkVideoJob(homeworkDbId);
+}
+
+/**
+ * Claim a queued job and run Gemini → Veo → storage → READY/FAILED.
+ * Safe to call concurrently: only one claim wins via conditional update.
+ */
+export async function processHomeworkVideoJob(
+  homeworkDbId: string,
+): Promise<HomeworkVideoPublic> {
+  const prisma = getPrisma();
+
+  const existing = await prisma.homeworkVideo.findUnique({
+    where: { homeworkId: homeworkDbId },
+  });
+  if (!existing) {
+    return { status: VIDEO_STATUS.FAILED, message: PARENT_VIDEO_ERROR };
+  }
+  if (existing.status === VIDEO_STATUS.READY && existing.videoUrl) {
+    return parentSafeStatus(existing);
+  }
+  if (
+    existing.status === VIDEO_STATUS.PLANNING ||
+    existing.status === VIDEO_STATUS.GENERATING
+  ) {
+    // Another worker already claimed this job.
+    return parentSafeStatus(existing);
+  }
+
+  const claimed = await prisma.homeworkVideo.updateMany({
+    where: {
+      homeworkId: homeworkDbId,
+      status: { in: [VIDEO_STATUS.QUEUED, VIDEO_STATUS.PENDING, VIDEO_STATUS.FAILED] },
+    },
     data: { status: VIDEO_STATUS.PLANNING, errorMessage: null },
   });
+  if (claimed.count === 0) {
+    const again = await prisma.homeworkVideo.findUnique({
+      where: { homeworkId: homeworkDbId },
+    });
+    return again ? parentSafeStatus(again) : { status: VIDEO_STATUS.FAILED, message: PARENT_VIDEO_ERROR };
+  }
+
+  const row = await prisma.homeworkVideo.findUniqueOrThrow({
+    where: { homeworkId: homeworkDbId },
+  });
+
+  const homework = await prisma.importedHomework.findUnique({
+    where: { id: homeworkDbId },
+  });
+  if (!homework) {
+    await prisma.homeworkVideo.update({
+      where: { id: row.id },
+      data: { status: VIDEO_STATUS.FAILED, errorMessage: 'Homework missing' },
+    });
+    return { status: VIDEO_STATUS.FAILED, message: PARENT_VIDEO_ERROR };
+  }
 
   try {
-    // Match JOL library by subject keyword for grounding (lightweight).
     const jol = await prisma.importedJolItem.findMany({
       take: 40,
       orderBy: { publishedDate: 'desc' },
     });
     const subjectNeedle = homework.subjectName.trim().toLowerCase();
     const titleNeedle = homework.title.trim().toLowerCase().slice(0, 24);
-    const matchedJol = jol.filter((j) => {
-      const sub = (j.subjectName || '').toLowerCase();
-      const title = j.title.toLowerCase();
-      return (
-        (subjectNeedle && sub.includes(subjectNeedle)) ||
-        (titleNeedle && title.includes(titleNeedle))
-      );
-    }).slice(0, 8);
+    const matchedJol = jol
+      .filter((j) => {
+        const sub = (j.subjectName || '').toLowerCase();
+        const title = j.title.toLowerCase();
+        return (
+          (subjectNeedle && sub.includes(subjectNeedle)) ||
+          (titleNeedle && title.includes(titleNeedle))
+        );
+      })
+      .slice(0, 8);
 
     const lesson = await generateHomeworkLessonPlan({
       homeworkId: homework.id,
@@ -231,4 +314,74 @@ export async function generateHomeworkVideo(
     });
     return parentSafeStatus(failed);
   }
+}
+
+/**
+ * Enqueue eligible homework that has no HomeworkVideo yet (idempotent).
+ * Used after NeverSkip sync — does not start Veo inline.
+ */
+export async function enqueueVideosForNewHomework(options?: {
+  limit?: number;
+  homeworkIds?: string[];
+}): Promise<{ enqueued: number; skipped: number }> {
+  const prisma = getPrisma();
+  const limit = options?.limit ?? 10;
+
+  const rows = options?.homeworkIds?.length
+    ? await prisma.importedHomework.findMany({
+        where: { id: { in: options.homeworkIds } },
+        include: { homeworkVideo: true },
+      })
+    : await prisma.importedHomework.findMany({
+        where: { homeworkVideo: null },
+        orderBy: { createdAt: 'desc' },
+        take: limit * 3,
+        include: { homeworkVideo: true },
+      });
+
+  let enqueued = 0;
+  let skipped = 0;
+
+  for (const hw of rows) {
+    if (enqueued >= limit) break;
+    if (hw.homeworkVideo) {
+      skipped += 1;
+      continue;
+    }
+    const extraction = assessHomeworkVideoEligibility({
+      homework: {
+        title: hw.title,
+        description: hw.description,
+        subject: hw.subjectName,
+        date: hw.homeworkDate,
+      },
+    });
+    if (!extraction.eligible) {
+      skipped += 1;
+      continue;
+    }
+    await enqueueHomeworkVideo(hw.id);
+    enqueued += 1;
+  }
+
+  return { enqueued, skipped };
+}
+
+/** Drain QUEUED/PENDING jobs (worker). Processes sequentially to respect Veo quota. */
+export async function processQueuedHomeworkVideos(options?: {
+  limit?: number;
+}): Promise<{ processed: number; results: HomeworkVideoPublic[] }> {
+  const prisma = getPrisma();
+  const limit = options?.limit ?? 2;
+  const queued = await prisma.homeworkVideo.findMany({
+    where: { status: { in: [VIDEO_STATUS.QUEUED, VIDEO_STATUS.PENDING] } },
+    orderBy: { createdAt: 'asc' },
+    take: limit,
+  });
+
+  const results: HomeworkVideoPublic[] = [];
+  for (const row of queued) {
+    results.push(await processHomeworkVideoJob(row.homeworkId));
+  }
+  return { processed: results.length, results };
 }

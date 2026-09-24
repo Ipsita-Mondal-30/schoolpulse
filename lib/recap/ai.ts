@@ -12,7 +12,14 @@ import {
 } from '@/lib/recap/schema';
 import type { TopicExtractionResult } from '@/lib/recap/topic-extraction';
 
-export const DEFAULT_GEMINI_MODEL = 'gemini-3.6-flash';
+/**
+ * Prefer a Flash model with workable free-tier headroom when billing is unset.
+ * Paid projects can set GEMINI_MODEL=gemini-3.6-flash explicitly.
+ */
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
+
+/** Used when the primary model returns quota / rate-limit errors. */
+export const GEMINI_QUOTA_FALLBACK_MODEL = 'gemini-3.5-flash-lite';
 
 /** Retired preview ids still present in some local .env files. */
 const GEMINI_MODEL_ALIASES: Record<string, string> = {
@@ -32,6 +39,37 @@ export function assertGeminiApiKeyConfigured(): void {
   }
 }
 
+export function isGeminiQuotaError(err: unknown): boolean {
+  const raw = err instanceof Error ? err.message : String(err);
+  return /429|RESOURCE_EXHAUSTED|quota|rate.?limit|exceeded your current quota/i.test(
+    raw,
+  );
+}
+
+/**
+ * Run a Gemini call; on free-tier quota exhaustion retry once with flash-lite.
+ * Does not silently swap models for non-quota failures.
+ */
+export async function withGeminiQuotaFallback<T>(
+  run: (modelId: string) => Promise<T>,
+): Promise<T> {
+  const primary = getGeminiModelId();
+  try {
+    return await run(primary);
+  } catch (err) {
+    if (
+      isGeminiQuotaError(err) &&
+      primary !== GEMINI_QUOTA_FALLBACK_MODEL
+    ) {
+      console.warn(
+        `[SchoolPulse] Gemini quota on ${primary}; retrying with ${GEMINI_QUOTA_FALLBACK_MODEL}`,
+      );
+      return await run(GEMINI_QUOTA_FALLBACK_MODEL);
+    }
+    throw err;
+  }
+}
+
 export type GenerateLessonAiFn = (input: {
   extraction: Extract<TopicExtractionResult, { eligible: true }>;
 }) => Promise<MicroLessonAiPayload>;
@@ -43,6 +81,7 @@ The React app turns your JSON into an animated mini-game. You provide CONTENT on
 
 Rules:
 - Use ONLY the school source snippets. Never invent school-specific facts.
+- Never invent textbook page contents (e.g. what appears on "page 13").
 - Never return HTML, CSS, React, or code.
 - Child-friendly, minimal text, large ideas — not paragraphs.
 - scenes (5–10) must include: intro, visual_teach, examples, and at least one of choice | find | match.
@@ -64,20 +103,23 @@ export const defaultGenerateLessonAi: GenerateLessonAiFn = async ({ extraction }
 
   const sources = extraction.sourceSnippets.join('\n---\n');
 
-  const result = await generateObject({
-    // @ts-expect-error version mismatch between ai core and provider
-    model: google(getGeminiModelId()),
-    schema: microLessonAiSchema,
-    system: buildSystemPrompt(),
-    prompt: `Subject: ${extraction.subject}
+  return withGeminiQuotaFallback(async (modelId) => {
+    const result = await generateObject({
+      // @ts-expect-error version mismatch between ai core and provider
+      model: google(modelId),
+      schema: microLessonAiSchema,
+      system: buildSystemPrompt(),
+      prompt: `Subject: ${extraction.subject}
 Grade: ${extraction.grade}
 Topic (from school sources): ${extraction.topic}
 
 School source material (ground truth):
 ${sources}
 
-Generate an interactive scene-based micro-lesson and 3-question quiz grounded only in the material above.`,
-  });
+Generate an interactive scene-based micro-lesson and 3-question quiz grounded only in the material above.
+Teach the named topic (e.g. a matra) using only what the snippets state — do not invent page contents.`,
+    });
 
-  return validateMicroLessonPayload(result.object);
+    return validateMicroLessonPayload(result.object);
+  });
 };

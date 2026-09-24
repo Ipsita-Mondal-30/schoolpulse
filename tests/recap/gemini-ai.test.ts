@@ -71,6 +71,23 @@ describe('Gemini recap AI configuration', () => {
     expect(getGeminiModelId()).toBe('gemini-3.6-flash');
   });
 
+  it('falls back to flash-lite on quota errors', async () => {
+    const { withGeminiQuotaFallback, GEMINI_QUOTA_FALLBACK_MODEL } = await import(
+      '@/lib/recap/ai'
+    );
+    process.env.GEMINI_MODEL = 'gemini-3.6-flash';
+    const seen: string[] = [];
+    const result = await withGeminiQuotaFallback(async (modelId) => {
+      seen.push(modelId);
+      if (modelId === 'gemini-3.6-flash') {
+        throw new Error('You exceeded your current quota, please check your plan');
+      }
+      return 'ok';
+    });
+    expect(result).toBe('ok');
+    expect(seen).toEqual(['gemini-3.6-flash', GEMINI_QUOTA_FALLBACK_MODEL]);
+  });
+
   it('throws when GOOGLE_GENERATIVE_AI_API_KEY is missing', () => {
     delete process.env.GOOGLE_GENERATIVE_AI_API_KEY;
     expect(() => assertGeminiApiKeyConfigured()).toThrow(/GOOGLE_GENERATIVE_AI_API_KEY/);

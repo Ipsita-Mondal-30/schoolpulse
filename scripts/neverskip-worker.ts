@@ -34,6 +34,10 @@ import {
   resolveSyncIntervalMs,
   WORKER_EXIT_SESSION_EXPIRED,
 } from '../lib/neverskip/worker-schedule';
+import {
+  enqueueVideosForNewHomework,
+  processQueuedHomeworkVideos,
+} from '../lib/ai/homework-video';
 
 async function runBrowserSync(): Promise<void> {
   if (!process.env.DATABASE_URL?.trim()) {
@@ -88,6 +92,22 @@ async function runBrowserSync(): Promise<void> {
     throw new Error(
       `Worker sync failed: ${summary.errors.join('; ') || 'failed source data'}`,
     );
+  }
+
+  // After a successful sync: enqueue AI videos for new eligible homework, then
+  // drain a small number of QUEUED jobs on this host (not on Vercel).
+  try {
+    const enq = await enqueueVideosForNewHomework({ limit: 5 });
+    nsLog(`Homework video enqueue: enqueued=${enq.enqueued} skipped=${enq.skipped}`);
+    const drained = await processQueuedHomeworkVideos({ limit: 1 });
+    nsLog(
+      `Homework video drain: processed=${drained.processed} statuses=${drained.results
+        .map((r) => r.status)
+        .join(',') || 'none'}`,
+    );
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    nsWarn(`Homework video worker step failed (non-fatal): ${msg.slice(0, 200)}`);
   }
 }
 
