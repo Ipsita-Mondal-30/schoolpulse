@@ -141,6 +141,36 @@ export function isSoftOnlyHomeworkChanges(changes: FieldChange[]): boolean {
 }
 
 /**
+ * Diffs that may create a parent Updates card.
+ * Strips due-date clearance noise and, for historical homework, soft-field churn
+ * and any dueDate flip (NeverSkip rarely sends structured dues for old diary rows).
+ */
+export function actionableHomeworkChangeFields(
+  parentDiffs: FieldChange[],
+  homeworkDate: string,
+  activitySinceYmd: string,
+): FieldChange[] {
+  if (parentDiffs.length === 0) return [];
+  let fields = withoutDueDateClearanceNoise(parentDiffs);
+  if (fields.length === 0) return [];
+  if (isNoiseChangeEvent('homework', parentDiffs)) return [];
+
+  const hwDate = String(homeworkDate || '').trim();
+  const historical =
+    /^\d{4}-\d{2}-\d{2}$/.test(hwDate) &&
+    /^\d{4}-\d{2}-\d{2}$/.test(activitySinceYmd) &&
+    hwDate < activitySinceYmd;
+
+  if (historical) {
+    // Old diary rows must not resurface in Updates from sync/normalization churn.
+    fields = fields.filter(
+      (c) => HOMEWORK_HARD_CHANGE_FIELDS.has(c.field) && c.field !== 'dueDate',
+    );
+  }
+  return fields;
+}
+
+/**
  * Whether an upsert should persist a ContentChangeEvent for parent Updates.
  * Historical homework (homeworkDate before activity window) with only soft-field
  * diffs must update the row without creating an event.
@@ -150,18 +180,44 @@ export function shouldCreateHomeworkChangeEvent(
   homeworkDate: string,
   activitySinceYmd: string,
 ): boolean {
-  if (parentDiffs.length === 0) return false;
-  if (isNoiseChangeEvent('homework', parentDiffs)) return false;
-  const hwDate = String(homeworkDate || '').trim();
-  if (
-    /^\d{4}-\d{2}-\d{2}$/.test(hwDate) &&
-    /^\d{4}-\d{2}-\d{2}$/.test(activitySinceYmd) &&
-    hwDate < activitySinceYmd &&
-    isSoftOnlyHomeworkChanges(parentDiffs)
-  ) {
-    return false;
-  }
-  return true;
+  return (
+    actionableHomeworkChangeFields(parentDiffs, homeworkDate, activitySinceYmd).length > 0
+  );
+}
+
+function hasExplicitSchoolDate(value: string | null | undefined): boolean {
+  const t = String(value ?? '').trim();
+  return Boolean(t) && t !== '0000-00-00' && !t.startsWith('0000-00-00');
+}
+
+/**
+ * Source-aware merge before diff + write.
+ * Empty/null portal fields must not wipe last-known values (partial responses and
+ * Class Diary rows that omit due_dt would otherwise fake "Due date cleared").
+ */
+export function mergeHomeworkFromSource(
+  existing: NormalizedHomework,
+  incoming: NormalizedHomework,
+): NormalizedHomework {
+  return {
+    ...incoming,
+    title: incoming.title.trim() ? incoming.title : existing.title,
+    description: incoming.description.trim() ? incoming.description : existing.description,
+    subjectName: incoming.subjectName.trim() ? incoming.subjectName : existing.subjectName,
+    homeworkDate: hasExplicitSchoolDate(incoming.homeworkDate)
+      ? incoming.homeworkDate
+      : existing.homeworkDate || incoming.homeworkDate,
+    dueDate: hasExplicitSchoolDate(incoming.dueDate)
+      ? incoming.dueDate
+      : (existing.dueDate ?? null),
+    attachmentUrl: String(incoming.attachmentUrl ?? '').trim()
+      ? incoming.attachmentUrl
+      : (existing.attachmentUrl ?? null),
+    sections:
+      incoming.sections.length > 0 ? [...incoming.sections] : [...existing.sections],
+    refId: incoming.refId ?? existing.refId,
+    subjectId: incoming.subjectId ?? existing.subjectId,
+  };
 }
 
 function pushChange(

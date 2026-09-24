@@ -14,7 +14,7 @@ import {
   type HomeworkLessonPlan,
 } from '@/lib/ai/homework-lesson';
 import { formatVeoError, generateAndDownloadVeoVideo, getVeoModelId } from '@/lib/ai/veo';
-import { getVideoStorage } from '@/lib/ai/video-storage';
+import { getVideoStorage, homeworkVideoStorageKey } from '@/lib/ai/video-storage';
 import { readFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -31,7 +31,19 @@ export const VIDEO_STATUS = {
 export type VideoStatus = (typeof VIDEO_STATUS)[keyof typeof VIDEO_STATUS];
 
 export const PARENT_VIDEO_ERROR =
-  "We couldn't create this lesson right now. Please try again later.";
+  "AI video couldn't be generated yet. Please try again later.";
+
+/** Parent-safe copy when provider quota/billing blocks Veo. */
+export const PARENT_VIDEO_QUOTA_ERROR =
+  'AI video is temporarily unavailable (provider quota). Please try again after quota resets or billing is enabled.';
+
+export function parentMessageForVideoError(errorMessage: string | null): string {
+  if (!errorMessage) return PARENT_VIDEO_ERROR;
+  if (/429|RESOURCE_EXHAUSTED|quota|rate.?limit|billing/i.test(errorMessage)) {
+    return PARENT_VIDEO_QUOTA_ERROR;
+  }
+  return PARENT_VIDEO_ERROR;
+}
 
 const IN_PROGRESS: ReadonlySet<string> = new Set([
   VIDEO_STATUS.QUEUED,
@@ -78,7 +90,12 @@ function parentSafeStatus(row: {
     return { status: publicStatus as VideoStatus, title, subject };
   }
   if (status === VIDEO_STATUS.FAILED) {
-    return { status, message: PARENT_VIDEO_ERROR, title, subject };
+    return {
+      status,
+      message: parentMessageForVideoError(row.errorMessage),
+      title,
+      subject,
+    };
   }
   return { status: VIDEO_STATUS.PENDING };
 }
@@ -284,7 +301,7 @@ export async function processHomeworkVideoJob(
     }
 
     const storage = getVideoStorage();
-    const key = `homework/${homeworkDbId}.mp4`;
+    const key = homeworkVideoStorageKey(homeworkDbId);
     await storage.save(key, bytes);
 
     // Parent-facing path is our authenticated file route — not a provider URL.
@@ -295,6 +312,7 @@ export async function processHomeworkVideoJob(
       data: {
         status: VIDEO_STATUS.READY,
         videoUrl,
+        videoBytes: bytes,
         providerJobId: veo.operationName || null,
         completedAt: new Date(),
         errorMessage: null,

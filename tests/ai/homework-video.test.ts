@@ -111,6 +111,29 @@ describe('parent-facing constants', () => {
   });
 });
 
+describe('recap UI separates video from interactive practice', () => {
+  it('RecapTopicCard labels AI Video and Interactive Practice separately', async () => {
+    const fs = await import('node:fs');
+    const src = fs.readFileSync(
+      join(process.cwd(), 'components/recap/RecapTopicCard.tsx'),
+      'utf8',
+    );
+    expect(src).toMatch(/AI Video/);
+    expect(src).toMatch(/Interactive Practice/);
+    expect(src).toMatch(/Watch AI Video/);
+    expect(src).toMatch(/\/api\/homework\/.*\/video/);
+    expect(src).toMatch(/\/api\/recap\/generate/);
+    expect(src).not.toMatch(/GOOGLE_GENERATIVE_AI_API_KEY|AIza/);
+  });
+
+  it('recap hub no longer routes Start recap into quiz-only CTA', async () => {
+    const fs = await import('node:fs');
+    const src = fs.readFileSync(join(process.cwd(), 'app/recap/page.tsx'), 'utf8');
+    expect(src).toMatch(/RecapTopicCard/);
+    expect(src).not.toMatch(/Start recap →/);
+  });
+});
+
 describe('video job idempotency helpers', () => {
   it('video route source enqueues instead of awaiting Veo inline', async () => {
     const fs = await import('node:fs');

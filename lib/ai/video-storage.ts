@@ -1,6 +1,6 @@
 /**
- * Local MVP video storage with a swappable interface for Blob/R2/S3 later.
- * Never stores binaries in PostgreSQL.
+ * Video byte storage: local disk (dev/worker) + optional Neon mirror for Vercel.
+ * Object storage (Blob/R2) can replace this later — keep the same key interface.
  */
 
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
@@ -70,4 +70,8 @@ export function getVideoStorage(): VideoStorage {
 /** Test helper */
 export function setVideoStorageForTests(storage: VideoStorage | null): void {
   singleton = storage;
+}
+
+export function homeworkVideoStorageKey(homeworkDbId: string): string {
+  return `homework/${homeworkDbId}.mp4`;
 }

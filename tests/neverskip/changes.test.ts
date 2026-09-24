@@ -380,6 +380,121 @@ describe('InMemoryNeverSkipStore change events', () => {
     expect(isNoiseChangeEvent('homework', changes)).toBe(true);
   });
 
+  it('partial null dueDate preserves last known due and creates no event', async () => {
+    const store = new InMemoryNeverSkipStore();
+    await store.upsertHomework(
+      hw({
+        sourceId: '38',
+        title: 'Chapter1. Myself',
+        subjectName: 'ENVIRONMENTAL SCIENCE',
+        homeworkDate: '2026-06-04',
+        dueDate: '2026-06-08',
+        description: 'Submit Monday',
+      }),
+    );
+    // Portal re-sync with empty structured due (typical Class Diary)
+    const result = await store.upsertHomework(
+      hw({
+        sourceId: '38',
+        title: 'Chapter1. Myself',
+        subjectName: 'ENVIRONMENTAL SCIENCE',
+        homeworkDate: '2026-06-04',
+        dueDate: null,
+        description: 'Submit Monday',
+      }),
+    );
+    expect(result).toBe('unchanged');
+    expect(store.listChangeEvents()).toHaveLength(0);
+    const row = (await store.listHomework()).find((h) => h.sourceId === '38');
+    expect(row?.dueDate).toBe('2026-06-08');
+  });
+
+  it('June homework touched with empty due does not appear as Changed', async () => {
+    const store = new InMemoryNeverSkipStore();
+    await store.upsertHomework(
+      hw({
+        sourceId: '336',
+        title: 'Chapter 3. My Sense Organs',
+        subjectName: 'ENVIRONMENTAL SCIENCE',
+        homeworkDate: '2026-06-25',
+        dueDate: '2026-06-29',
+        description: 'Submit textbook Monday',
+      }),
+    );
+    await store.upsertHomework(
+      hw({
+        sourceId: '336',
+        title: 'Chapter 3. My Sense Organs',
+        subjectName: 'ENVIRONMENTAL SCIENCE',
+        homeworkDate: '2026-06-25',
+        dueDate: null,
+        description: 'Submit textbook Monday',
+      }),
+    );
+    expect(store.listChangeEvents()).toHaveLength(0);
+  });
+
+  it('genuine due date change on recent homework creates CHANGED event', async () => {
+    const store = new InMemoryNeverSkipStore();
+    await store.upsertHomework(
+      hw({ sourceId: 'r1', title: 'EVS', homeworkDate: '2026-09-20', dueDate: '2026-09-25' }),
+    );
+    await store.upsertHomework(
+      hw({ sourceId: 'r1', title: 'EVS', homeworkDate: '2026-09-20', dueDate: '2026-09-27' }),
+    );
+    expect(store.listChangeEvents()).toHaveLength(1);
+    expect(store.listChangeEvents()[0].changedFields.find((c) => c.field === 'dueDate')).toMatchObject({
+      previous: '2026-09-25',
+      current: '2026-09-27',
+    });
+  });
+
+  it('stable sourceId maps to the same record across syncs', async () => {
+    const store = new InMemoryNeverSkipStore();
+    await store.upsertHomework(hw({ sourceId: '1336', title: 'Sulekh A' }));
+    await store.upsertHomework(hw({ sourceId: '1336', title: 'Sulekh A' }));
+    await store.upsertHomework(hw({ sourceId: '1336', title: 'Sulekh B' }));
+    const rows = await store.listHomework();
+    expect(rows.filter((h) => h.sourceId === '1336')).toHaveLength(1);
+    expect(store.listChangeEvents()).toHaveLength(1);
+  });
+
+  it('same notice synced again creates no duplicate event', async () => {
+    const store = new InMemoryNeverSkipStore();
+    const notice = nt({
+      sourceId: '5f6ea28fe3be76caddc651ffbc543423',
+      title: 'Hindi class 1 revision paper - 8',
+      publishedDate: '2026-09-24',
+    });
+    await store.upsertNotice(notice);
+    expect(store.listChangeEvents()).toHaveLength(0);
+    expect(await store.upsertNotice({ ...notice })).toBe('unchanged');
+    expect(store.listChangeEvents()).toHaveLength(0);
+  });
+
+  it('userVisibleChanges hides due date clearance headings', () => {
+    const visible = userVisibleChanges('homework', [
+      {
+        field: 'dueDate',
+        label: 'Due date',
+        previous: '2026-06-08',
+        current: null,
+        reliable: true,
+      },
+    ]);
+    expect(visible).toHaveLength(0);
+    const lines = presentChangeLines('homework', [
+      {
+        field: 'dueDate',
+        label: 'Due date',
+        previous: '2026-06-08',
+        current: null,
+        reliable: true,
+      },
+    ]);
+    expect(lines.some((l) => /cleared/i.test(l.heading))).toBe(false);
+  });
+
   it('userVisibleChanges hides internal subjectId', () => {
     const visible = userVisibleChanges('homework', [
       {

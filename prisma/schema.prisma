@@ -416,13 +416,16 @@ model QuizAttempt {
   @@index([completedAt])
 }
 
-/// Manual parent-triggered AI revision video for one ImportedHomework (1:1, idempotent)
+/// AI revision video for one ImportedHomework (1:1, idempotent).
+/// videoBytes mirrors the MP4 in Neon so Vercel can serve after local FS is gone.
 model HomeworkVideo {
   id             String    @id @default(cuid())
   homeworkId     String    @unique
   status         String    @default("PENDING")
   lessonJson     String    @default("{}")
   videoUrl       String?
+  /// Durable MP4 bytes (short Veo clips). Prefer object storage when available.
+  videoBytes     Bytes?
   provider       String    @default("veo")
   providerJobId  String?
   errorMessage   String?

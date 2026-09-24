@@ -4,10 +4,12 @@ import {
   isLegacyDefaultHomeworkAudience,
 } from '@/lib/class-sections';
 import {
+  actionableHomeworkChangeFields,
   getMeaningfulHomeworkChanges,
   getMeaningfulNoticeChanges,
   homeworkSnapshot,
   isNoiseChangeEvent,
+  mergeHomeworkFromSource,
   noticeSnapshot,
   parentRelevantChanges,
   serializeFieldChanges,
@@ -91,47 +93,58 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       attachmentUrl: existing.attachmentUrl,
     };
 
-    if (homeworkContentKey(existingNorm) === homeworkContentKey(item)) {
+    // Merge first: empty portal fields must not wipe last-known source values.
+    const merged = mergeHomeworkFromSource(existingNorm, item);
+    const mergedSectionsJson = JSON.stringify(merged.sections);
+
+    if (homeworkContentKey(existingNorm) === homeworkContentKey(merged)) {
       return 'unchanged';
     }
 
-    const diffs = getMeaningfulHomeworkChanges(existingNorm, item);
+    const diffs = getMeaningfulHomeworkChanges(existingNorm, merged);
     const parentDiffs = parentRelevantChanges('homework', diffs);
     const skipAudienceNoise =
       diffs.length === 1 &&
       diffs[0].field === 'sections' &&
-      isLegacyHomeworkAudienceExpansion(existingNorm.sections, item.sections);
+      isLegacyHomeworkAudienceExpansion(existingNorm.sections, merged.sections);
     const activitySinceYmd =
       addDaysYmd(getIndiaToday(), -(UPDATES_RECENT_DAYS - 1)) || getIndiaToday();
     if (
       !skipAudienceNoise &&
-      shouldCreateHomeworkChangeEvent(parentDiffs, item.homeworkDate, activitySinceYmd)
+      shouldCreateHomeworkChangeEvent(parentDiffs, merged.homeworkDate, activitySinceYmd)
     ) {
-      await prisma.contentChangeEvent.create({
-        data: {
-          entityType: 'homework',
-          source: item.source,
-          sourceId: item.sourceId,
-          entityId: existing.id,
-          changedFieldsJson: serializeFieldChanges(parentDiffs),
-          previousSnapshotJson: JSON.stringify(homeworkSnapshot(existingNorm)),
-          currentSnapshotJson: JSON.stringify(homeworkSnapshot(item)),
-        },
-      });
+      const eventFields = actionableHomeworkChangeFields(
+        parentDiffs,
+        merged.homeworkDate,
+        activitySinceYmd,
+      );
+      if (eventFields.length > 0) {
+        await prisma.contentChangeEvent.create({
+          data: {
+            entityType: 'homework',
+            source: merged.source,
+            sourceId: merged.sourceId,
+            entityId: existing.id,
+            changedFieldsJson: serializeFieldChanges(eventFields),
+            previousSnapshotJson: JSON.stringify(homeworkSnapshot(existingNorm)),
+            currentSnapshotJson: JSON.stringify(homeworkSnapshot(merged)),
+          },
+        });
+      }
     }
 
     await prisma.importedHomework.update({
       where: { id: existing.id },
       data: {
-        refId: item.refId,
-        subjectId: item.subjectId,
-        subjectName: item.subjectName,
-        title: item.title,
-        description: item.description,
-        sectionsJson,
-        homeworkDate: item.homeworkDate,
-        dueDate: item.dueDate,
-        attachmentUrl: item.attachmentUrl,
+        refId: merged.refId,
+        subjectId: merged.subjectId,
+        subjectName: merged.subjectName,
+        title: merged.title,
+        description: merged.description,
+        sectionsJson: mergedSectionsJson,
+        homeworkDate: merged.homeworkDate,
+        dueDate: merged.dueDate,
+        attachmentUrl: merged.attachmentUrl,
       },
     });
     return 'updated';

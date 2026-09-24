@@ -1,8 +1,10 @@
 import {
+  actionableHomeworkChangeFields,
   getMeaningfulHomeworkChanges,
   getMeaningfulNoticeChanges,
   homeworkSnapshot,
   isNoiseChangeEvent,
+  mergeHomeworkFromSource,
   noticeSnapshot,
   parentRelevantChanges,
   shouldCreateHomeworkChangeEvent,
@@ -80,40 +82,49 @@ export class InMemoryNeverSkipStore implements NeverSkipStore {
       });
       return 'inserted';
     }
-    if (homeworkContentKey(existing) === homeworkContentKey(item)) {
+    const merged = mergeHomeworkFromSource(existing, item);
+
+    if (homeworkContentKey(existing) === homeworkContentKey(merged)) {
       return 'unchanged';
     }
 
-    const diffs = getMeaningfulHomeworkChanges(existing, item);
+    const diffs = getMeaningfulHomeworkChanges(existing, merged);
     const parentDiffs = parentRelevantChanges('homework', diffs);
     const skipAudienceNoise =
       diffs.length === 1 &&
       diffs[0].field === 'sections' &&
       isLegacyDefaultHomeworkAudience(existing.sections) &&
       parentDiffs.every((d) => d.field === 'sections') &&
-      item.sections.length === defaultClass1Audience().length;
+      merged.sections.length === defaultClass1Audience().length;
     const activitySinceYmd =
       addDaysYmd(getIndiaToday(), -(UPDATES_RECENT_DAYS - 1)) || getIndiaToday();
     if (
       !skipAudienceNoise &&
-      shouldCreateHomeworkChangeEvent(parentDiffs, item.homeworkDate, activitySinceYmd)
+      shouldCreateHomeworkChangeEvent(parentDiffs, merged.homeworkDate, activitySinceYmd)
     ) {
-      this.changes.push({
-        id: this.nextId('chg'),
-        entityType: 'homework',
-        source: item.source,
-        sourceId: item.sourceId,
-        entityId: existing._id,
-        changedFields: parentDiffs,
-        previousSnapshotJson: JSON.stringify(homeworkSnapshot(existing)),
-        currentSnapshotJson: JSON.stringify(homeworkSnapshot(item)),
-        detectedAt: new Date(),
-      });
+      const eventFields = actionableHomeworkChangeFields(
+        parentDiffs,
+        merged.homeworkDate,
+        activitySinceYmd,
+      );
+      if (eventFields.length > 0) {
+        this.changes.push({
+          id: this.nextId('chg'),
+          entityType: 'homework',
+          source: merged.source,
+          sourceId: merged.sourceId,
+          entityId: existing._id,
+          changedFields: eventFields,
+          previousSnapshotJson: JSON.stringify(homeworkSnapshot(existing)),
+          currentSnapshotJson: JSON.stringify(homeworkSnapshot(merged)),
+          detectedAt: new Date(),
+        });
+      }
     }
 
     this.homework.set(key, {
-      ...item,
-      sections: [...item.sections],
+      ...merged,
+      sections: [...merged.sections],
       _id: existing._id,
     });
     return 'updated';
