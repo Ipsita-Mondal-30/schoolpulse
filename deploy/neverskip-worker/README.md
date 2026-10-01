@@ -19,8 +19,13 @@ Oracle / persistent Linux host (/home/ubuntu/schoolpulse)
   → xvfb-run -a + NEVERSKIP_HEADLESS=false  (Incapsula often blocks true headless)
   → normalize / classify / dedupe
   → Neon PostgreSQL (ImportedHomework / ImportedNotice)
+  → invalidateSchoolPulseCaches (requires REDIS_URL on the worker = same Redis as Vercel)
   → Vercel SchoolPulse UI (same DATABASE_URL)
 ```
+
+**Redis (required for fresh parent UI after sync):** set `REDIS_URL` in
+`deploy/neverskip-worker/.env` to the **same** Redis used by Vercel. Without it,
+Neon updates correctly but parents may see stale cached homework/notices until TTL.
 
 Cron: `0 */4 * * *` via [run-sync.sh](./run-sync.sh) — see [crontab.example](./crontab.example).
 Laptop does **not** need to be on.

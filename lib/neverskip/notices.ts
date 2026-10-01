@@ -2,6 +2,7 @@
  * NeverSkip daily notices fetch.
  *
  * Pagination behavior (do not fabricate missing history):
+ * - Prefer replaying the intercepted SPA POST body (portal template), only changing `page`.
  * - When the envelope exposes `total_count` and/or `page_count`, walk pages (cap 50).
  *   If unique fetched < total_count → incomplete / PARTIAL (admin diagnostics only).
  * - When totals are absent and page 0 looks full, probe later pages; if probes fail
@@ -22,7 +23,7 @@ export interface NoticePaginationMeta {
 
 export const NOTICES_PATH = '/parentweb/connect/fetchdailynoticeinfo';
 
-/** Default first-page payload — portal historically POSTs `{}`; keep empty-compatible shape. */
+/** Default first-page payload — portal often POSTs `{}`; keep empty-compatible shape. */
 export const NOTICES_PAYLOAD = {
   values: '',
   page: '0',
@@ -32,11 +33,16 @@ export const NOTICES_PAYLOAD = {
 } as const;
 
 export type NoticesPayload = {
-  values: string;
+  values?: string;
   page: string;
-  pg_key: string;
-  works: string;
-  limit: number;
+  pg_key?: string;
+  works?: string;
+  /** Some portal builds use `limit`. */
+  limit?: number;
+  /** Mirror homework: some builds may use portal typo `limt`. */
+  limt?: number;
+  /** Extra portal fields captured from the live SPA (never invent these). */
+  [key: string]: string | number | boolean | null | undefined;
 };
 
 export interface NoticeFetchResult {
@@ -49,6 +55,79 @@ export interface NoticeFetchResult {
   sourceTotal: number | null;
   rawFetched: number;
   uniqueFetched: number;
+}
+
+/**
+ * Parse a portal-intercepted fetchdailynoticeinfo POST body into a reusable template.
+ * Empty `{}` is valid (historical SPA). Returns null only for non-objects.
+ */
+export function parseNoticesPortalBody(raw: unknown): NoticesPayload | null {
+  if (raw == null) return { page: '0' };
+  if (typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const obj = raw as Record<string, unknown>;
+  const out: NoticesPayload = {
+    page: obj.page != null ? String(obj.page) : '0',
+  };
+
+  if ('values' in obj) out.values = obj.values != null ? String(obj.values) : '';
+  if ('pg_key' in obj) out.pg_key = obj.pg_key != null ? String(obj.pg_key) : '';
+  if ('works' in obj) out.works = obj.works != null ? String(obj.works) : '';
+
+  if ('limt' in obj) {
+    const limtRaw = obj.limt;
+    if (typeof limtRaw === 'number' && Number.isFinite(limtRaw)) out.limt = Math.trunc(limtRaw);
+    else if (typeof limtRaw === 'string' && limtRaw.trim() !== '') {
+      const n = Number(limtRaw);
+      if (Number.isFinite(n)) out.limt = Math.trunc(n);
+    } else if (limtRaw == null) {
+      out.limt = 0;
+    }
+  }
+  if ('limit' in obj) {
+    const limitRaw = obj.limit;
+    if (typeof limitRaw === 'number' && Number.isFinite(limitRaw)) out.limit = Math.trunc(limitRaw);
+    else if (typeof limitRaw === 'string' && limitRaw.trim() !== '') {
+      const n = Number(limitRaw);
+      if (Number.isFinite(n)) out.limit = Math.trunc(n);
+    }
+  }
+
+  for (const [k, v] of Object.entries(obj)) {
+    if (k in out) continue;
+    if (v == null || typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
+      out[k] = v as string | number | boolean | null;
+    }
+  }
+  return out;
+}
+
+/**
+ * Clone intercepted portal body and only change `page` (and AG-style limt when present).
+ * Does not invent new filter fields.
+ */
+export function buildNoticesPayloadFromTemplate(
+  template: NoticesPayload | null | undefined,
+  page: number | string,
+  limitOverride?: number,
+): NoticesPayload {
+  if (!template || Object.keys(template).length === 0) {
+    return buildNoticesPayload(page, limitOverride ?? 0);
+  }
+  const pageNum = typeof page === 'number' ? page : Number(page) || 0;
+  const next: NoticesPayload = { ...template, page: String(page) };
+
+  if (String(template.pg_key) === 'AG' && 'limt' in template) {
+    next.limt = pageNum * 10;
+  }
+
+  if (limitOverride != null && Number.isFinite(limitOverride) && !('limt' in template)) {
+    const tmplLimit =
+      typeof template.limit === 'number' ? template.limit : Number(template.limit) || 0;
+    if (tmplLimit === 0 && limitOverride > 0) {
+      next.limit = limitOverride;
+    }
+  }
+  return next;
 }
 
 function noticeDedupeKey(item: NeverSkipRawNotice): string | null {
@@ -144,14 +223,18 @@ export function buildNoticesPayload(page: number | string, limit = 0): NoticesPa
 const MAX_NOTICE_PAGES = 50;
 
 /**
- * Fetch notices. If the envelope has no pagination metadata, returns the first page only
- * (historical NeverSkip behaviour). When page_count/total_count exist, paginates like homework.
+ * Fetch notices. Prefer portal template replay. When page_count/total_count exist, paginate.
  */
 export async function fetchAllNoticePages(
   fetchPage: (page: number, payload: NoticesPayload) => Promise<NeverSkipNoticesResponse | null>,
-  options: { limit?: number; firstPage?: NeverSkipNoticesResponse | null } = {},
+  options: {
+    limit?: number;
+    firstPage?: NeverSkipNoticesResponse | null;
+    portalTemplate?: NoticesPayload | null;
+  } = {},
 ): Promise<NoticeFetchResult> {
   const limit = options.limit ?? 0;
+  const portalTemplate = options.portalTemplate ?? null;
   const pages: NeverSkipRawNotice[][] = [];
   const errors: string[] = [];
   let incomplete = false;
@@ -159,8 +242,14 @@ export async function fetchAllNoticePages(
   let pageIndex = 0;
   let latestMeta: NoticePaginationMeta | null = null;
 
+  if (portalTemplate) {
+    nsLog(
+      `Notices using portal request template keys=${Object.keys(portalTemplate).join(',') || '(empty)'} page=${portalTemplate.page} limt=${portalTemplate.limt ?? ''} limit=${portalTemplate.limit ?? ''} pg_key=${portalTemplate.pg_key ?? ''}`,
+    );
+  }
+
   while (pageIndex < MAX_NOTICE_PAGES) {
-    const payload = buildNoticesPayload(pageIndex, limit);
+    const payload = buildNoticesPayloadFromTemplate(portalTemplate, pageIndex, limit);
     let response: NeverSkipNoticesResponse | null;
     try {
       response =
@@ -204,8 +293,6 @@ export async function fetchAllNoticePages(
           uniqueFetched: 0,
         };
       }
-      // Probe page with no declared totals: empty body means the first page was the full list
-      // or further history is unavailable — mark PAGE0_ONLY rather than claiming complete.
       if (latestMeta && latestMeta.totalCount == null && latestMeta.pageCount == null) {
         page0Only = true;
         nsWarn(`Notice page ${pageIndex} empty after unpaginated first page — PAGE0_ONLY`);
@@ -253,12 +340,12 @@ export async function fetchAllNoticePages(
           uniqueFetched: 0,
         };
       }
-      // Page>0 probe without totals: treat as end-of-list rather than wiping page-0 data.
       if (latestMeta && latestMeta.totalCount == null && latestMeta.pageCount == null) {
         nsLog(
           `Notice page ${pageIndex} invalid without totals — treating earlier pages as complete`,
         );
         incomplete = false;
+        page0Only = true;
         break;
       }
       errors.push(msg);
@@ -331,9 +418,12 @@ export async function fetchAllNoticePages(
 
   if (sourceTotal != null && sourceTotal > 0 && uniqueFetched < sourceTotal) {
     incomplete = true;
-    errors.push(`fetched ${uniqueFetched} unique notices < total_count ${sourceTotal}`);
+    const missing = sourceTotal - uniqueFetched;
+    errors.push(
+      `fetched ${uniqueFetched} unique notices < total_count ${sourceTotal} (missing≈${missing})`,
+    );
     nsWarn(
-      `NOTICE PARTIAL — unique=${uniqueFetched} < total_count=${sourceTotal}; preserving collected notices`,
+      `NOTICE PARTIAL — unique=${uniqueFetched} < total_count=${sourceTotal} missing≈${missing}; preserving collected notices`,
     );
   }
 
@@ -367,7 +457,6 @@ export async function fetchAllNoticePages(
 
 export async function fetchDailyNotices(client: NeverSkipClient): Promise<NeverSkipRawNotice[]> {
   const result = await fetchAllNoticePages(async (_page, payload) => {
-    // First page historically used `{}`; keep both shapes compatible by sending payload.
     return client.postJson<NeverSkipNoticesResponse>(
       NOTICES_PATH,
       _page === 0 ? {} : payload,
