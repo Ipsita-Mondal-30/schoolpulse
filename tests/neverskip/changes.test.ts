@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { addDaysYmd, getIndiaToday } from '@/lib/daily-brief';
 import {
   formatRelativeTimeIndia,
   getMeaningfulHomeworkChanges,
@@ -11,6 +12,11 @@ import {
 import { InMemoryNeverSkipStore } from '@/lib/neverskip/memory-store';
 import type { NormalizedHomework, NormalizedNotice } from '@/lib/neverskip/types';
 
+/** Dates inside the Updates activity window (today in Asia/Kolkata). */
+const RECENT_HW_DATE = getIndiaToday();
+const RECENT_DUE = addDaysYmd(RECENT_HW_DATE, 2);
+const RECENT_DUE_NEXT = addDaysYmd(RECENT_HW_DATE, 3);
+
 function hw(
   partial: Partial<NormalizedHomework> & Pick<NormalizedHomework, 'sourceId' | 'title'>,
 ): NormalizedHomework {
@@ -21,8 +27,8 @@ function hw(
     subjectName: 'Mathematics',
     description: '',
     sections: ['I-A'],
-    homeworkDate: '2026-09-20',
-    dueDate: '2026-09-22',
+    homeworkDate: RECENT_HW_DATE,
+    dueDate: RECENT_DUE,
     attachmentUrl: null,
     ...partial,
   };
@@ -219,14 +225,14 @@ describe('InMemoryNeverSkipStore change events', () => {
   it('homework due-date change creates one event', async () => {
     const store = new InMemoryNeverSkipStore();
     await store.upsertHomework(
-      hw({ sourceId: 'a', title: 'T', dueDate: '2026-09-12' }),
+      hw({ sourceId: 'a', title: 'T', dueDate: RECENT_DUE }),
     );
     await store.upsertHomework(
-      hw({ sourceId: 'a', title: 'T', dueDate: '2026-09-13' }),
+      hw({ sourceId: 'a', title: 'T', dueDate: RECENT_DUE_NEXT }),
     );
     const ev = store.listChangeEvents()[0];
     expect(ev.changedFields.find((c) => c.field === 'dueDate')?.previous).toBe(
-      '2026-09-12',
+      RECENT_DUE,
     );
   });
 
@@ -248,10 +254,10 @@ describe('InMemoryNeverSkipStore change events', () => {
   it('multiple fields changing creates one event with multiple fields', async () => {
     const store = new InMemoryNeverSkipStore();
     await store.upsertHomework(
-      hw({ sourceId: 'a', title: 'A', description: 'D1', dueDate: '2026-09-12' }),
+      hw({ sourceId: 'a', title: 'A', description: 'D1', dueDate: RECENT_DUE }),
     );
     await store.upsertHomework(
-      hw({ sourceId: 'a', title: 'B', description: 'D2', dueDate: '2026-09-13' }),
+      hw({ sourceId: 'a', title: 'B', description: 'D2', dueDate: RECENT_DUE_NEXT }),
     );
     expect(store.listChangeEvents()).toHaveLength(1);
     expect(store.listChangeEvents()[0].changedFields.length).toBeGreaterThanOrEqual(3);
@@ -437,15 +443,15 @@ describe('InMemoryNeverSkipStore change events', () => {
   it('genuine due date change on recent homework creates CHANGED event', async () => {
     const store = new InMemoryNeverSkipStore();
     await store.upsertHomework(
-      hw({ sourceId: 'r1', title: 'EVS', homeworkDate: '2026-09-20', dueDate: '2026-09-25' }),
+      hw({ sourceId: 'r1', title: 'EVS', homeworkDate: RECENT_HW_DATE, dueDate: RECENT_DUE }),
     );
     await store.upsertHomework(
-      hw({ sourceId: 'r1', title: 'EVS', homeworkDate: '2026-09-20', dueDate: '2026-09-27' }),
+      hw({ sourceId: 'r1', title: 'EVS', homeworkDate: RECENT_HW_DATE, dueDate: RECENT_DUE_NEXT }),
     );
     expect(store.listChangeEvents()).toHaveLength(1);
     expect(store.listChangeEvents()[0].changedFields.find((c) => c.field === 'dueDate')).toMatchObject({
-      previous: '2026-09-25',
-      current: '2026-09-27',
+      previous: RECENT_DUE,
+      current: RECENT_DUE_NEXT,
     });
   });
 

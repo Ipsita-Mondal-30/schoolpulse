@@ -82,6 +82,7 @@ describe('parent access helpers', () => {
     expect(itemTargetsIntersect(['I-A'], ['I-D'])).toBe(true);
     expect(itemTargetsIntersect(['I-B'], ['I-A'])).toBe(false);
     expect(itemTargetsIntersect(['I-A', 'I-B'], ['I-A'])).toBe(true);
+    expect(itemTargetsIntersect(['I-A', 'I-G', 'I-K'], ['I-A'])).toBe(true);
   });
 
   it('treats empty targets as all Class 1 sections', () => {
