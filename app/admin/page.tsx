@@ -149,20 +149,58 @@ export default function AdminPage() {
         {scheduleQuery.isPending ? (
           <p className="text-sm text-gray-500">Loading…</p>
         ) : freshness ? (
-          <div className="space-y-1 text-sm text-gray-700">
+          <div className="space-y-2 text-sm text-gray-700">
             <p>
-              Status:{' '}
-              <span className="font-semibold">{freshness.lastStatus || 'unknown'}</span>
+              Overall:{' '}
+              <span className="font-semibold">
+                {freshness.overallStatus || freshness.lastStatus || 'unknown'}
+              </span>
             </p>
-            {freshness.lastSuccessAt ? (
-              <p>Last success: {new Date(freshness.lastSuccessAt).toLocaleString('en-IN')}</p>
+            <p>Auth: {freshness.authenticationStatus || '—'}</p>
+            <p>DB write: {freshness.databaseWriteStatus || '—'}</p>
+            {(freshness.lastSuccessfulSyncAt || freshness.lastSuccessAt) ? (
+              <p>
+                Last successful sync:{' '}
+                {new Date(
+                  freshness.lastSuccessfulSyncAt || freshness.lastSuccessAt!,
+                ).toLocaleString('en-IN')}
+              </p>
             ) : null}
             {freshness.lastAttemptAt ? (
               <p>Last attempt: {new Date(freshness.lastAttemptAt).toLocaleString('en-IN')}</p>
             ) : null}
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              <div className="rounded-lg bg-gray-50 p-3">
+                <p className="font-semibold">Homework</p>
+                <p>Status: {freshness.homeworkStatus || '—'}</p>
+                <p>
+                  Source/unique: {freshness.homeworkSourceCount ?? '—'} /{' '}
+                  {freshness.homeworkUniqueCount ?? freshness.homeworkFetched ?? '—'}
+                </p>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-3">
+                <p className="font-semibold">Notices</p>
+                <p>Status: {freshness.noticeStatus || '—'}</p>
+                <p>
+                  Source/unique: {freshness.noticeSourceCount ?? '—'} /{' '}
+                  {freshness.noticeUniqueCount ?? freshness.noticeFetched ?? '—'}
+                </p>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-3">
+                <p className="font-semibold">JOL</p>
+                <p>Status: {freshness.jolStatus || '—'}</p>
+                <p>
+                  Source/unique: {freshness.jolSourceCount ?? '—'} /{' '}
+                  {freshness.jolUniqueCount ?? freshness.jolFetched ?? '—'}
+                </p>
+              </div>
+            </div>
             {freshness.errorSummary ? (
               <p className="text-amber-800 break-words">{freshness.errorSummary.slice(0, 400)}</p>
             ) : null}
+            <p className="text-xs text-gray-500">
+              Parent pages never show these diagnostics.
+            </p>
           </div>
         ) : (
           <p className="text-sm text-gray-500">No sync runs recorded yet.</p>

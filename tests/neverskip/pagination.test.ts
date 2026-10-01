@@ -10,7 +10,9 @@ import {
   shouldFetchNextHomeworkPage,
 } from '@/lib/neverskip/homework';
 import {
+  buildNoticesPayloadFromTemplate,
   fetchAllNoticePages,
+  parseNoticesPortalBody,
   shouldFetchNextNoticePage,
 } from '@/lib/neverskip/notices';
 import { InMemoryNeverSkipStore } from '@/lib/neverskip/memory-store';
@@ -737,5 +739,49 @@ describe('notice pagination', () => {
     expect(result.pagesFetched).toBe(2);
     expect(result.items).toHaveLength(12);
     expect(result.incomplete).toBe(false);
+  });
+
+  it('replays portal template page field for later pages', async () => {
+    const seen: Array<{ page: string; values?: string }> = [];
+    const template = parseNoticesPortalBody({ page: '0', values: 'portal', pg_key: 'CD' });
+    const result = await fetchAllNoticePages(
+      async (page, payload) => {
+        seen.push({ page: payload.page, values: payload.values });
+        if (page === 0) {
+          return noticeEnvelope(
+            Array.from({ length: 10 }, (_, i) => noticeItem(String(i + 1))),
+            { page_count: 2, total_count: 12 },
+          );
+        }
+        return noticeEnvelope([noticeItem('11'), noticeItem('12')], {
+          page_count: 2,
+          total_count: 12,
+        });
+      },
+      { portalTemplate: template },
+    );
+    expect(result.incomplete).toBe(false);
+    expect(seen[0]?.page).toBe('0');
+    expect(seen[1]?.page).toBe('1');
+    expect(seen[1]?.values).toBe('portal');
+  });
+
+  it('marks PAGE0_ONLY when page>0 fails without totals', async () => {
+    const result = await fetchAllNoticePages(async (page) => {
+      if (page === 0) {
+        return noticeEnvelope(Array.from({ length: 10 }, (_, i) => noticeItem(String(i + 1))));
+      }
+      throw new Error('SQLSTATE');
+    });
+    expect(result.page0Only).toBe(true);
+    expect(result.items).toHaveLength(10);
+    expect(result.incomplete).toBe(false);
+  });
+
+  it('parseNoticesPortalBody accepts empty SPA body', () => {
+    const t = parseNoticesPortalBody({});
+    expect(t).not.toBeNull();
+    expect(t!.page).toBe('0');
+    expect(buildNoticesPayloadFromTemplate(t, 2).page).toBe('2');
   });
 });

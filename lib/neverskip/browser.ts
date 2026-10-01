@@ -11,7 +11,12 @@ import {
 } from './homework';
 import { nsDebugApiEnvelope, nsError, nsLog, nsWarn } from './log';
 import { extractNotices, inspectNoticeEnvelope } from './normalizers';
-import { NOTICES_PATH, fetchAllNoticePages, type NoticesPayload } from './notices';
+import {
+  NOTICES_PATH,
+  fetchAllNoticePages,
+  parseNoticesPortalBody,
+  type NoticesPayload,
+} from './notices';
 import {
   JOL_API_MATCH,
   JOL_CONTENT_LIBRARY_PAGE,
@@ -386,6 +391,8 @@ export async function collectNeverSkipData(
   let homeworkMeta: { url: string; status: number } | null = null;
   /** Exact portal POST body for getassignmentsapi (page-0), replayed for later pages. */
   let homeworkPortalTemplate: HomeworkPayload | null = null;
+  /** Exact portal POST body for fetchdailynoticeinfo (page-0), replayed for later pages. */
+  let noticesPortalTemplate: NoticesPayload | null = null;
   /** In-memory Token from intercepted portal XHR — never logged. */
   let sessionTokenHeader: string | null = null;
 
@@ -429,6 +436,22 @@ export async function collectNeverSkipData(
         } catch {
           /* ignore non-JSON */
         }
+      }
+    }
+    // Capture live Daily Notice POST body (often `{}`) for page≥1 replay.
+    if (kind === 'notices' && !noticesPortalTemplate && request.method() === 'POST') {
+      const raw = request.postData();
+      try {
+        const parsed = raw?.trim() ? (JSON.parse(raw) as unknown) : {};
+        const template = parseNoticesPortalBody(parsed);
+        if (template) {
+          noticesPortalTemplate = template;
+          nsLog(
+            `Notices portal request template captured keys=${Object.keys(template).join(',') || '(empty)'} page=${template.page} limit=${template.limit ?? ''} limt=${template.limt ?? ''} pg_key=${template.pg_key ?? ''}`,
+          );
+        }
+      } catch {
+        noticesPortalTemplate = parseNoticesPortalBody({});
       }
     }
   });
@@ -690,6 +713,10 @@ export async function collectNeverSkipData(
         nsError('NOTICE SYNC = INVALID_RESPONSE');
       } else {
         const tokenHeaders = sessionTokenHeader ? { Token: sessionTokenHeader } : undefined;
+        if (!noticesPortalTemplate) {
+          noticesPortalTemplate = parseNoticesPortalBody({});
+          nsLog('Notices portal template missing — using empty {} (SPA historical default)');
+        }
         const paged = await fetchAllNoticePages(
           async (pageIndex, payload: NoticesPayload) => {
             if (pageIndex === 0) return noticesRaw;
@@ -705,7 +732,7 @@ export async function collectNeverSkipData(
             }
             return result.body as NeverSkipNoticesResponse;
           },
-          { firstPage: noticesRaw },
+          { firstPage: noticesRaw, portalTemplate: noticesPortalTemplate },
         );
         notices = paged.items;
         noticePagesFetched = paged.pagesFetched;

@@ -59,8 +59,10 @@ next-env.d.ts
 # Newsletter PDFs (large files)
 newsletters/
 
-# Local AI-generated homework videos (MVP — never commit MP4s)
-data/generated-videos/
+# Local API discovery dumps (may include structure metadata — never commit)
+lib/neverskip/*-api-discovery.json
+lib/neverskip/*-api-discovery.md
+
 
 # Worker-local NeverSkip document cache (JoL newsletter PDF, etc.)
 deploy/neverskip-worker/neverskip-data/
