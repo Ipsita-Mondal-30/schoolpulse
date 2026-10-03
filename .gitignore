@@ -56,8 +56,10 @@ prisma/*.backup
 *.tsbuildinfo
 next-env.d.ts
 
-# Newsletter PDFs (large files)
-newsletters/
+# Newsletter PDFs (large files). Root folder only; public PDFs are stored in Neon
+# (ImportedNewsletterMonth.pdfBytes) and served by /api/newsletters/[file].
+/newsletters/
+public/newsletters/*.pdf
 
 # Local API discovery dumps (may include structure metadata — never commit)
 lib/neverskip/*-api-discovery.json

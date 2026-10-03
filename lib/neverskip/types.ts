@@ -287,6 +287,8 @@ export interface SyncSummary {
   >;
   jolTimetableStatus?: string;
   jolTimetableDayCount?: number;
+  /** SyncRun row could not be written (DB error) — worker must exit non-zero. */
+  syncRunRecordFailed?: boolean;
   errors: string[];
 }
 

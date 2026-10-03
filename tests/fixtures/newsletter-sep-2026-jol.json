@@ -1,0 +1,13 @@
+{
+  "note": "Acceptance expectation for the Grade 1 September 2026 newsletter JoL Worksheet II timetable (read manually from the PDF page image). Used by scripts/verify-newsletter-extraction.ts and unit tests only — never at runtime.",
+  "monthKey": "2026-09",
+  "days": [
+    { "date": "2026-09-30", "weekday": "Wednesday", "classI": "Mathematics", "classII": "EVS" },
+    { "date": "2026-10-01", "weekday": "Thursday", "classI": "Study Holiday", "classII": "Study Holiday" },
+    { "date": "2026-10-03", "weekday": "Saturday", "classI": "Computer Science", "classII": "Computer Science" },
+    { "date": "2026-10-05", "weekday": "Monday", "classI": "Hindi", "classII": "English" },
+    { "date": "2026-10-07", "weekday": "Wednesday", "classI": "EVS", "classII": "Mathematics" },
+    { "date": "2026-10-09", "weekday": "Friday", "classI": "Kannada", "classII": "Hindi" },
+    { "date": "2026-10-12", "weekday": "Monday", "classI": "English", "classII": "Kannada" }
+  ]
+}
