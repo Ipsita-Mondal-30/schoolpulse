@@ -795,11 +795,56 @@ export async function loadCanonicalScheduleForUi(): Promise<
   const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
   const key = spCacheKey(childKey, 'timetable');
   const cached = await cachedJsonGet(key);
-  if (cached) return cached as import('@/lib/schedule/canonical').CanonicalSchedule;
+  // Entries cached before diagnostics were removed still carry `freshness` — never serve those.
+  if (cached && typeof cached === 'object' && !('freshness' in cached)) {
+    return cached as import('@/lib/schedule/canonical').CanonicalSchedule;
+  }
   const { loadCanonicalSchedule } = await import('@/lib/schedule/canonical');
   const schedule = await loadCanonicalSchedule();
   await cachedJsonSet(key, schedule);
   return schedule;
+}
+
+/** Planner month from Neon newsletter extractions, falling back to static history months. */
+export async function loadPlannerMonth(
+  monthKey?: string,
+): Promise<import('@/lib/newsletter/planner-months').PlannerMonthView> {
+  const { getIndiaToday } = await import('@/lib/daily-brief');
+  const { getAvailableMonths, getMonthData } = await import('@/lib/data');
+  const pm = await import('@/lib/newsletter/planner-months');
+
+  const staticMonths = getAvailableMonths().flatMap((info) => {
+    const data = getMonthData(info.id);
+    const key = pm.staticMonthKey(info.month, info.year);
+    return key
+      ? [{
+          key,
+          month: info.month,
+          year: info.year,
+          monthlyPlanner: data.monthlyPlanner ?? [],
+          importantDates: data.importantDates ?? [],
+          source: 'static' as const,
+        }]
+      : [];
+  });
+
+  let newsletter: import('@/lib/newsletter/planner-months').PlannerMonthEntry[] = [];
+  try {
+    const { getPrisma } = await import('@/lib/prisma');
+    const rows = await getPrisma().importedNewsletterMonth.findMany({
+      where: { status: 'VALID' },
+      select: { monthKey: true, plannerJson: true },
+    });
+    newsletter = rows.map(pm.parseNewsletterPlannerRow).filter((r): r is NonNullable<typeof r> => r != null);
+  } catch (err) {
+    console.error(`[SchoolPulse] planner months load failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  return pm.buildPlannerMonthView(
+    pm.mergePlannerMonths(newsletter, staticMonths),
+    getIndiaToday().slice(0, 7),
+    monthKey,
+  );
 }
 
 /** Tonight Daily Brief: reuses homework/notices loaders; does not invent due dates. */

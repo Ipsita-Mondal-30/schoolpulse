@@ -1,0 +1,19 @@
+# SchoolPulse NeverSkip sync — one run per activation (triggered by the .timer).
+# Install: see deploy/neverskip-worker/README.md "Scheduler: systemd timer".
+# Exit codes from run-sync.sh: 0 COMPLETE, 2 PARTIAL, 1 FAILED, 3 auth required, 75 lock busy.
+[Unit]
+Description=SchoolPulse NeverSkip sync (Playwright via xvfb)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/schoolpulse
+# If node/npm come from nvm, prepend that bin dir, e.g. /home/ubuntu/.nvm/versions/node/v20.x.y/bin
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/ubuntu/schoolpulse/deploy/neverskip-worker/run-sync.sh
+SuccessExitStatus=75
+TimeoutStartSec=45min
+StandardOutput=append:/home/ubuntu/neverskip-sync.log
+StandardError=append:/home/ubuntu/neverskip-sync.log

@@ -165,6 +165,18 @@ export function neverSkipProfileExists(profileDir: string): boolean {
   }
 }
 
+/** Written by `npm run neverskip:login` inside the profile dir (timestamp only, no session data). */
+export const LOGIN_TIMESTAMP_FILE = 'schoolpulse-login.json';
+
+export function readNeverSkipLoginTimestamp(profileDir = resolveNeverSkipProfileDir()): string | null {
+  try {
+    const raw = JSON.parse(fs.readFileSync(path.join(profileDir, LOGIN_TIMESTAMP_FILE), 'utf8'));
+    return typeof raw?.loggedInAt === 'string' ? raw.loggedInAt : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Safe log lines used when the persisted session is no longer valid. */
 export function logSessionExpired(): void {
   nsError('SYNC STATUS: AUTHENTICATION_REQUIRED');

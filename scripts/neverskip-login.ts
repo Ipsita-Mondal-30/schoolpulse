@@ -14,7 +14,10 @@
 import { config } from 'dotenv';
 config();
 
+import fs from 'fs';
+import path from 'path';
 import {
+  LOGIN_TIMESTAMP_FILE,
   loginNeverSkipSession,
   NeverSkipSessionExpiredError,
 } from '../lib/neverskip/browser';
@@ -22,6 +25,14 @@ import { nsError, nsLog } from '../lib/neverskip/log';
 
 async function main() {
   const { profileDir } = await loginNeverSkipSession();
+  try {
+    fs.writeFileSync(
+      path.join(profileDir, LOGIN_TIMESTAMP_FILE),
+      JSON.stringify({ loggedInAt: new Date().toISOString() }),
+    );
+  } catch {
+    // Session age in auth alerts is best-effort.
+  }
   nsLog('Login complete. You can close this process; the browser profile is saved.');
   nsLog(`Profile directory (gitignored): ${pathBasenameSafe(profileDir)}`);
   nsLog('Next: npm run sync:neverskip:browser');

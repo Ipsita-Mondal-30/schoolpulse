@@ -10,6 +10,7 @@ import type { UiJolItem } from '@/app/actions';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
+import { DataDelayedNote } from '@/components/ui/DataDelayedNote';
 
 function formatYmd(ymd: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return ymd || 'Undated';
@@ -192,6 +193,8 @@ export default function JoyOfLearningPage() {
           <p className="mt-0.5 text-sm text-[var(--sp-muted)]">{childHint}</p>
         </div>
       </div>
+
+      <DataDelayedNote show={scheduleQuery.data?.dataDelayed} />
 
       {isPending || scheduleQuery.isPending ? (
         <LoadingState rows={5} />

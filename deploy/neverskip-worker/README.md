@@ -15,7 +15,7 @@ production sync. See [recommended-disable-github-actions.diff](./recommended-dis
 ```text
 Oracle / persistent Linux host (/home/ubuntu/schoolpulse)
   → NEVERSKIP_PROFILE_DIR=.../deploy/neverskip-worker/neverskip-data/neverskip-profile
-  → cron → deploy/neverskip-worker/run-sync.sh
+  → systemd timer (4h) → deploy/neverskip-worker/run-sync.sh (flock: no overlap)
   → xvfb-run -a + NEVERSKIP_HEADLESS=false  (Incapsula often blocks true headless)
   → normalize / classify / dedupe
   → Neon PostgreSQL (ImportedHomework / ImportedNotice)
@@ -27,8 +27,8 @@ Oracle / persistent Linux host (/home/ubuntu/schoolpulse)
 `deploy/neverskip-worker/.env` to the **same** Redis used by Vercel. Without it,
 Neon updates correctly but parents may see stale cached homework/notices until TTL.
 
-Cron: `0 */4 * * *` via [run-sync.sh](./run-sync.sh) — see [crontab.example](./crontab.example).
-Laptop does **not** need to be on.
+Scheduler: systemd timer every 4h via [run-sync.sh](./run-sync.sh) — see
+[systemd/](./systemd/) and section 8. Laptop does **not** need to be on.
 
 Manual NeverSkip login is only required again if the **host** session expires.
 
@@ -117,15 +117,46 @@ On expiry: headed login **on this host** with the same profile path, then re-run
 
 Docker one-shot remains available (`docker compose run --rm neverskip-sync`) but is secondary on Oracle when xvfb headed sync is the proven path.
 
-### 8. Configure cron (`0 */4 * * *`)
+### 8. Scheduler: systemd timer (replaces cron — run exactly one)
 
-See [crontab.example](./crontab.example). Preferred:
-
-```cron
-0 */4 * * * /home/ubuntu/schoolpulse/deploy/neverskip-worker/run-sync.sh >> /home/ubuntu/neverskip-sync.log 2>&1
+```bash
+cd /home/ubuntu/schoolpulse
+sudo cp deploy/neverskip-worker/systemd/schoolpulse-neverskip-sync.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now schoolpulse-neverskip-sync.timer
+systemctl list-timers schoolpulse-neverskip-sync.timer
 ```
 
+The timer survives SSH/RDP disconnects, closed terminals and reboots (`Persistent=true`
+runs a missed slot after boot). `Type=oneshot` + `flock` in `run-sync.sh` prevent overlap.
+
+Migration from cron: wait for one scheduled firing, check
+`journalctl -u schoolpulse-neverskip-sync -n 50` and `tail -n 200 /home/ubuntu/neverskip-sync.log`,
+**then** remove the crontab line (`crontab -e`; confirm with `crontab -l`). Until then an overlapping
+cron run is skipped by the lock (exit 75), never doubled. Manual run: `sudo systemctl start schoolpulse-neverskip-sync`.
+
+Exit codes: `0` COMPLETE, `2` PARTIAL, `1` FAILED / DB error, `3` authentication required, `75` another sync running.
 Each run **exits** when finished (no infinite loop). Secrets stay in `deploy/neverskip-worker/.env`.
+
+### 8b. Alerts + health
+
+- Worker emails admins (Supabase Edge Function relay, `supabase/functions/schoolpulse-sync-alert`) only when
+  the state changes: auth expired, no COMPLETE sync 6h+, 2+ consecutive failures, incomplete critical data
+  (homework partial, notices page-0 only, JoL/planner extraction failed) — plus one recovery email.
+  Configure `SUPABASE_ALERT_FUNCTION_URL`, `SUPABASE_ALERT_FUNCTION_KEY`, `ALERT_EMAIL_TO` in `.env`.
+  Dedupe state: `neverskip-data/alert-state.json`.
+- If the VM itself is down nothing is emailed. Point an external uptime monitor at
+  `GET /api/admin/sync-health` with header `x-admin-token: $ADMIN_HEALTH_TOKEN` (HTTP 503 = unhealthy).
+- `npm run neverskip:login` writes a login timestamp in the profile dir; auth alerts include the session age.
+  Re-login (CAPTCHA) remains a manual step whenever NeverSkip expires the session.
+
+### 8c. Newsletter → Planner / JoL timetable
+
+Each sync downloads new Content Library newsletter PDFs, extracts planner + important dates + JoL timetable
+with Gemini (`GOOGLE_GENERATIVE_AI_API_KEY`, optional `NEWSLETTER_GEMINI_MODEL`), validates, and stores them
+in Neon (`ImportedNewsletterMonth`, `ImportedJolSchedule`). Invalid extractions keep the last valid data and
+raise `plannerStatus=FAILED`. Backfill an existing PDF:
+`npx tsx scripts/ingest-newsletter.ts --file <pdf> [--source-id <contentlib id>]`.
 
 ### 9. Verify Neon rows
 
@@ -141,13 +172,13 @@ SchoolPulse on Vercel uses the same `DATABASE_URL`. TanStack Query staleTime
 
 | Condition | Behavior |
 | --- | --- |
-| Session expired / login redirect | Non-zero exit; `SYNC STATUS: SESSION_EXPIRED`; log manual re-auth; **no** auto-login |
+| Session expired / profile missing | `SyncRun` AUTHENTICATION_REQUIRED recorded, no data touched, cache kept, alert email, exit 3; **no** auto-login |
 | Access Denied / Incapsula | Treated as unauthenticated; fail clearly |
-| Incomplete homework pagination (`total_count` > fetched) | Non-zero exit; `SYNC STATUS: INCOMPLETE` (not “completed with errors”) |
-| Notice page probe fails without totals | Treated as end-of-list (not incomplete); newest notices usually on page 0 |
-| DB / Prisma errors | Non-zero exit |
+| Incomplete homework pagination / notices page-0 only | `SyncRun` PARTIAL, exit 2, alert (incomplete critical data) |
+| FAILED sync | Exit 1; Redis cache **not** invalidated (last-good data stays) |
+| DB / Prisma errors | Exit 1 |
 
-Expect safe logs: `SYNC STATUS: COMPLETE` or explicit `INCOMPLETE` / `SESSION_EXPIRED`.
+Expect safe logs: `SYNC STATUS: COMPLETE` / `PARTIAL` / `FAILED` / `AUTHENTICATION_REQUIRED`.
 Ops check from a laptop (no SSH secrets): `npm run check:neverskip-ops`.
 
 Re-auth: on the **same Linux host**, run `npm run neverskip:login` again with
@@ -174,11 +205,7 @@ xvfb-run -a npm run sync:neverskip:browser
 
 If logs show `AUTHENTICATION_REQUIRED` / `SESSION_EXPIRED`, re-login on this host, then re-run the sync.
 
-Cron must call the wrapper (not a one-off Docker path):
-
-```cron
-0 */4 * * * /home/ubuntu/schoolpulse/deploy/neverskip-worker/run-sync.sh >> /home/ubuntu/neverskip-sync.log 2>&1
-```
+Scheduling must use the systemd timer calling the wrapper (section 8), not a one-off Docker path.
 
 ## Optional long-running loop
 

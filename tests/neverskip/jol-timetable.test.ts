@@ -1,30 +1,64 @@
 import { describe, expect, it } from 'vitest';
-import {
-  assertJolWs2ValidationMatrix,
-  extractJolWs2TimetableFromNewsletter,
-} from '@/lib/neverskip/jol-timetable-extract';
+import fixture from '../fixtures/newsletter-sep-2026-jol.json';
+import { jolExtractionFromNewsletter } from '@/lib/neverskip/jol-timetable-extract';
+import { isJolTimetableSourceCandidate, newsletterPublicUrl } from '@/lib/neverskip/jol-timetable-resolve';
+import { validateNewsletterExtraction, type NewsletterExtraction } from '@/lib/newsletter/validate';
 
-describe('JoL WS-II timetable extraction', () => {
-  it('extracts the 7 validation rows from the September newsletter document', () => {
-    const extraction = extractJolWs2TimetableFromNewsletter();
-    expect(extraction).not.toBeNull();
-    expect(extraction!.sourceId).toBe('cl-nl-sep-2026');
-    expect(extraction!.title).toContain('Joy of Learning II');
-    expect(assertJolWs2ValidationMatrix(extraction!.days)).toEqual([]);
-    expect(extraction!.days).toEqual([
-      { activityDate: '2026-09-30', weekday: 'Wednesday', classI: 'Mathematics', classII: 'EVS' },
-      { activityDate: '2026-10-01', weekday: 'Thursday', classI: 'Study Holiday', classII: 'Study Holiday' },
-      { activityDate: '2026-10-03', weekday: 'Saturday', classI: 'Computer Science', classII: 'Computer Science' },
-      { activityDate: '2026-10-05', weekday: 'Monday', classI: 'Hindi', classII: 'English' },
-      { activityDate: '2026-10-07', weekday: 'Wednesday', classI: 'EVS', classII: 'Mathematics' },
-      { activityDate: '2026-10-09', weekday: 'Friday', classI: 'Kannada', classII: 'Hindi' },
-      { activityDate: '2026-10-12', weekday: 'Monday', classI: 'English', classII: 'Kannada' },
-    ]);
+const sepExtraction: NewsletterExtraction = {
+  month: 'September',
+  year: 2026,
+  monthlyPlanner: [{ subject: 'English', portions: ['Unit 3'], activities: [] }],
+  importantDates: [],
+  jolTimetable: { title: 'Joy of Learning II - Timetable', academicYear: '2026-27', days: fixture.days },
+};
+
+describe('JoL timetable from newsletter extraction', () => {
+  it('accepts the September fixture and builds a month-scoped schedule', () => {
+    expect(validateNewsletterExtraction(sepExtraction)).toEqual([]);
+    const jol = jolExtractionFromNewsletter(sepExtraction, {
+      monthKey: '2026-09',
+      sourceContentHash: 'abc',
+      sourceDocumentUrl: newsletterPublicUrl('2026-09'),
+    });
+    expect(jol?.sourceId).toBe('newsletter-2026-09');
+    expect(jol?.academicYear).toBe('2026-27');
+    expect(jol?.sourceDocumentUrl).toBe('/newsletters/grade1-newsletter-september-2026.pdf');
+    expect(jol?.days.map((d) => d.activityDate)).toEqual(fixture.days.map((d) => d.date));
+    expect(jol?.days[0]).toEqual({
+      activityDate: '2026-09-30',
+      weekday: 'Wednesday',
+      classI: 'Mathematics',
+      classII: 'EVS',
+    });
   });
 
-  it('does not treat July Worksheet I static JSON as the extraction source', () => {
-    const extraction = extractJolWs2TimetableFromNewsletter();
-    expect(extraction!.days.every((d) => !d.activityDate.startsWith('2026-07'))).toBe(true);
-    expect(extraction!.sourceDocumentPath).toContain('grade1-newsletter-september-2026.pdf');
+  it('works for a future month without code changes', () => {
+    const oct: NewsletterExtraction = {
+      month: 'October',
+      year: 2026,
+      monthlyPlanner: [],
+      importantDates: [],
+      jolTimetable: { days: [{ date: '2026-10-20', weekday: 'Tuesday', classI: 'EVS', classII: 'Hindi' }] },
+    };
+    expect(validateNewsletterExtraction(oct)).toEqual([]);
+    const jol = jolExtractionFromNewsletter(oct, { monthKey: '2026-10', sourceContentHash: 'h', sourceDocumentUrl: null });
+    expect(jol?.sourceId).toBe('newsletter-2026-10');
+    expect(newsletterPublicUrl('2026-10')).toBe('/newsletters/grade1-newsletter-october-2026.pdf');
+  });
+
+  it('returns null when the newsletter has no JoL timetable', () => {
+    expect(
+      jolExtractionFromNewsletter({ ...sepExtraction, jolTimetable: null }, {
+        monthKey: '2026-09',
+        sourceContentHash: 'h',
+        sourceDocumentUrl: null,
+      }),
+    ).toBeNull();
+  });
+
+  it('detects newsletters of any month as sources', () => {
+    expect(isJolTimetableSourceCandidate({ title: 'Grade 1 October 2026 Newsletter' })).toBe(true);
+    expect(isJolTimetableSourceCandidate({ title: 'Class I', downloadUrl: 'https://x/newsletter-nov.pdf' })).toBe(true);
+    expect(isJolTimetableSourceCandidate({ title: 'EVS worksheet answers' })).toBe(false);
   });
 });

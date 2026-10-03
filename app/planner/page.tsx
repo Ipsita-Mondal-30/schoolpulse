@@ -6,21 +6,12 @@ import MonthlyPlanner from '@/components/MonthlyPlanner';
 import PlannerCalendar from '@/components/PlannerCalendar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
-import {
-  getMonthData,
-  getMonthlyPlanner,
-  getAvailableMonths,
-  getCurrentMonthId,
-  getImportantDates,
-  getToday,
-  MonthInfo,
-  ImportantDate,
-  PlannerSubject,
-} from '@/lib/data';
-import { useCanonicalScheduleQuery } from '@/lib/queries/schedule';
+import type { ImportantDate } from '@/lib/data';
+import { getIndiaToday } from '@/lib/daily-brief';
+import { useCanonicalScheduleQuery, usePlannerMonthQuery } from '@/lib/queries/schedule';
 
 function defaultSelectedDate(year: number, monthName: string, dates: ImportantDate[]) {
-  const today = getToday();
+  const today = getIndiaToday();
   const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth();
   const prefix = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
 
@@ -33,38 +24,25 @@ function defaultSelectedDate(year: number, monthName: string, dates: ImportantDa
 }
 
 export default function PlannerPage() {
-  const [selectedMonthId, setSelectedMonthId] = useState('');
-  const [availableMonths, setAvailableMonths] = useState<MonthInfo[]>([]);
-  const [monthData, setMonthData] = useState<{
-    month: string;
-    year: number;
-    class: string;
-  } | null>(null);
-  const [importantDates, setImportantDates] = useState<ImportantDate[]>([]);
-  const [planner, setPlanner] = useState<PlannerSubject[]>([]);
+  const [requestedKey, setRequestedKey] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const plannerQuery = usePlannerMonthQuery(requestedKey);
   const scheduleQuery = useCanonicalScheduleQuery();
 
-  useEffect(() => {
-    const months = getAvailableMonths();
-    setAvailableMonths(months);
-    setSelectedMonthId(getCurrentMonthId());
-  }, []);
+  const view = plannerQuery.data;
+  const monthData = view?.selected ?? null;
+  const availableMonths = view?.months ?? [];
+  const importantDates = useMemo(() => monthData?.importantDates ?? [], [monthData]);
+  const planner = monthData?.monthlyPlanner ?? [];
 
   useEffect(() => {
-    if (!selectedMonthId) return;
-    const data = getMonthData(selectedMonthId);
-    const nextMonth = { month: data.month, year: data.year, class: data.class };
-    const dates = getImportantDates(selectedMonthId);
-    setMonthData(nextMonth);
-    setImportantDates(dates);
-    setPlanner(getMonthlyPlanner(selectedMonthId));
-    setSelectedDate(defaultSelectedDate(nextMonth.year, nextMonth.month, dates));
-  }, [selectedMonthId]);
+    if (!monthData) return;
+    setSelectedDate(defaultSelectedDate(monthData.year, monthData.month, monthData.importantDates));
+  }, [monthData]);
 
   const monthIndex = useMemo(
-    () => availableMonths.findIndex((m) => m.id === selectedMonthId),
-    [availableMonths, selectedMonthId],
+    () => availableMonths.findIndex((m) => m.key === monthData?.key),
+    [availableMonths, monthData],
   );
 
   const nsEvents = scheduleQuery.data?.events ?? [];
@@ -75,7 +53,14 @@ export default function PlannerPage() {
   if (!monthData) {
     return (
       <div className="sp-page">
-        <LoadingState rows={4} />
+        {plannerQuery.isPending ? (
+          <LoadingState rows={4} />
+        ) : (
+          <EmptyState
+            title="Planner not available"
+            description="The monthly planner will appear here once the school newsletter is published."
+          />
+        )}
       </div>
     );
   }
@@ -91,14 +76,20 @@ export default function PlannerPage() {
         canGoPrev={monthIndex > 0}
         canGoNext={monthIndex >= 0 && monthIndex < availableMonths.length - 1}
         onPrevMonth={() => {
-          if (monthIndex > 0) setSelectedMonthId(availableMonths[monthIndex - 1].id);
+          if (monthIndex > 0) setRequestedKey(availableMonths[monthIndex - 1].key);
         }}
         onNextMonth={() => {
           if (monthIndex >= 0 && monthIndex < availableMonths.length - 1) {
-            setSelectedMonthId(availableMonths[monthIndex + 1].id);
+            setRequestedKey(availableMonths[monthIndex + 1].key);
           }
         }}
       />
+
+      {view?.missingCurrentMessage && !requestedKey ? (
+        <p className="mt-4 rounded-2xl bg-[var(--sp-primary-soft)]/50 px-4 py-2 text-sm text-[var(--sp-muted)]">
+          {view.missingCurrentMessage} Showing {monthData.month} {monthData.year}.
+        </p>
+      ) : null}
 
       <div className="mt-10 space-y-3">
         <div className="flex items-end justify-between gap-3">
