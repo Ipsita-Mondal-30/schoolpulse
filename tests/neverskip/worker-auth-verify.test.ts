@@ -110,9 +110,10 @@ describe('session check classification', () => {
 
 describe('verify:sync helpers', () => {
   it('reports env names only, never values', () => {
-    const out = envPresence(REQUIRED_ENV.worker, { DATABASE_URL: 'postgres://secret', REDIS_URL: '  ' });
+    const out = envPresence(REQUIRED_ENV.worker, { DATABASE_URL: 'postgres://secret', SYNCED_CHILD_SECTION: '  ' });
     expect(out.find((e) => e.name === 'DATABASE_URL')).toEqual({ name: 'DATABASE_URL', present: true });
-    expect(out.find((e) => e.name === 'REDIS_URL')?.present).toBe(false);
+    expect(out.find((e) => e.name === 'SYNCED_CHILD_SECTION')?.present).toBe(false);
+    expect(REQUIRED_ENV.worker).not.toContain('REDIS_URL');
     expect(JSON.stringify(out)).not.toMatch(/secret/);
   });
 

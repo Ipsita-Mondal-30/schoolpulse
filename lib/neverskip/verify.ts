@@ -3,12 +3,14 @@
 export type EnvRole = 'worker' | 'app';
 
 export const REQUIRED_ENV: Record<EnvRole, string[]> = {
-  worker: ['DATABASE_URL', 'NEVERSKIP_PROFILE_DIR', 'SYNCED_CHILD_SECTION', 'REDIS_URL'],
-  app: ['DATABASE_URL', 'AUTH_SECRET', 'ADMIN_HEALTH_TOKEN', 'REDIS_URL'],
+  worker: ['DATABASE_URL', 'NEVERSKIP_PROFILE_DIR', 'SYNCED_CHILD_SECTION'],
+  app: ['DATABASE_URL', 'AUTH_SECRET', 'ADMIN_HEALTH_TOKEN'],
 };
 
+// REDIS_URL is optional: without it cache ops are no-ops and app caches expire within CACHE_TTL_SECONDS.
 export const OPTIONAL_ENV: Record<EnvRole, string[]> = {
   worker: [
+    'REDIS_URL',
     'GOOGLE_GENERATIVE_AI_API_KEY',
     'SUPABASE_ALERT_FUNCTION_URL',
     'SUPABASE_ALERT_FUNCTION_KEY',
@@ -16,7 +18,7 @@ export const OPTIONAL_ENV: Record<EnvRole, string[]> = {
     'NEVERSKIP_VIDEO_JOBS_PER_RUN',
     'NEVERSKIP_HEADLESS',
   ],
-  app: ['GOOGLE_GENERATIVE_AI_API_KEY', 'NEVERSKIP_STUDENT_ID', 'VIDEO_PROCESS_INLINE', 'CRON_SECRET'],
+  app: ['REDIS_URL', 'GOOGLE_GENERATIVE_AI_API_KEY', 'NEVERSKIP_STUDENT_ID', 'VIDEO_PROCESS_INLINE', 'CRON_SECRET'],
 };
 
 export function envPresence(
