@@ -11,10 +11,8 @@ import {
   type ChangeEntityType,
   type FieldChange,
 } from './changes';
-import {
-  defaultClass1Audience,
-  isLegacyDefaultHomeworkAudience,
-} from '@/lib/class-sections';
+import { isDefaultAudienceRewrite } from '@/lib/class-sections';
+import { resolveConfiguredSection } from '@/lib/synced-child';
 import {
   homeworkContentKey,
   jolContentKey,
@@ -93,9 +91,8 @@ export class InMemoryNeverSkipStore implements NeverSkipStore {
     const skipAudienceNoise =
       diffs.length === 1 &&
       diffs[0].field === 'sections' &&
-      isLegacyDefaultHomeworkAudience(existing.sections) &&
       parentDiffs.every((d) => d.field === 'sections') &&
-      merged.sections.length === defaultClass1Audience().length;
+      isDefaultAudienceRewrite(existing.sections, merged.sections, resolveConfiguredSection());
     const activitySinceYmd =
       addDaysYmd(getIndiaToday(), -(UPDATES_RECENT_DAYS - 1)) || getIndiaToday();
     if (
@@ -141,9 +138,13 @@ export class InMemoryNeverSkipStore implements NeverSkipStore {
     return this.homework.has(this.hwKey(source, sourceId));
   }
 
-  async upsertNotice(item: NormalizedNotice): Promise<UpsertResult> {
-    const key = this.hwKey(item.source, item.sourceId);
+  async upsertNotice(incoming: NormalizedNotice): Promise<UpsertResult> {
+    const key = this.hwKey(incoming.source, incoming.sourceId);
     const existing = this.notices.get(key);
+    const item =
+      existing && !(incoming.attachments?.length ?? 0) && existing.attachments?.length
+        ? { ...incoming, attachments: existing.attachments }
+        : incoming;
     if (!existing) {
       this.notices.set(key, {
         ...item,

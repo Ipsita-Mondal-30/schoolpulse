@@ -24,6 +24,9 @@ export default defineConfig({
       'tests/parent-onboarding.test.ts',
       'tests/recap/**/*.test.ts',
       'tests/ai/**/*.test.ts',
+      'tests/alerts/**/*.test.ts',
+      'tests/newsletter/**/*.test.ts',
+      'tests/admin/**/*.test.ts',
     ],
   },
   resolve: {

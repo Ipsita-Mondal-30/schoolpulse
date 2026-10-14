@@ -4,6 +4,14 @@
  */
 
 import type { PrismaClient } from '@prisma/client';
+import { STALE_SUCCESS_MS } from '@/lib/neverskip/sync-health';
+
+/** True when syncs have run but none COMPLETE within the stale window. */
+export function isDataDelayed(hasRuns: boolean, lastCompleteAt: Date | null, now: Date = new Date()): boolean {
+  if (!hasRuns) return false;
+  if (!lastCompleteAt) return true;
+  return now.getTime() - lastCompleteAt.getTime() > STALE_SUCCESS_MS;
+}
 
 export type CanonicalScheduleEvent = {
   id: string;
@@ -33,18 +41,6 @@ export type CanonicalScheduleDocument = {
   scheduleDocument: boolean;
 };
 
-export type SyncFreshness = {
-  lastAttemptAt: string | null;
-  lastSuccessAt: string | null;
-  lastStatus: string | null;
-  homeworkExpected: number | null;
-  homeworkFetched: number | null;
-  scheduleFetched: number | null;
-  jolFetched: number | null;
-  noticeFetched: number | null;
-  errorSummary: string;
-};
-
 export type CanonicalJolScheduleDay = {
   activityDate: string;
   weekday: string;
@@ -70,35 +66,27 @@ export type CanonicalSchedule = {
   events: CanonicalScheduleEvent[];
   documents: CanonicalScheduleDocument[];
   jolSchedule: CanonicalJolSchedule | null;
-  freshness: SyncFreshness;
+  /** Neutral parent-safe flag: no COMPLETE sync in the last 6h. Diagnostics live in /api/admin/sync-health. */
+  dataDelayed: boolean;
   source: 'neverskip';
   /** True when NeverSkip published zero structured events (empty calendar is valid). */
   calendarEmpty: boolean;
 };
 
 function emptyLoadError(message: string): CanonicalSchedule {
+  console.error(`[SchoolPulse] canonical schedule load failed: ${message.slice(0, 240)}`);
   return {
     source: 'neverskip',
     calendarEmpty: true,
     events: [],
     documents: [],
     jolSchedule: null,
-    freshness: {
-      lastAttemptAt: null,
-      lastSuccessAt: null,
-      lastStatus: 'LOAD_ERROR',
-      homeworkExpected: null,
-      homeworkFetched: null,
-      scheduleFetched: null,
-      jolFetched: null,
-      noticeFetched: null,
-      errorSummary: message.slice(0, 240),
-    },
+    dataDelayed: true,
   };
 }
 
 async function queryCanonicalSchedule(prisma: PrismaClient): Promise<CanonicalSchedule> {
-  const [events, documents, lastRun, lastSuccess, jolSchedule] = await Promise.all([
+  const [events, documents, recentRuns, lastComplete, jolSchedule] = await Promise.all([
     prisma.importedScheduleEvent.findMany({
       orderBy: [{ eventDate: 'asc' }, { startTime: 'asc' }],
     }),
@@ -108,11 +96,8 @@ async function queryCanonicalSchedule(prisma: PrismaClient): Promise<CanonicalSc
       },
       orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
     }),
-    prisma.syncRun.findFirst({ orderBy: { finishedAt: 'desc' } }),
-      prisma.syncRun.findFirst({
-        where: { status: { in: ['COMPLETE', 'PARTIAL'] } },
-        orderBy: { finishedAt: 'desc' },
-      }),
+    prisma.syncRun.findMany({ orderBy: { finishedAt: 'desc' }, take: 1 }),
+    prisma.syncRun.findFirst({ where: { status: 'COMPLETE' }, orderBy: { finishedAt: 'desc' } }),
     prisma.importedJolSchedule.findFirst({
       where: { isActive: true },
       include: { days: { orderBy: { activityDate: 'asc' } } },
@@ -168,17 +153,7 @@ async function queryCanonicalSchedule(prisma: PrismaClient): Promise<CanonicalSc
           })),
         }
       : null,
-    freshness: {
-      lastAttemptAt: lastRun?.finishedAt.toISOString() ?? null,
-      lastSuccessAt: lastSuccess?.finishedAt.toISOString() ?? null,
-      lastStatus: lastRun?.status ?? null,
-      homeworkExpected: lastRun?.homeworkExpected ?? null,
-      homeworkFetched: lastRun?.homeworkFetched ?? null,
-      scheduleFetched: lastRun?.scheduleFetched ?? null,
-      jolFetched: lastRun?.jolFetched ?? null,
-      noticeFetched: lastRun?.noticeFetched ?? null,
-      errorSummary: lastRun?.errorSummary ?? '',
-    },
+    dataDelayed: isDataDelayed(recentRuns.length > 0, lastComplete?.finishedAt ?? null),
   };
 }
 

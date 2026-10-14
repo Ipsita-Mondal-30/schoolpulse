@@ -138,9 +138,12 @@ Do **not** use GitHub Actions as the production NeverSkip browser worker.
 
 When sync logs session expiry:
 
-1. On the **worker Linux host**: `npm run neverskip:login` with the same `NEVERSKIP_PROFILE_DIR`
-2. Complete NeverSkip login + CAPTCHA in the headed browser
-3. Re-run one sync (or wait for the next cron tick)
+1. On the **worker Linux host**: `./deploy/neverskip-worker/login.sh` (starts a localhost-only VNC
+   display and uses the same profile as `run-sync.sh`; `--status` lists profiles without changing them)
+2. From your machine: `ssh -N -L 5901:localhost:5901 ubuntu@<host>`, open `vnc://localhost:5901`
+   with the one-time password printed by the script, and complete NeverSkip login + CAPTCHA
+3. The script finishes with `AUTH CHECK: AUTHENTICATED`; then run `./deploy/neverskip-worker/run-sync.sh`
+   and `npm run verify:sync`
 
 ## Environment variables
 
@@ -161,6 +164,8 @@ Copy `.env.example` → `.env` locally. **Never commit** `.env`, `.playwright-pr
 | Script | Purpose |
 | --- | --- |
 | `npm run neverskip:login` | Headed one-time portal login; persists profile |
+| `npm run neverskip:auth-check` | Read-only session check (exit 0 authenticated, 3 login required) |
+| `npm run verify:sync` | Read-only report: env names, last SyncRuns, newest stored rows, videos, cache version |
 | `npm run sync:neverskip:browser` | One-shot headless browser sync |
 | `npm run worker:neverskip` | Long-running 4-hour Playwright worker |
 | `npm run sync:neverskip` | Optional token API sync |

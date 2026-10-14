@@ -10,8 +10,14 @@ import {
   type HomeworkPayload,
 } from './homework';
 import { nsDebugApiEnvelope, nsError, nsLog, nsWarn } from './log';
+import { isTransientHttpStatus, withRetry } from './retry';
 import { extractNotices, inspectNoticeEnvelope } from './normalizers';
-import { NOTICES_PATH, fetchAllNoticePages, type NoticesPayload } from './notices';
+import {
+  NOTICES_PATH,
+  fetchAllNoticePages,
+  parseNoticesPortalBody,
+  type NoticesPayload,
+} from './notices';
 import {
   JOL_API_MATCH,
   JOL_CONTENT_LIBRARY_PAGE,
@@ -160,6 +166,18 @@ export function neverSkipProfileExists(profileDir: string): boolean {
   }
 }
 
+/** Written by `npm run neverskip:login` inside the profile dir (timestamp only, no session data). */
+export const LOGIN_TIMESTAMP_FILE = 'schoolpulse-login.json';
+
+export function readNeverSkipLoginTimestamp(profileDir = resolveNeverSkipProfileDir()): string | null {
+  try {
+    const raw = JSON.parse(fs.readFileSync(path.join(profileDir, LOGIN_TIMESTAMP_FILE), 'utf8'));
+    return typeof raw?.loggedInAt === 'string' ? raw.loggedInAt : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Safe log lines used when the persisted session is no longer valid. */
 export function logSessionExpired(): void {
   nsError('SYNC STATUS: AUTHENTICATION_REQUIRED');
@@ -204,6 +222,29 @@ function waitForCapture<T>(
 }
 
 async function fetchViaSession(
+  context: BrowserContext,
+  apiBaseUrl: string,
+  pathSuffix: string,
+  body: unknown,
+  extraHeaders?: Record<string, string>,
+): Promise<{ body: unknown; status: number; url: string } | null> {
+  return withRetry(
+    async () => {
+      const result = await fetchViaSessionOnce(context, apiBaseUrl, pathSuffix, body, extraHeaders);
+      if (result == null) return { retry: true, reason: 'network error', value: result };
+      if (result.body == null && isTransientHttpStatus(result.status)) {
+        return { retry: true, reason: `HTTP ${result.status}`, value: result };
+      }
+      return { retry: false, value: result };
+    },
+    {
+      onRetry: ({ attempt, delayMs, reason }) =>
+        nsWarn(`Session API POST ${pathSuffix} ${reason} — retry ${attempt} in ${delayMs}ms`),
+    },
+  );
+}
+
+async function fetchViaSessionOnce(
   context: BrowserContext,
   apiBaseUrl: string,
   pathSuffix: string,
@@ -314,22 +355,70 @@ export async function loginNeverSkipSession(
     await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
 
-    if (!isAppAuthenticated(page.url())) {
-      nsWarn('Login required — complete NeverSkip login (and CAPTCHA if shown) in the browser…');
-      await page.waitForURL((url) => isAppAuthenticated(url.toString()), {
-        timeout: timeoutMs,
-      });
+    const deadline = Date.now() + timeoutMs;
+    let attempt = 0;
+    while (!isAppAuthenticated(page.url())) {
+      if (page.isClosed()) throwSessionExpired('The portal window was closed before login finished');
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) throwSessionExpired(`Login not completed within ${Math.round(timeoutMs / 60_000)} minutes`);
+      attempt += 1;
+      nsWarn(
+        attempt === 1
+          ? 'Login required — complete NeverSkip login (and CAPTCHA if shown) in the browser…'
+          : `Portal returned to ${safeUrlPath(page.url())} after login — please log in again in the same window…`,
+      );
+      await page.waitForURL((url) => isAppAuthenticated(url.toString()), { timeout: remaining });
+      // Let the portal store its session before leaving the post-login page.
+      await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
+      await page.waitForTimeout(3000);
       await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
       await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
-    }
-
-    if (!isAppAuthenticated(page.url())) {
-      throwSessionExpired();
     }
 
     nsLog('Session appears authenticated');
     nsLog('Authenticated NeverSkip browser profile persisted locally (gitignored — never commit)');
     return { profileDir };
+  } finally {
+    await context.close().catch(() => undefined);
+  }
+}
+
+export type SessionCheckStatus = 'AUTHENTICATED' | 'AUTHENTICATION_REQUIRED' | 'PROFILE_MISSING';
+
+export function classifySessionCheck(profileExists: boolean, finalUrl: string | null): SessionCheckStatus {
+  if (!profileExists) return 'PROFILE_MISSING';
+  if (!finalUrl) return 'AUTHENTICATION_REQUIRED';
+  return assessSessionUrl(finalUrl, { expectAppRoute: true }) === 'authenticated'
+    ? 'AUTHENTICATED'
+    : 'AUTHENTICATION_REQUIRED';
+}
+
+/**
+ * Read-only session probe: open the notices page with the persisted profile and report
+ * whether the portal keeps us on an app route. Never waits for login, never extracts data.
+ */
+export async function checkNeverSkipSession(
+  options: { profileDir?: string; headless?: boolean; noticesPageUrl?: string; timeoutMs?: number } = {},
+): Promise<{ status: SessionCheckStatus; profileDir: string; path: string | null }> {
+  const profileDir = resolveNeverSkipProfileDir(options.profileDir);
+  if (!neverSkipProfileExists(profileDir)) {
+    return { status: 'PROFILE_MISSING', profileDir, path: null };
+  }
+  const noticesPageUrl =
+    options.noticesPageUrl || process.env.NEVERSKIP_NOTICES_PAGE_URL || DEFAULT_NOTICES_PAGE;
+  const timeoutMs = options.timeoutMs ?? 45_000;
+  const context = await chromium.launchPersistentContext(profileDir, {
+    headless: options.headless ?? process.env.NEVERSKIP_HEADLESS !== 'false',
+    viewport: { width: 1280, height: 800 },
+    args: ['--disable-blink-features=AutomationControlled'],
+  });
+  try {
+    const page = context.pages()[0] || (await context.newPage());
+    await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
+    // SPA may client-redirect to /auth/login after first paint.
+    await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 15_000) }).catch(() => undefined);
+    const finalUrl = page.url();
+    return { status: classifySessionCheck(true, finalUrl), profileDir, path: safeUrlPath(finalUrl) };
   } finally {
     await context.close().catch(() => undefined);
   }
@@ -368,10 +457,8 @@ export async function collectNeverSkipData(
 
   if (requireAuth) {
     nsLog('Using persisted NeverSkip session');
-    // Safe path diagnostic: basename + absolute flag only (no cookie/storage dump).
-    nsLog(
-      `Using NeverSkip profile directory: ${path.basename(profileDir)} (absolute=${path.isAbsolute(profileDir)})`,
-    );
+    // Path only (no cookie/storage dump) so login vs sync profile mismatches are visible.
+    nsLog(`Using NeverSkip profile directory: ${profileDir}`);
     if (!options.page && !neverSkipProfileExists(profileDir)) {
       logSessionExpired();
       nsLog('No persisted Playwright profile found');
@@ -386,6 +473,8 @@ export async function collectNeverSkipData(
   let homeworkMeta: { url: string; status: number } | null = null;
   /** Exact portal POST body for getassignmentsapi (page-0), replayed for later pages. */
   let homeworkPortalTemplate: HomeworkPayload | null = null;
+  /** Exact portal POST body for fetchdailynoticeinfo (page-0), replayed for later pages. */
+  let noticesPortalTemplate: NoticesPayload | null = null;
   /** In-memory Token from intercepted portal XHR — never logged. */
   let sessionTokenHeader: string | null = null;
 
@@ -429,6 +518,22 @@ export async function collectNeverSkipData(
         } catch {
           /* ignore non-JSON */
         }
+      }
+    }
+    // Capture live Daily Notice POST body (often `{}`) for page≥1 replay.
+    if (kind === 'notices' && !noticesPortalTemplate && request.method() === 'POST') {
+      const raw = request.postData();
+      try {
+        const parsed = raw?.trim() ? (JSON.parse(raw) as unknown) : {};
+        const template = parseNoticesPortalBody(parsed);
+        if (template) {
+          noticesPortalTemplate = template;
+          nsLog(
+            `Notices portal request template captured keys=${Object.keys(template).join(',') || '(empty)'} page=${template.page} limit=${template.limit ?? ''} limt=${template.limt ?? ''} pg_key=${template.pg_key ?? ''}`,
+          );
+        }
+      } catch {
+        noticesPortalTemplate = parseNoticesPortalBody({});
       }
     }
   });
@@ -690,6 +795,10 @@ export async function collectNeverSkipData(
         nsError('NOTICE SYNC = INVALID_RESPONSE');
       } else {
         const tokenHeaders = sessionTokenHeader ? { Token: sessionTokenHeader } : undefined;
+        if (!noticesPortalTemplate) {
+          noticesPortalTemplate = parseNoticesPortalBody({});
+          nsLog('Notices portal template missing — using empty {} (SPA historical default)');
+        }
         const paged = await fetchAllNoticePages(
           async (pageIndex, payload: NoticesPayload) => {
             if (pageIndex === 0) return noticesRaw;
@@ -705,7 +814,7 @@ export async function collectNeverSkipData(
             }
             return result.body as NeverSkipNoticesResponse;
           },
-          { firstPage: noticesRaw },
+          { firstPage: noticesRaw, portalTemplate: noticesPortalTemplate },
         );
         notices = paged.items;
         noticePagesFetched = paged.pagesFetched;

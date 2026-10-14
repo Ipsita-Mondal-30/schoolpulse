@@ -15,6 +15,7 @@ import AcknowledgeButton from '@/components/AcknowledgeButton';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
+import { AttachmentList } from '@/components/ui/AttachmentList';
 import { markNoticeRead } from '@/lib/updates-unread';
 import { resolveNoticeLibraryLink } from '@/lib/notice-library-link';
 import { jolItemsToLibraryRefs } from '@/lib/library-from-jol';
@@ -149,6 +150,7 @@ export default function NoticesPage() {
                     <p className="whitespace-pre-line text-sm leading-relaxed text-[var(--sp-ink)]/90">
                       {notice.message}
                     </p>
+                    <AttachmentList attachments={notice.attachments} />
                     {libraryLink ? (
                       <Link
                         href={libraryLink.href}

@@ -442,6 +442,7 @@ export interface ImportedHomeworkItem {
     submissionDate?: string;
     sentDate: string;
     attachmentImage?: string;
+    attachments?: { url: string; name?: string }[];
 }
 
 export interface ImportedNoticeItem {
@@ -451,6 +452,7 @@ export interface ImportedNoticeItem {
     classes: string[];
     summary: string;
     message: string;
+    attachments?: { url: string; name?: string }[];
 }
 
 function sheetRowsToHomeworkItems(rows: SheetHomework[]): ImportedHomeworkItem[] {
@@ -485,6 +487,7 @@ export async function fetchImportedHomework(): Promise<ImportedHomeworkItem[]> {
         }
         const { getPrisma } = await import('@/lib/prisma');
         const { uiHomeworkId } = await import('@/lib/neverskip/ids');
+        const { parseAttachmentsJson } = await import('@/lib/neverskip/attachments');
         const { homeworkSectionsForUi, toSortableDate } = await import('@/lib/ui-merge');
         const { addDaysYmd, getIndiaToday } = await import('@/lib/daily-brief');
 
@@ -536,6 +539,7 @@ export async function fetchImportedHomework(): Promise<ImportedHomeworkItem[]> {
                 submissionDate: overlayHomeworkDueDate(h.dueDate, extractionByHw.get(h.sourceId)),
                 sentDate: toSortableDate(h.homeworkDate) || h.homeworkDate,
                 attachmentImage: h.attachmentUrl || undefined,
+                attachments: parseAttachmentsJson(h.attachmentsJson),
             };
         });
     } catch (error) {
@@ -551,6 +555,7 @@ export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
         }
         const { getPrisma } = await import('@/lib/prisma');
         const { uiNoticeId } = await import('@/lib/neverskip/ids');
+        const { parseAttachmentsJson } = await import('@/lib/neverskip/attachments');
         const {
             noticeSummaryForUi,
             resolveNoticeClassesForUi,
@@ -595,6 +600,7 @@ export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
                 classes: resolveNoticeClassesForUi(classes, n.title, n.summary, n.content),
                 summary: noticeSummaryForUi(n.title, n.summary, n.content),
                 message: n.content,
+                attachments: parseAttachmentsJson(n.attachmentsJson),
             };
         });
     } catch (error) {
@@ -795,11 +801,56 @@ export async function loadCanonicalScheduleForUi(): Promise<
   const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
   const key = spCacheKey(childKey, 'timetable');
   const cached = await cachedJsonGet(key);
-  if (cached) return cached as import('@/lib/schedule/canonical').CanonicalSchedule;
+  // Entries cached before diagnostics were removed still carry `freshness` — never serve those.
+  if (cached && typeof cached === 'object' && !('freshness' in cached)) {
+    return cached as import('@/lib/schedule/canonical').CanonicalSchedule;
+  }
   const { loadCanonicalSchedule } = await import('@/lib/schedule/canonical');
   const schedule = await loadCanonicalSchedule();
   await cachedJsonSet(key, schedule);
   return schedule;
+}
+
+/** Planner month from Neon newsletter extractions, falling back to static history months. */
+export async function loadPlannerMonth(
+  monthKey?: string,
+): Promise<import('@/lib/newsletter/planner-months').PlannerMonthView> {
+  const { getIndiaToday } = await import('@/lib/daily-brief');
+  const { getAvailableMonths, getMonthData } = await import('@/lib/data');
+  const pm = await import('@/lib/newsletter/planner-months');
+
+  const staticMonths = getAvailableMonths().flatMap((info) => {
+    const data = getMonthData(info.id);
+    const key = pm.staticMonthKey(info.month, info.year);
+    return key
+      ? [{
+          key,
+          month: info.month,
+          year: info.year,
+          monthlyPlanner: data.monthlyPlanner ?? [],
+          importantDates: data.importantDates ?? [],
+          source: 'static' as const,
+        }]
+      : [];
+  });
+
+  let newsletter: import('@/lib/newsletter/planner-months').PlannerMonthEntry[] = [];
+  try {
+    const { getPrisma } = await import('@/lib/prisma');
+    const rows = await getPrisma().importedNewsletterMonth.findMany({
+      where: { status: 'VALID' },
+      select: { monthKey: true, plannerJson: true },
+    });
+    newsletter = rows.map(pm.parseNewsletterPlannerRow).filter((r): r is NonNullable<typeof r> => r != null);
+  } catch (err) {
+    console.error(`[SchoolPulse] planner months load failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  return pm.buildPlannerMonthView(
+    pm.mergePlannerMonths(newsletter, staticMonths),
+    getIndiaToday().slice(0, 7),
+    monthKey,
+  );
 }
 
 /** Tonight Daily Brief: reuses homework/notices loaders; does not invent due dates. */

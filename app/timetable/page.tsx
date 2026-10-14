@@ -5,6 +5,7 @@ import { ExternalLink } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
+import { DataDelayedNote } from '@/components/ui/DataDelayedNote';
 import { useCanonicalScheduleQuery } from '@/lib/queries/schedule';
 
 function formatYmd(ymd: string): string {
@@ -73,6 +74,8 @@ export default function TimetablePage() {
           Open Joy of Learning →
         </Link>
       </div>
+
+      <DataDelayedNote show={data?.dataDelayed} />
 
       {!hasContent ? (
         <EmptyState

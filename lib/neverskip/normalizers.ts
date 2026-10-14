@@ -3,6 +3,8 @@ import {
   parseClass1SectionsFromText,
   uniqueClass1Sections,
 } from '@/lib/class-sections';
+import { resolveConfiguredSection } from '@/lib/synced-child';
+import { extractHomeworkAttachments, extractNoticeAttachments } from './attachments';
 import { homeworkSourceId, noticeSourceId } from './ids';
 import {
   NEVERSKIP_SOURCE,
@@ -259,7 +261,10 @@ function extractSections(raw: NeverSkipRawAssignment): string[] {
   );
   if (fromText.length > 0) return fromText;
 
-  // NeverSkip homework often omits targeting. Do not hide it behind I-A-only.
+  // NeverSkip homework often omits targeting. The portal account is scoped to the
+  // synced child, so untargeted homework belongs to that child's section when known.
+  const syncedSection = resolveConfiguredSection();
+  if (syncedSection) return [syncedSection];
   return defaultClass1Audience();
 }
 
@@ -310,6 +315,7 @@ export function normalizeHomework(raw: NeverSkipRawAssignment): NormalizedHomewo
     homeworkDate,
     dueDate: dueDate || null,
     attachmentUrl: extractAttachmentUrl(raw),
+    attachments: extractHomeworkAttachments(raw),
   };
 }
 
@@ -430,5 +436,6 @@ export function normalizeNotice(raw: NeverSkipRawNotice): NormalizedNotice | nul
     publishedTime,
     classes,
     imageUrl: raw.image && String(raw.image).trim() ? String(raw.image).trim() : null,
+    attachments: extractNoticeAttachments(raw),
   };
 }

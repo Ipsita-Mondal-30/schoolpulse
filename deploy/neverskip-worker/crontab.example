@@ -1,16 +1,10 @@
-# NeverSkip production sync — host crontab (Oracle / persistent Linux host).
+# DEPRECATED — production scheduling moved to systemd (deploy/neverskip-worker/systemd/).
+# Run exactly ONE scheduler. Migration:
+#   1. Install + enable the timer (README "Scheduler: systemd timer").
+#   2. Wait for one scheduled firing; confirm in `journalctl -u schoolpulse-neverskip-sync`
+#      and `tail -n 200 /home/ubuntu/neverskip-sync.log`.
+#   3. Only then remove this line with `crontab -e` and confirm `crontab -l` no longer shows it.
+# run-sync.sh holds a flock, so an overlap during the migration window is skipped (exit 75), not doubled.
 #
-# Install:
-#   chmod +x /home/ubuntu/schoolpulse/deploy/neverskip-worker/run-sync.sh
-#   crontab -e
-# Paste the block below (adjust paths only if your clone is elsewhere).
-#
-# Schedule: every 4 hours at minute 0 (host clock).
-# Secrets live in deploy/neverskip-worker/.env — never put DATABASE_URL in crontab.
-#
-# Working production path uses headed Playwright via xvfb (Incapsula often blocks true headless).
-
-0 */4 * * * /home/ubuntu/schoolpulse/deploy/neverskip-worker/run-sync.sh >> /home/ubuntu/neverskip-sync.log 2>&1
-
-# --- Legacy Docker one-shot (optional; prefer run-sync.sh + xvfb on this host) ---
-# 0 */4 * * * cd /home/ubuntu/schoolpulse/deploy/neverskip-worker && /usr/bin/docker compose run --rm neverskip-sync >> /home/ubuntu/neverskip-sync.log 2>&1
+# Legacy line (remove after step 2):
+# 0 */4 * * * /home/ubuntu/schoolpulse/deploy/neverskip-worker/run-sync.sh >> /home/ubuntu/neverskip-sync.log 2>&1
