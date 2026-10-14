@@ -376,6 +376,47 @@ export async function loginNeverSkipSession(
   }
 }
 
+export type SessionCheckStatus = 'AUTHENTICATED' | 'AUTHENTICATION_REQUIRED' | 'PROFILE_MISSING';
+
+export function classifySessionCheck(profileExists: boolean, finalUrl: string | null): SessionCheckStatus {
+  if (!profileExists) return 'PROFILE_MISSING';
+  if (!finalUrl) return 'AUTHENTICATION_REQUIRED';
+  return assessSessionUrl(finalUrl, { expectAppRoute: true }) === 'authenticated'
+    ? 'AUTHENTICATED'
+    : 'AUTHENTICATION_REQUIRED';
+}
+
+/**
+ * Read-only session probe: open the notices page with the persisted profile and report
+ * whether the portal keeps us on an app route. Never waits for login, never extracts data.
+ */
+export async function checkNeverSkipSession(
+  options: { profileDir?: string; headless?: boolean; noticesPageUrl?: string; timeoutMs?: number } = {},
+): Promise<{ status: SessionCheckStatus; profileDir: string; path: string | null }> {
+  const profileDir = resolveNeverSkipProfileDir(options.profileDir);
+  if (!neverSkipProfileExists(profileDir)) {
+    return { status: 'PROFILE_MISSING', profileDir, path: null };
+  }
+  const noticesPageUrl =
+    options.noticesPageUrl || process.env.NEVERSKIP_NOTICES_PAGE_URL || DEFAULT_NOTICES_PAGE;
+  const timeoutMs = options.timeoutMs ?? 45_000;
+  const context = await chromium.launchPersistentContext(profileDir, {
+    headless: options.headless ?? process.env.NEVERSKIP_HEADLESS !== 'false',
+    viewport: { width: 1280, height: 800 },
+    args: ['--disable-blink-features=AutomationControlled'],
+  });
+  try {
+    const page = context.pages()[0] || (await context.newPage());
+    await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
+    // SPA may client-redirect to /auth/login after first paint.
+    await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 15_000) }).catch(() => undefined);
+    const finalUrl = page.url();
+    return { status: classifySessionCheck(true, finalUrl), profileDir, path: safeUrlPath(finalUrl) };
+  } finally {
+    await context.close().catch(() => undefined);
+  }
+}
+
 /**
  * Collect homework + notices JSON via an authenticated Playwright browser session.
  * Does not bypass CAPTCHA or log secrets. Reuses `.playwright-profile` when present.
@@ -409,10 +450,8 @@ export async function collectNeverSkipData(
 
   if (requireAuth) {
     nsLog('Using persisted NeverSkip session');
-    // Safe path diagnostic: basename + absolute flag only (no cookie/storage dump).
-    nsLog(
-      `Using NeverSkip profile directory: ${path.basename(profileDir)} (absolute=${path.isAbsolute(profileDir)})`,
-    );
+    // Path only (no cookie/storage dump) so login vs sync profile mismatches are visible.
+    nsLog(`Using NeverSkip profile directory: ${profileDir}`);
     if (!options.page && !neverSkipProfileExists(profileDir)) {
       logSessionExpired();
       nsLog('No persisted Playwright profile found');

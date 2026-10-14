@@ -18,8 +18,8 @@
  * Browser collector is for local / dedicated worker use — not Vercel serverless.
  * Never commits the Playwright profile (see .gitignore).
  */
-import { config } from 'dotenv';
-config();
+import { loadWorkerEnv } from '../lib/neverskip/worker-env';
+loadWorkerEnv();
 
 import {
   collectNeverSkipData,

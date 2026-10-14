@@ -14,6 +14,8 @@
     "sync:neverskip": "tsx scripts/sync-neverskip.ts",
     "sync:neverskip:browser": "tsx scripts/sync-neverskip-browser.ts",
     "neverskip:login": "tsx scripts/neverskip-login.ts",
+    "neverskip:auth-check": "tsx scripts/neverskip-auth-check.ts",
+    "verify:sync": "tsx scripts/verify-sync.ts",
     "check:neverskip-ops": "tsx scripts/check-neverskip-ops.ts",
     "postinstall": "prisma generate",
     "worker:neverskip": "tsx scripts/neverskip-worker.ts",
