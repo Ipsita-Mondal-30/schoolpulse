@@ -13,11 +13,12 @@ import {
 } from '@/lib/parent-access';
 import { getVideoStorage, homeworkVideoStorageKey } from '@/lib/ai/video-storage';
 import { VIDEO_STATUS } from '@/lib/ai/homework-video';
+import { chunkedStream, parseByteRange, type ByteRange } from '@/lib/http/byte-range';
 
 export const runtime = 'nodejs';
 
 export async function GET(
-  _req: Request,
+  req: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
   const { id } = await ctx.params;
@@ -63,33 +64,46 @@ export async function GET(
   const key = homeworkVideoStorageKey(homework.id);
   const storage = getVideoStorage();
   const absolute = storage.resolveAbsolutePath(key);
+  const rangeHeader = req.headers.get('range');
 
   // Prefer local disk (worker/dev); fall back to Neon-mirrored bytes (Vercel).
   if (existsSync(absolute)) {
-    const st = statSync(absolute);
-    const nodeStream = createReadStream(absolute);
+    const size = statSync(absolute).size;
+    const range = parseByteRange(rangeHeader, size);
+    if (range === 'unsatisfiable') return unsatisfiable(size);
+    const nodeStream = range
+      ? createReadStream(absolute, { start: range.start, end: range.end })
+      : createReadStream(absolute);
     const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream;
-    return new NextResponse(webStream, {
-      status: 200,
-      headers: {
-        'Content-Type': 'video/mp4',
-        'Content-Length': String(st.size),
-        'Cache-Control': 'private, max-age=3600',
-      },
-    });
+    return videoResponse(webStream, size, range);
   }
 
   if (video.videoBytes && video.videoBytes.length > 0) {
-    const body = Buffer.from(video.videoBytes);
-    return new NextResponse(body, {
-      status: 200,
-      headers: {
-        'Content-Type': 'video/mp4',
-        'Content-Length': String(body.length),
-        'Cache-Control': 'private, max-age=3600',
-      },
-    });
+    const bytes = new Uint8Array(video.videoBytes);
+    const range = parseByteRange(rangeHeader, bytes.length);
+    if (range === 'unsatisfiable') return unsatisfiable(bytes.length);
+    const slice = range ? bytes.subarray(range.start, range.end + 1) : bytes;
+    // Streamed so clips above Vercel's 4.5 MB buffered-response limit still play.
+    return videoResponse(chunkedStream(slice), bytes.length, range);
   }
 
   return NextResponse.json({ error: 'File missing' }, { status: 404 });
+}
+
+function videoResponse(body: ReadableStream, size: number, range: ByteRange | null): NextResponse {
+  const headers: Record<string, string> = {
+    'Content-Type': 'video/mp4',
+    'Accept-Ranges': 'bytes',
+    'Cache-Control': 'private, max-age=3600',
+    'Content-Length': String(range ? range.end - range.start + 1 : size),
+  };
+  if (range) headers['Content-Range'] = `bytes ${range.start}-${range.end}/${size}`;
+  return new NextResponse(body, { status: range ? 206 : 200, headers });
+}
+
+function unsatisfiable(size: number): NextResponse {
+  return new NextResponse(null, {
+    status: 416,
+    headers: { 'Content-Range': `bytes */${size}`, 'Accept-Ranges': 'bytes' },
+  });
 }

@@ -51,6 +51,58 @@ const IN_PROGRESS: ReadonlySet<string> = new Set([
   VIDEO_STATUS.GENERATING,
 ]);
 
+/** Claims per job before it stays FAILED (parent retries included). */
+export const MAX_VIDEO_ATTEMPTS = 3;
+/** Longer than Veo's 12-minute poll limit plus lesson planning. */
+export const STALE_VIDEO_JOB_MS = 30 * 60_000;
+
+const CLAIMED: ReadonlySet<string> = new Set([VIDEO_STATUS.PLANNING, VIDEO_STATUS.GENERATING]);
+
+/**
+ * Whether the HTTP route should start Veo in after(). Off on Vercel by default
+ * (serverless kills it mid-run); VIDEO_PROCESS_INLINE=true|false overrides.
+ */
+export function shouldProcessVideoInline(env: Record<string, string | undefined>): boolean {
+  if (env.VIDEO_PROCESS_INLINE === 'true') return true;
+  if (env.VIDEO_PROCESS_INLINE === 'false') return false;
+  return !env.VERCEL;
+}
+
+/** What to do with a job a crashed/killed worker left mid-flight. */
+export function stuckVideoAction(
+  row: { status: string; updatedAt: Date; attempts: number },
+  now: Date,
+): 'requeue' | 'fail' | null {
+  if (!CLAIMED.has(row.status)) return null;
+  if (now.getTime() - row.updatedAt.getTime() < STALE_VIDEO_JOB_MS) return null;
+  return row.attempts < MAX_VIDEO_ATTEMPTS ? 'requeue' : 'fail';
+}
+
+export function videoAttemptsExhausted(row: { status: string; attempts: number }): boolean {
+  return row.status === VIDEO_STATUS.FAILED && row.attempts >= MAX_VIDEO_ATTEMPTS;
+}
+
+/** Return stale PLANNING/GENERATING jobs to the queue, or fail them once attempts are used up. */
+export async function recoverStuckHomeworkVideos(
+  now = new Date(),
+): Promise<{ requeued: number; failed: number }> {
+  const prisma = getPrisma();
+  const cutoff = new Date(now.getTime() - STALE_VIDEO_JOB_MS);
+  const stale = {
+    status: { in: [...CLAIMED] },
+    updatedAt: { lt: cutoff },
+  };
+  const requeued = await prisma.homeworkVideo.updateMany({
+    where: { ...stale, attempts: { lt: MAX_VIDEO_ATTEMPTS } },
+    data: { status: VIDEO_STATUS.QUEUED, errorMessage: 'Recovered after worker timeout' },
+  });
+  const failed = await prisma.homeworkVideo.updateMany({
+    where: { ...stale, attempts: { gte: MAX_VIDEO_ATTEMPTS } },
+    data: { status: VIDEO_STATUS.FAILED, errorMessage: 'Timed out after maximum attempts' },
+  });
+  return { requeued: requeued.count, failed: failed.count };
+}
+
 export type HomeworkVideoPublic = {
   status: VideoStatus;
   videoUrl?: string;
@@ -132,7 +184,18 @@ export async function enqueueHomeworkVideo(
   if (existing?.status === VIDEO_STATUS.READY && existing.videoUrl) {
     return parentSafeStatus(existing);
   }
-  if (existing && IN_PROGRESS.has(existing.status)) {
+  const stuck = existing ? stuckVideoAction(existing, new Date()) : null;
+  if (stuck === 'fail') {
+    const failed = await prisma.homeworkVideo.update({
+      where: { id: existing!.id },
+      data: { status: VIDEO_STATUS.FAILED, errorMessage: 'Timed out after maximum attempts' },
+    });
+    return parentSafeStatus(failed);
+  }
+  if (existing && IN_PROGRESS.has(existing.status) && stuck !== 'requeue') {
+    return parentSafeStatus(existing);
+  }
+  if (existing && videoAttemptsExhausted(existing)) {
     return parentSafeStatus(existing);
   }
 
@@ -199,8 +262,9 @@ export async function processHomeworkVideoJob(
     where: {
       homeworkId: homeworkDbId,
       status: { in: [VIDEO_STATUS.QUEUED, VIDEO_STATUS.PENDING, VIDEO_STATUS.FAILED] },
+      attempts: { lt: MAX_VIDEO_ATTEMPTS },
     },
-    data: { status: VIDEO_STATUS.PLANNING, errorMessage: null },
+    data: { status: VIDEO_STATUS.PLANNING, errorMessage: null, attempts: { increment: 1 } },
   });
   if (claimed.count === 0) {
     const again = await prisma.homeworkVideo.findUnique({
@@ -385,14 +449,25 @@ export async function enqueueVideosForNewHomework(options?: {
   return { enqueued, skipped };
 }
 
-/** Drain QUEUED/PENDING jobs (worker). Processes sequentially to respect Veo quota. */
+/**
+ * Drain QUEUED/PENDING jobs (worker) after recovering stale claims.
+ * Processes sequentially to respect Veo quota.
+ */
 export async function processQueuedHomeworkVideos(options?: {
   limit?: number;
-}): Promise<{ processed: number; results: HomeworkVideoPublic[] }> {
+}): Promise<{
+  processed: number;
+  results: HomeworkVideoPublic[];
+  recovered: { requeued: number; failed: number };
+}> {
   const prisma = getPrisma();
   const limit = options?.limit ?? 2;
+  const recovered = await recoverStuckHomeworkVideos();
   const queued = await prisma.homeworkVideo.findMany({
-    where: { status: { in: [VIDEO_STATUS.QUEUED, VIDEO_STATUS.PENDING] } },
+    where: {
+      status: { in: [VIDEO_STATUS.QUEUED, VIDEO_STATUS.PENDING] },
+      attempts: { lt: MAX_VIDEO_ATTEMPTS },
+    },
     orderBy: { createdAt: 'asc' },
     take: limit,
   });
@@ -401,5 +476,5 @@ export async function processQueuedHomeworkVideos(options?: {
   for (const row of queued) {
     results.push(await processHomeworkVideoJob(row.homeworkId));
   }
-  return { processed: results.length, results };
+  return { processed: results.length, results, recovered };
 }

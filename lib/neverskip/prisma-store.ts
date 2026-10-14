@@ -1,8 +1,7 @@
 import { getPrisma } from '@/lib/prisma';
-import {
-  defaultClass1Audience,
-  isLegacyDefaultHomeworkAudience,
-} from '@/lib/class-sections';
+import { isDefaultAudienceRewrite } from '@/lib/class-sections';
+import { resolveConfiguredSection } from '@/lib/synced-child';
+import { parseAttachmentsJson } from './attachments';
 import {
   actionableHomeworkChangeFields,
   getMeaningfulHomeworkChanges,
@@ -43,10 +42,7 @@ function parseJsonArray(raw: string): string[] {
 }
 
 function isLegacyHomeworkAudienceExpansion(previous: string[], next: string[]): boolean {
-  if (!isLegacyDefaultHomeworkAudience(previous)) return false;
-  const expected = defaultClass1Audience();
-  if (next.length !== expected.length) return false;
-  return next.every((sec, i) => sec === expected[i]);
+  return isDefaultAudienceRewrite(previous, next, resolveConfiguredSection());
 }
 
 export class PrismaNeverSkipStore implements NeverSkipStore {
@@ -74,6 +70,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
           homeworkDate: item.homeworkDate,
           dueDate: item.dueDate,
           attachmentUrl: item.attachmentUrl,
+          attachmentsJson: JSON.stringify(item.attachments ?? []),
         },
       });
       return 'inserted';
@@ -91,6 +88,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       homeworkDate: existing.homeworkDate,
       dueDate: existing.dueDate,
       attachmentUrl: existing.attachmentUrl,
+      attachments: parseAttachmentsJson(existing.attachmentsJson),
     };
 
     // Merge first: empty portal fields must not wipe last-known source values.
@@ -145,6 +143,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
         homeworkDate: merged.homeworkDate,
         dueDate: merged.dueDate,
         attachmentUrl: merged.attachmentUrl,
+        attachmentsJson: JSON.stringify(merged.attachments ?? []),
       },
     });
     return 'updated';
@@ -166,6 +165,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       homeworkDate: r.homeworkDate,
       dueDate: r.dueDate,
       attachmentUrl: r.attachmentUrl,
+      attachments: parseAttachmentsJson(r.attachmentsJson),
     }));
   }
 
@@ -177,8 +177,9 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
     return !!row;
   }
 
-  async upsertNotice(item: NormalizedNotice): Promise<UpsertResult> {
+  async upsertNotice(incoming: NormalizedNotice): Promise<UpsertResult> {
     const prisma = getPrisma();
+    let item = incoming;
     let existing = await prisma.importedNotice.findUnique({
       where: {
         source_sourceId: { source: item.source, sourceId: item.sourceId },
@@ -215,6 +216,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
           publishedTime: item.publishedTime,
           classesJson,
           imageUrl: item.imageUrl,
+          attachmentsJson: JSON.stringify(item.attachments ?? []),
         },
       });
       return 'inserted';
@@ -230,7 +232,11 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       publishedTime: existing.publishedTime,
       classes: parseJsonArray(existing.classesJson),
       imageUrl: existing.imageUrl,
+      attachments: parseAttachmentsJson(existing.attachmentsJson),
     };
+    if (!(item.attachments?.length ?? 0)) {
+      item = { ...item, attachments: existingNorm.attachments };
+    }
 
     if (
       noticeContentKey(existingNorm) === noticeContentKey(item) &&
@@ -266,6 +272,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
         publishedTime: item.publishedTime,
         classesJson,
         imageUrl: item.imageUrl,
+        attachmentsJson: JSON.stringify(item.attachments ?? []),
       },
     });
     return 'updated';
@@ -285,6 +292,7 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       publishedTime: r.publishedTime,
       classes: parseJsonArray(r.classesJson),
       imageUrl: r.imageUrl,
+      attachments: parseAttachmentsJson(r.attachmentsJson),
     }));
   }
 

@@ -1,30 +1,48 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Announcement } from '@/lib/data';
-import { useCanonicalScheduleQuery } from '@/lib/queries/schedule';
+import type { SyncHealth } from '@/lib/neverskip/sync-health';
 
-// Simple password - change this to your preferred password
-const ADMIN_PASSWORD = 'sreeavyu';
+const TOKEN_KEY = 'admin_token';
+
+type HealthResponse = { ok: boolean; health?: SyncHealth; error?: string };
+
+function fmt(iso: string | null | undefined): string {
+  return iso ? new Date(iso).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : '—';
+}
 
 export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [checking, setChecking] = useState(false);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [newType, setNewType] = useState<'info' | 'warning' | 'holiday' | 'important'>('info');
   const [newExpiresAt, setNewExpiresAt] = useState('');
-  const scheduleQuery = useCanonicalScheduleQuery();
-  const freshness = scheduleQuery.data?.freshness;
+  const [healthResp, setHealthResp] = useState<HealthResponse | null>(null);
+  const isAuthenticated = token != null;
 
-  // Check if already authenticated
-  useEffect(() => {
-    const auth = sessionStorage.getItem('admin_auth');
-    if (auth === 'true') {
-      setIsAuthenticated(true);
-    }
+  /** Returns false only when the server rejects the token. */
+  const fetchHealth = useCallback(async (candidate: string): Promise<boolean> => {
+    const res = await fetch('/api/admin/sync-health', {
+      headers: { 'x-admin-token': candidate },
+      cache: 'no-store',
+    });
+    if (res.status === 401) return false;
+    setHealthResp((await res.json().catch(() => ({ ok: false, error: 'bad response' }))) as HealthResponse);
+    return true;
   }, []);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem(TOKEN_KEY);
+    if (!stored) return;
+    void fetchHealth(stored).then((ok) => {
+      if (ok) setToken(stored);
+      else sessionStorage.removeItem(TOKEN_KEY);
+    });
+  }, [fetchHealth]);
 
   // Load announcements when authenticated
   useEffect(() => {
@@ -40,20 +58,28 @@ export default function AdminPage() {
     setNewExpiresAt(nextWeek.toISOString().split('T')[0]);
   }, [isAuthenticated]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('admin_auth', 'true');
-      setPasswordError('');
-    } else {
-      setPasswordError('Incorrect password');
+    setChecking(true);
+    try {
+      if (await fetchHealth(password)) {
+        setToken(password);
+        sessionStorage.setItem(TOKEN_KEY, password);
+        setPasswordError('');
+      } else {
+        setPasswordError('Incorrect admin token');
+      }
+    } catch {
+      setPasswordError('Could not reach server');
+    } finally {
+      setChecking(false);
     }
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem('admin_auth');
+    setToken(null);
+    setHealthResp(null);
+    sessionStorage.removeItem(TOKEN_KEY);
   };
 
   const saveAnnouncements = (updated: Announcement[]) => {
@@ -95,7 +121,7 @@ export default function AdminPage() {
           <div className="text-center mb-6">
             <div className="text-4xl mb-3">🔐</div>
             <h1 className="text-2xl font-bold text-gray-900">Admin Access</h1>
-            <p className="text-sm text-gray-500 mt-1">Enter password to continue</p>
+            <p className="text-sm text-gray-500 mt-1">Enter admin token to continue</p>
           </div>
 
           <form onSubmit={handleLogin}>
@@ -104,7 +130,7 @@ export default function AdminPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
+                placeholder="Admin token"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300 text-center text-lg"
                 autoFocus
               />
@@ -115,6 +141,7 @@ export default function AdminPage() {
 
             <button
               type="submit"
+              disabled={checking}
               className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors font-medium"
             >
               Login
@@ -146,26 +173,12 @@ export default function AdminPage() {
       {/* Sync diagnostics (admin only — not shown on parent pages) */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-2">NeverSkip sync (admin)</h2>
-        {scheduleQuery.isPending ? (
+        {!healthResp ? (
           <p className="text-sm text-gray-500">Loading…</p>
-        ) : freshness ? (
-          <div className="space-y-1 text-sm text-gray-700">
-            <p>
-              Status:{' '}
-              <span className="font-semibold">{freshness.lastStatus || 'unknown'}</span>
-            </p>
-            {freshness.lastSuccessAt ? (
-              <p>Last success: {new Date(freshness.lastSuccessAt).toLocaleString('en-IN')}</p>
-            ) : null}
-            {freshness.lastAttemptAt ? (
-              <p>Last attempt: {new Date(freshness.lastAttemptAt).toLocaleString('en-IN')}</p>
-            ) : null}
-            {freshness.errorSummary ? (
-              <p className="text-amber-800 break-words">{freshness.errorSummary.slice(0, 400)}</p>
-            ) : null}
-          </div>
+        ) : !healthResp.health ? (
+          <p className="text-sm text-red-700">Health unavailable: {healthResp.error || 'unknown error'}</p>
         ) : (
-          <p className="text-sm text-gray-500">No sync runs recorded yet.</p>
+          <SyncHealthPanel health={healthResp.health} ok={healthResp.ok} onRefresh={() => token && void fetchHealth(token)} />
         )}
       </div>
 
@@ -279,14 +292,61 @@ export default function AdminPage() {
         </ul>
       </div>
 
-      {/* Change Password Note */}
       <div className="mt-4 bg-amber-50 rounded-xl border border-amber-200 p-4">
-        <h3 className="font-semibold text-amber-800 mb-1">Change Password</h3>
+        <h3 className="font-semibold text-amber-800 mb-1">Admin token</h3>
         <p className="text-sm text-amber-700">
-          To change the admin password, edit the <code className="bg-amber-100 px-1 rounded">ADMIN_PASSWORD</code> variable
-          in <code className="bg-amber-100 px-1 rounded">app/admin/page.tsx</code>
+          Checked on the server against the <code className="bg-amber-100 px-1 rounded">ADMIN_HEALTH_TOKEN</code>{' '}
+          environment variable. Rotate it in Vercel project settings.
         </p>
       </div>
+    </div>
+  );
+}
+
+function SyncHealthPanel({
+  health,
+  ok,
+  onRefresh,
+}: {
+  health: SyncHealth;
+  ok: boolean;
+  onRefresh: () => void;
+}) {
+  const sources = [
+    { label: 'Homework', s: health.homework },
+    { label: 'Notices', s: health.notices },
+    { label: 'JOL', s: health.jol },
+  ];
+  return (
+    <div className="space-y-2 text-sm text-gray-700">
+      <p>
+        Status: <span className={`font-semibold ${ok ? 'text-green-700' : 'text-red-700'}`}>{health.status}</span>
+        {health.issues.length > 0 ? <span className="ml-2 text-red-700">({health.issues.join(', ')})</span> : null}
+        <button onClick={onRefresh} className="ml-3 text-xs text-orange-600 hover:underline">
+          Refresh
+        </button>
+      </p>
+      <p>Auth: {health.authStatus}</p>
+      <p>DB write: {health.databaseWriteStatus}</p>
+      <p>Planner / newsletter: {health.plannerStatus || '—'}</p>
+      <p>Last COMPLETE sync: {fmt(health.lastSuccessAt)}</p>
+      <p>Last data write (complete or partial): {fmt(health.lastDataWriteAt)}</p>
+      <p>Last attempt: {fmt(health.lastAttemptAt)}</p>
+      <p>Last failure: {fmt(health.lastFailureAt)}</p>
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+        {sources.map(({ label, s }) => (
+          <div key={label} className="rounded-lg bg-gray-50 p-3">
+            <p className="font-semibold">{label}</p>
+            <p>Status: {s?.status || '—'}</p>
+            <p>
+              Source/unique/stored: {s?.sourceCount ?? '—'} / {s?.uniqueCount ?? '—'} / {s?.storedCount ?? '—'}
+            </p>
+            <p>Latest: {s?.latestSourceDate || '—'}</p>
+          </div>
+        ))}
+      </div>
+      {health.failureReason ? <p className="text-amber-800 break-words">{health.failureReason}</p> : null}
+      <p className="text-xs text-gray-500">Parent pages never show these diagnostics.</p>
     </div>
   );
 }

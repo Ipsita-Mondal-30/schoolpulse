@@ -1,0 +1,7 @@
+# Files executed or parsed on the Linux worker must use LF (CRLF breaks bash and systemd).
+*.sh text eol=lf
+*.service text eol=lf
+*.timer text eol=lf
+Dockerfile text eol=lf
+crontab.example text eol=lf
+.env.example text eol=lf

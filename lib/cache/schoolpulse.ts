@@ -25,24 +25,30 @@ export function spCacheKey(
   return `schoolpulse:${child}:${surface}`;
 }
 
-export async function getDataVersion(): Promise<string> {
-  const fromRedis = await cacheGet(DATA_VERSION_KEY);
-  if (fromRedis) return fromRedis;
-  if (globalVersion.schoolPulseDataVersion) return globalVersion.schoolPulseDataVersion;
+async function latestSyncRunVersion(): Promise<string | null> {
   try {
-    if (!process.env.DATABASE_URL) return '0';
+    if (!process.env.DATABASE_URL) return null;
     const { getPrisma } = await import('@/lib/prisma');
     const latest = await getPrisma().syncRun.findFirst({
       orderBy: { finishedAt: 'desc' },
       select: { finishedAt: true, id: true },
     });
-    if (latest?.finishedAt) {
-      return `sync:${latest.id}:${latest.finishedAt.getTime()}`;
-    }
+    return latest?.finishedAt ? `sync:${latest.id}:${latest.finishedAt.getTime()}` : null;
   } catch {
-    /* ignore */
+    return null;
   }
-  return '0';
+}
+
+/** Combine both signals: a worker without REDIS_URL can only advance the SyncRun part. */
+export function composeDataVersion(cacheVersion: string | null, syncVersion: string | null): string {
+  const parts = [cacheVersion, syncVersion].filter((p): p is string => Boolean(p));
+  return parts.length ? parts.join('|') : '0';
+}
+
+export async function getDataVersion(): Promise<string> {
+  const fromRedis = await cacheGet(DATA_VERSION_KEY);
+  const cacheVersion = fromRedis || globalVersion.schoolPulseDataVersion || null;
+  return composeDataVersion(cacheVersion, await latestSyncRunVersion());
 }
 
 export async function bumpDataVersion(reason = 'sync'): Promise<string> {

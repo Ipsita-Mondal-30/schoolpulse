@@ -50,6 +50,8 @@ export interface SyncDataOptions {
   scheduleFetchIncomplete?: boolean;
   scheduleFetchErrors?: string[];
   scheduleFetchComplete?: boolean;
+  /** Extra admin-only fields merged into SyncRun.reportJson (e.g. plannerStatus). */
+  extraReport?: Record<string, unknown>;
 }
 
 function newestIsoDate(dates: Array<string | null | undefined>): string {
@@ -108,9 +110,11 @@ export async function syncNeverSkipData({
   scheduleFetchIncomplete,
   scheduleFetchErrors = [],
   scheduleFetchComplete,
+  extraReport,
 }: SyncDataOptions): Promise<SyncSummary> {
   const startedAt = new Date();
   const summary = emptySummary();
+  let rowWriteErrors = 0;
   summary.errors.push(
     ...homeworkFetchErrors,
     ...noticeFetchErrors,
@@ -164,6 +168,7 @@ export async function syncNeverSkipData({
       else summary.homeworkSkipped += 1;
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'homework row failed';
+      rowWriteErrors += 1;
       summary.errors.push(msg);
       nsError(`Homework row error: ${msg}`);
     }
@@ -194,6 +199,7 @@ export async function syncNeverSkipData({
       else summary.noticesSkipped += 1;
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'notice row failed';
+      rowWriteErrors += 1;
       summary.errors.push(msg);
       nsError(`Notice row error: ${msg}`);
     }
@@ -222,6 +228,7 @@ export async function syncNeverSkipData({
       else summary.jolSkipped = (summary.jolSkipped ?? 0) + 1;
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'jol row failed';
+      rowWriteErrors += 1;
       summary.errors.push(msg);
       nsError(`JOL row error: ${msg}`);
     }
@@ -532,8 +539,12 @@ export async function syncNeverSkipData({
       errorSummary: summary.errors.slice(0, 20).join('; '),
       reportJson: JSON.stringify({
         syncStatus: summary.syncStatus,
+        authenticationStatus: 'AUTHENTICATED',
+        databaseWriteStatus: rowWriteErrors > 0 ? `ROW_ERRORS:${rowWriteErrors}` : 'OK',
         sources: summary.sourceStatuses,
         homeworkSourceTotal,
+        noticeSourceTotal: noticeSourceTotal ?? null,
+        jolSourceTotal: jolSourceTotal ?? null,
         homeworkFetched: summary.homeworkFetched,
         noticeFetched: summary.noticesFetched,
         noticePage0Only: Boolean(noticePage0Only),
@@ -541,9 +552,11 @@ export async function syncNeverSkipData({
         scheduleFetched: summary.scheduleFetched,
         jolTimetableStatus: summary.jolTimetableStatus,
         jolTimetableDayCount: summary.jolTimetableDayCount,
+        ...extraReport,
       }),
     });
   } catch (err) {
+    summary.syncRunRecordFailed = true;
     nsWarn(`Failed to persist SyncRun: ${err instanceof Error ? err.message : String(err)}`);
   }
 
@@ -577,16 +590,23 @@ export async function syncNeverSkipData({
     );
   }
 
-  try {
-    const { invalidateSchoolPulseCaches } = await import('@/lib/cache/schoolpulse');
-    const inv = await invalidateSchoolPulseCaches('neverskip-sync');
-    nsLog(
-      `Cache invalidated after sync: redis=${inv.redisConfigured} deleted=${inv.deleted} version=${inv.version}`,
-    );
-  } catch (err) {
-    nsWarn(
-      `Cache invalidation skipped: ${err instanceof Error ? err.message : String(err)}`,
-    );
+  if (summary.syncStatus === 'FAILED') {
+    nsWarn('Cache invalidation skipped: sync FAILED — keeping last-good cached data');
+  } else {
+    try {
+      const { invalidateSchoolPulseCaches } = await import('@/lib/cache/schoolpulse');
+      const inv = await invalidateSchoolPulseCaches('neverskip-sync');
+      nsLog(
+        `Cache invalidated after sync: redis=${inv.redisConfigured} deleted=${inv.deleted} version=${inv.version}`,
+      );
+      if (!inv.redisConfigured) {
+        nsWarn('REDIS_URL not set on worker — Vercel Redis keys not cleared; parents may see cached data until TTL');
+      }
+    } catch (err) {
+      nsWarn(
+        `Cache invalidation skipped: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 
   return summary;

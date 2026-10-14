@@ -213,6 +213,10 @@ export function mergeHomeworkFromSource(
     attachmentUrl: String(incoming.attachmentUrl ?? '').trim()
       ? incoming.attachmentUrl
       : (existing.attachmentUrl ?? null),
+    attachments:
+      (incoming.attachments?.length ?? 0) > 0
+        ? [...incoming.attachments!]
+        : [...(existing.attachments ?? [])],
     sections:
       incoming.sections.length > 0 ? [...incoming.sections] : [...existing.sections],
     refId: incoming.refId ?? existing.refId,

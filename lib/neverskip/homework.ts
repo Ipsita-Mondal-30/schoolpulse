@@ -543,9 +543,19 @@ export async function fetchAllHomeworkPages(
 
   if (homeworkTotalCountMismatch(sourceTotal, uniqueFetched)) {
     incomplete = true;
-    const msg = `unique homework ${uniqueFetched} < total_count ${sourceTotal} (raw=${rawFetchedCount})`;
+    const missing = (sourceTotal ?? 0) - uniqueFetched;
+    const msg = `unique homework ${uniqueFetched} < total_count ${sourceTotal} (raw=${rawFetchedCount}, missing≈${missing})`;
     errors.push(msg);
     nsWarn(`HOMEWORK PARTIAL — ${msg}`);
+    if (duplicateSourceIds.length > 0) {
+      nsWarn(
+        `Homework cross-page overlaps: ${duplicateSourceIds.length} duplicate source id(s) — unique shortfall may be portal padding, not missing pages`,
+      );
+    } else {
+      nsWarn(
+        `Homework no cross-page duplicate ids found — shortfall may be soft-deleted/off-window rows in total_count`,
+      );
+    }
     logHomeworkDuplicateSourceIds(duplicateSourceIds, sourceTotal, uniqueFetched);
   }
 

@@ -151,6 +151,8 @@ model ImportedHomework {
   /// School due date (due_dt / ass_duedt) when provided; null if unset
   dueDate       String?
   attachmentUrl String?
+  /// Every source attachment as JSON [{ url, name? }]; attachmentUrl keeps the first.
+  attachmentsJson String @default("[]")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   acknowledgements HomeworkAcknowledgement[]
@@ -206,6 +208,8 @@ model ImportedNotice {
   publishedTime String
   classesJson   String
   imageUrl      String?
+  /// Every source attachment as JSON [{ url, name? }].
+  attachmentsJson String @default("[]")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   acknowledgements NoticeAcknowledgement[]
@@ -310,6 +314,31 @@ model ImportedJolScheduleDay {
 
   @@unique([scheduleId, sourceDayId])
   @@index([activityDate])
+}
+
+/// Monthly school newsletter: extracted planner + important dates (+ original PDF bytes).
+/// Only validated extractions are stored; failed extractions keep the previous row untouched.
+model ImportedNewsletterMonth {
+  id                String    @id @default(cuid())
+  /// YYYY-MM
+  monthKey          String    @unique
+  title             String    @default("")
+  /// Content Library sourceId the PDF came from (when downloaded by the worker)
+  sourceId          String?
+  sourceContentHash String
+  /// Public path served by /api/newsletters/[file], e.g. /newsletters/grade1-newsletter-october-2026.pdf
+  sourceDocumentUrl String?
+  pdfBytes          Bytes?
+  /// { month, year, monthlyPlanner[], importantDates[], jolTimetable? }
+  plannerJson       String    @default("{}")
+  status            String    @default("VALID")
+  extractedAt       DateTime  @default(now())
+  errorSummary      String    @default("")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([sourceContentHash])
+  @@index([sourceDocumentUrl])
 }
 
 /// Persisted NeverSkip sync attempt / freshness (never log secrets here)
@@ -429,6 +458,8 @@ model HomeworkVideo {
   provider       String    @default("veo")
   providerJobId  String?
   errorMessage   String?
+  /// Processing attempts; capped by MAX_VIDEO_ATTEMPTS before a terminal FAILED.
+  attempts       Int       @default(0)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   completedAt    DateTime?
