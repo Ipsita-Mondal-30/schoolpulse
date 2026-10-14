@@ -142,5 +142,8 @@ describe('verify:sync helpers', () => {
   it('describes the cache data version timestamp', () => {
     expect(describeDataVersion('1791981610330:neverskip-sync')).toMatch(/^2026-.*neverskip-sync/);
     expect(describeDataVersion(null)).toBe('(none)');
+    expect(describeDataVersion('1791981610330:neverskip-sync|sync:abc:1791981610330')).toMatch(
+      /neverskip-sync\); last SyncRun 2026-/,
+    );
   });
 });
