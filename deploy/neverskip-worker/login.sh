@@ -85,7 +85,8 @@ echo "[SchoolPulse] Profile used by login and sync: ${NEVERSKIP_PROFILE_DIR}"
 echo "[SchoolPulse] On your Mac, in a new terminal:"
 echo "    ssh -N -L ${VNC_PORT}:localhost:${VNC_PORT} ubuntu@<this-vm-ip>"
 echo "    open vnc://localhost:${VNC_PORT}      (one-time VNC password: ${VNC_PASS})"
-echo "[SchoolPulse] Log in to NeverSkip in that window (complete CAPTCHA). Waiting up to 10 minutes…"
+export NEVERSKIP_LOGIN_TIMEOUT_MS="${NEVERSKIP_LOGIN_TIMEOUT_MS:-1200000}"
+echo "[SchoolPulse] Log in to NeverSkip in that window (complete CAPTCHA). Waiting up to $((NEVERSKIP_LOGIN_TIMEOUT_MS / 60000)) minutes…"
 
 export DISPLAY="$LOGIN_DISPLAY"
 export NEVERSKIP_HEADLESS=false
