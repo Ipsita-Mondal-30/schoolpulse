@@ -328,7 +328,8 @@ export async function loginNeverSkipSession(
     options.noticesPageUrl ||
     process.env.NEVERSKIP_NOTICES_PAGE_URL ||
     DEFAULT_NOTICES_PAGE;
-  const timeoutMs = options.timeoutMs ?? 600_000;
+  const envTimeout = Number(process.env.NEVERSKIP_LOGIN_TIMEOUT_MS);
+  const timeoutMs = options.timeoutMs ?? (Number.isFinite(envTimeout) && envTimeout > 0 ? envTimeout : 600_000);
 
   fs.mkdirSync(profileDir, { recursive: true });
 
