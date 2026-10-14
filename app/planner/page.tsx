@@ -17,8 +17,11 @@ function defaultSelectedDate(year: number, monthName: string, dates: ImportantDa
 
   if (today.startsWith(prefix)) return today;
 
-  const firstWithEvent = dates.find((d) => d.date.startsWith(prefix));
-  if (firstWithEvent) return firstWithEvent.date;
+  const firstWithEvent = dates
+    .map((d) => d.date)
+    .filter((d) => d.startsWith(prefix))
+    .sort()[0];
+  if (firstWithEvent) return firstWithEvent;
 
   return `${prefix}-01`;
 }
@@ -67,6 +70,12 @@ export default function PlannerPage() {
 
   return (
     <div className="sp-page">
+      {view?.missingCurrentMessage && !requestedKey ? (
+        <p className="mb-4 rounded-2xl bg-[var(--sp-primary-soft)]/50 px-4 py-2 text-sm text-[var(--sp-muted)]">
+          {view.missingCurrentMessage} Showing {monthData.month} {monthData.year}.
+        </p>
+      ) : null}
+
       <PlannerCalendar
         month={monthData.month}
         year={monthData.year}
@@ -84,12 +93,6 @@ export default function PlannerPage() {
           }
         }}
       />
-
-      {view?.missingCurrentMessage && !requestedKey ? (
-        <p className="mt-4 rounded-2xl bg-[var(--sp-primary-soft)]/50 px-4 py-2 text-sm text-[var(--sp-muted)]">
-          {view.missingCurrentMessage} Showing {monthData.month} {monthData.year}.
-        </p>
-      ) : null}
 
       <div className="mt-10 space-y-3">
         <div className="flex items-end justify-between gap-3">

@@ -65,7 +65,17 @@ export function summarizeSyncReport(reportJson: string | null | undefined): stri
 
 /** `bumpDataVersion` writes `${Date.now()}:${reason}`. */
 export function describeDataVersion(version: string | null): string {
-  if (!version) return '(none)';
-  const ms = Number(version.split(':')[0]);
-  return Number.isFinite(ms) && ms > 0 ? `${new Date(ms).toISOString()} (${version.split(':')[1] ?? ''})` : version;
+  if (!version || version === '0') return '(none)';
+  return version
+    .split('|')
+    .map((part) => {
+      const [head, ...rest] = part.split(':');
+      if (head === 'sync') {
+        const ms = Number(rest[1]);
+        return Number.isFinite(ms) && ms > 0 ? `last SyncRun ${new Date(ms).toISOString()}` : part;
+      }
+      const ms = Number(head);
+      return Number.isFinite(ms) && ms > 0 ? `${new Date(ms).toISOString()} (${rest[0] ?? ''})` : part;
+    })
+    .join('; ');
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   bumpDataVersion,
+  composeDataVersion,
   getDataVersion,
   invalidateSchoolPulseCaches,
   spCacheKey,
@@ -22,8 +23,17 @@ describe('data version + invalidation', () => {
     const before = await getDataVersion();
     const bumped = await bumpDataVersion('unit-test');
     expect(bumped).toContain('unit-test');
-    expect(await getDataVersion()).toBe(bumped);
+    expect(await getDataVersion()).toContain(bumped);
     expect(bumped).not.toBe(before === '0' ? 'keep' : before);
+  });
+
+  it('changes when a new SyncRun finishes even if the cache version did not move', () => {
+    const stale = '1790000000000:neverskip-sync';
+    const before = composeDataVersion(stale, 'sync:run1:1790000000000');
+    const after = composeDataVersion(stale, 'sync:run2:1791000000000');
+    expect(after).not.toBe(before);
+    expect(composeDataVersion(null, null)).toBe('0');
+    expect(composeDataVersion(null, 'sync:run2:1791000000000')).toBe('sync:run2:1791000000000');
   });
 
   it('invalidateSchoolPulseCaches returns version and redis flag', async () => {
