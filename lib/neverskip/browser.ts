@@ -355,17 +355,24 @@ export async function loginNeverSkipSession(
     await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
 
-    if (!isAppAuthenticated(page.url())) {
-      nsWarn('Login required — complete NeverSkip login (and CAPTCHA if shown) in the browser…');
-      await page.waitForURL((url) => isAppAuthenticated(url.toString()), {
-        timeout: timeoutMs,
-      });
+    const deadline = Date.now() + timeoutMs;
+    let attempt = 0;
+    while (!isAppAuthenticated(page.url())) {
+      if (page.isClosed()) throwSessionExpired('The portal window was closed before login finished');
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) throwSessionExpired(`Login not completed within ${Math.round(timeoutMs / 60_000)} minutes`);
+      attempt += 1;
+      nsWarn(
+        attempt === 1
+          ? 'Login required — complete NeverSkip login (and CAPTCHA if shown) in the browser…'
+          : `Portal returned to ${safeUrlPath(page.url())} after login — please log in again in the same window…`,
+      );
+      await page.waitForURL((url) => isAppAuthenticated(url.toString()), { timeout: remaining });
+      // Let the portal store its session before leaving the post-login page.
+      await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
+      await page.waitForTimeout(3000);
       await page.goto(noticesPageUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
       await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
-    }
-
-    if (!isAppAuthenticated(page.url())) {
-      throwSessionExpired();
     }
 
     nsLog('Session appears authenticated');
