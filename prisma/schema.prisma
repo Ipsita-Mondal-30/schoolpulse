@@ -151,6 +151,8 @@ model ImportedHomework {
   /// School due date (due_dt / ass_duedt) when provided; null if unset
   dueDate       String?
   attachmentUrl String?
+  /// Every source attachment as JSON [{ url, name? }]; attachmentUrl keeps the first.
+  attachmentsJson String @default("[]")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   acknowledgements HomeworkAcknowledgement[]
@@ -206,6 +208,8 @@ model ImportedNotice {
   publishedTime String
   classesJson   String
   imageUrl      String?
+  /// Every source attachment as JSON [{ url, name? }].
+  attachmentsJson String @default("[]")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   acknowledgements NoticeAcknowledgement[]
@@ -454,6 +458,8 @@ model HomeworkVideo {
   provider       String    @default("veo")
   providerJobId  String?
   errorMessage   String?
+  /// Processing attempts; capped by MAX_VIDEO_ATTEMPTS before a terminal FAILED.
+  attempts       Int       @default(0)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   completedAt    DateTime?

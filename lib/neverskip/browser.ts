@@ -10,6 +10,7 @@ import {
   type HomeworkPayload,
 } from './homework';
 import { nsDebugApiEnvelope, nsError, nsLog, nsWarn } from './log';
+import { isTransientHttpStatus, withRetry } from './retry';
 import { extractNotices, inspectNoticeEnvelope } from './normalizers';
 import {
   NOTICES_PATH,
@@ -221,6 +222,29 @@ function waitForCapture<T>(
 }
 
 async function fetchViaSession(
+  context: BrowserContext,
+  apiBaseUrl: string,
+  pathSuffix: string,
+  body: unknown,
+  extraHeaders?: Record<string, string>,
+): Promise<{ body: unknown; status: number; url: string } | null> {
+  return withRetry(
+    async () => {
+      const result = await fetchViaSessionOnce(context, apiBaseUrl, pathSuffix, body, extraHeaders);
+      if (result == null) return { retry: true, reason: 'network error', value: result };
+      if (result.body == null && isTransientHttpStatus(result.status)) {
+        return { retry: true, reason: `HTTP ${result.status}`, value: result };
+      }
+      return { retry: false, value: result };
+    },
+    {
+      onRetry: ({ attempt, delayMs, reason }) =>
+        nsWarn(`Session API POST ${pathSuffix} ${reason} — retry ${attempt} in ${delayMs}ms`),
+    },
+  );
+}
+
+async function fetchViaSessionOnce(
   context: BrowserContext,
   apiBaseUrl: string,
   pathSuffix: string,

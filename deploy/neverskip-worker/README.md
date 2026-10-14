@@ -158,6 +158,23 @@ in Neon (`ImportedNewsletterMonth`, `ImportedJolSchedule`). Invalid extractions 
 raise `plannerStatus=FAILED`. Backfill an existing PDF:
 `npx tsx scripts/ingest-newsletter.ts --file <pdf> [--source-id <contentlib id>]`.
 
+### 8d. AI homework videos, section targeting, attachments
+
+- After each sync the worker drains up to `NEVERSKIP_VIDEO_JOBS_PER_RUN` (default `2`, `0` disables) queued
+  homework videos while still holding the sync lock. Jobs stuck in `PLANNING`/`GENERATING` for 30+ minutes are
+  re-queued; each job gets at most 3 attempts, then stays `FAILED`. Video errors never change the sync exit code.
+  `NEVERSKIP_AUTO_ENQUEUE_VIDEOS=true` also queues eligible new homework (Veo cost — off by default).
+  On Vercel the video POST only enqueues (`VIDEO_PROCESS_INLINE=true` forces the old in-request behavior).
+  Playback streams MP4 bytes from Neon with HTTP Range (206) support.
+- Set `SYNCED_CHILD_SECTION` (e.g. `I-A`) in the worker `.env`: homework NeverSkip sends without class/section
+  targeting is then stored for that section instead of all Class 1 sections.
+- Every homework file (`download_url` + `ass_files`) and notice attachment URL is stored in `attachmentsJson`.
+
+NeverSkip authentication: the parent portal only offers interactive login (CAPTCHA). No documented API key,
+refresh token or service credential is available to this project, so re-login after session expiry stays a
+manual step (`npm run neverskip:login` on this host). Expiry is detected (exit 3, `AUTHENTICATION_REQUIRED`
+SyncRun), last-good data is kept, and an alert email is sent.
+
 ### 9. Verify Neon rows
 
 Confirm `ImportedHomework` / `ImportedNotice` update after a successful sync

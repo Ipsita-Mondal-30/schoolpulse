@@ -31,6 +31,27 @@ export function isLegacyDefaultHomeworkAudience(sections: string[]): boolean {
   return sections.length === 1 && sections[0] === 'I-A';
 }
 
+function isFullClass1Audience(sections: string[]): boolean {
+  const full = defaultClass1Audience();
+  return sections.length === full.length && full.every((sec, i) => sections[i] === sec);
+}
+
+/**
+ * True when a sections-only change is our own ingest default being rewritten
+ * (I-A-only → all Class 1, or all Class 1 / I-A-only → the configured synced section),
+ * not a school retargeting.
+ */
+export function isDefaultAudienceRewrite(
+  previous: string[],
+  next: string[],
+  syncedSection: string | null,
+): boolean {
+  if (isLegacyDefaultHomeworkAudience(previous) && isFullClass1Audience(next)) return true;
+  if (!syncedSection) return false;
+  const toSynced = next.length === 1 && next[0] === syncedSection;
+  return toSynced && (isFullClass1Audience(previous) || isLegacyDefaultHomeworkAudience(previous));
+}
+
 /** Keep only Class 1 section codes, de-duplicated, stable order. */
 export function uniqueClass1Sections(values: string[]): string[] {
   const found = new Set<string>();
