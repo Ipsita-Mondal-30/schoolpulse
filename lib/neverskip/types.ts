@@ -1,3 +1,5 @@
+import type { SourceAttachment } from './attachments';
+
 /** NeverSkip source constant */
 export const NEVERSKIP_SOURCE = 'neverskip' as const;
 
@@ -141,6 +143,8 @@ export interface NormalizedHomework {
   /** School due date from NeverSkip due_dt / ass_duedt only. Extracted dates live in HomeworkDeadlineExtraction. */
   dueDate: string | null;
   attachmentUrl: string | null;
+  /** Every attachment from the source; attachmentUrl is the first. */
+  attachments?: SourceAttachment[];
 }
 
 /** Normalized notice ready for persistence / UI mapping */
@@ -154,6 +158,7 @@ export interface NormalizedNotice {
   publishedTime: string;
   classes: string[];
   imageUrl: string | null;
+  attachments?: SourceAttachment[];
 }
 
 /** Normalized Content Library / JOL item */

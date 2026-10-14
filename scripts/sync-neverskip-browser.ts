@@ -12,6 +12,8 @@
  *   npm run sync:neverskip:browser
  *
  * Exit codes: 0 COMPLETE, 2 PARTIAL, 1 FAILED / DB error, 3 authentication required.
+ * After the sync, drains up to NEVERSKIP_VIDEO_JOBS_PER_RUN (default 2) queued AI
+ * homework videos; video failures never change the exit code.
  *
  * Browser collector is for local / dedicated worker use — not Vercel serverless.
  * Never commits the Playwright profile (see .gitignore).
@@ -32,6 +34,12 @@ import { nsError, nsLog, nsWarn } from '../lib/neverskip/log';
 import { exitCodeForSyncStatus } from '../lib/neverskip/sync-health';
 import { recordAuthenticationFailure } from '../lib/neverskip/auth-failure';
 import { runSyncAlertCheck } from '../lib/alerts/sync-alerts';
+import {
+  enqueueVideosForNewHomework,
+  processQueuedHomeworkVideos,
+  VIDEO_STATUS,
+} from '../lib/ai/homework-video';
+import { resolveConfiguredSection } from '../lib/synced-child';
 
 async function alertCheck(): Promise<void> {
   try {
@@ -41,9 +49,49 @@ async function alertCheck(): Promise<void> {
   }
 }
 
+/**
+ * Drain parent-requested AI homework video jobs (Veo needs minutes; Vercel cannot).
+ * Bounded per run and never changes the sync exit code.
+ */
+async function processVideoQueue(): Promise<void> {
+  const limit = Number(process.env.NEVERSKIP_VIDEO_JOBS_PER_RUN ?? 2);
+  if (!Number.isFinite(limit) || limit <= 0) {
+    nsLog('Video queue: disabled (NEVERSKIP_VIDEO_JOBS_PER_RUN=0)');
+    return;
+  }
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim()) {
+    nsWarn('Video queue: skipped — GOOGLE_GENERATIVE_AI_API_KEY not set on the worker');
+    return;
+  }
+  try {
+    if (process.env.NEVERSKIP_AUTO_ENQUEUE_VIDEOS === 'true') {
+      const enq = await enqueueVideosForNewHomework({ limit });
+      nsLog(`Video queue: auto-enqueued=${enq.enqueued} skipped=${enq.skipped}`);
+    }
+    const drained = await processQueuedHomeworkVideos({ limit: Math.floor(limit) });
+    const ready = drained.results.filter((r) => r.status === VIDEO_STATUS.READY).length;
+    nsLog(
+      `Video queue: recoveredStale=${drained.recovered.requeued} failedStale=${drained.recovered.failed} processed=${drained.processed} ready=${ready} notReady=${drained.processed - ready}`,
+    );
+  } catch (err) {
+    nsWarn(`Video queue step failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
 async function main(): Promise<number> {
+  const code = await syncMain();
+  if (code !== 1) await processVideoQueue();
+  return code;
+}
+
+async function syncMain(): Promise<number> {
   if (!process.env.DATABASE_URL?.trim()) {
     throw new Error('DATABASE_URL is required');
+  }
+  if (!resolveConfiguredSection()) {
+    nsWarn(
+      'SYNCED_CHILD_SECTION not set — homework without class/section targeting stays visible to all Class 1 sections',
+    );
   }
 
   const headless = process.env.NEVERSKIP_HEADLESS !== 'false';

@@ -15,6 +15,7 @@ import {
   enqueueHomeworkVideo,
   getHomeworkVideoStatus,
   processHomeworkVideoJob,
+  shouldProcessVideoInline,
   VIDEO_STATUS,
 } from '@/lib/ai/homework-video';
 
@@ -84,12 +85,12 @@ export async function POST(
   const homeworkId = authz.homework!.id;
   const result = await enqueueHomeworkVideo(homeworkId);
 
-  // Do not block the HTTP response on Veo (minutes). Process in after() when
-  // VIDEO_PROCESS_INLINE is not "false". Oracle worker also drains QUEUED jobs.
+  // Do not block the HTTP response on Veo (minutes). On Vercel, after() is killed at
+  // maxDuration and would strand the job mid-flight, so the Oracle worker drains the queue.
   if (
     result.status !== VIDEO_STATUS.READY &&
     result.status !== VIDEO_STATUS.FAILED &&
-    process.env.VIDEO_PROCESS_INLINE !== 'false'
+    shouldProcessVideoInline(process.env)
   ) {
     after(() => {
       void processHomeworkVideoJob(homeworkId).catch((err) => {

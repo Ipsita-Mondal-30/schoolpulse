@@ -6,6 +6,7 @@ import type {
   UpsertResult,
 } from './types';
 import { collapseText, normalizeAttachmentUrlForCompare } from './changes';
+import { attachmentsKey } from './attachments';
 
 export interface NeverSkipStore {
   upsertHomework(item: NormalizedHomework): Promise<UpsertResult>;
@@ -55,6 +56,7 @@ export function homeworkContentKey(item: NormalizedHomework): string {
     homeworkDate: item.homeworkDate,
     dueDate: item.dueDate,
     attachmentUrl: normalizeAttachmentUrlForCompare(item.attachmentUrl),
+    attachments: attachmentsKey(item.attachments),
   });
 }
 
@@ -67,6 +69,7 @@ export function noticeContentKey(item: NormalizedNotice): string {
     publishedTime: item.publishedTime,
     classes: [...item.classes].map(String).sort(),
     imageUrl: item.imageUrl,
+    attachments: attachmentsKey(item.attachments),
   });
 }
 

@@ -18,6 +18,7 @@ export interface UiHomeworkItem {
   submissionDate?: string;
   sentDate: string;
   attachmentImage?: string;
+  attachments?: { url: string; name?: string }[];
 }
 
 export interface UiNoticeItem {
@@ -27,6 +28,7 @@ export interface UiNoticeItem {
   classes: string[];
   summary: string;
   message: string;
+  attachments?: { url: string; name?: string }[];
 }
 
 /** Normalize to YYYY-MM-DD when possible; return '' if unparseable. */

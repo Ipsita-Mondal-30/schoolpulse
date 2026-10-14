@@ -442,6 +442,7 @@ export interface ImportedHomeworkItem {
     submissionDate?: string;
     sentDate: string;
     attachmentImage?: string;
+    attachments?: { url: string; name?: string }[];
 }
 
 export interface ImportedNoticeItem {
@@ -451,6 +452,7 @@ export interface ImportedNoticeItem {
     classes: string[];
     summary: string;
     message: string;
+    attachments?: { url: string; name?: string }[];
 }
 
 function sheetRowsToHomeworkItems(rows: SheetHomework[]): ImportedHomeworkItem[] {
@@ -485,6 +487,7 @@ export async function fetchImportedHomework(): Promise<ImportedHomeworkItem[]> {
         }
         const { getPrisma } = await import('@/lib/prisma');
         const { uiHomeworkId } = await import('@/lib/neverskip/ids');
+        const { parseAttachmentsJson } = await import('@/lib/neverskip/attachments');
         const { homeworkSectionsForUi, toSortableDate } = await import('@/lib/ui-merge');
         const { addDaysYmd, getIndiaToday } = await import('@/lib/daily-brief');
 
@@ -536,6 +539,7 @@ export async function fetchImportedHomework(): Promise<ImportedHomeworkItem[]> {
                 submissionDate: overlayHomeworkDueDate(h.dueDate, extractionByHw.get(h.sourceId)),
                 sentDate: toSortableDate(h.homeworkDate) || h.homeworkDate,
                 attachmentImage: h.attachmentUrl || undefined,
+                attachments: parseAttachmentsJson(h.attachmentsJson),
             };
         });
     } catch (error) {
@@ -551,6 +555,7 @@ export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
         }
         const { getPrisma } = await import('@/lib/prisma');
         const { uiNoticeId } = await import('@/lib/neverskip/ids');
+        const { parseAttachmentsJson } = await import('@/lib/neverskip/attachments');
         const {
             noticeSummaryForUi,
             resolveNoticeClassesForUi,
@@ -595,6 +600,7 @@ export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
                 classes: resolveNoticeClassesForUi(classes, n.title, n.summary, n.content),
                 summary: noticeSummaryForUi(n.title, n.summary, n.content),
                 message: n.content,
+                attachments: parseAttachmentsJson(n.attachmentsJson),
             };
         });
     } catch (error) {

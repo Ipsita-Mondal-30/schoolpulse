@@ -25,6 +25,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { AttachmentList } from '@/components/ui/AttachmentList';
 
 const LINK_BANNER_DISMISS_KEY = 'schoolpulse_dismiss_link_banner';
 
@@ -315,10 +316,12 @@ export default function HomeworkPage() {
                               <span className="text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--sp-primary)]">
                                 {hw.subject}
                               </span>
-                              {hw.attachmentImage ? (
+                              {hw.attachmentImage || hw.attachments?.length ? (
                                 <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--sp-subtle)]">
                                   <Paperclip className="h-3 w-3" aria-hidden />
-                                  Attachment
+                                  {(hw.attachments?.length ?? 0) > 1
+                                    ? `${hw.attachments!.length} attachments`
+                                    : 'Attachment'}
                                 </span>
                               ) : null}
                             </div>
@@ -373,21 +376,10 @@ export default function HomeworkPage() {
                                 Due {formatBriefDate(hw.submissionDate)}
                               </p>
                             ) : null}
-                            {hw.attachmentImage ? (
-                              <a
-                                href={hw.attachmentImage}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block"
-                              >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={hw.attachmentImage}
-                                  alt="Homework attachment"
-                                  className="max-h-64 w-auto rounded-xl border border-[var(--sp-border)]"
-                                />
-                              </a>
-                            ) : null}
+                            <AttachmentList
+                              attachments={hw.attachments}
+                              fallbackUrl={hw.attachmentImage}
+                            />
                             <AcknowledgeButton kind="homework" itemId={hw.id} />
                             <HomeworkAiLessonButton
                               homeworkId={hw.id}
