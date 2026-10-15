@@ -24,6 +24,9 @@ import {
 /** Default parent-facing window for NEW/CHANGED and recent activity dates. */
 export const UPDATES_RECENT_DAYS = 7;
 
+/** RECENT school publications reach further back so a holiday gap does not hide them. */
+export const UPDATES_PUBLISHED_DAYS = 14;
+
 const LIBRARY_RESOURCES: LibraryResourceRef[] = (
   libraryData.resources as { id: string; title: string; date: string }[]
 ).map((r) => ({ id: r.id, title: r.title, date: r.date }));
@@ -421,7 +424,16 @@ export function buildUpdatesFeed(input: {
     });
   }
 
-  newItems.sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
+  // One sync imports many posts at once; within an import day show the newest publication first.
+  newItems.sort((a, b) => {
+    const dayA = a.occurredAt ? indiaDay(new Date(a.occurredAt)) : '';
+    const dayB = b.occurredAt ? indiaDay(new Date(b.occurredAt)) : '';
+    if (dayA !== dayB) return dayB.localeCompare(dayA);
+    const pubA = YMD_RE.test(a.sourceDate) ? `${a.sourceDate}T${a.sourceTime || '00:00'}` : '';
+    const pubB = YMD_RE.test(b.sourceDate) ? `${b.sourceDate}T${b.sourceTime || '00:00'}` : '';
+    if (pubA !== pubB) return pubB.localeCompare(pubA);
+    return b.occurredAt.localeCompare(a.occurredAt);
+  });
 
   const recentItems: UpdateFeedItem[] = [];
   const recentKeys = new Set<string>();
