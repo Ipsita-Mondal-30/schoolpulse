@@ -4,6 +4,7 @@
  */
 
 import type { NormalizedHomework, NormalizedNotice } from './types';
+import { isPortalIconUrl } from './attachments';
 
 export type ChangeEntityType = 'homework' | 'notice' | 'jol';
 
@@ -316,7 +317,8 @@ export function getMeaningfulNoticeChanges(
   pushChange(out, 'publishedDate', 'Published date', previous.publishedDate, current.publishedDate);
   pushChange(out, 'publishedTime', 'Published time', previous.publishedTime, current.publishedTime);
   pushChange(out, 'classes', 'Classes', previous.classes, current.classes);
-  pushChange(out, 'imageUrl', 'Image', previous.imageUrl, current.imageUrl);
+  const realImage = (url: string | null) => (url && !isPortalIconUrl(url) ? url : null);
+  pushChange(out, 'imageUrl', 'Image', realImage(previous.imageUrl), realImage(current.imageUrl));
   return out;
 }
 
@@ -432,6 +434,21 @@ export function isNoiseChangeEvent(
   changes: FieldChange[],
 ): boolean {
   if (changes.length === 0) return true;
+  // A posted message's timestamp cannot change; date-only diffs come from identity collisions.
+  if (
+    entityType === 'notice' &&
+    changes.every((c) => c.field === 'publishedDate' || c.field === 'publishedTime')
+  ) {
+    return true;
+  }
+  // Legacy undated rows gain date/title/classes when matched to the portal message; text is unchanged.
+  if (
+    entityType === 'notice' &&
+    changes.some((c) => c.field === 'publishedDate' && !String(c.previous ?? '').trim()) &&
+    !changes.some((c) => c.field === 'content')
+  ) {
+    return true;
+  }
   if (entityType === 'homework' && isLegacyAudienceOnlyChange(changes)) return true;
   if (entityType === 'homework' && isDueDateClearanceNoise(changes)) return true;
   if (parentRelevantChanges(entityType, changes).length === 0) return true;

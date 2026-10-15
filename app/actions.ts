@@ -566,17 +566,20 @@ export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
         const sinceYmd = addDaysYmd(getIndiaToday(), -60) || getIndiaToday();
 
         // Prefer publication date/time so the newest school notice loads first.
-        const rows = await getPrisma().importedNotice.findMany({
-            where: {
-                OR: [{ publishedDate: { gte: sinceYmd } }, { publishedDate: '' }],
-            },
-            orderBy: [
-                { publishedDate: 'desc' },
-                { publishedTime: 'desc' },
-                { createdAt: 'desc' },
-            ],
-            take: 80,
-        });
+        const { dedupeNoticeRows } = await import('@/lib/neverskip/notice-dedupe');
+        const rows = dedupeNoticeRows(
+            await getPrisma().importedNotice.findMany({
+                where: {
+                    OR: [{ publishedDate: { gte: sinceYmd } }, { publishedDate: '' }],
+                },
+                orderBy: [
+                    { publishedDate: 'desc' },
+                    { publishedTime: 'desc' },
+                    { createdAt: 'desc' },
+                ],
+                take: 120,
+            }),
+        );
 
         return rows.map((n) => {
             let classes: string[] = [];
@@ -981,7 +984,7 @@ export async function loadRecentUpdates(options?: {
         const days = Math.max(1, options?.days ?? 7);
         const { cachedJsonGet, cachedJsonSet, spCacheKey } = await import('@/lib/cache/schoolpulse');
         const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
-        const key = `${spCacheKey(childKey, 'updates')}:d${days}`;
+        const key = `${spCacheKey(childKey, 'updates')}:d${days}:p2`;
         const cached = await cachedJsonGet<import('@/lib/updates-feed').UpdateFeedItem[]>(key);
         if (cached) return cached;
 
@@ -997,7 +1000,9 @@ export async function loadRecentUpdates(options?: {
         // Parent Updates window: last N India calendar days (default 7).
         const activitySinceYmd = addDaysYmd(getIndiaToday(), -(days - 1)) || getIndiaToday();
         const since = new Date(`${activitySinceYmd}T00:00:00+05:30`);
-        const publishedSinceYmd = activitySinceYmd;
+        const { UPDATES_PUBLISHED_DAYS } = await import('@/lib/updates-feed');
+        const publishedSinceYmd =
+            addDaysYmd(getIndiaToday(), -(Math.max(days, UPDATES_PUBLISHED_DAYS) - 1)) || activitySinceYmd;
         const changeSince = since;
 
         const prisma = getPrisma();
@@ -1079,10 +1084,13 @@ export async function loadRecentUpdates(options?: {
             }),
             prisma.importedNotice.findMany({
                 where: { OR: noticeOr },
-                orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
+                orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }, { createdAt: 'desc' }],
                 take: 80,
             }),
         ]);
+        const { dedupeNoticeRows } = await import('@/lib/neverskip/notice-dedupe');
+        const { parseAttachmentsJson } = await import('@/lib/neverskip/attachments');
+        const uniqueNoticeRows = dedupeNoticeRows(noticeRows);
 
         // Bind locally so HMR / dynamic-import edge cases cannot leave this undefined.
         const toVisibleFields = userVisibleChanges;
@@ -1101,7 +1109,7 @@ export async function loadRecentUpdates(options?: {
                 homeworkDate: row.homeworkDate,
                 sections: parseJsonArray(row.sectionsJson),
             })),
-            notices: noticeRows.map((row) => ({
+            notices: uniqueNoticeRows.map((row) => ({
                 id: row.id,
                 source: row.source,
                 sourceId: row.sourceId,
@@ -1112,6 +1120,7 @@ export async function loadRecentUpdates(options?: {
                 publishedDate: row.publishedDate,
                 publishedTime: row.publishedTime,
                 classes: parseJsonArray(row.classesJson),
+                attachments: parseAttachmentsJson(row.attachmentsJson),
             })),
             changes: usableChangeRows
                 .map((row) => {
@@ -1145,6 +1154,29 @@ export async function loadRecentUpdates(options?: {
     } catch (error) {
         console.error('Failed to load recent updates', error);
         return [];
+    }
+}
+
+/** Parent-safe sync freshness (state + last data date only). */
+export async function loadDataFreshness(): Promise<import('@/lib/data-freshness').DataFreshness> {
+    try {
+        if (!process.env.DATABASE_URL) return { state: 'unknown', lastDataAt: null };
+        const { getPrisma } = await import('@/lib/prisma');
+        const { buildDataFreshness } = await import('@/lib/data-freshness');
+        const prisma = getPrisma();
+        const select = { status: true, finishedAt: true } as const;
+        const [latest, lastData] = await Promise.all([
+            prisma.syncRun.findFirst({ orderBy: { finishedAt: 'desc' }, select }),
+            prisma.syncRun.findFirst({
+                where: { status: { in: ['COMPLETE', 'PARTIAL'] } },
+                orderBy: { finishedAt: 'desc' },
+                select,
+            }),
+        ]);
+        return buildDataFreshness([latest, lastData].filter((r): r is NonNullable<typeof r> => Boolean(r)));
+    } catch (error) {
+        console.error('Failed to load data freshness', error);
+        return { state: 'unknown', lastDataAt: null };
     }
 }
 

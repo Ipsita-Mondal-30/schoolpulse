@@ -20,11 +20,20 @@ const NOTICE_ATTACHMENT_KEYS = [
   'doc_url',
   'download_url',
   'ntc_files',
+  /** Files joined from the Lounge feed by message id (see lounge.ts). */
+  'lounge_files',
 ] as const;
+
+/** Portal UI icons (message-type / sender / file-type badges) — never a school document. */
+const PORTAL_ICON_RE = /\/assets\/com_icon\/|\/par_mob_icon\/|\/nskdata\/[^/]+\.png$/i;
+
+export function isPortalIconUrl(url: string | null | undefined): boolean {
+  return Boolean(url && PORTAL_ICON_RE.test(url));
+}
 
 function addUrl(out: SourceAttachment[], seen: Set<string>, rawUrl: unknown, rawName?: unknown): void {
   const url = String(rawUrl ?? '').trim();
-  if (!url || !URL_RE.test(url) || seen.has(url)) return;
+  if (!url || !URL_RE.test(url) || seen.has(url) || isPortalIconUrl(url)) return;
   seen.add(url);
   const name = String(rawName ?? '').trim();
   out.push(name ? { url, name } : { url });

@@ -4,8 +4,9 @@ import {
   uniqueClass1Sections,
 } from '@/lib/class-sections';
 import { resolveConfiguredSection } from '@/lib/synced-child';
-import { extractHomeworkAttachments, extractNoticeAttachments } from './attachments';
+import { extractHomeworkAttachments, extractNoticeAttachments, isPortalIconUrl } from './attachments';
 import { homeworkSourceId, noticeSourceId } from './ids';
+import { noticeMessageId } from './lounge';
 import {
   NEVERSKIP_SOURCE,
   type NeverSkipFile,
@@ -417,8 +418,10 @@ export function normalizeNotice(raw: NeverSkipRawNotice): NormalizedNotice | nul
     (content.length > 120 ? `${content.slice(0, 117)}...` : content) ||
     'Notice';
 
+  const msid = noticeMessageId(raw);
   const sourceId = noticeSourceId({
-    id: raw.id,
+    // Portal message id is the only stable identity: the school reposts identical text on different days.
+    id: raw.id ?? (msid ? `msid:${msid}` : undefined),
     noticeId: raw.notice_id,
     date: publishedDate || (typeof raw.date === 'string' ? raw.date : ''),
     time: publishedTime,
@@ -435,7 +438,10 @@ export function normalizeNotice(raw: NeverSkipRawNotice): NormalizedNotice | nul
     publishedDate: publishedDate || '',
     publishedTime,
     classes,
-    imageUrl: raw.image && String(raw.image).trim() ? String(raw.image).trim() : null,
+    imageUrl:
+      raw.image && String(raw.image).trim() && !isPortalIconUrl(String(raw.image))
+        ? String(raw.image).trim()
+        : null,
     attachments: extractNoticeAttachments(raw),
   };
 }

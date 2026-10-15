@@ -24,6 +24,9 @@ import {
 /** Default parent-facing window for NEW/CHANGED and recent activity dates. */
 export const UPDATES_RECENT_DAYS = 7;
 
+/** RECENT school publications reach further back so a holiday gap does not hide them. */
+export const UPDATES_PUBLISHED_DAYS = 14;
+
 const LIBRARY_RESOURCES: LibraryResourceRef[] = (
   libraryData.resources as { id: string; title: string; date: string }[]
 ).map((r) => ({ id: r.id, title: r.title, date: r.date }));
@@ -77,6 +80,8 @@ export interface UpdateFeedItem {
   changedFields: UpdateFeedChangeField[];
   /** Content Library CTA when notice text mentions it (never invents resource ids). */
   libraryHref?: string;
+  /** Real files attached to the notice by the school (Lounge / Daily Notice). */
+  attachments?: { url: string; name?: string }[];
 }
 
 export interface UpdateFeedHomeworkRow {
@@ -101,6 +106,7 @@ export interface UpdateFeedNoticeRow {
   publishedDate: string;
   publishedTime?: string;
   classes: string[];
+  attachments?: { url: string; name?: string }[];
 }
 
 export interface UpdateFeedChangeRow {
@@ -267,6 +273,7 @@ export function buildUpdatesFeed(input: {
   for (const hw of input.homework) {
     const source = hw.source || 'neverskip';
     const key = entityKey('homework', source, hw.sourceId);
+    if (covered.has(key)) continue;
     covered.add(key);
     const createdMs = toMs(hw.createdAt);
     const change = latestChange.get(key);
@@ -325,6 +332,7 @@ export function buildUpdatesFeed(input: {
   for (const notice of input.notices) {
     const source = notice.source || 'neverskip';
     const key = entityKey('notice', source, notice.sourceId);
+    if (covered.has(key)) continue;
     covered.add(key);
     const createdMs = toMs(notice.createdAt);
     const change = latestChange.get(key);
@@ -358,6 +366,7 @@ export function buildUpdatesFeed(input: {
         href: noticeHref(uiId),
         changedFields: asChangeFields(change.changedFields),
         libraryHref,
+        attachments: notice.attachments,
       });
       continue;
     }
@@ -385,6 +394,7 @@ export function buildUpdatesFeed(input: {
         href: noticeHref(uiId),
         changedFields: [],
         libraryHref,
+        attachments: notice.attachments,
       });
     }
   }
@@ -414,13 +424,24 @@ export function buildUpdatesFeed(input: {
     });
   }
 
-  newItems.sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
+  // One sync imports many posts at once; within an import day show the newest publication first.
+  newItems.sort((a, b) => {
+    const dayA = a.occurredAt ? indiaDay(new Date(a.occurredAt)) : '';
+    const dayB = b.occurredAt ? indiaDay(new Date(b.occurredAt)) : '';
+    if (dayA !== dayB) return dayB.localeCompare(dayA);
+    const pubA = YMD_RE.test(a.sourceDate) ? `${a.sourceDate}T${a.sourceTime || '00:00'}` : '';
+    const pubB = YMD_RE.test(b.sourceDate) ? `${b.sourceDate}T${b.sourceTime || '00:00'}` : '';
+    if (pubA !== pubB) return pubB.localeCompare(pubA);
+    return b.occurredAt.localeCompare(a.occurredAt);
+  });
 
   const recentItems: UpdateFeedItem[] = [];
+  const recentKeys = new Set<string>();
   for (const notice of input.notices) {
     const source = notice.source || 'neverskip';
     const key = entityKey('notice', source, notice.sourceId);
-    if (newNoticeKeys.has(key)) continue;
+    if (newNoticeKeys.has(key) || recentKeys.has(key)) continue;
+    recentKeys.add(key);
 
     const pub = String(notice.publishedDate ?? '').trim();
     const inPublishWindow =
@@ -457,6 +478,7 @@ export function buildUpdatesFeed(input: {
       href: noticeHref(uiId),
       changedFields: [],
       libraryHref,
+      attachments: notice.attachments,
     });
   }
 
