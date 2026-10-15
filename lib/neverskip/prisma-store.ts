@@ -187,29 +187,24 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
       },
     });
 
-    // Legacy rows hashed date|time|title|content with blank dates — match by content to update in place.
-    if (!existing && item.content.trim()) {
-      const candidates = await prisma.importedNotice.findMany({
-        where: { source: item.source, content: item.content },
-        take: 5,
-      });
-      if (candidates.length === 1) {
-        existing = candidates[0];
-      } else if (candidates.length > 1) {
-        existing =
-          candidates.find((c) => !c.publishedDate?.trim()) ??
-          candidates.find((c) => c.title === item.title) ??
-          candidates[0];
-      }
-    }
-
+    // Legacy content-hash rows: re-key onto the portal message id only when posting
+    // date, time and text all match. Text alone is not identity — the school reposts it.
     if (!existing && item.publishedDate && item.content.trim()) {
       const wanted = noticeDedupeKey(item);
       const sameDay = await prisma.importedNotice.findMany({
         where: { source: item.source, publishedDate: item.publishedDate },
         orderBy: { createdAt: 'asc' },
       });
-      existing = sameDay.find((c) => noticeDedupeKey(c) === wanted) ?? null;
+      existing =
+        sameDay.find((c) => !c.sourceId.startsWith('msid:') && noticeDedupeKey(c) === wanted) ?? null;
+    }
+
+    // Legacy rows stored without a publication date — match by exact text.
+    if (!existing && item.content.trim()) {
+      existing = await prisma.importedNotice.findFirst({
+        where: { source: item.source, content: item.content, publishedDate: '' },
+        orderBy: { createdAt: 'asc' },
+      });
     }
 
     const classesJson = JSON.stringify(item.classes);
