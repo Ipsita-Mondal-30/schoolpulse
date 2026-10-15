@@ -4,6 +4,7 @@
  */
 
 import type { NormalizedHomework, NormalizedNotice } from './types';
+import { isPortalIconUrl } from './attachments';
 
 export type ChangeEntityType = 'homework' | 'notice' | 'jol';
 
@@ -316,7 +317,8 @@ export function getMeaningfulNoticeChanges(
   pushChange(out, 'publishedDate', 'Published date', previous.publishedDate, current.publishedDate);
   pushChange(out, 'publishedTime', 'Published time', previous.publishedTime, current.publishedTime);
   pushChange(out, 'classes', 'Classes', previous.classes, current.classes);
-  pushChange(out, 'imageUrl', 'Image', previous.imageUrl, current.imageUrl);
+  const realImage = (url: string | null) => (url && !isPortalIconUrl(url) ? url : null);
+  pushChange(out, 'imageUrl', 'Image', realImage(previous.imageUrl), realImage(current.imageUrl));
   return out;
 }
 

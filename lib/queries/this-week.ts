@@ -2,10 +2,11 @@
 
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { loadThisWeekNoticeDeadlines } from '@/app/actions';
+import { loadPlannerMonth, loadThisWeekNoticeDeadlines } from '@/app/actions';
 import { getIndiaToday } from '@/lib/daily-brief';
 import { mergeDeadlineItems } from '@/lib/deadlines/merge';
 import { buildThisWeekView, type ThisWeekView } from '@/lib/this-week';
+import { getEndOfWeekIndia, getStartOfWeekIndia } from '@/lib/week-range';
 import { useHomeworkQuery } from '@/lib/queries/homework';
 import { useNoticesQuery } from '@/lib/queries/notices';
 
@@ -17,6 +18,15 @@ export type UseThisWeekQueryOptions = {
   today?: string;
 };
 
+/** Newsletter important dates for the month(s) a Mon–Sun week touches. */
+async function loadWeekEvents(weekStart: string, weekEnd: string) {
+  const keys = Array.from(new Set([weekStart.slice(0, 7), weekEnd.slice(0, 7)]));
+  const views = await Promise.all(keys.map((key) => loadPlannerMonth(key)));
+  return views.flatMap((v) =>
+    v.selected && keys.includes(v.selected.key) ? v.selected.importantDates : [],
+  );
+}
+
 /**
  * Reuses ['homework'] so Dashboard ↔ This Week ↔ Homework share cache.
  * Notice deadlines are a tiny extra DB read — never a Gemini call.
@@ -24,11 +34,17 @@ export type UseThisWeekQueryOptions = {
 export function useThisWeekQuery(options: UseThisWeekQueryOptions = {}) {
   const section = options.section || 'I-A';
   const today = options.today || getIndiaToday();
+  const weekStart = getStartOfWeekIndia(today);
+  const weekEnd = getEndOfWeekIndia(today);
   const homeworkQuery = useHomeworkQuery();
   const noticesQuery = useNoticesQuery();
   const noticeDeadlinesQuery = useQuery({
     queryKey: ['this-week', 'notice-deadlines'] as const,
     queryFn: loadThisWeekNoticeDeadlines,
+  });
+  const eventsQuery = useQuery({
+    queryKey: ['this-week', 'events', weekStart, weekEnd] as const,
+    queryFn: () => loadWeekEvents(weekStart, weekEnd),
   });
 
   const data: ThisWeekView | undefined = useMemo(() => {
@@ -42,8 +58,9 @@ export function useThisWeekQuery(options: UseThisWeekQueryOptions = {}) {
       today,
       section,
       notices: noticesQuery.data ?? [],
+      events: eventsQuery.data ?? [],
     });
-  }, [homeworkQuery.data, noticeDeadlinesQuery.data, noticesQuery.data, today, section]);
+  }, [homeworkQuery.data, noticeDeadlinesQuery.data, noticesQuery.data, eventsQuery.data, today, section]);
 
   return {
     data,

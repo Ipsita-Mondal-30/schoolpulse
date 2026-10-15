@@ -14,10 +14,17 @@ import { isTransientHttpStatus, withRetry } from './retry';
 import { extractNotices, inspectNoticeEnvelope } from './normalizers';
 import {
   NOTICES_PATH,
-  fetchAllNoticePages,
   parseNoticesPortalBody,
   type NoticesPayload,
 } from './notices';
+import {
+  LOUNGE_PATH,
+  envelopeItemList,
+  fetchCursorPages,
+  joinLoungeFilesToNotices,
+  noticeMessageId,
+  parseLoungeAttachments,
+} from './lounge';
 import {
   JOL_API_MATCH,
   JOL_CONTENT_LIBRARY_PAGE,
@@ -801,31 +808,57 @@ export async function collectNeverSkipData(
           noticesPortalTemplate = parseNoticesPortalBody({});
           nsLog('Notices portal template missing — using empty {} (SPA historical default)');
         }
-        const paged = await fetchAllNoticePages(
-          async (pageIndex, payload: NoticesPayload) => {
-            if (pageIndex === 0) return noticesRaw;
-            const result = await fetchViaSession(
-              context!,
-              apiBaseUrl,
-              NOTICES_PATH,
-              payload,
-              tokenHeaders,
-            );
-            if (!result?.body) {
-              throw new Error(`notice session page ${pageIndex} failed (HTTP ${result?.status ?? 'n/a'})`);
-            }
-            return result.body as NeverSkipNoticesResponse;
-          },
-          { firstPage: noticesRaw, portalTemplate: noticesPortalTemplate },
-        );
+        const template = noticesPortalTemplate;
+        const fetchConnectPage = async (path: string, cursor: string): Promise<unknown> => {
+          const result = await fetchViaSession(context!, apiBaseUrl, path, { ...template, page: cursor }, tokenHeaders);
+          if (!result?.body) throw new Error(`${path} cursor ${cursor || '(first)'} failed (HTTP ${result?.status ?? 'n/a'})`);
+          if (inspectNoticeEnvelope(result.body as NeverSkipNoticesResponse).status === 'failure_envelope') {
+            throwSessionExpired();
+          }
+          return result.body;
+        };
+        const paged = await fetchCursorPages<NeverSkipRawNotice>({
+          firstPage: noticesRaw,
+          fetchPage: (cursor) => fetchConnectPage(NOTICES_PATH, cursor),
+          extract: (body) => extractNotices(body as NeverSkipNoticesResponse),
+          keyOf: (n) => noticeMessageId(n) || `${n.date ?? ''}|${String(n.cont ?? '').slice(0, 200)}`,
+        });
         notices = paged.items;
         noticePagesFetched = paged.pagesFetched;
-        noticeFetchIncomplete = paged.incomplete;
-        noticePage0Only = paged.page0Only;
+        noticeFetchIncomplete = !paged.complete;
+        noticePage0Only = false;
         noticeFetchErrors = paged.errors;
-        noticeSourceTotal = paged.sourceTotal;
+        noticeSourceTotal = paged.complete ? paged.uniqueFetched : null;
         noticeRawFetched = paged.rawFetched;
         noticeUniqueFetched = paged.uniqueFetched;
+        nsLog(
+          `NOTICES cursor pages=${paged.pagesFetched} raw=${paged.rawFetched} unique=${paged.uniqueFetched} complete=${paged.complete}${paged.errors.length ? ` errors=${paged.errors.join('; ')}` : ''}`,
+        );
+
+        try {
+          const loungeFirst = await fetchConnectPage(LOUNGE_PATH, '');
+          const loungeBodies: unknown[] = [];
+          const lounge = await fetchCursorPages<unknown>({
+            firstPage: loungeFirst,
+            fetchPage: (cursor) => fetchConnectPage(LOUNGE_PATH, cursor),
+            extract: (body) => {
+              loungeBodies.push(body);
+              return envelopeItemList(body);
+            },
+            keyOf: (g) => JSON.stringify(g).slice(0, 400),
+          });
+          const files = parseLoungeAttachments(loungeBodies);
+          const joined = joinLoungeFilesToNotices(notices, files);
+          nsLog(
+            `LOUNGE (Circulars) pages=${lounge.pagesFetched} posts=${lounge.uniqueFetched} withFiles=${files.size} joinedToNotices=${joined.matched} unmatched=${joined.unmatchedMessageIds.length} complete=${lounge.complete}${lounge.errors.length ? ` errors=${lounge.errors.join('; ')}` : ''}`,
+          );
+          if (joined.unmatchedMessageIds.length > 0) {
+            nsWarn(`LOUNGE files without a Daily Notice (msg_id): ${joined.unmatchedMessageIds.slice(0, 20).join(', ')}`);
+          }
+        } catch (err) {
+          if (err instanceof NeverSkipSessionExpiredError) throw err;
+          nsWarn(`LOUNGE fetch failed — notices kept without attachments: ${err instanceof Error ? err.message : String(err)}`);
+        }
       }
     } else if (noticesRaw) {
       const inspected = inspectNoticeEnvelope(noticesRaw);

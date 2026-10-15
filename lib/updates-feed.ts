@@ -77,6 +77,8 @@ export interface UpdateFeedItem {
   changedFields: UpdateFeedChangeField[];
   /** Content Library CTA when notice text mentions it (never invents resource ids). */
   libraryHref?: string;
+  /** Real files attached to the notice by the school (Lounge / Daily Notice). */
+  attachments?: { url: string; name?: string }[];
 }
 
 export interface UpdateFeedHomeworkRow {
@@ -101,6 +103,7 @@ export interface UpdateFeedNoticeRow {
   publishedDate: string;
   publishedTime?: string;
   classes: string[];
+  attachments?: { url: string; name?: string }[];
 }
 
 export interface UpdateFeedChangeRow {
@@ -360,6 +363,7 @@ export function buildUpdatesFeed(input: {
         href: noticeHref(uiId),
         changedFields: asChangeFields(change.changedFields),
         libraryHref,
+        attachments: notice.attachments,
       });
       continue;
     }
@@ -387,6 +391,7 @@ export function buildUpdatesFeed(input: {
         href: noticeHref(uiId),
         changedFields: [],
         libraryHref,
+        attachments: notice.attachments,
       });
     }
   }
@@ -461,6 +466,7 @@ export function buildUpdatesFeed(input: {
       href: noticeHref(uiId),
       changedFields: [],
       libraryHref,
+      attachments: notice.attachments,
     });
   }
 

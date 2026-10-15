@@ -2,6 +2,7 @@ import { getPrisma } from '@/lib/prisma';
 import { isDefaultAudienceRewrite } from '@/lib/class-sections';
 import { resolveConfiguredSection } from '@/lib/synced-child';
 import { parseAttachmentsJson } from './attachments';
+import { noticeDedupeKey } from './notice-dedupe';
 import {
   actionableHomeworkChangeFields,
   getMeaningfulHomeworkChanges,
@@ -200,6 +201,15 @@ export class PrismaNeverSkipStore implements NeverSkipStore {
           candidates.find((c) => c.title === item.title) ??
           candidates[0];
       }
+    }
+
+    if (!existing && item.publishedDate && item.content.trim()) {
+      const wanted = noticeDedupeKey(item);
+      const sameDay = await prisma.importedNotice.findMany({
+        where: { source: item.source, publishedDate: item.publishedDate },
+        orderBy: { createdAt: 'asc' },
+      });
+      existing = sameDay.find((c) => noticeDedupeKey(c) === wanted) ?? null;
     }
 
     const classesJson = JSON.stringify(item.classes);

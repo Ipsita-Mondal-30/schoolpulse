@@ -23,6 +23,7 @@ import { LoadingState } from '@/components/ui/LoadingState';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { isNewerThan, readLastSeenIso, writeLastSeenNow } from '@/lib/updates-unread';
 import { DataFreshnessBanner } from '@/components/ui/DataFreshnessBanner';
+import { AttachmentList } from '@/components/ui/AttachmentList';
 import { useDataFreshnessQuery } from '@/lib/queries/data-freshness';
 import { isDataFreshnessWarning } from '@/lib/data-freshness';
 
@@ -96,6 +97,11 @@ function UpdateCard({
         >
           {isHw ? 'View homework →' : 'View notice →'}
         </Link>
+        {!isHw && item.attachments?.length ? (
+          <div className="w-full">
+            <AttachmentList attachments={item.attachments} />
+          </div>
+        ) : null}
         {!isHw && item.libraryHref ? (
           <Link
             href={item.libraryHref}
