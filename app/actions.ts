@@ -1148,5 +1148,28 @@ export async function loadRecentUpdates(options?: {
     }
 }
 
+/** Parent-safe sync freshness (state + last data date only). */
+export async function loadDataFreshness(): Promise<import('@/lib/data-freshness').DataFreshness> {
+    try {
+        if (!process.env.DATABASE_URL) return { state: 'unknown', lastDataAt: null };
+        const { getPrisma } = await import('@/lib/prisma');
+        const { buildDataFreshness } = await import('@/lib/data-freshness');
+        const prisma = getPrisma();
+        const select = { status: true, finishedAt: true } as const;
+        const [latest, lastData] = await Promise.all([
+            prisma.syncRun.findFirst({ orderBy: { finishedAt: 'desc' }, select }),
+            prisma.syncRun.findFirst({
+                where: { status: { in: ['COMPLETE', 'PARTIAL'] } },
+                orderBy: { finishedAt: 'desc' },
+                select,
+            }),
+        ]);
+        return buildDataFreshness([latest, lastData].filter((r): r is NonNullable<typeof r> => Boolean(r)));
+    } catch (error) {
+        console.error('Failed to load data freshness', error);
+        return { state: 'unknown', lastDataAt: null };
+    }
+}
+
 
 

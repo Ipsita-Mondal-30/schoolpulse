@@ -267,6 +267,7 @@ export function buildUpdatesFeed(input: {
   for (const hw of input.homework) {
     const source = hw.source || 'neverskip';
     const key = entityKey('homework', source, hw.sourceId);
+    if (covered.has(key)) continue;
     covered.add(key);
     const createdMs = toMs(hw.createdAt);
     const change = latestChange.get(key);
@@ -325,6 +326,7 @@ export function buildUpdatesFeed(input: {
   for (const notice of input.notices) {
     const source = notice.source || 'neverskip';
     const key = entityKey('notice', source, notice.sourceId);
+    if (covered.has(key)) continue;
     covered.add(key);
     const createdMs = toMs(notice.createdAt);
     const change = latestChange.get(key);
@@ -417,10 +419,12 @@ export function buildUpdatesFeed(input: {
   newItems.sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
 
   const recentItems: UpdateFeedItem[] = [];
+  const recentKeys = new Set<string>();
   for (const notice of input.notices) {
     const source = notice.source || 'neverskip';
     const key = entityKey('notice', source, notice.sourceId);
-    if (newNoticeKeys.has(key)) continue;
+    if (newNoticeKeys.has(key) || recentKeys.has(key)) continue;
+    recentKeys.add(key);
 
     const pub = String(notice.publishedDate ?? '').trim();
     const inPublishWindow =
