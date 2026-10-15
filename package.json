@@ -17,6 +17,8 @@
     "neverskip:auth-check": "tsx scripts/neverskip-auth-check.ts",
     "verify:sync": "tsx scripts/verify-sync.ts",
     "neverskip:discover-modules": "tsx scripts/discover-neverskip-modules.ts",
+    "neverskip:export-session": "tsx scripts/neverskip-export-session.ts",
+    "neverskip:import-session": "tsx scripts/neverskip-import-session.ts",
     "check:neverskip-ops": "tsx scripts/check-neverskip-ops.ts",
     "postinstall": "prisma generate",
     "worker:neverskip": "tsx scripts/neverskip-worker.ts",
