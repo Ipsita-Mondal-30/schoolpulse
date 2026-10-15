@@ -566,17 +566,20 @@ export async function fetchImportedNotices(): Promise<ImportedNoticeItem[]> {
         const sinceYmd = addDaysYmd(getIndiaToday(), -60) || getIndiaToday();
 
         // Prefer publication date/time so the newest school notice loads first.
-        const rows = await getPrisma().importedNotice.findMany({
-            where: {
-                OR: [{ publishedDate: { gte: sinceYmd } }, { publishedDate: '' }],
-            },
-            orderBy: [
-                { publishedDate: 'desc' },
-                { publishedTime: 'desc' },
-                { createdAt: 'desc' },
-            ],
-            take: 80,
-        });
+        const { dedupeNoticeRows } = await import('@/lib/neverskip/notice-dedupe');
+        const rows = dedupeNoticeRows(
+            await getPrisma().importedNotice.findMany({
+                where: {
+                    OR: [{ publishedDate: { gte: sinceYmd } }, { publishedDate: '' }],
+                },
+                orderBy: [
+                    { publishedDate: 'desc' },
+                    { publishedTime: 'desc' },
+                    { createdAt: 'desc' },
+                ],
+                take: 120,
+            }),
+        );
 
         return rows.map((n) => {
             let classes: string[] = [];
@@ -1079,10 +1082,13 @@ export async function loadRecentUpdates(options?: {
             }),
             prisma.importedNotice.findMany({
                 where: { OR: noticeOr },
-                orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
+                orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }, { createdAt: 'desc' }],
                 take: 80,
             }),
         ]);
+        const { dedupeNoticeRows } = await import('@/lib/neverskip/notice-dedupe');
+        const { parseAttachmentsJson } = await import('@/lib/neverskip/attachments');
+        const uniqueNoticeRows = dedupeNoticeRows(noticeRows);
 
         // Bind locally so HMR / dynamic-import edge cases cannot leave this undefined.
         const toVisibleFields = userVisibleChanges;
@@ -1101,7 +1107,7 @@ export async function loadRecentUpdates(options?: {
                 homeworkDate: row.homeworkDate,
                 sections: parseJsonArray(row.sectionsJson),
             })),
-            notices: noticeRows.map((row) => ({
+            notices: uniqueNoticeRows.map((row) => ({
                 id: row.id,
                 source: row.source,
                 sourceId: row.sourceId,
@@ -1112,6 +1118,7 @@ export async function loadRecentUpdates(options?: {
                 publishedDate: row.publishedDate,
                 publishedTime: row.publishedTime,
                 classes: parseJsonArray(row.classesJson),
+                attachments: parseAttachmentsJson(row.attachmentsJson),
             })),
             changes: usableChangeRows
                 .map((row) => {

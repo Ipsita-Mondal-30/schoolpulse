@@ -4,6 +4,7 @@
  * Assigned-only items go to dateNotSpecified — they are not due.
  */
 
+import type { ImportantDate } from '@/lib/data';
 import type { UiHomeworkItem, UiNoticeItem } from '@/lib/ui-merge';
 import { filterHomeworkBySection, filterNoticesByClass } from '@/lib/ui-merge';
 import {
@@ -69,6 +70,8 @@ export interface ThisWeekView {
   hasUndated: boolean;
   /** School notices published in [weekStart, weekEnd] for this section, newest first. */
   schoolNotices: UiNoticeItem[];
+  /** Newsletter calendar entries dated in [weekStart, weekEnd] — events, not homework. */
+  schoolEvents: ImportantDate[];
 }
 
 export interface BuildThisWeekViewInput {
@@ -76,6 +79,8 @@ export interface BuildThisWeekViewInput {
   today: string;
   section: string;
   notices?: UiNoticeItem[];
+  /** Important dates from published newsletters (any month); filtered to this week. */
+  events?: ImportantDate[];
 }
 
 function dueYmdOrEmpty(submissionDate?: string | null): string {
@@ -208,6 +213,10 @@ export function buildThisWeekView(input: BuildThisWeekViewInput): ThisWeekView {
     schoolNotices: filterNoticesByClass(input.notices ?? [], section)
       .filter((n) => isInWeek(n.date, weekStart, weekEnd))
       .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`)),
+    schoolEvents: (input.events ?? [])
+      .filter((e) => isInWeek(e.date, weekStart, weekEnd))
+      .filter((e, i, all) => all.findIndex((o) => o.date === e.date && o.event === e.event) === i)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.event.localeCompare(b.event)),
   };
 }
 

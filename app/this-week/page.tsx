@@ -17,6 +17,7 @@ import { formatBriefDate } from '@/lib/daily-brief';
 import { isDataFreshnessWarning } from '@/lib/data-freshness';
 import { useDataFreshnessQuery } from '@/lib/queries/data-freshness';
 import { DataFreshnessBanner } from '@/components/ui/DataFreshnessBanner';
+import { AttachmentList } from '@/components/ui/AttachmentList';
 import { useThisWeekQuery } from '@/lib/queries/this-week';
 import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -339,20 +340,44 @@ export default function ThisWeekPage() {
         ))}
       </div>
 
+      {data.schoolEvents.length > 0 ? (
+        <section className="mt-10">
+          <SectionHeader label="School calendar this week" />
+          <p className="sp-meta mb-2">From the school newsletter — events, not homework</p>
+          <div className="sp-card py-1">
+            {data.schoolEvents.map((event) => (
+              <div
+                key={`${event.date}-${event.event}`}
+                className="px-4 py-3 border-b border-[var(--sp-border)] last:border-0"
+              >
+                <span className="block text-[11px] text-[var(--sp-muted)]">{formatBriefDate(event.date)}</span>
+                <span className="block text-sm text-[var(--sp-ink)]">{event.event}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {data.schoolNotices.length > 0 ? (
         <section className="mt-10">
           <SectionHeader label="School notices this week" />
           <p className="sp-meta mb-2">Announcements from the school — not homework</p>
           <div className="sp-card py-1">
             {data.schoolNotices.map((notice) => (
-              <Link
+              <div
                 key={notice.id}
-                href="/notices"
-                className="block px-4 py-3 border-b border-[var(--sp-border)] last:border-0 hover:bg-[var(--sp-primary-soft)]/30 sp-focus"
+                className="px-4 py-3 border-b border-[var(--sp-border)] last:border-0"
               >
-                <span className="block text-[11px] text-[var(--sp-muted)]">{formatBriefDate(notice.date)}</span>
-                <span className="block text-sm text-[var(--sp-ink)] line-clamp-2">{notice.summary || notice.message}</span>
-              </Link>
+                <Link href="/notices" className="block hover:underline sp-focus rounded">
+                  <span className="block text-[11px] text-[var(--sp-muted)]">{formatBriefDate(notice.date)}</span>
+                  <span className="block text-sm text-[var(--sp-ink)] line-clamp-3">{notice.summary || notice.message}</span>
+                </Link>
+                {notice.attachments?.length ? (
+                  <div className="mt-2">
+                    <AttachmentList attachments={notice.attachments} />
+                  </div>
+                ) : null}
+              </div>
             ))}
           </div>
         </section>
