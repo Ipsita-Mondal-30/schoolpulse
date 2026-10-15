@@ -39,7 +39,10 @@ import {
   processQueuedHomeworkVideos,
   VIDEO_STATUS,
 } from '../lib/ai/homework-video';
-import { resolveConfiguredSection } from '../lib/synced-child';
+import { resolveConfiguredNeverSkipStudentId, resolveConfiguredSection } from '../lib/synced-child';
+import { getPrisma } from '../lib/prisma';
+import type { CollectedStudentRecords } from '../lib/neverskip/student-records';
+import { persistStudentRecords } from '../lib/neverskip/student-records-store';
 
 async function alertCheck(): Promise<void> {
   try {
@@ -76,6 +79,43 @@ async function processVideoQueue(): Promise<void> {
   } catch (err) {
     nsWarn(`Video queue step failed: ${err instanceof Error ? err.message : String(err)}`);
   }
+}
+
+/** Write attendance / report cards / fees for the configured child; failures keep stored rows. */
+async function syncStudentRecords(records: CollectedStudentRecords | undefined): Promise<{
+  status: { status: 'COMPLETE' | 'PARTIAL' | 'FAILED'; fetched: number; errors: string[] };
+  report: Record<string, unknown>;
+}> {
+  if (!records) {
+    return { status: { status: 'FAILED', fetched: 0, errors: ['not collected'] }, report: {} };
+  }
+  const errors = [...records.errors];
+  let written: Awaited<ReturnType<typeof persistStudentRecords>> | null = null;
+  try {
+    written = await persistStudentRecords(getPrisma(), resolveConfiguredNeverSkipStudentId(), records);
+  } catch (err) {
+    errors.push(`write: ${err instanceof Error ? err.message : String(err)}`);
+  }
+  const streams = written ? [written.attendance, written.reportCards, written.fees] : [];
+  const okStreams = streams.filter(Boolean).length;
+  const fetched = streams.reduce((n, s) => n + (s?.fetched ?? 0), 0);
+  const status = errors.length === 0 && okStreams === 3 ? 'COMPLETE' : okStreams > 0 ? 'PARTIAL' : 'FAILED';
+  const fmt = (s: { inserted: number; updated: number; unchanged: number; fetched: number } | null | undefined) =>
+    s ? `fetched=${s.fetched} inserted=${s.inserted} updated=${s.updated} unchanged=${s.unchanged}` : 'not written';
+  nsLog(
+    `STUDENT RECORDS status=${status} attendance(${fmt(written?.attendance)}) reportCards(${fmt(written?.reportCards)}) fees(${fmt(written?.fees)})${errors.length ? ` errors=${errors.join('; ')}` : ''}`,
+  );
+  return {
+    status: { status, fetched, errors },
+    report: {
+      status,
+      academicYear: records.academicYear?.label ?? null,
+      attendance: written?.attendance ?? null,
+      reportCards: written?.reportCards ?? null,
+      fees: written?.fees ?? null,
+      errors,
+    },
+  };
 }
 
 async function main(): Promise<number> {
@@ -147,16 +187,20 @@ async function syncMain(): Promise<number> {
   }));
   nsLog(`JOL worksheet timetable sync: ${jolTt.status} days=${jolTt.dayCount ?? 0}`);
 
+  const studentRecords = await syncStudentRecords(collected.studentRecords);
+
   const store = new PrismaNeverSkipStore();
   const summary = await syncNeverSkipData({
     ...collectedToSyncInput(collected),
     store,
     label: 'browser sync',
+    studentRecordsStatus: studentRecords.status,
     extraReport: {
       jolTimetableStatus: jolTt.status,
       jolTimetableDayCount: jolTt.dayCount ?? null,
       plannerStatus: jolTt.status === 'FAILED' ? 'FAILED' : jolTt.status,
       plannerError: jolTt.errors[0] ?? null,
+      studentRecords: studentRecords.report,
     },
   });
   summary.jolTimetableStatus = jolTt.status;

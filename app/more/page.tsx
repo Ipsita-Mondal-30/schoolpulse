@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { signOut, useSession } from 'next-auth/react';
 import {
   Bus,
+  CalendarCheck,
   CalendarRange,
   ClipboardList,
   GraduationCap,
@@ -21,6 +22,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 const MORE_LINKS = [
   { href: '/this-week', label: 'This Week', description: 'How busy the week looks', icon: CalendarRange },
   { href: '/timetable', label: 'Timetable', description: 'Today’s class periods', icon: ClipboardList },
+  { href: '/records', label: 'Attendance & reports', description: 'Attendance, report cards and fees', icon: CalendarCheck },
   { href: '/class-diary', label: 'Library', description: 'Class diary & content', icon: Library },
   { href: '/joy-of-learning', label: 'JoL', description: 'Joy of Learning', icon: GraduationCap },
   { href: '/week', label: 'Words', description: 'Weekly vocabulary', icon: Type },

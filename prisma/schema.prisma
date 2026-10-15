@@ -341,6 +341,66 @@ model ImportedNewsletterMonth {
   @@index([sourceDocumentUrl])
 }
 
+/// NeverSkip monthly attendance summary for the synced child (profile/getstuattendance). Private.
+model ImportedAttendanceMonth {
+  id           String   @id @default(cuid())
+  source       String   @default("neverskip")
+  /// Student.neverSkipStudentId of the synced child
+  studentKey   String
+  /// e.g. "2026-27"
+  academicYear String
+  monthIndex   Int
+  month        String
+  workingDays  Int?
+  holidays     Int?
+  /// null when the school has not recorded attendance for the month yet
+  absentDays   Int?
+  absentDates  String   @default("")
+  lateDays     Int?
+  lateDates    String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([source, studentKey, academicYear, month])
+  @@index([studentKey, academicYear])
+}
+
+/// NeverSkip report cards for the synced child (academic/getacademicsdetailsapi). Private.
+model ImportedReportCard {
+  id           String   @id @default(cuid())
+  source       String   @default("neverskip")
+  studentKey   String
+  sourceId     String
+  academicYear String
+  title        String
+  reportDate   String   @default("")
+  reportTime   String   @default("")
+  reportUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([source, studentKey, sourceId])
+  @@index([studentKey, reportDate])
+}
+
+/// NeverSkip fee summary for the synced child (fees/getfeedetails). Private.
+model ImportedFeeSummary {
+  id           String   @id @default(cuid())
+  source       String   @default("neverskip")
+  studentKey   String
+  academicYear String
+  paidAmount   Float?
+  totalDue     Float?
+  nextDue      Float?
+  nextDueLabel String   @default("")
+  /// Fee breakdown rows exactly as NeverSkip returned them
+  detailsJson  String   @default("[]")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([source, studentKey, academicYear])
+}
+
 /// Persisted NeverSkip sync attempt / freshness (never log secrets here)
 model SyncRun {
   id                 String   @id @default(cuid())

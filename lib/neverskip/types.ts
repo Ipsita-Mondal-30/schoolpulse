@@ -232,6 +232,8 @@ export interface CollectedNeverSkipData {
   scheduleFetchErrors?: string[];
   /** True when calendar response was complete (including empty D:[]) */
   scheduleFetchComplete?: boolean;
+  /** Attendance, report cards and fee summary for the synced child */
+  studentRecords?: import('./student-records').CollectedStudentRecords;
 }
 
 export interface SyncSummary {

@@ -11,6 +11,7 @@ import {
 } from './homework';
 import { nsDebugApiEnvelope, nsError, nsLog, nsWarn } from './log';
 import { isTransientHttpStatus, withRetry } from './retry';
+import { collectStudentRecords } from './student-records';
 import { extractNotices, inspectNoticeEnvelope } from './normalizers';
 import {
   NOTICES_PATH,
@@ -1022,6 +1023,20 @@ export async function collectNeverSkipData(
       nsError('CALENDAR SYNC = FAILED — no calendar API response');
     }
 
+    let studentRecords: CollectedNeverSkipData['studentRecords'];
+    if (context && requireAuth) {
+      const tokenHeaders = sessionTokenHeader ? { Token: sessionTokenHeader } : undefined;
+      studentRecords = await collectStudentRecords(async (path, body) => {
+        const result = await fetchViaSession(context!, apiBaseUrl, path, body, tokenHeaders);
+        if (!result?.body) throw new Error(`HTTP ${result?.status ?? 'n/a'}`);
+        if (isNeverSkipFailureEnvelope(result.body)) throw new Error('failure envelope');
+        return result.body;
+      });
+      nsLog(
+        `STUDENT RECORDS year=${studentRecords.academicYear?.label ?? '(none)'} attendanceMonths=${studentRecords.attendance?.length ?? 'n/a'} reportCards=${studentRecords.reportCards?.length ?? 'n/a'} fees=${studentRecords.fees ? 'yes' : 'n/a'}${studentRecords.errors.length ? ` errors=${studentRecords.errors.join('; ')}` : ''}`,
+      );
+    }
+
     if (requireAuth) {
       if (homeworkPagesFetched > 0) {
         nsLog(`Homework pages fetched: ${homeworkPagesFetched}`);
@@ -1079,6 +1094,7 @@ export async function collectNeverSkipData(
       scheduleFetchIncomplete,
       scheduleFetchErrors,
       scheduleFetchComplete,
+      studentRecords,
     };
   } finally {
     page.off('response', onResponse);
