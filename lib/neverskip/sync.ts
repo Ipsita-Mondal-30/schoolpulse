@@ -50,6 +50,8 @@ export interface SyncDataOptions {
   scheduleFetchIncomplete?: boolean;
   scheduleFetchErrors?: string[];
   scheduleFetchComplete?: boolean;
+  /** Attendance / report cards / fees outcome (written before this call). */
+  studentRecordsStatus?: { status: 'COMPLETE' | 'PARTIAL' | 'FAILED'; fetched: number; errors: string[] };
   /** Extra admin-only fields merged into SyncRun.reportJson (e.g. plannerStatus). */
   extraReport?: Record<string, unknown>;
 }
@@ -110,16 +112,21 @@ export async function syncNeverSkipData({
   scheduleFetchIncomplete,
   scheduleFetchErrors = [],
   scheduleFetchComplete,
+  studentRecordsStatus,
   extraReport,
 }: SyncDataOptions): Promise<SyncSummary> {
   const startedAt = new Date();
   const summary = emptySummary();
   let rowWriteErrors = 0;
+  const studentRecordsIncomplete = Boolean(
+    studentRecordsStatus && studentRecordsStatus.status !== 'COMPLETE',
+  );
   summary.errors.push(
     ...homeworkFetchErrors,
     ...noticeFetchErrors,
     ...jolFetchErrors,
     ...scheduleFetchErrors,
+    ...(studentRecordsStatus?.errors ?? []).map((e) => `student records ${e}`),
   );
   if (homeworkPagesFetched != null) summary.homeworkPagesFetched = homeworkPagesFetched;
   if (homeworkFetchIncomplete) summary.homeworkFetchIncomplete = true;
@@ -359,6 +366,7 @@ export async function syncNeverSkipData({
       noticeFetchIncomplete ||
       jolFetchIncomplete ||
       scheduleFetchIncomplete ||
+      studentRecordsIncomplete ||
       noticePage0Only,
   );
   const countsMismatch =
@@ -448,6 +456,15 @@ export async function syncNeverSkipData({
         : undefined,
     },
   };
+  if (studentRecordsStatus) {
+    summary.sourceStatuses.studentRecords = {
+      status: studentRecordsStatus.status,
+      fetched: studentRecordsStatus.fetched,
+      error: studentRecordsIncomplete
+        ? studentRecordsStatus.errors.slice(0, 3).join('; ') || 'student records incomplete'
+        : undefined,
+    };
+  }
 
   if (hardFailure) {
     nsError('SYNC FAILED — INCOMPLETE SOURCE DATA');
@@ -497,6 +514,9 @@ export async function syncNeverSkipData({
     if (scheduleFetchIncomplete) {
       nsWarn('Calendar fetch incomplete — last-good schedule preserved');
       summary.errors.push('calendar fetch incomplete');
+    }
+    if (studentRecordsIncomplete) {
+      nsWarn('Student records (attendance / report cards / fees) incomplete — stored rows preserved');
     }
   } else {
     nsLog('SYNC COMPLETE');
