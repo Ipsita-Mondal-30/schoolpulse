@@ -13,6 +13,11 @@ import {
   getDayOfWeekMon1,
   type WorkloadLevel,
 } from '@/lib/week-range';
+import { formatBriefDate } from '@/lib/daily-brief';
+import { isDataFreshnessWarning } from '@/lib/data-freshness';
+import { useDataFreshnessQuery } from '@/lib/queries/data-freshness';
+import { DataFreshnessBanner } from '@/components/ui/DataFreshnessBanner';
+import { AttachmentList } from '@/components/ui/AttachmentList';
 import { useThisWeekQuery } from '@/lib/queries/this-week';
 import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -221,6 +226,8 @@ export default function ThisWeekPage() {
   const [initialized, setInitialized] = useState(false);
   const { section } = useSyncedChildSection();
   const { data, isPending, isError, refetch } = useThisWeekQuery({ section });
+  const { data: freshness } = useDataFreshnessQuery();
+  const dataBehind = isDataFreshnessWarning(freshness);
 
   useEffect(() => {
     if (!data || initialized) return;
@@ -279,18 +286,20 @@ export default function ThisWeekPage() {
         subtitle={`${formatWeekRangeLabel(data.weekStart, data.weekEnd)} · workload, not the full homework list`}
       />
 
+      <DataFreshnessBanner freshness={freshness} />
+
       {data.nothingDueThisWeek && data.overdueCount === 0 ? (
         <div className="mb-6">
           <EmptyState
-            title={
-              data.hasUndated
-                ? 'Nothing with a deadline this week'
-                : "You're all caught up"
-            }
+            title="No homework with a school deadline this week"
             description={
-              data.hasUndated
-                ? `${data.undatedCount} without a school-provided deadline.`
-                : 'Nothing is due this week.'
+              dataBehind
+                ? 'Homework and notices published after the last update are not shown yet.'
+                : data.hasUndated
+                ? `${data.undatedCount} recent assignment${data.undatedCount === 1 ? '' : 's'} (since ${formatBriefDate(data.undatedSince)}) ${data.undatedCount === 1 ? 'has' : 'have'} no school-provided deadline — listed below.`
+                : data.schoolNotices.length > 0
+                  ? 'See this week’s school notices below.'
+                  : 'No new homework or school notices this week.'
             }
           />
         </div>
@@ -331,10 +340,56 @@ export default function ThisWeekPage() {
         ))}
       </div>
 
+      {data.schoolEvents.length > 0 ? (
+        <section className="mt-10">
+          <SectionHeader label="School calendar this week" />
+          <p className="sp-meta mb-2">From the school newsletter — events, not homework</p>
+          <div className="sp-card py-1">
+            {data.schoolEvents.map((event) => (
+              <div
+                key={`${event.date}-${event.event}`}
+                className="px-4 py-3 border-b border-[var(--sp-border)] last:border-0"
+              >
+                <span className="block text-[11px] text-[var(--sp-muted)]">{formatBriefDate(event.date)}</span>
+                <span className="block text-sm text-[var(--sp-ink)]">{event.event}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {data.schoolNotices.length > 0 ? (
+        <section className="mt-10">
+          <SectionHeader label="School notices this week" />
+          <p className="sp-meta mb-2">Announcements from the school — not homework</p>
+          <div className="sp-card py-1">
+            {data.schoolNotices.map((notice) => (
+              <div
+                key={notice.id}
+                className="px-4 py-3 border-b border-[var(--sp-border)] last:border-0"
+              >
+                <Link href="/notices" className="block hover:underline sp-focus rounded">
+                  <span className="block text-[11px] text-[var(--sp-muted)]">{formatBriefDate(notice.date)}</span>
+                  <span className="block text-sm text-[var(--sp-ink)] line-clamp-3">{notice.summary || notice.message}</span>
+                </Link>
+                {notice.attachments?.length ? (
+                  <div className="mt-2">
+                    <AttachmentList attachments={notice.attachments} />
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {data.dateNotSpecified.length > 0 ? (
         <section className="mt-10 mb-6">
           <SectionHeader label="Date not specified" />
-          <p className="sp-meta mb-2">No deadline provided by school</p>
+          <p className="sp-meta mb-2">
+            Assigned since {formatBriefDate(data.undatedSince)} · no deadline provided by school
+            {data.olderUndatedCount > 0 ? ` · ${data.olderUndatedCount} older on Homework` : ''}
+          </p>
           <div className="sp-card py-1">
             {undatedVisible.map((item) => (
               <HomeworkItem

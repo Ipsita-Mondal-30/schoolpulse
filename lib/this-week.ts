@@ -4,8 +4,9 @@
  * Assigned-only items go to dateNotSpecified — they are not due.
  */
 
-import type { UiHomeworkItem } from '@/lib/ui-merge';
-import { filterHomeworkBySection } from '@/lib/ui-merge';
+import type { ImportantDate } from '@/lib/data';
+import type { UiHomeworkItem, UiNoticeItem } from '@/lib/ui-merge';
+import { filterHomeworkBySection, filterNoticesByClass } from '@/lib/ui-merge';
 import {
   assignedYmd,
   dueYmd,
@@ -54,21 +55,32 @@ export interface ThisWeekView {
   weekEnd: string;
   overdue: ThisWeekHomeworkItem[];
   days: ThisWeekDayBucket[];
+  /** Undated homework assigned since `undatedSince` (last week + this week). */
   dateNotSpecified: ThisWeekHomeworkItem[];
+  undatedSince: string;
   /** Homework with reliable due in [weekStart, weekEnd]. */
   totalDatedThisWeek: number;
   overdueCount: number;
   dueTomorrowCount: number;
   undatedCount: number;
+  /** Undated homework assigned before `undatedSince` — not shown as this week's work. */
+  olderUndatedCount: number;
   nextWeekCount: number;
   nothingDueThisWeek: boolean;
   hasUndated: boolean;
+  /** School notices published in [weekStart, weekEnd] for this section, newest first. */
+  schoolNotices: UiNoticeItem[];
+  /** Newsletter calendar entries dated in [weekStart, weekEnd] — events, not homework. */
+  schoolEvents: ImportantDate[];
 }
 
 export interface BuildThisWeekViewInput {
   homework: UiHomeworkItem[];
   today: string;
   section: string;
+  notices?: UiNoticeItem[];
+  /** Important dates from published newsletters (any month); filtered to this week. */
+  events?: ImportantDate[];
 }
 
 function dueYmdOrEmpty(submissionDate?: string | null): string {
@@ -125,6 +137,7 @@ export function buildThisWeekView(input: BuildThisWeekViewInput): ThisWeekView {
   const nextWeekEnd = addDaysYmd(nextWeekStart, 6);
 
   const homework = dedupeById(filterHomeworkBySection(input.homework, section));
+  const undatedSince = addDaysYmd(weekStart, -7) || weekStart;
 
   const overdue: ThisWeekHomeworkItem[] = [];
   const undated: ThisWeekHomeworkItem[] = [];
@@ -132,11 +145,14 @@ export function buildThisWeekView(input: BuildThisWeekViewInput): ThisWeekView {
   let totalDatedThisWeek = 0;
   let dueTomorrowCount = 0;
   let nextWeekCount = 0;
+  let olderUndatedCount = 0;
 
   for (const hw of homework) {
     const placeOn = dueYmd(hw);
     if (!placeOn) {
-      undated.push(toItem(hw));
+      const assigned = assignedYmd(hw);
+      if (!assigned || (assigned >= undatedSince && assigned <= weekEnd)) undated.push(toItem(hw));
+      else olderUndatedCount += 1;
       continue;
     }
 
@@ -185,13 +201,22 @@ export function buildThisWeekView(input: BuildThisWeekViewInput): ThisWeekView {
     overdue: sortByDueAsc(overdue),
     days,
     dateNotSpecified: sortBySubjectTitle(undated),
+    undatedSince,
     totalDatedThisWeek,
     overdueCount: overdue.length,
     dueTomorrowCount,
     undatedCount: undated.length,
+    olderUndatedCount,
     nextWeekCount,
     nothingDueThisWeek: totalDatedThisWeek === 0,
     hasUndated: undated.length > 0,
+    schoolNotices: filterNoticesByClass(input.notices ?? [], section)
+      .filter((n) => isInWeek(n.date, weekStart, weekEnd))
+      .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`)),
+    schoolEvents: (input.events ?? [])
+      .filter((e) => isInWeek(e.date, weekStart, weekEnd))
+      .filter((e, i, all) => all.findIndex((o) => o.date === e.date && o.event === e.event) === i)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.event.localeCompare(b.event)),
   };
 }
 

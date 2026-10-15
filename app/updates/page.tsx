@@ -22,6 +22,10 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { isNewerThan, readLastSeenIso, writeLastSeenNow } from '@/lib/updates-unread';
+import { DataFreshnessBanner } from '@/components/ui/DataFreshnessBanner';
+import { AttachmentList } from '@/components/ui/AttachmentList';
+import { useDataFreshnessQuery } from '@/lib/queries/data-freshness';
+import { isDataFreshnessWarning } from '@/lib/data-freshness';
 
 function toFieldChanges(item: UpdateFeedItem): FieldChange[] {
   return item.changedFields.map((c) => ({
@@ -93,6 +97,11 @@ function UpdateCard({
         >
           {isHw ? 'View homework →' : 'View notice →'}
         </Link>
+        {!isHw && item.attachments?.length ? (
+          <div className="w-full">
+            <AttachmentList attachments={item.attachments} />
+          </div>
+        ) : null}
         {!isHw && item.libraryHref ? (
           <Link
             href={item.libraryHref}
@@ -109,6 +118,8 @@ function UpdateCard({
 export default function UpdatesPage() {
   const { data, isPending, isError, refetch } = useUpdatesFeedQuery();
   const { section, studentName } = useSyncedChildSection();
+  const { data: freshness } = useDataFreshnessQuery();
+  const dataBehind = isDataFreshnessWarning(freshness);
   const [lastSeen, setLastSeen] = useState<string | null>(null);
 
   useEffect(() => {
@@ -130,6 +141,8 @@ export default function UpdatesPage() {
         subtitle="New and changed homework and notices"
       />
 
+      <DataFreshnessBanner freshness={freshness} />
+
       {isPending ? (
         <LoadingState rows={5} />
       ) : isError ? (
@@ -144,10 +157,17 @@ export default function UpdatesPage() {
           </button>
         </div>
       ) : feed.length === 0 ? (
-        <EmptyState
-          title="No recent updates"
-          description="New homework and notices from the last week will appear here. Check Homework and Notices for the full lists."
-        />
+        dataBehind ? (
+          <EmptyState
+            title="No updates received yet"
+            description="Nothing new has reached SchoolPulse for the last 7 days. This is because school data is not up to date — not because the school published nothing."
+          />
+        ) : (
+          <EmptyState
+            title="No recent updates"
+            description="The school has not published new homework or notices in the last 7 days. Check Homework and Notices for the full lists."
+          />
+        )
       ) : newItems.length === 0 && recentItems.length === 0 ? (
         <EmptyState
           title="No updates for your child"

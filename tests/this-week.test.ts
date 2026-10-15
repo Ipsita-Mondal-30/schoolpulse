@@ -387,6 +387,67 @@ describe('buildThisWeekView', () => {
     });
     expect(view.totalDatedThisWeek).toBe(1);
   });
+
+  it('counts only recent undated homework; older undated is reported separately', () => {
+    const view = buildThisWeekView({
+      today: '2026-10-14',
+      section: 'I-A',
+      homework: [
+        hw({ id: 'june', title: 'June', sentDate: '2026-06-10' }),
+        hw({ id: 'sep', title: 'Sep', sentDate: '2026-09-24' }),
+        hw({ id: 'lastweek', title: 'Last week', sentDate: '2026-10-06' }),
+        hw({ id: 'thisweek', title: 'This week', sentDate: '2026-10-12' }),
+      ],
+    });
+    expect(view.undatedSince).toBe('2026-10-05');
+    expect(view.dateNotSpecified.map((i) => i.id).sort()).toEqual(['lastweek', 'thisweek']);
+    expect(view.undatedCount).toBe(2);
+    expect(view.olderUndatedCount).toBe(2);
+  });
+
+  it('lists school notices published this week for the section, newest first', () => {
+    const notice = (id: string, date: string, classes: string[]) => ({
+      id, date, time: '09:00', classes, summary: id, message: '',
+    });
+    const view = buildThisWeekView({
+      today: '2026-10-14',
+      section: 'I-A',
+      homework: [],
+      notices: [
+        notice('holiday-hw', '2026-10-13', ['I-A']),
+        notice('maths-quest', '2026-10-14', ['I']),
+        notice('other-class', '2026-10-14', ['II-B']),
+        notice('last-week', '2026-10-09', ['I-A']),
+      ],
+    });
+    expect(view.schoolNotices.map((n) => n.id)).toEqual(['maths-quest', 'holiday-hw']);
+    expect(view.totalDatedThisWeek).toBe(0);
+  });
+
+  it('shows newsletter events only on their own dates; reopening and PTI stay out of 12–18 Oct', () => {
+    const ev = (date: string, event: string) => ({ date, event, type: 'important' as const, description: event });
+    const view = buildThisWeekView({
+      today: '2026-10-15',
+      section: 'I-A',
+      homework: [],
+      events: [
+        ev('2026-10-27', 'School reopens after Dussehra vacation'),
+        ev('2026-10-31', 'Parent Teacher Interaction, PTI-2'),
+        ev('2026-10-12', 'Joy of learning, WS-II Ends'),
+        ev('2026-10-12', 'Joy of learning, WS-II Ends'),
+      ],
+    });
+    expect(view.schoolEvents.map((e) => `${e.date} ${e.event}`)).toEqual(['2026-10-12 Joy of learning, WS-II Ends']);
+    expect(view.totalDatedThisWeek).toBe(0);
+
+    const reopenWeek = buildThisWeekView({
+      today: '2026-10-28',
+      section: 'I-A',
+      homework: [],
+      events: [ev('2026-10-27', 'School reopens after Dussehra vacation'), ev('2026-10-31', 'Parent Teacher Interaction, PTI-2')],
+    });
+    expect(reopenWeek.schoolEvents.map((e) => e.date)).toEqual(['2026-10-27', '2026-10-31']);
+  });
 });
 
 describe('this week query keys', () => {

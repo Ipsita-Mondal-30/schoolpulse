@@ -10,6 +10,7 @@ import { jolQueryKey } from '@/lib/queries/jol';
 import { scheduleQueryKey } from '@/lib/queries/schedule';
 import { thisWeekQueryKey } from '@/lib/queries/this-week';
 import { dailyBriefQueryKey } from '@/lib/queries/daily-brief';
+import { dataFreshnessQueryKey } from '@/lib/queries/data-freshness';
 
 export const dataVersionQueryKey = ['schoolpulse', 'data-version'] as const;
 
@@ -46,6 +47,7 @@ export function useSchoolPulseDataVersionSync() {
     void qc.invalidateQueries({ queryKey: thisWeekQueryKey });
     void qc.invalidateQueries({ queryKey: dailyBriefQueryKey });
     void qc.invalidateQueries({ queryKey: ['this-week'] });
+    void qc.invalidateQueries({ queryKey: dataFreshnessQueryKey });
   }, [query.data?.version, qc]);
 
   return query;

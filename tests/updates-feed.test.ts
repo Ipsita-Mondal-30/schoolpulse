@@ -485,6 +485,70 @@ describe('buildUpdatesFeed', () => {
   });
 });
 
+describe('October 2026 outage recovery (today 15 Oct IST, 7-day window 9–15 Oct)', () => {
+  const OCT_SINCE = new Date('2026-10-09T00:00:00+05:30');
+  const OCT_FLOOR = '2026-10-09';
+  const firstImport = '2026-10-15T03:00:00.000Z';
+  const october = [
+    nt({ sourceId: 'oct14', title: 'Maths Quest grand finale', publishedDate: '2026-10-14', publishedTime: '09:08', classes: ['I'], createdAt: firstImport }),
+    nt({ sourceId: 'oct13', title: 'Happy vacation and holiday homework', publishedDate: '2026-10-13', publishedTime: '11:34', classes: ['I'], createdAt: firstImport }),
+    nt({ sourceId: 'oct11', title: 'No early pick-ups on 12 Oct', publishedDate: '2026-10-11', publishedTime: '17:31', classes: ['I', 'II'], createdAt: firstImport }),
+    nt({ sourceId: 'oct09', title: 'Kannada JOL worksheet II and answer key', publishedDate: '2026-10-09', publishedTime: '17:41', classes: ['I'], createdAt: firstImport }),
+    nt({ sourceId: 'oct08', title: 'EVS JOL worksheet II', publishedDate: '2026-10-08', publishedTime: '14:43', classes: ['I'], createdAt: firstImport }),
+    nt({ sourceId: 'sep27', title: 'September notice', publishedDate: '2026-09-27', createdAt: '2026-10-03T10:20:00.000Z' }),
+  ];
+
+  const build = (notices: UpdateFeedNoticeRow[], changes: UpdateFeedChangeRow[] = []) =>
+    filterUpdatesBySection(
+      buildUpdatesFeed({ homework: [], notices, changes, since: OCT_SINCE, activitySinceYmd: OCT_FLOOR, publishedSinceYmd: OCT_FLOOR }),
+      'I-A',
+    );
+
+  it('shows notices published 9–14 Oct as new; 8 Oct and September stay out of the 7-day feed', () => {
+    const items = build(october);
+    expect(items.map((i) => i.sourceId).sort()).toEqual(['oct09', 'oct11', 'oct13', 'oct14']);
+    expect(items.every((i) => i.kind === 'new' && i.type === 'notice')).toBe(true);
+    expect(items.find((i) => i.sourceId === 'oct13')?.sourceDate).toBe('2026-10-13');
+  });
+
+  it('a second sync of the same notices does not duplicate cards', () => {
+    expect(build([...october, ...october]).filter((i) => i.sourceId === 'oct13')).toHaveLength(1);
+  });
+
+  it('a later edit to the holiday circular shows one changed card, not new + changed', () => {
+    const items = build(october, [
+      chg({ id: 'c13', entityType: 'notice', sourceId: 'oct13', detectedAt: '2026-10-15T07:00:00.000Z' }),
+    ]);
+    const oct13 = items.filter((i) => i.sourceId === 'oct13');
+    expect(oct13).toHaveLength(1);
+    expect(oct13[0].kind).toBe('changed');
+    expect(oct13[0].sourceDate).toBe('2026-10-13');
+  });
+
+  it('is genuinely empty when nothing was imported for the window', () => {
+    expect(build(october.filter((n) => n.sourceId === 'sep27'))).toEqual([]);
+  });
+
+  it('never labels a holiday-homework notice as homework', () => {
+    expect(build(october).find((i) => i.sourceId === 'oct13')?.type).toBe('notice');
+  });
+
+  it('orders NEW cards from one import by publication date, newest first', () => {
+    const staggered = october.map((n, i) => ({ ...n, createdAt: `2026-10-15T03:00:0${9 - i}.000Z` }));
+    const reversed = [...staggered].reverse();
+    expect(build(reversed).map((i) => i.sourceId)).toEqual(['oct14', 'oct13', 'oct11', 'oct09']);
+  });
+
+  it('lists 8 Oct as a recent publication when the publication window is 14 days', () => {
+    const items = filterUpdatesBySection(
+      buildUpdatesFeed({ homework: [], notices: october, changes: [], since: OCT_SINCE, activitySinceYmd: OCT_FLOOR, publishedSinceYmd: '2026-10-02' }),
+      'I-A',
+    );
+    expect(items.filter((i) => i.section === 'new').map((i) => i.sourceId)).toEqual(['oct14', 'oct13', 'oct11', 'oct09']);
+    expect(items.filter((i) => i.section === 'recent').map((i) => i.sourceId)).toEqual(['oct08']);
+  });
+});
+
 describe('unread + section helpers', () => {
   it('counts unread from NEW occurredAt only', () => {
     const items = buildUpdatesFeed({
