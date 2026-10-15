@@ -3,6 +3,7 @@ import {
   buildUpdatesFeed,
   countUnreadUpdates,
   filterUpdatesBySection,
+  formatUpdateDateLine,
   formatUpdateDisplayDate,
   formatUpdateOccurredLabel,
   formatUpdateSourceDateLabel,
@@ -11,6 +12,7 @@ import {
   type UpdateFeedChangeRow,
   type UpdateFeedHomeworkRow,
   type UpdateFeedNoticeRow,
+  type UpdateFeedResourceRow,
 } from '@/lib/updates-feed';
 
 const SINCE = new Date('2026-08-16T00:00:00.000Z');
@@ -539,6 +541,75 @@ describe('October 2026 outage recovery (today 15 Oct IST, 7-day window 9–15 Oc
     expect(build(reversed).map((i) => i.sourceId)).toEqual(['oct14', 'oct13', 'oct11', 'oct09']);
   });
 
+  const res = (p: Partial<UpdateFeedResourceRow> & Pick<UpdateFeedResourceRow, 'sourceId' | 'title'>): UpdateFeedResourceRow => ({
+    id: `db-${p.sourceId}`,
+    source: 'neverskip',
+    createdAt: '2026-10-15T12:18:48.000Z',
+    publishedDate: '2026-10-15',
+    publishedTime: '11:53',
+    sections: [],
+    files: [{ url: `https://cdn.example/${p.sourceId}.pdf` }],
+    ...p,
+  });
+
+  it('shows an unannounced Content Library upload as its own card with its files', () => {
+    const items = filterUpdatesBySection(
+      buildUpdatesFeed({
+        homework: [],
+        notices: october,
+        changes: [],
+        since: OCT_SINCE,
+        activitySinceYmd: OCT_FLOOR,
+        publishedSinceYmd: OCT_FLOOR,
+        resources: [res({ sourceId: '17337', title: 'JOL, worksheet-II, English', subjectName: 'ENGLISH' })],
+      }),
+      'I-A',
+    );
+    const english = items.find((i) => i.type === 'resource');
+    expect(english).toMatchObject({ kind: 'new', subject: 'English', sourceDate: '2026-10-15', href: '/joy-of-learning' });
+    expect(english?.attachments?.[0].url).toBe('https://cdn.example/17337.pdf');
+    expect(formatUpdateDateLine(english!, new Date('2026-10-15T18:00:00+05:30'))).toBe(
+      'Uploaded 15 Oct, 11:53 · Added to SchoolPulse today',
+    );
+  });
+
+  it('folds an upload into the same-day notice that announces it, without a second card', () => {
+    const kannadaNotice = nt({
+      sourceId: 'msid:2903',
+      title: 'Class: I',
+      content: 'Please find the Kannada JOL, worksheet II and answer key have been uploaded in the content library.',
+      publishedDate: '2026-10-09',
+      publishedTime: '17:41',
+      classes: ['I'],
+      createdAt: firstImport,
+    });
+    const kannadaFiles = res({
+      sourceId: '17300',
+      title: 'JOL,WS-II, Kannada',
+      subjectName: 'KANNADA',
+      publishedDate: '2026-10-09',
+      publishedTime: '16:50',
+      createdAt: firstImport,
+      files: [{ url: 'https://cdn.example/kannada-qp.pdf' }, { url: 'https://cdn.example/kannada-ak.pdf' }],
+    });
+    const evsFiles = res({ sourceId: '17290', title: 'JOL, worksheet-II, EVS', subjectName: 'ENVIRONMENTAL SCIENCE', publishedDate: '2026-10-09' });
+    const items = filterUpdatesBySection(
+      buildUpdatesFeed({
+        homework: [],
+        notices: [kannadaNotice],
+        changes: [],
+        since: OCT_SINCE,
+        activitySinceYmd: OCT_FLOOR,
+        publishedSinceYmd: OCT_FLOOR,
+        resources: [kannadaFiles, evsFiles],
+      }),
+      'I-A',
+    );
+    const notice = items.find((i) => i.sourceId === 'msid:2903');
+    expect(notice?.attachments?.map((a) => a.url)).toEqual(['https://cdn.example/kannada-qp.pdf', 'https://cdn.example/kannada-ak.pdf']);
+    expect(items.filter((i) => i.type === 'resource').map((i) => i.sourceId)).toEqual(['17290']);
+  });
+
   it('lists 8 Oct as a recent publication when the publication window is 14 days', () => {
     const items = filterUpdatesBySection(
       buildUpdatesFeed({ homework: [], notices: october, changes: [], since: OCT_SINCE, activitySinceYmd: OCT_FLOOR, publishedSinceYmd: '2026-10-02' }),
@@ -584,10 +655,31 @@ describe('unread + section helpers', () => {
 });
 
 describe('labels', () => {
-  it('says Added today for a same-day India import', () => {
+  it('says Added to SchoolPulse today for a same-day India import', () => {
     const now = new Date('2026-09-15T18:30:00+05:30');
-    expect(formatUpdateOccurredLabel('new', '2026-09-15T12:56:52.948Z', now)).toBe('Added today');
+    expect(formatUpdateOccurredLabel('new', '2026-09-15T12:56:52.948Z', now)).toBe('Added to SchoolPulse today');
     expect(formatUpdateOccurredLabel('changed', '2026-09-15T12:56:52.948Z', now)).toMatch(/^Changed /);
+  });
+
+  it('labels the school publication date separately from the import time', () => {
+    const now = new Date('2026-10-15T17:45:00+05:30');
+    const base = { type: 'notice' as const, sourceDate: '2026-10-14', sourceTime: '09:08', occurredAt: '2026-10-15T03:00:00.000Z' };
+    expect(formatUpdateDateLine({ ...base, kind: 'new', section: 'new' }, now)).toBe(
+      'Published 14 Oct, 09:08 · Added to SchoolPulse today',
+    );
+    expect(formatUpdateDateLine({ ...base, kind: 'recent', section: 'recent' }, now)).toBe('Published 14 Oct, 09:08');
+    expect(
+      formatUpdateDateLine({ ...base, type: 'homework', sourceTime: undefined, kind: 'new', section: 'new' }, now),
+    ).toBe('Assigned 14 Oct · Added to SchoolPulse today');
+  });
+
+  it('a notice published late on 13 Oct IST stays on 13 Oct', () => {
+    const now = new Date('2026-10-15T09:00:00+05:30');
+    const line = formatUpdateDateLine(
+      { type: 'notice', kind: 'recent', section: 'recent', sourceDate: '2026-10-13', sourceTime: '23:50', occurredAt: '2026-10-13T18:25:00.000Z' },
+      now,
+    );
+    expect(line).toBe('Published 13 Oct, 23:50');
   });
 
   it('formats Today / Yesterday / day-month for school dates', () => {

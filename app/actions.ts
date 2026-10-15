@@ -984,7 +984,7 @@ export async function loadRecentUpdates(options?: {
         const days = Math.max(1, options?.days ?? 7);
         const { cachedJsonGet, cachedJsonSet, spCacheKey } = await import('@/lib/cache/schoolpulse');
         const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
-        const key = `${spCacheKey(childKey, 'updates')}:d${days}:p2`;
+        const key = `${spCacheKey(childKey, 'updates')}:d${days}:p3`;
         const cached = await cachedJsonGet<import('@/lib/updates-feed').UpdateFeedItem[]>(key);
         if (cached) return cached;
 
@@ -1076,7 +1076,7 @@ export async function loadRecentUpdates(options?: {
             ...(noticeIdsFromChanges.length > 0 ? [{ id: { in: noticeIdsFromChanges } }] : []),
         ];
 
-        const [homeworkRows, noticeRows] = await Promise.all([
+        const [homeworkRows, noticeRows, resourceRows] = await Promise.all([
             prisma.importedHomework.findMany({
                 where: homeworkWhere,
                 orderBy: [{ homeworkDate: 'desc' }],
@@ -1087,7 +1087,29 @@ export async function loadRecentUpdates(options?: {
                 orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }, { createdAt: 'desc' }],
                 take: 80,
             }),
+            prisma.importedJolItem.findMany({
+                where: { publishedDate: { gte: publishedSinceYmd } },
+                orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
+                take: 40,
+            }),
         ]);
+        const resourceFiles = (row: (typeof resourceRows)[number]): { url: string; name?: string }[] => {
+            const files: { url: string; name?: string }[] = [];
+            try {
+                const meta = JSON.parse(row.metadataJson) as {
+                    media?: { downloadUrl?: string | null; mediaUrl?: string | null }[];
+                };
+                for (const m of meta.media ?? []) {
+                    const url = m.downloadUrl || m.mediaUrl;
+                    if (url && !files.some((f) => f.url === url)) files.push({ url });
+                }
+            } catch {
+                /* fall back to the row's own link */
+            }
+            const own = row.downloadUrl || row.resourceUrl;
+            if (own && !files.some((f) => f.url === own)) files.unshift({ url: own });
+            return files;
+        };
         const { dedupeNoticeRows } = await import('@/lib/neverskip/notice-dedupe');
         const { parseAttachmentsJson } = await import('@/lib/neverskip/attachments');
         const uniqueNoticeRows = dedupeNoticeRows(noticeRows);
@@ -1121,6 +1143,18 @@ export async function loadRecentUpdates(options?: {
                 publishedTime: row.publishedTime,
                 classes: parseJsonArray(row.classesJson),
                 attachments: parseAttachmentsJson(row.attachmentsJson),
+            })),
+            resources: resourceRows.map((row) => ({
+                id: row.id,
+                source: row.source,
+                sourceId: row.sourceId,
+                title: row.title,
+                subjectName: row.subjectName,
+                createdAt: row.createdAt,
+                publishedDate: row.publishedDate,
+                publishedTime: row.publishedTime,
+                sections: parseJsonArray(row.sectionsJson),
+                files: resourceFiles(row),
             })),
             changes: usableChangeRows
                 .map((row) => {

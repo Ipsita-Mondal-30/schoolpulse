@@ -57,6 +57,8 @@ export const CONTENT_LIBRARY_API_MATCH = JOL_API_MATCH;
 export const DEFAULT_PORTAL_BASE = 'https://parent.neverskip.com';
 export const DEFAULT_NOTICES_PAGE = 'https://parent.neverskip.com/default/dailynotice';
 export const DEFAULT_HOMEWORK_PAGE = 'https://parent.neverskip.com/default/assignment';
+/** Class Diary loads the same getassignmentsapi feed; used when the assignment route bounces. */
+export const CLASS_DIARY_PAGE = 'https://parent.neverskip.com/default/class-diary';
 export const DEFAULT_CONTENT_LIBRARY_PAGE = JOL_CONTENT_LIBRARY_PAGE;
 export const DEFAULT_PROFILE_DIR = '.playwright-profile';
 
@@ -682,6 +684,19 @@ export async function collectNeverSkipData(
         noticesRaw = result.body as NeverSkipNoticesResponse;
         nsLog('Notices response captured');
       }
+    }
+
+    // The portal can bounce /default/assignment to "/"; Class Diary issues the same
+    // getassignmentsapi request with the fields the bare fallback payload lacks.
+    if (!homeworkRaw) {
+      const retryUrl = homeworkPageUrl === CLASS_DIARY_PAGE ? DEFAULT_HOMEWORK_PAGE : CLASS_DIARY_PAGE;
+      nsLog(`Homework not intercepted; trying ${safeUrlPath(retryUrl)}`);
+      await page
+        .goto(retryUrl, { waitUntil: 'domcontentloaded', timeout: timeoutMs })
+        .catch(() => undefined);
+      await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 15_000) }).catch(() => undefined);
+      await waitForCapture(() => homeworkRaw, Math.min(timeoutMs, 30_000));
+      nsLog(`Homework retry path=${safeUrlPath(page.url())} captured=${homeworkRaw ? 'yes' : 'no'}`);
     }
 
     if (!homeworkRaw && context) {
