@@ -5,7 +5,7 @@ import { ExternalLink } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
-import { DataDelayedNote } from '@/components/ui/DataDelayedNote';
+import { JolTimetable } from '@/components/JolTimetable';
 import { useCanonicalScheduleQuery } from '@/lib/queries/schedule';
 
 function formatYmd(ymd: string): string {
@@ -75,8 +75,6 @@ export default function TimetablePage() {
         </Link>
       </div>
 
-      <DataDelayedNote show={data?.dataDelayed} />
-
       {!hasContent ? (
         <EmptyState
           title="No timetable published yet"
@@ -89,44 +87,7 @@ export default function TimetablePage() {
               <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--sp-subtle)]">
                 Joy of Learning timetable
               </h2>
-              <div className="rounded-2xl border border-[var(--sp-border)] bg-white px-4 py-3">
-                <p className="text-sm font-semibold text-[var(--sp-ink)]">
-                  {jolSchedule.title || 'Joy of Learning II — Timetable'}
-                </p>
-                <p className="mt-1 text-xs text-[var(--sp-muted)]">
-                  Class I
-                  {jolSchedule.academicYear ? ` · ${jolSchedule.academicYear}` : ''}
-                </p>
-                {jolSchedule.sourceDocumentUrl ? (
-                  <a
-                    href={jolSchedule.sourceDocumentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[var(--sp-primary)] hover:underline"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                    View school timetable
-                  </a>
-                ) : null}
-              </div>
-              <ul className="overflow-hidden rounded-2xl border border-[var(--sp-border)] bg-white">
-                {jolSchedule.days.map((row) => (
-                  <li
-                    key={row.activityDate}
-                    className="border-b border-[var(--sp-border)] px-4 py-3 last:border-0"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-semibold text-[var(--sp-ink)]">
-                        {formatYmd(row.activityDate)}
-                        {row.weekday ? ` · ${row.weekday}` : ''}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm text-[var(--sp-muted)]">
-                      {row.classI}
-                    </p>
-                  </li>
-                ))}
-              </ul>
+              <JolTimetable schedule={jolSchedule} official={data?.officialTimetable ?? null} />
             </section>
           ) : null}
 

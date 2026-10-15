@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { isDataDelayed } from '@/lib/schedule/canonical';
 import {
   buildSyncHealth,
   exitCodeForSyncStatus,
@@ -109,14 +108,5 @@ describe('buildSyncHealth', () => {
     expect(h.status).toBe('SYNC_SUCCESS');
     expect(h.authStatus).toBe('AUTHENTICATED');
     expect(h.healthy).toBe(true);
-  });
-});
-
-describe('parent dataDelayed flag', () => {
-  it('is false with no runs, true when last COMPLETE is older than 6h', () => {
-    expect(isDataDelayed(false, null, NOW)).toBe(false);
-    expect(isDataDelayed(true, null, NOW)).toBe(true);
-    expect(isDataDelayed(true, new Date(NOW.getTime() - 7 * 3600_000), NOW)).toBe(true);
-    expect(isDataDelayed(true, new Date(NOW.getTime() - 2 * 3600_000), NOW)).toBe(false);
   });
 });
