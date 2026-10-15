@@ -11,9 +11,7 @@ import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import {
   countUnreadUpdates,
   filterUpdatesBySection,
-  formatUpdateDisplayDate,
-  formatUpdateOccurredLabel,
-  formatUpdateSourceDateLabel,
+  formatUpdateDateLine,
   partitionUpdatesFeed,
   type UpdateFeedItem,
 } from '@/lib/updates-feed';
@@ -48,17 +46,18 @@ function UpdateCard({
 }) {
   const unread = item.section === 'new' && isNewerThan(item.occurredAt, lastSeen);
   const isHw = item.type === 'homework';
-  const lines = item.kind === 'changed' ? presentChangeLines(item.type, toFieldChanges(item)) : [];
-  const displayDate = formatUpdateDisplayDate(item.sourceDate, item.occurredAt);
-  const occurred =
-    item.section === 'new' ? formatUpdateOccurredLabel(item.kind, item.occurredAt) : '';
-  const assignedHint =
-    item.section === 'new' && isHw && item.sourceDate
-      ? formatUpdateSourceDateLabel('homework', item.sourceDate)
-      : '';
+  const lines =
+    item.kind === 'changed' && item.type !== 'resource'
+      ? presentChangeLines(item.type, toFieldChanges(item))
+      : [];
+  const dateLine = formatUpdateDateLine(item);
 
-  const eyebrow =
-    item.kind === 'recent'
+  const isResource = item.type === 'resource';
+  const eyebrow = isResource
+    ? item.kind === 'new'
+      ? 'New in Content Library'
+      : 'Content Library'
+    : item.kind === 'recent'
       ? 'School notice'
       : item.kind === 'new'
         ? isHw
@@ -83,19 +82,13 @@ function UpdateCard({
       {lines[0] ? (
         <p className="mt-1 text-sm text-[var(--sp-muted)]">{lines[0].heading}</p>
       ) : null}
-      <p className="mt-1 text-sm text-[var(--sp-muted)]">
-        {item.section === 'recent'
-          ? displayDate
-          : [occurred, assignedHint || (displayDate && !isHw ? displayDate : '')]
-              .filter(Boolean)
-              .join(' · ')}
-      </p>
+      <p className="mt-1 text-sm text-[var(--sp-muted)]">{dateLine}</p>
       <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
         <Link
           href={item.href}
           className="text-xs font-semibold text-[var(--sp-primary)] hover:underline"
         >
-          {isHw ? 'View homework →' : 'View notice →'}
+          {isHw ? 'View homework →' : isResource ? 'View in Joy of Learning →' : 'View notice →'}
         </Link>
         {!isHw && item.attachments?.length ? (
           <div className="w-full">

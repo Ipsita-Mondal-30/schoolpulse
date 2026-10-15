@@ -18,8 +18,13 @@ import {
   resolveNeverSkipProfileDir,
 } from '../lib/neverskip/browser';
 
-const MODULES = ['dailynotice', 'lounge'] as const;
-const ENDPOINT_RE = /\/parentweb\/connect\/(fetchdailynoticeinfo|fetchloungeinfo)/i;
+/** Override with NEVERSKIP_RAW_MODULES=class-diary,assignment to inspect homework paging. */
+const MODULES = (process.env.NEVERSKIP_RAW_MODULES || 'dailynotice,lounge')
+  .split(',')
+  .map((m) => m.trim())
+  .filter(Boolean);
+const ENDPOINT_RE = /\/parentweb\/(?:connect|lms)\/(fetchdailynoticeinfo|fetchloungeinfo|getassignmentsapi)/i;
+const PAGING_FIELDS = ['page', 'filter_date', 'pg_key', 'limt', 'limit', 'sub_id', 'assignment_date', 'works'];
 
 async function main(): Promise<number> {
   const profileDir = resolveNeverSkipProfileDir();
@@ -41,7 +46,10 @@ async function main(): Promise<number> {
     if (!m || request.method() !== 'POST') return;
     try {
       const body = JSON.parse(request.postData() || '{}') as Record<string, unknown>;
-      console.log(`request ${m[1]} page=${JSON.stringify(body.page)} filter_date=${JSON.stringify(body.filter_date)} keys=${Object.keys(body).join(',')}`);
+      const paging = PAGING_FIELDS.filter((k) => k in body)
+        .map((k) => `${k}=${JSON.stringify(body[k])}`)
+        .join(' ');
+      console.log(`request ${m[1]} ${paging} keys=${Object.keys(body).join(',')}`);
     } catch {
       console.log(`request ${m[1]} (non-JSON body)`);
     }
@@ -54,7 +62,18 @@ async function main(): Promise<number> {
       n += 1;
       const file = path.join(outDir, `${m[1]}-${n}.json`);
       fs.writeFileSync(file, text);
-      console.log(`saved ${path.basename(file)} (${text.length} bytes)`);
+      let shape = '';
+      try {
+        const d = (JSON.parse(text) as { D?: unknown }).D;
+        if (d && typeof d === 'object' && !Array.isArray(d)) {
+          const o = d as Record<string, unknown>;
+          const list = Array.isArray(o.item_list) ? o.item_list.length : '-';
+          shape = ` D.keys=${Object.keys(o).join(',')} items=${list} page_count=${JSON.stringify(o.page_count)} total_count=${JSON.stringify(o.total_count)}`;
+        } else if (Array.isArray(d)) shape = ` D=array(${d.length})`;
+      } catch {
+        shape = ` non-JSON prefix=${JSON.stringify(text.slice(0, 20))}`;
+      }
+      console.log(`saved ${path.basename(file)} (${text.length} bytes)${shape}`);
     } catch {
       // body unavailable
     }
@@ -69,12 +88,16 @@ async function main(): Promise<number> {
         console.log(`RAW CAPTURE: AUTHENTICATION_REQUIRED (${mod})`);
         return 3;
       }
+      console.log(`module ${mod} landed path=${new URL(page.url()).pathname}`);
       for (let i = 0; i < 2; i += 1) {
-        const next = page.getByText(/^\s*Next\b/i).first();
-        if (!(await next.isVisible().catch(() => false))) break;
-        await next.click();
+        const next = page.getByText(/^\s*(Next|Load more|View more|Show more)\b/i).first();
+        if (await next.isVisible().catch(() => false)) {
+          await next.click();
+        } else {
+          await page.mouse.wheel(0, 20_000);
+        }
         await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => undefined);
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(2500);
       }
     }
   } finally {

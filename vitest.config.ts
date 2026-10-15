@@ -14,6 +14,7 @@ export default defineConfig({
       'tests/notice-library-link.test.ts',
       'tests/updates-unread.test.ts',
       'tests/updates-feed.test.ts',
+      'tests/data-freshness.test.ts',
       'tests/this-week.test.ts',
       'tests/homework-dates.test.ts',
       'tests/deadlines/extract.test.ts',

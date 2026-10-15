@@ -127,6 +127,14 @@ describe('homework pagination helpers', () => {
     expect(parseHomeworkPortalBody('nope')).toBeNull();
   });
 
+  it('adds the Class Diary sub_id/assignment_date defaults when the page omits them', () => {
+    const fromClassDiaryPage = parseHomeworkPortalBody({ values: '', page: '0', pg_key: 'CD', works: '', limt: 0 });
+    expect(fromClassDiaryPage).toMatchObject({ sub_id: '', assignment_date: 0 });
+    expect(buildHomeworkPayloadFromTemplate(fromClassDiaryPage, 3)).toMatchObject({ page: '3', sub_id: '', assignment_date: 0 });
+    const agTemplate = parseHomeworkPortalBody({ values: '', page: '0', pg_key: 'AG', limt: 0 });
+    expect(agTemplate && 'sub_id' in agTemplate).toBe(false);
+  });
+
   it('finds cross-page duplicate assign_id/refid keys', () => {
     const dupes = findCrossPageDuplicateHomeworkIds([
       [hwItem('1'), hwItem('2')],
@@ -171,6 +179,12 @@ describe('shouldFetchNextHomeworkPage', () => {
         1,
         10,
       ),
+    ).toBe(false);
+  });
+
+  it('treats an envelope with no paging fields as one complete list (Class Diary, Oct 2026)', () => {
+    expect(
+      shouldFetchNextHomeworkPage({ pageCount: null, totalCount: null, sfileLimit: null, itemListLength: 25 }, 0, 25),
     ).toBe(false);
   });
 

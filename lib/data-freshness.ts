@@ -30,9 +30,11 @@ export function buildDataFreshness(
   const lastDataAt = lastData ? lastData.at.toISOString() : null;
 
   if (!latest) return { state: 'never_synced', lastDataAt: null };
-  if (latest.status === 'AUTHENTICATION_REQUIRED') return { state: 'auth_expired', lastDataAt };
+  const dataIsOld = !lastData || now.getTime() - lastData.at.getTime() > DATA_STALE_AFTER_MS;
+  // A failed login only matters to parents once the data it would have refreshed is old.
+  if (latest.status === 'AUTHENTICATION_REQUIRED' && dataIsOld) return { state: 'auth_expired', lastDataAt };
   if (!lastData) return { state: 'never_synced', lastDataAt: null };
-  if (now.getTime() - lastData.at.getTime() > DATA_STALE_AFTER_MS) return { state: 'stale', lastDataAt };
+  if (dataIsOld) return { state: 'stale', lastDataAt };
   return { state: 'fresh', lastDataAt };
 }
 
