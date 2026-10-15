@@ -8,6 +8,16 @@ vi.mock('@/lib/prisma', () => ({
     importedScheduleEvent: { findMany: async () => [] },
     importedJolItem: { findMany: async () => [] },
     importedJolSchedule: { findFirst: async () => null },
+    importedNotice: {
+      findMany: async () => [
+        {
+          sourceId: 'msid:39310',
+          content: 'JOY OF LEARNING, WORKSHEET - II TIMETABLE:|Please find the attached file.',
+          publishedDate: '2026-08-19',
+          attachmentsJson: JSON.stringify([{ url: 'https://files.example.test/jol2.pdf', name: 'jol2.pdf' }]),
+        },
+      ],
+    },
   }),
   resetPrismaClient: () => {},
 }));
@@ -88,16 +98,17 @@ describe('admin sync-health endpoint', () => {
 });
 
 describe('parent schedule payload', () => {
-  it('carries only a neutral dataDelayed flag — no sync diagnostics', async () => {
-    const stale = syncRun('COMPLETE', 8, { sources: { notices: { status: 'PAGE0_ONLY' } } });
-    findMany.mockResolvedValue([syncRun('AUTHENTICATION_REQUIRED', 1)]);
-    findFirst.mockResolvedValue(stale);
+  it('carries schedule data and the official timetable — no sync diagnostics or delay banner flag', async () => {
     const { loadCanonicalSchedule } = await import('@/lib/schedule/canonical');
     const payload = await loadCanonicalSchedule();
-    expect(payload.dataDelayed).toBe(true);
     expect(Object.keys(payload).sort()).toEqual(
-      ['calendarEmpty', 'dataDelayed', 'documents', 'events', 'jolSchedule', 'source'].sort(),
+      ['calendarEmpty', 'documents', 'events', 'jolSchedule', 'officialTimetable', 'source'].sort(),
     );
+    expect(payload.officialTimetable).toMatchObject({
+      title: 'JOY OF LEARNING, WORKSHEET - II TIMETABLE',
+      publishedDate: '2026-08-19',
+      url: 'https://files.example.test/jol2.pdf',
+    });
     expect(JSON.stringify(payload)).not.toMatch(/PAGE0_ONLY|AUTHENTICATION|errorSummary|freshness/);
   });
 });

@@ -111,6 +111,12 @@ export type ContentMedia = {
   thumbnailUrl: string | null;
 };
 
+/** NeverSkip sends the bare media folder (".../conlib/") when an item has no such file. */
+function fileUrlOrNull(raw: unknown): string | null {
+  const url = String(raw ?? '').trim();
+  return url && !url.endsWith('/') ? url : null;
+}
+
 export function parseContentMedia(raw: unknown): ContentMedia[] {
   let list: unknown[] = [];
   if (Array.isArray(raw)) list = raw;
@@ -125,9 +131,9 @@ export function parseContentMedia(raw: unknown): ContentMedia[] {
   const out: ContentMedia[] = [];
   for (const m of list) {
     if (!isObject(m)) continue;
-    const mediaUrl = String(m.media_url ?? m.url ?? '').trim() || null;
-    const downloadUrl = String(m.dwn_url ?? m.download_url ?? mediaUrl ?? '').trim() || null;
-    const thumbnailUrl = String(m.thump_url ?? m.thumb_url ?? m.thumbnail ?? '').trim() || null;
+    const mediaUrl = fileUrlOrNull(m.media_url ?? m.url);
+    const downloadUrl = fileUrlOrNull(m.dwn_url ?? m.download_url) ?? mediaUrl;
+    const thumbnailUrl = fileUrlOrNull(m.thump_url ?? m.thumb_url ?? m.thumbnail);
     const mediaType = String(m.media_type ?? m.type ?? '').trim() || 'document';
     if (!mediaUrl && !downloadUrl) continue;
     out.push({ mediaType, mediaUrl, downloadUrl, thumbnailUrl });

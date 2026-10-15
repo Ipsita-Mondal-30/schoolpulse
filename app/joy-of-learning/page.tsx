@@ -10,7 +10,7 @@ import type { UiJolItem } from '@/app/actions';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
-import { DataDelayedNote } from '@/components/ui/DataDelayedNote';
+import { JolTimetable } from '@/components/JolTimetable';
 
 function formatYmd(ymd: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return ymd || 'Undated';
@@ -194,8 +194,6 @@ export default function JoyOfLearningPage() {
         </div>
       </div>
 
-      <DataDelayedNote show={scheduleQuery.data?.dataDelayed} />
-
       {isPending || scheduleQuery.isPending ? (
         <LoadingState rows={5} />
       ) : isError ? (
@@ -212,53 +210,30 @@ export default function JoyOfLearningPage() {
             Retry
           </button>
         </div>
-      ) : (data?.length ?? 0) === 0 && !hasDates ? (
+      ) : (data?.length ?? 0) === 0 && !hasDates && !scheduleQuery.isError ? (
         <EmptyState
           title="No Joy of Learning materials yet"
           description="When the school shares JOL resources, they will appear here."
         />
       ) : (
         <div className="space-y-8">
-          <Section title="Timetable" empty={!hasDates}>
-            {jolSchedule?.days?.length ? (
-              <div className="space-y-3">
-                <div className="rounded-2xl border border-[var(--sp-border)] bg-white px-4 py-3">
-                  <p className="text-sm font-semibold text-[var(--sp-ink)]">
-                    {jolSchedule.title || 'Joy of Learning II — Timetable'}
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--sp-muted)]">
-                    Class I
-                    {jolSchedule.academicYear ? ` · ${jolSchedule.academicYear}` : ''}
-                  </p>
-                  {jolSchedule.sourceDocumentUrl ? (
-                    <a
-                      href={jolSchedule.sourceDocumentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[var(--sp-primary)] hover:underline"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                      View school timetable
-                    </a>
-                  ) : null}
-                </div>
-                <ul className="overflow-hidden rounded-2xl border border-[var(--sp-border)] bg-white">
-                  {jolSchedule.days.map((row) => (
-                    <li
-                      key={row.activityDate}
-                      className="border-b border-[var(--sp-border)] px-4 py-3 last:border-0"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-sm font-semibold text-[var(--sp-ink)]">
-                          {formatYmd(row.activityDate)}
-                          {row.weekday ? ` · ${row.weekday}` : ''}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-sm text-[var(--sp-muted)]">{row.classI}</p>
-                    </li>
-                  ))}
-                </ul>
+          <Section title="Timetable" empty={!hasDates && !scheduleQuery.isError}>
+            {scheduleQuery.isError ? (
+              <div className="sp-card p-4">
+                <p className="text-sm font-semibold">Couldn&apos;t load the timetable.</p>
+                <button
+                  type="button"
+                  onClick={() => void scheduleQuery.refetch()}
+                  className="mt-3 rounded-xl bg-[var(--sp-primary)] px-4 py-2 text-sm font-semibold text-white sp-focus"
+                >
+                  Retry
+                </button>
               </div>
+            ) : jolSchedule?.days?.length ? (
+              <JolTimetable
+                schedule={jolSchedule}
+                official={scheduleQuery.data?.officialTimetable ?? null}
+              />
             ) : scheduleEvents.length > 0 ? (
               <ul className="overflow-hidden rounded-2xl border border-[var(--sp-border)] bg-white">
                 {scheduleEvents.map((row) => (

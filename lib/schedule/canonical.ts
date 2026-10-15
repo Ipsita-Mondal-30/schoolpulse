@@ -4,14 +4,7 @@
  */
 
 import type { PrismaClient } from '@prisma/client';
-import { STALE_SUCCESS_MS } from '@/lib/neverskip/sync-health';
-
-/** True when syncs have run but none COMPLETE within the stale window. */
-export function isDataDelayed(hasRuns: boolean, lastCompleteAt: Date | null, now: Date = new Date()): boolean {
-  if (!hasRuns) return false;
-  if (!lastCompleteAt) return true;
-  return now.getTime() - lastCompleteAt.getTime() > STALE_SUCCESS_MS;
-}
+import { officialTimetableFromNotices, type OfficialTimetable } from './official-timetable';
 
 export type CanonicalScheduleEvent = {
   id: string;
@@ -66,27 +59,15 @@ export type CanonicalSchedule = {
   events: CanonicalScheduleEvent[];
   documents: CanonicalScheduleDocument[];
   jolSchedule: CanonicalJolSchedule | null;
-  /** Neutral parent-safe flag: no COMPLETE sync in the last 6h. Diagnostics live in /api/admin/sync-health. */
-  dataDelayed: boolean;
+  /** Latest timetable the school attached to a Daily Notice (the authoritative document). */
+  officialTimetable: OfficialTimetable | null;
   source: 'neverskip';
   /** True when NeverSkip published zero structured events (empty calendar is valid). */
   calendarEmpty: boolean;
 };
 
-function emptyLoadError(message: string): CanonicalSchedule {
-  console.error(`[SchoolPulse] canonical schedule load failed: ${message.slice(0, 240)}`);
-  return {
-    source: 'neverskip',
-    calendarEmpty: true,
-    events: [],
-    documents: [],
-    jolSchedule: null,
-    dataDelayed: true,
-  };
-}
-
 async function queryCanonicalSchedule(prisma: PrismaClient): Promise<CanonicalSchedule> {
-  const [events, documents, recentRuns, lastComplete, jolSchedule] = await Promise.all([
+  const [events, documents, timetableNotices, jolSchedule] = await Promise.all([
     prisma.importedScheduleEvent.findMany({
       orderBy: [{ eventDate: 'asc' }, { startTime: 'asc' }],
     }),
@@ -96,8 +77,17 @@ async function queryCanonicalSchedule(prisma: PrismaClient): Promise<CanonicalSc
       },
       orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
     }),
-    prisma.syncRun.findMany({ orderBy: { finishedAt: 'desc' }, take: 1 }),
-    prisma.syncRun.findFirst({ where: { status: 'COMPLETE' }, orderBy: { finishedAt: 'desc' } }),
+    prisma.importedNotice.findMany({
+      where: {
+        OR: [
+          { content: { contains: 'timetable', mode: 'insensitive' } },
+          { content: { contains: 'time table', mode: 'insensitive' } },
+        ],
+      },
+      orderBy: [{ publishedDate: 'desc' }, { publishedTime: 'desc' }],
+      select: { sourceId: true, content: true, publishedDate: true, attachmentsJson: true },
+      take: 20,
+    }),
     prisma.importedJolSchedule.findFirst({
       where: { isActive: true },
       include: { days: { orderBy: { activityDate: 'asc' } } },
@@ -153,10 +143,11 @@ async function queryCanonicalSchedule(prisma: PrismaClient): Promise<CanonicalSc
           })),
         }
       : null,
-    dataDelayed: isDataDelayed(recentRuns.length > 0, lastComplete?.finishedAt ?? null),
+    officialTimetable: officialTimetableFromNotices(timetableNotices),
   };
 }
 
+/** Throws on database failure so the page shows a retryable error instead of an empty schedule. */
 export async function loadCanonicalSchedule(): Promise<CanonicalSchedule> {
   const { getPrisma, resetPrismaClient } = await import('@/lib/prisma');
 
@@ -164,16 +155,10 @@ export async function loadCanonicalSchedule(): Promise<CanonicalSchedule> {
     return await queryCanonicalSchedule(getPrisma());
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    console.error(`[SchoolPulse] canonical schedule load failed: ${message.slice(0, 240)}`);
     // Hot-reload after `prisma generate` can leave a stale singleton without new delegates.
-    if (/findMany|findFirst|undefined/i.test(message)) {
-      resetPrismaClient();
-      try {
-        return await queryCanonicalSchedule(getPrisma());
-      } catch (retryErr) {
-        const retryMessage = retryErr instanceof Error ? retryErr.message : String(retryErr);
-        return emptyLoadError(retryMessage);
-      }
-    }
-    return emptyLoadError(message);
+    if (!/findMany|findFirst|undefined/i.test(message)) throw err;
+    resetPrismaClient();
+    return queryCanonicalSchedule(getPrisma());
   }
 }

@@ -804,8 +804,8 @@ export async function loadCanonicalScheduleForUi(): Promise<
   const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
   const key = spCacheKey(childKey, 'timetable');
   const cached = await cachedJsonGet(key);
-  // Entries cached before diagnostics were removed still carry `freshness` — never serve those.
-  if (cached && typeof cached === 'object' && !('freshness' in cached)) {
+  // Only serve entries in the current shape (older ones lack `officialTimetable`).
+  if (cached && typeof cached === 'object' && 'officialTimetable' in cached) {
     return cached as import('@/lib/schedule/canonical').CanonicalSchedule;
   }
   const { loadCanonicalSchedule } = await import('@/lib/schedule/canonical');
