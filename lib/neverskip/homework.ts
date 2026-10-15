@@ -71,6 +71,12 @@ export function parseHomeworkPortalBody(raw: unknown): HomeworkPayload | null {
       out[k] = v as string | number | boolean | null;
     }
   }
+  // The Class Diary page omits these; without them getassignmentsapi ignores `page` and
+  // repeats page 0. The assignment route sends exactly these values.
+  if (pg_key === HOMEWORK_PAYLOAD.pg_key) {
+    if (!('sub_id' in out)) out.sub_id = HOMEWORK_PAYLOAD.sub_id;
+    if (!('assignment_date' in out)) out.assignment_date = HOMEWORK_PAYLOAD.assignment_date;
+  }
   return out;
 }
 
@@ -377,6 +383,9 @@ export function shouldFetchNextHomeworkPage(
   if (meta.sfileLimit != null && meta.sfileLimit > 0 && meta.itemListLength >= meta.sfileLimit) {
     return true;
   }
+  // Envelope without any paging field (Class Diary since Oct 2026): the portal's own page
+  // shows this single list and never requests page 1, which errors server-side.
+  if (meta.pageCount == null && meta.totalCount == null && meta.sfileLimit == null) return false;
   if (meta.itemListLength >= 10) return true;
   return false;
 }
