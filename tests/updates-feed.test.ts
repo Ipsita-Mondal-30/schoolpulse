@@ -532,6 +532,21 @@ describe('October 2026 outage recovery (today 15 Oct IST, 7-day window 9–15 Oc
   it('never labels a holiday-homework notice as homework', () => {
     expect(build(october).find((i) => i.sourceId === 'oct13')?.type).toBe('notice');
   });
+
+  it('orders NEW cards from one import by publication date, newest first', () => {
+    const staggered = october.map((n, i) => ({ ...n, createdAt: `2026-10-15T03:00:0${9 - i}.000Z` }));
+    const reversed = [...staggered].reverse();
+    expect(build(reversed).map((i) => i.sourceId)).toEqual(['oct14', 'oct13', 'oct11', 'oct09']);
+  });
+
+  it('lists 8 Oct as a recent publication when the publication window is 14 days', () => {
+    const items = filterUpdatesBySection(
+      buildUpdatesFeed({ homework: [], notices: october, changes: [], since: OCT_SINCE, activitySinceYmd: OCT_FLOOR, publishedSinceYmd: '2026-10-02' }),
+      'I-A',
+    );
+    expect(items.filter((i) => i.section === 'new').map((i) => i.sourceId)).toEqual(['oct14', 'oct13', 'oct11', 'oct09']);
+    expect(items.filter((i) => i.section === 'recent').map((i) => i.sourceId)).toEqual(['oct08']);
+  });
 });
 
 describe('unread + section helpers', () => {

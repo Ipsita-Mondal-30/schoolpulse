@@ -103,9 +103,10 @@ export default function PlannerCalendar({
 
   const selectedEvents = selectedDate ? eventsByDate.get(selectedDate) || [] : [];
 
+  const byDate = [...dates].sort((a, b) => a.date.localeCompare(b.date));
   const upcoming = selectedDate
-    ? dates.filter((d) => d.date >= selectedDate).slice(0, 8)
-    : dates.slice(0, 8);
+    ? byDate.filter((d) => d.date >= selectedDate).slice(0, 8)
+    : byDate.slice(0, 8);
 
   const legendTypes = (['holiday', 'event', 'activity', 'important'] as const).filter((t) =>
     dates.some((d) => d.type === t)

@@ -984,7 +984,7 @@ export async function loadRecentUpdates(options?: {
         const days = Math.max(1, options?.days ?? 7);
         const { cachedJsonGet, cachedJsonSet, spCacheKey } = await import('@/lib/cache/schoolpulse');
         const childKey = process.env.NEVERSKIP_STUDENT_ID?.trim() || 'neverskip-synced-primary';
-        const key = `${spCacheKey(childKey, 'updates')}:d${days}`;
+        const key = `${spCacheKey(childKey, 'updates')}:d${days}:p2`;
         const cached = await cachedJsonGet<import('@/lib/updates-feed').UpdateFeedItem[]>(key);
         if (cached) return cached;
 
@@ -1000,7 +1000,9 @@ export async function loadRecentUpdates(options?: {
         // Parent Updates window: last N India calendar days (default 7).
         const activitySinceYmd = addDaysYmd(getIndiaToday(), -(days - 1)) || getIndiaToday();
         const since = new Date(`${activitySinceYmd}T00:00:00+05:30`);
-        const publishedSinceYmd = activitySinceYmd;
+        const { UPDATES_PUBLISHED_DAYS } = await import('@/lib/updates-feed');
+        const publishedSinceYmd =
+            addDaysYmd(getIndiaToday(), -(Math.max(days, UPDATES_PUBLISHED_DAYS) - 1)) || activitySinceYmd;
         const changeSince = since;
 
         const prisma = getPrisma();
