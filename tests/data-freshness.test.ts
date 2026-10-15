@@ -34,6 +34,17 @@ describe('buildDataFreshness', () => {
     expect(dataFreshnessMessage(f)).toBeNull();
   });
 
+  it('does not warn about login while data from another authenticated run is under 12 hours old', () => {
+    const at = new Date('2026-10-15T12:10:00.000Z'); // 17:40 IST
+    const runs = [
+      { status: 'AUTHENTICATION_REQUIRED', finishedAt: '2026-10-15T12:00:05.000Z' },
+      { status: 'PARTIAL', finishedAt: '2026-10-15T03:22:26.000Z' },
+    ];
+    expect(buildDataFreshness(runs, at).state).toBe('fresh');
+    const later = new Date('2026-10-15T16:00:00.000Z'); // >12h after the last data write
+    expect(buildDataFreshness(runs, later).state).toBe('auth_expired');
+  });
+
   it('is stale when the last data write is older than 12 hours', () => {
     const f = buildDataFreshness([{ status: 'COMPLETE', finishedAt: '2026-10-14T10:00:00.000Z' }], NOW);
     expect(f.state).toBe('stale');
