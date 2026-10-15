@@ -14,6 +14,9 @@ import {
   type WorkloadLevel,
 } from '@/lib/week-range';
 import { formatBriefDate } from '@/lib/daily-brief';
+import { isDataFreshnessWarning } from '@/lib/data-freshness';
+import { useDataFreshnessQuery } from '@/lib/queries/data-freshness';
+import { DataFreshnessBanner } from '@/components/ui/DataFreshnessBanner';
 import { useThisWeekQuery } from '@/lib/queries/this-week';
 import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -222,6 +225,8 @@ export default function ThisWeekPage() {
   const [initialized, setInitialized] = useState(false);
   const { section } = useSyncedChildSection();
   const { data, isPending, isError, refetch } = useThisWeekQuery({ section });
+  const { data: freshness } = useDataFreshnessQuery();
+  const dataBehind = isDataFreshnessWarning(freshness);
 
   useEffect(() => {
     if (!data || initialized) return;
@@ -280,12 +285,16 @@ export default function ThisWeekPage() {
         subtitle={`${formatWeekRangeLabel(data.weekStart, data.weekEnd)} · workload, not the full homework list`}
       />
 
+      <DataFreshnessBanner freshness={freshness} />
+
       {data.nothingDueThisWeek && data.overdueCount === 0 ? (
         <div className="mb-6">
           <EmptyState
             title="No homework with a school deadline this week"
             description={
-              data.hasUndated
+              dataBehind
+                ? 'Homework and notices published after the last update are not shown yet.'
+                : data.hasUndated
                 ? `${data.undatedCount} recent assignment${data.undatedCount === 1 ? '' : 's'} (since ${formatBriefDate(data.undatedSince)}) ${data.undatedCount === 1 ? 'has' : 'have'} no school-provided deadline — listed below.`
                 : data.schoolNotices.length > 0
                   ? 'See this week’s school notices below.'
