@@ -1,11 +1,16 @@
 /**
  * The portal sometimes returns the same Daily Notice with different whitespace
- * (collapsed vs. line breaks), which changes the content-hash sourceId. Two rows with
- * the same publication date/time and the same whitespace-normalized text are one notice.
+ * (collapsed vs. line breaks), and older scrapes dropped line breaks entirely
+ * ("GurudevNamaste"). Two rows with the same publication date/time and the same text
+ * ignoring all whitespace are one notice.
  */
 
 export function normalizeNoticeText(text: string | null | undefined): string {
   return String(text ?? '').replace(/\s+/g, ' ').trim();
+}
+
+function compactNoticeText(text: string | null | undefined): string {
+  return String(text ?? '').replace(/\s+/g, '');
 }
 
 export function noticeDedupeKey(n: {
@@ -13,19 +18,31 @@ export function noticeDedupeKey(n: {
   publishedTime?: string | null;
   content?: string | null;
 }): string {
-  return `${n.publishedDate ?? ''}|${n.publishedTime ?? ''}|${normalizeNoticeText(n.content)}`;
+  return `${n.publishedDate ?? ''}|${n.publishedTime ?? ''}|${compactNoticeText(n.content)}`;
 }
 
-/** Keep the first row per dedupe key (callers order newest-imported first). */
+function hasPortalMessageId(row: { sourceId?: string | null }): boolean {
+  return Boolean(row.sourceId?.startsWith('msid:'));
+}
+
+/**
+ * One row per dedupe key, in the caller's order. A row keyed by portal message id wins
+ * over a legacy content-hash row; otherwise the first row (newest import) wins.
+ */
 export function dedupeNoticeRows<
-  T extends { publishedDate?: string | null; publishedTime?: string | null; content?: string | null },
+  T extends {
+    publishedDate?: string | null;
+    publishedTime?: string | null;
+    content?: string | null;
+    sourceId?: string | null;
+  },
 >(rows: T[]): T[] {
-  const seen = new Set<string>();
-  const out: T[] = [];
+  const chosen = new Map<string, T>();
   for (const row of rows) {
+    if (!compactNoticeText(row.content)) continue;
     const key = noticeDedupeKey(row);
-    if (!normalizeNoticeText(row.content) || !seen.has(key)) out.push(row);
-    seen.add(key);
+    const current = chosen.get(key);
+    if (!current || (!hasPortalMessageId(current) && hasPortalMessageId(row))) chosen.set(key, row);
   }
-  return out;
+  return rows.filter((row) => !compactNoticeText(row.content) || chosen.get(noticeDedupeKey(row)) === row);
 }
