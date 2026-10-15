@@ -23,8 +23,11 @@ async function main(): Promise<number> {
     console.error('Usage: npm run neverskip:export-session -- --out <file>');
     return 1;
   }
-  const { profileDir } = await loginNeverSkipSession();
-  const landed = await exportNeverSkipSession(out, profileDir);
+  let landed = await exportNeverSkipSession(out);
+  if (!landed.startsWith('/default')) {
+    const { profileDir } = await loginNeverSkipSession();
+    landed = await exportNeverSkipSession(out, profileDir);
+  }
   if (landed.startsWith('/default')) {
     console.log(`[SchoolPulse] SESSION EXPORTED to ${out} (mode 0600) — copy it to the worker, then delete it`);
     return 0;

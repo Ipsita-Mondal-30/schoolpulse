@@ -408,8 +408,9 @@ export async function checkNeverSkipSession(
   const noticesPageUrl =
     options.noticesPageUrl || process.env.NEVERSKIP_NOTICES_PAGE_URL || DEFAULT_NOTICES_PAGE;
   const timeoutMs = options.timeoutMs ?? 45_000;
+  // Headed unless explicitly requested: the portal redirects headless Chromium to /auth/login.
   const context = await chromium.launchPersistentContext(profileDir, {
-    headless: options.headless ?? process.env.NEVERSKIP_HEADLESS !== 'false',
+    headless: options.headless ?? process.env.NEVERSKIP_HEADLESS === 'true',
     viewport: { width: 1280, height: 800 },
     args: ['--disable-blink-features=AutomationControlled'],
   });
