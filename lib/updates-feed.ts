@@ -49,7 +49,7 @@ function noticeLibraryHref(notice: {
 }
 
 export type UpdateFeedKind = 'new' | 'changed' | 'recent';
-export type UpdateFeedType = 'homework' | 'notice';
+export type UpdateFeedType = 'homework' | 'notice' | 'resource';
 export type UpdateFeedSection = 'new' | 'recent';
 
 export interface UpdateFeedChangeField {
@@ -107,6 +107,79 @@ export interface UpdateFeedNoticeRow {
   publishedTime?: string;
   classes: string[];
   attachments?: { url: string; name?: string }[];
+}
+
+/** Content Library / JOL upload (worksheet, answer key) from fetchcontentlib. */
+export interface UpdateFeedResourceRow {
+  id: string;
+  source: string;
+  sourceId: string;
+  title: string;
+  subjectName?: string | null;
+  createdAt: Date | string;
+  publishedDate: string;
+  publishedTime?: string;
+  sections: string[];
+  files: { url: string; name?: string }[];
+}
+
+const SUBJECT_ALIASES: Record<string, string[]> = {
+  'environmental science': ['evs', 'environmental'],
+  science: ['evs', 'science'],
+  mathematics: ['maths', 'math', 'mathematics'],
+  'computer science': ['computer'],
+};
+
+function subjectTerms(resource: UpdateFeedResourceRow): string[] {
+  const subject = String(resource.subjectName ?? '').trim().toLowerCase();
+  if (!subject) return [];
+  return SUBJECT_ALIASES[subject] ?? [subject];
+}
+
+/**
+ * The school often announces a Content Library upload with a Daily Notice the same day
+ * ("Kannada JOL worksheet II uploaded in the content library"). Such a notice gets the
+ * upload's files instead of the feed showing the same thing twice.
+ */
+export function matchResourcesToNotices(
+  resources: UpdateFeedResourceRow[],
+  notices: UpdateFeedNoticeRow[],
+): Map<string, UpdateFeedResourceRow[]> {
+  const byNotice = new Map<string, UpdateFeedResourceRow[]>();
+  for (const resource of resources) {
+    const terms = subjectTerms(resource);
+    if (!terms.length || !YMD_RE.test(resource.publishedDate)) continue;
+    const notice = findAnnouncingNotice(notices, resource.publishedDate, terms);
+    if (!notice) continue;
+    byNotice.set(notice.sourceId, [...(byNotice.get(notice.sourceId) ?? []), resource]);
+  }
+  return byNotice;
+}
+
+function findAnnouncingNotice(
+  notices: UpdateFeedNoticeRow[],
+  date: string,
+  terms: string[],
+): UpdateFeedNoticeRow | undefined {
+  return notices.find((n) => {
+    if (n.publishedDate !== date) return false;
+    const text = `${n.title} ${n.content}`.toLowerCase();
+    if (!/content\s*library|\bjol\b|joy of learning/.test(text)) return false;
+    return terms.some((t) => new RegExp(`\\b${t}\\b`).test(text));
+  });
+}
+
+function mergeAttachments(
+  base: { url: string; name?: string }[] | undefined,
+  extra: { url: string; name?: string }[],
+): { url: string; name?: string }[] | undefined {
+  const out = [...(base ?? [])];
+  for (const f of extra) if (!out.some((o) => o.url === f.url)) out.push(f);
+  return out.length ? out : undefined;
+}
+
+function titleCase(s: string): string {
+  return s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export interface UpdateFeedChangeRow {
@@ -246,12 +319,22 @@ export function buildUpdatesFeed(input: {
   activitySinceYmd?: string;
   /** YYYY-MM-DD inclusive lower bound for RECENT notices (India calendar). */
   publishedSinceYmd?: string;
+  /** Content Library uploads; ones announced by a same-day notice are folded into it. */
+  resources?: UpdateFeedResourceRow[];
 }): UpdateFeedItem[] {
   const sinceMs = input.since.getTime();
   const activitySince =
     input.activitySinceYmd?.trim() || input.publishedSinceYmd?.trim() || '';
   const publishedSince = input.publishedSinceYmd?.trim() || activitySince;
   const latestChange = new Map<string, UpdateFeedChangeRow>();
+  const resources = input.resources ?? [];
+  const announced = matchResourcesToNotices(resources, input.notices);
+  const announcedResourceIds = new Set([...announced.values()].flat().map((r) => r.sourceId));
+  const noticeAttachments = (notice: UpdateFeedNoticeRow) =>
+    mergeAttachments(
+      notice.attachments,
+      (announced.get(notice.sourceId) ?? []).flatMap((r) => r.files),
+    );
 
   for (const change of input.changes) {
     const detectedMs = toMs(change.detectedAt);
@@ -366,7 +449,7 @@ export function buildUpdatesFeed(input: {
         href: noticeHref(uiId),
         changedFields: asChangeFields(change.changedFields),
         libraryHref,
-        attachments: notice.attachments,
+        attachments: noticeAttachments(notice),
       });
       continue;
     }
@@ -394,8 +477,42 @@ export function buildUpdatesFeed(input: {
         href: noticeHref(uiId),
         changedFields: [],
         libraryHref,
-        attachments: notice.attachments,
+        attachments: noticeAttachments(notice),
       });
+    }
+  }
+
+  const resourceItem = (r: UpdateFeedResourceRow, kind: 'new' | 'recent'): UpdateFeedItem => ({
+    id: `${kind}:resource:${r.source || 'neverskip'}:${r.sourceId}`,
+    kind,
+    section: kind,
+    type: 'resource',
+    source: r.source || 'neverskip',
+    sourceId: r.sourceId,
+    uiId: r.sourceId,
+    subject: r.subjectName?.trim() ? titleCase(r.subjectName.trim()) : undefined,
+    title: r.title.trim() || 'Content Library upload',
+    occurredAt: toIso(r.createdAt),
+    sourceDate: YMD_RE.test(r.publishedDate) ? r.publishedDate : '',
+    sourceTime: normalizePublishedTime(r.publishedTime) || undefined,
+    sections: r.sections,
+    href: '/joy-of-learning',
+    changedFields: [],
+    attachments: r.files.length ? r.files : undefined,
+  });
+
+  const recentResources: UpdateFeedResourceRow[] = [];
+  const seenResources = new Set<string>();
+  for (const r of resources) {
+    if (announcedResourceIds.has(r.sourceId) || seenResources.has(r.sourceId)) continue;
+    seenResources.add(r.sourceId);
+    const pub = String(r.publishedDate || '').trim();
+    if (!YMD_RE.test(pub)) continue;
+    const createdMs = toMs(r.createdAt);
+    if (Number.isFinite(createdMs) && createdMs >= sinceMs && (!activitySince || pub >= activitySince)) {
+      newItems.push(resourceItem(r, 'new'));
+    } else if (!publishedSince || pub >= publishedSince) {
+      recentResources.push(r);
     }
   }
 
@@ -478,9 +595,10 @@ export function buildUpdatesFeed(input: {
       href: noticeHref(uiId),
       changedFields: [],
       libraryHref,
-      attachments: notice.attachments,
+      attachments: noticeAttachments(notice),
     });
   }
+  for (const r of recentResources) recentItems.push(resourceItem(r, 'recent'));
 
   recentItems.sort((a, b) => {
     const ka = noticePublicationSortKey({
@@ -528,15 +646,30 @@ export function formatUpdateOccurredLabel(
 ): string {
   if (kind === 'recent') return '';
   const at = new Date(occurredAt);
-  if (Number.isNaN(at.getTime())) return kind === 'new' ? 'Added' : 'Changed';
-  if (kind === 'new' && indiaDay(at) === indiaDay(now)) return 'Added today';
+  if (Number.isNaN(at.getTime())) return kind === 'new' ? 'Added to SchoolPulse' : 'Changed';
+  if (kind === 'new' && indiaDay(at) === indiaDay(now)) return 'Added to SchoolPulse today';
   const rel = formatRelativeTimeIndia(at, now);
-  if (kind === 'new') return rel ? `Added ${rel}` : 'Added';
+  if (kind === 'new') return rel ? `Added to SchoolPulse ${rel}` : 'Added to SchoolPulse';
   return rel ? `Changed ${rel}` : 'Changed';
 }
 
 export function formatUpdateSourceDateLabel(type: UpdateFeedType, sourceDate: string): string {
   if (!sourceDate || !YMD_RE.test(sourceDate)) return '';
   const label = formatDayMonth(sourceDate);
-  return type === 'homework' ? `Assigned ${label}` : `Published ${label}`;
+  if (type === 'homework') return `Assigned ${label}`;
+  return type === 'resource' ? `Uploaded ${label}` : `Published ${label}`;
+}
+
+/**
+ * Card date line. The school's publication date (IST, absolute) and SchoolPulse's import
+ * time are labelled separately so a re-import never reads as a new publication.
+ */
+export function formatUpdateDateLine(
+  item: Pick<UpdateFeedItem, 'kind' | 'type' | 'section' | 'sourceDate' | 'sourceTime' | 'occurredAt'>,
+  now: Date = new Date(),
+): string {
+  const source = formatUpdateSourceDateLabel(item.type, item.sourceDate);
+  const published = source && item.type !== 'homework' && item.sourceTime ? `${source}, ${item.sourceTime}` : source;
+  if (item.section === 'recent') return published || formatUpdateDisplayDate('', item.occurredAt, now);
+  return [published, formatUpdateOccurredLabel(item.kind, item.occurredAt, now)].filter(Boolean).join(' · ');
 }
