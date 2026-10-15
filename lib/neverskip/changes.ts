@@ -441,6 +441,14 @@ export function isNoiseChangeEvent(
   ) {
     return true;
   }
+  // Legacy undated rows gain date/title/classes when matched to the portal message; text is unchanged.
+  if (
+    entityType === 'notice' &&
+    changes.some((c) => c.field === 'publishedDate' && !String(c.previous ?? '').trim()) &&
+    !changes.some((c) => c.field === 'content')
+  ) {
+    return true;
+  }
   if (entityType === 'homework' && isLegacyAudienceOnlyChange(changes)) return true;
   if (entityType === 'homework' && isDueDateClearanceNoise(changes)) return true;
   if (parentRelevantChanges(entityType, changes).length === 0) return true;

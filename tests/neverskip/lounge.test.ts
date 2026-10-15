@@ -117,6 +117,18 @@ describe('Lounge (Circulars) → Daily Notice attachments', () => {
     ).toBe(false);
   });
 
+  it('backfilling an undated legacy notice (same text) is not a change', () => {
+    const backfill = [
+      { field: 'title', label: 'Title', previous: 'Classes: I-A, I-B', current: 'Jai Shri Gurudev!', reliable: true },
+      { field: 'publishedDate', label: 'Published date', previous: '', current: '2026-08-20', reliable: true },
+      { field: 'classes', label: 'Classes', previous: 'I-A, I-B', current: 'I', reliable: true },
+    ];
+    expect(isNoiseChangeEvent('notice', backfill)).toBe(true);
+    expect(
+      isNoiseChangeEvent('notice', [...backfill, { field: 'content', label: 'Notice content', previous: 'a', current: 'b', reliable: true }]),
+    ).toBe(false);
+  });
+
   it('dropping a stored icon imageUrl is not a parent-visible change', () => {
     const base = normalizeNotice(mathsNotice)! as NormalizedNotice;
     expect(getMeaningfulNoticeChanges({ ...base, imageUrl: ICON }, base)).toEqual([]);

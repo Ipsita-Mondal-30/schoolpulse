@@ -23,6 +23,18 @@ describe('notice dedupe (portal whitespace drift)', () => {
     expect(dedupeNoticeRows([live, stored]).map((r) => r.id)).toEqual(['new']);
   });
 
+  it('matches legacy scrapes that dropped line breaks entirely', () => {
+    const legacy = { ...stored, id: 'legacy', content: 'Jai Sri GurudevNamaste Dear Parents,Kindly be informed that school remains closed.' };
+    expect(noticeDedupeKey(legacy)).toBe(noticeDedupeKey(live));
+  });
+
+  it('prefers the portal message-id row over a legacy row regardless of order', () => {
+    const legacy = { ...stored, id: 'legacy', sourceId: 'a1b2c3' };
+    const keyed = { ...live, id: 'keyed', sourceId: 'msid:2959' };
+    expect(dedupeNoticeRows([legacy, keyed]).map((r) => r.id)).toEqual(['keyed']);
+    expect(dedupeNoticeRows([keyed, legacy]).map((r) => r.id)).toEqual(['keyed']);
+  });
+
   it('keeps notices that differ in date, time or wording', () => {
     const otherTime = { ...stored, id: 'b', publishedTime: '11:00' };
     const otherDay = { ...stored, id: 'c', publishedDate: '2026-09-26' };
