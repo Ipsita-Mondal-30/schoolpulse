@@ -434,6 +434,13 @@ export function isNoiseChangeEvent(
   changes: FieldChange[],
 ): boolean {
   if (changes.length === 0) return true;
+  // A posted message's timestamp cannot change; date-only diffs come from identity collisions.
+  if (
+    entityType === 'notice' &&
+    changes.every((c) => c.field === 'publishedDate' || c.field === 'publishedTime')
+  ) {
+    return true;
+  }
   if (entityType === 'homework' && isLegacyAudienceOnlyChange(changes)) return true;
   if (entityType === 'homework' && isDueDateClearanceNoise(changes)) return true;
   if (parentRelevantChanges(entityType, changes).length === 0) return true;

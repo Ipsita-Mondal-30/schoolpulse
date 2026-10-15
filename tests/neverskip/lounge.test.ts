@@ -7,7 +7,7 @@ import {
   parseLoungeAttachments,
 } from '@/lib/neverskip/lounge';
 import { extractNoticeAttachments, parseAttachmentsJson } from '@/lib/neverskip/attachments';
-import { getMeaningfulNoticeChanges } from '@/lib/neverskip/changes';
+import { getMeaningfulNoticeChanges, isNoiseChangeEvent } from '@/lib/neverskip/changes';
 import { extractNotices, normalizeNotice } from '@/lib/neverskip/normalizers';
 import type { NeverSkipRawNotice, NormalizedNotice } from '@/lib/neverskip/types';
 
@@ -95,6 +95,26 @@ describe('Lounge (Circulars) → Daily Notice attachments', () => {
     expect(extractNoticeAttachments(mathsNotice as Record<string, unknown>)).toEqual([]);
     expect(normalizeNotice(mathsNotice)!.imageUrl).toBeNull();
     expect(parseAttachmentsJson(JSON.stringify([{ url: ICON }]))).toEqual([]);
+  });
+
+  it('keys notices by portal message id, so identical text reposted on another day stays a separate notice', () => {
+    const repost = { ...holidayNotice, date: '11:34 AM | 20/10/2026', test_tar: "{'msid': '3100'}" };
+    const a = normalizeNotice(holidayNotice)!;
+    const b = normalizeNotice(repost)!;
+    expect(a.sourceId).toBe('msid:2959');
+    expect(b.sourceId).toBe('msid:3100');
+    expect(a.content).toBe(b.content);
+  });
+
+  it('a notice date/time-only diff is noise (a posted message cannot move)', () => {
+    const fields = [
+      { field: 'publishedDate', label: 'Published date', previous: '2026-09-11', current: '2026-08-20', reliable: true },
+      { field: 'publishedTime', label: 'Published time', previous: '15:39', current: '16:03', reliable: true },
+    ];
+    expect(isNoiseChangeEvent('notice', fields)).toBe(true);
+    expect(
+      isNoiseChangeEvent('notice', [...fields, { field: 'content', label: 'Notice content', previous: 'a', current: 'b', reliable: true }]),
+    ).toBe(false);
   });
 
   it('dropping a stored icon imageUrl is not a parent-visible change', () => {
