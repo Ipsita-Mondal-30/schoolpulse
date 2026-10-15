@@ -51,10 +51,17 @@ export function sessionStateCounts(state: NeverSkipSessionState): string {
   return `cookies=${state.cookies.length} origins=${state.origins.length} storageKeys=${storageKeys}`;
 }
 
-/** Export from an already-logged-in profile. Returns the landed path; writes only when authenticated. */
-export async function exportNeverSkipSession(outFile: string, profileDir?: string): Promise<string> {
+/**
+ * Export from an already-logged-in profile. Returns the landed path; writes only when authenticated.
+ * Headed by default: the portal sends headless Chromium back to /auth/login.
+ */
+export async function exportNeverSkipSession(outFile: string, profileDir?: string, headless = false): Promise<string> {
   const dir = resolveNeverSkipProfileDir(profileDir);
-  const context = await chromium.launchPersistentContext(dir, { headless: true });
+  const context = await chromium.launchPersistentContext(dir, {
+    headless,
+    viewport: { width: 1280, height: 800 },
+    args: ['--disable-blink-features=AutomationControlled'],
+  });
   try {
     const page = context.pages()[0] || (await context.newPage());
     await page.goto(DEFAULT_NOTICES_PAGE, { waitUntil: 'domcontentloaded', timeout: 60_000 });
