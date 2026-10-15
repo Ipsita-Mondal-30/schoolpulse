@@ -7,6 +7,7 @@ import { getIndiaToday } from '@/lib/daily-brief';
 import { mergeDeadlineItems } from '@/lib/deadlines/merge';
 import { buildThisWeekView, type ThisWeekView } from '@/lib/this-week';
 import { useHomeworkQuery } from '@/lib/queries/homework';
+import { useNoticesQuery } from '@/lib/queries/notices';
 
 /** Logical key for docs/tests. UI composes from ['homework'] cache plus notice deadlines. */
 export const thisWeekQueryKey = ['homework', 'week'] as const;
@@ -24,6 +25,7 @@ export function useThisWeekQuery(options: UseThisWeekQueryOptions = {}) {
   const section = options.section || 'I-A';
   const today = options.today || getIndiaToday();
   const homeworkQuery = useHomeworkQuery();
+  const noticesQuery = useNoticesQuery();
   const noticeDeadlinesQuery = useQuery({
     queryKey: ['this-week', 'notice-deadlines'] as const,
     queryFn: loadThisWeekNoticeDeadlines,
@@ -39,8 +41,9 @@ export function useThisWeekQuery(options: UseThisWeekQueryOptions = {}) {
       homework: merged,
       today,
       section,
+      notices: noticesQuery.data ?? [],
     });
-  }, [homeworkQuery.data, noticeDeadlinesQuery.data, today, section]);
+  }, [homeworkQuery.data, noticeDeadlinesQuery.data, noticesQuery.data, today, section]);
 
   return {
     data,
