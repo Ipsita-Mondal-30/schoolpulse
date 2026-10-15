@@ -13,6 +13,7 @@ import {
   getDayOfWeekMon1,
   type WorkloadLevel,
 } from '@/lib/week-range';
+import { formatBriefDate } from '@/lib/daily-brief';
 import { useThisWeekQuery } from '@/lib/queries/this-week';
 import { useSyncedChildSection } from '@/lib/queries/synced-child';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -282,15 +283,13 @@ export default function ThisWeekPage() {
       {data.nothingDueThisWeek && data.overdueCount === 0 ? (
         <div className="mb-6">
           <EmptyState
-            title={
-              data.hasUndated
-                ? 'Nothing with a deadline this week'
-                : "You're all caught up"
-            }
+            title="No homework with a school deadline this week"
             description={
               data.hasUndated
-                ? `${data.undatedCount} without a school-provided deadline.`
-                : 'Nothing is due this week.'
+                ? `${data.undatedCount} recent assignment${data.undatedCount === 1 ? '' : 's'} (since ${formatBriefDate(data.undatedSince)}) ${data.undatedCount === 1 ? 'has' : 'have'} no school-provided deadline — listed below.`
+                : data.schoolNotices.length > 0
+                  ? 'See this week’s school notices below.'
+                  : 'No new homework or school notices this week.'
             }
           />
         </div>
@@ -331,10 +330,32 @@ export default function ThisWeekPage() {
         ))}
       </div>
 
+      {data.schoolNotices.length > 0 ? (
+        <section className="mt-10">
+          <SectionHeader label="School notices this week" />
+          <p className="sp-meta mb-2">Announcements from the school — not homework</p>
+          <div className="sp-card py-1">
+            {data.schoolNotices.map((notice) => (
+              <Link
+                key={notice.id}
+                href="/notices"
+                className="block px-4 py-3 border-b border-[var(--sp-border)] last:border-0 hover:bg-[var(--sp-primary-soft)]/30 sp-focus"
+              >
+                <span className="block text-[11px] text-[var(--sp-muted)]">{formatBriefDate(notice.date)}</span>
+                <span className="block text-sm text-[var(--sp-ink)] line-clamp-2">{notice.summary || notice.message}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {data.dateNotSpecified.length > 0 ? (
         <section className="mt-10 mb-6">
           <SectionHeader label="Date not specified" />
-          <p className="sp-meta mb-2">No deadline provided by school</p>
+          <p className="sp-meta mb-2">
+            Assigned since {formatBriefDate(data.undatedSince)} · no deadline provided by school
+            {data.olderUndatedCount > 0 ? ` · ${data.olderUndatedCount} older on Homework` : ''}
+          </p>
           <div className="sp-card py-1">
             {undatedVisible.map((item) => (
               <HomeworkItem
